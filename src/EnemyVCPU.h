@@ -23,6 +23,8 @@ namespace GameEngine
 		void SysGetEnemyCounter();
 		void SysGetEnemyCounterF();
 		void SysGetEnemyAngle();
+		void SysGetEnemyConsGauge();
+
 		void SysSetEnemyPos();
 		void SysSetEnemyAngle();
 		void SysSetEnemySpeed();
@@ -31,10 +33,15 @@ namespace GameEngine
 		void SysSetEnemyCollisionRadius();
 		void SysSetEnemyScore();
 		void SysSetEnemyBossFlag();
+		void SysSetEnemyConsGauge();
+
 		void SysCreateEnemyShot1();
 		void SysCreateEffect1();
 
 		void SysCreateItem();
+
+		void SysPlaySE();
+		void SysStopSE();
 	public:
 		EnemyVCPU();
 		~EnemyVCPU();

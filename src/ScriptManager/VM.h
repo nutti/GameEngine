@@ -55,6 +55,7 @@ namespace VM
 		SYS_ENEMY_GET_COUNTER,		// Get counter.
 		SYS_ENEMY_GET_COUNTER_F,	// Get counter. ( float )
 		SYS_ENEMY_GET_ANGLE,		// Get angle.
+		SYS_ENEMY_GET_CONS_GAUGE,	// Get conscious gauge.
 		SYS_ENEMY_SET_POS,			// Set position.
 		SYS_ENEMY_SET_ANGLE,		// Set angle.
 		SYS_ENEMY_SET_SPEED,		// Set speed.
@@ -63,6 +64,7 @@ namespace VM
 		SYS_ENEMY_SET_COLLISION_RADIUS,		// Set collision radius.
 		SYS_ENEMY_SET_SCORE,				// Set score.
 		SYS_ENEMY_SET_BOSS_FLAG,			// Set boss flag.
+		SYS_ENEMY_SET_CONS_GAUGE,			// Set conscious gauge.
 		SYS_ENEMY_CREATE_SHOT_1,	// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_EFFECT_1,	// Create effect. (Bombbed Effect.)
 		

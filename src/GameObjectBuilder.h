@@ -31,8 +31,8 @@ namespace GameEngine
 		Enemy* CreateEnemy( int id );
 		PlayerShot* CreatePlayerShot( int id );
 		EnemyShot* CreateEnemyShot( int id );
-		Effect* CreateEffect( int id );
-		Item* CreateItem( int id );
+		Effect* CreateEffect( int id, int subID );
+		Item* CreateItem( int id, int subID );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachStageData( StageData* pData );

@@ -1,6 +1,7 @@
 #include <MAPIL/MAPIL.h>
 
 #include "GameDataHolder.h"
+#include "ScoreManager.h"
 
 namespace GameEngine
 {
@@ -9,7 +10,8 @@ namespace GameEngine
 	{
 	private:
 		GameDataMsg			m_GameData;				// 現在のゲームデータ
-		GameDataMsg			m_TempGameData;			// 一時敵なゲームデータ
+		
+		ScoreManager		m_ScoreManager;			// スコア管理クラス
 	public:
 		Impl();
 		~Impl(){}
@@ -20,7 +22,7 @@ namespace GameEngine
 		void Add( const GameDataMsg& data );
 	};
 
-	GameDataHolder::Impl::Impl()
+	GameDataHolder::Impl::Impl() : m_ScoreManager()
 	{
 		MAPIL::ZeroObject( &m_GameData, sizeof( m_GameData ) );
 	}
@@ -36,6 +38,11 @@ namespace GameEngine
 
 	void GameDataHolder::Impl::Update()
 	{
+		m_ScoreManager.Update();
+		m_GameData.m_Score = m_ScoreManager.GetScore();
+		if( m_GameData.m_HIScore <= m_GameData.m_Score ){
+			m_GameData.m_HIScore = m_GameData.m_Score;
+		}
 	}
 
 	GameDataMsg GameDataHolder::Impl::GetScoreData() const
@@ -45,10 +52,9 @@ namespace GameEngine
 
 	void GameDataHolder::Impl::Add( const GameDataMsg& data )
 	{
-		m_GameData.m_Score = data.m_Score;
-		m_GameData.m_HIScore = data.m_HIScore;
-		m_GameData.m_Killed = data.m_Killed;
-		m_GameData.m_CrystalTotal = data.m_CrystalTotal;
+		m_ScoreManager.Add( data.m_Score );
+		m_GameData.m_Killed += data.m_Killed;
+		m_GameData.m_CrystalTotal += data.m_CrystalTotal;
 	}
 
 

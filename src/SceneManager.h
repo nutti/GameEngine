@@ -7,6 +7,7 @@
 #include "InputTypes.h"
 #include "ScriptTypes.h"
 #include "ResourceTypes.h"
+#include "GameStateTypes.h"
 
 namespace GameEngine
 {
@@ -23,8 +24,10 @@ namespace GameEngine
 		void AttachSceneResourceMap( const ResourceMap& map );
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachScriptData( const ScriptData& data );
-		void GetScoreData();
-		void ChangeScene( int scene );
+		void AttachGameData( const GameDataMsg& msg );
+		GameDataMsg GetFrameScoreData() const;
+		void ChangeScene( SceneType scene );
+		SceneType GetCurSceneType() const;
 	};
 }
 

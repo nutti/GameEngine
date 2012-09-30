@@ -1,5 +1,7 @@
 #include "EnemyVCPU.h"
 
+#include <MAPIL/MAPIL.h>
+
 #include "Enemy.h"
 #include "EnemyShot.h"
 #include "Stage.h"
@@ -66,6 +68,12 @@ namespace GameEngine
 		Push( 0 );
 	}
 
+	void EnemyVCPU::SysGetEnemyConsGauge()
+	{
+		Pop();
+		Push( m_pEnemyData->m_ConsGauge );
+	}
+
 	void EnemyVCPU::SysSetEnemyPos()
 	{
 		Pop();
@@ -97,6 +105,7 @@ namespace GameEngine
 		int hp = Top().m_Integer;
 		Pop();
 		m_pEnemyData->m_HP = hp;
+		m_pEnemyData->m_MaxHP = hp;
 	}
 
 	void EnemyVCPU::SysSetEnemyImgID()
@@ -128,6 +137,14 @@ namespace GameEngine
 		int flag = Top().m_Integer;
 		Pop();
 		m_pEnemyData->m_IsBoss = flag;
+	}
+
+	void EnemyVCPU::SysSetEnemyConsGauge()
+	{
+		Pop();
+		int gauge = Top().m_Integer;
+		Pop();
+		m_pEnemyData->m_ConsGauge = gauge;
 	}
 
 	void EnemyVCPU::SysCreateEnemyShot1()
@@ -186,6 +203,8 @@ namespace GameEngine
 	{
 		Pop();
 
+		int subID = Top().m_Integer;
+		Pop();
 		int id = Top().m_Integer;
 		Pop();
 		float y = Top().m_Float;
@@ -193,7 +212,9 @@ namespace GameEngine
 		float x = Top().m_Float;
 		Pop();
 
-		m_pEnemyData->m_pStageData->m_EffectList.push_back( m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEffect( 0 ) );
+		Effect* pNewEffect = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEffect( id, subID );
+		pNewEffect->SetPos( x, y );
+		m_pEnemyData->m_pStageData->m_EffectList.push_back( pNewEffect );
 	}
 
 	void EnemyVCPU::SysCreateItem()
@@ -204,14 +225,28 @@ namespace GameEngine
 		Pop();
 		float x = Top().m_Float;
 		Pop();
-		int idSub = Top().m_Integer;
+		int subID = Top().m_Integer;
 		Pop();
 		int id = Top().m_Integer;
 		Pop();
 
-		Item* pNewItem = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateItem( id );
+		Item* pNewItem = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateItem( id, subID );
 		pNewItem->SetPos( x, y );
 		m_pEnemyData->m_pStageData->m_ItemList.push_back( pNewItem );
+	}
+
+	void EnemyVCPU::SysPlaySE()
+	{
+		Pop();
+		int id = m_pEnemyData->m_pResouceMap->m_pStageResourceMap->m_SEMap[ Top().m_Integer ];
+		MAPIL::PlayStaticBuffer( id );
+	}
+
+	void EnemyVCPU::SysStopSE()
+	{
+		Pop();
+		int id = m_pEnemyData->m_pResouceMap->m_pStageResourceMap->m_SEMap[ Top().m_Integer ];
+		MAPIL::StopStaticBuffer( id );
 	}
 
 	void EnemyVCPU::OpSysCall( int val )
@@ -244,6 +279,10 @@ namespace GameEngine
 			case VM::SYS_ENEMY_GET_COUNTER_F:
 				SysGetEnemyCounterF();
 				break;
+			case VM::SYS_ENEMY_GET_CONS_GAUGE:
+				SysGetEnemyConsGauge();
+				break;
+
 			case VM::SYS_ENEMY_SET_POS:
 				SysSetEnemyPos();
 				break;
@@ -271,12 +310,24 @@ namespace GameEngine
 			case VM::SYS_ENEMY_SET_BOSS_FLAG:
 				SysSetEnemyBossFlag();
 				break;
+			case VM::SYS_ENEMY_SET_CONS_GAUGE:
+				SysSetEnemyConsGauge();
+				break;
+
 			case VM::SYS_ENEMY_CREATE_EFFECT_1:
 				SysCreateEffect1();
 				break;
 			case VM::SYS_CREATE_ITEM:
 				SysCreateItem();
 				break;
+
+			case VM::SYS_PLAY_SE:
+				SysPlaySE();
+				break;
+			case VM::SYS_STOP_SE:
+				SysStopSE();
+				break;
+
 			default:
 				VM::VCPU::OpSysCall( val );
 				break;

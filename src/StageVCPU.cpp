@@ -1,5 +1,7 @@
 #include "StageVCPU.h"
 
+#include <MAPIL/MAPIL.h>
+
 #include "Stage.h"
 #include "Enemy.h"
 
@@ -59,8 +61,20 @@ namespace GameEngine
 	{
 		Pop();
 		Push( m_pStageData->m_RandGen.GetRand() * 1.0f / m_pStageData->m_RandGen.GetRandMax() );
-		//Push( Rand() * 1.0f / RAND_MAXIMUM );
-		//Push( rand() * 1.0f / RAND_MAX );
+	}
+
+	void StageVCPU::SysPlayBGM()
+	{
+		Pop();
+		int id = m_pStageData->m_ResourceMap.m_pStageResourceMap->m_BGMMap[ Top().m_Integer ];
+		MAPIL::PlayStreamingBuffer( id );
+	}
+
+	void StageVCPU::SysStopBGM()
+	{
+		Pop();
+		int id = m_pStageData->m_ResourceMap.m_pStageResourceMap->m_BGMMap[ Top().m_Integer ];
+		MAPIL::StopStreamingBuffer( id );
 	}
 
 	void StageVCPU::OpSysCall( int val )
@@ -81,6 +95,14 @@ namespace GameEngine
 			case VM::SYS_GET_RANDOM_F:
 				SysGetRand();
 				break;
+
+			case VM::SYS_PLAY_BGM:
+				SysPlayBGM();
+				break;
+			case VM::SYS_STOP_BGM:
+				SysStopBGM();
+				break;
+
 			default:
 				VM::VCPU::OpSysCall( val );
 				break;

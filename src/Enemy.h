@@ -8,6 +8,8 @@
 namespace GameEngine
 {
 	struct StageData;
+	struct ResourceMap;
+
 	struct EnemyData
 	{
 		struct ItemDrop
@@ -19,19 +21,20 @@ namespace GameEngine
 		float		m_PosX;				// 位置（X座標）
 		float		m_PosY;				// 位置（Y座標）
 		int			m_HP;				// HP
+		int			m_MaxHP;			// MaxHP
 		int			m_ConsGauge;		// 意識ゲージ
 		int			m_ConsType;			// 意識タイプ
 		int			m_Counter;			// カウンタ
 		float		m_ColRadius;		// 衝突半径
 		int			m_Score;			// スコア
 		int			m_IsBoss;			// ボスなら1
-		int			m_Destroyed;		// 倒された場合はtrue
+		bool		m_Destroyed;		// 倒された場合はtrue
 		StageData*	m_pStageData;		// ステージデータ
 		ItemDrop	m_ItemDrop[ 6 ];	// 落とすアイテムの状態
+		std::shared_ptr < ResourceMap >		m_pResouceMap;
 	};
 
 	// 速度向上のため、pimplイディオムは使用しない。
-	struct ResourceMap;
 	struct EnemyScriptData;
 	class Enemy : public CollisionObject
 	{

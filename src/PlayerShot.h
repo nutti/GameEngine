@@ -22,6 +22,9 @@ namespace GameEngine
 		bool Update();													// 更新
 		void SetPos( const Player& player );							// 位置を設定
 		void SetPos( float posX, float posY );							// 位置を設定
+		void SetAngle( float angle );									// 角度を設定
+		void SetSpeed( float speed );									// 速度を設定
+		void SetShotPower( int power );
 		void Colided( CollisionObject* pObject );						// 衝突時の処理 ディスパッチャ
 		void ProcessCollision( Player* pPlayer );						// 衝突時の処理（プレイヤー）
 		void ProcessCollision( Enemy* pEnemy );							// 衝突時の処理（敵）
@@ -30,6 +33,7 @@ namespace GameEngine
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
+		int GetShotPower() const;
 	};
 }
 

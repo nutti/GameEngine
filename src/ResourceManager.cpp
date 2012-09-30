@@ -15,23 +15,40 @@ namespace GameEngine
 		void LoadStageResources( const ScriptData& data );			// ステージリソースの読み込み
 		void ReleaseStageResources();								// ステージリソースの解放
 		ResourceMap GetStageResourceMap();		// ステージリソースMAPの取得
+		void LoadGlobalResource( int resourceType, int index, const std::string& fileName );	// グローバル用リソースの読み込み
+		void LoadGlobalResource(	int resourceType,
+									int indexFirst,
+									int indexLast,
+									int column,
+									int row,
+									int width,
+									int height,
+									const std::string& fileName );
 	};
 
 	ResourceManager::Impl::Impl()
 	{
+		m_ResourceMap.m_pGlobalResourceMap.reset( new ResourceMap::GlobalResourceMapElm );
+
+		const int INITIAL_TEXTURE_MAP_RESERVE_CAP = 100;			// 初期のテクスチャMAP許容量
+		const int INITIAL_SE_MAP_RESERVE_CAP = 50;				// 初期のSEMAP許容量
+		const int INITIAL_BGM_MAP_RESERVE_CAP = 50;				// 初期のBGMMAP許容量
+		m_ResourceMap.m_pGlobalResourceMap->m_TextureMap.resize( INITIAL_TEXTURE_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pGlobalResourceMap->m_SEMap.resize( INITIAL_SE_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pGlobalResourceMap->m_BGMMap.resize( INITIAL_BGM_MAP_RESERVE_CAP, -1 );
 	}
 
 	void ResourceManager::Impl::LoadStageResources( const ScriptData& data )
 	{
-		m_ResourceMap.m_pElm.reset( new ResourceMap::ResourceMapElm );
+		m_ResourceMap.m_pStageResourceMap.reset( new ResourceMap::StageResourceMapElm );
 
 		// 各種リソースの読み込み
-		const int INITIAL_TEXTURE_MAP_RESERVE_CAP = 50;			// 初期のテクスチャMAP許容量
+		const int INITIAL_TEXTURE_MAP_RESERVE_CAP = 100;			// 初期のテクスチャMAP許容量
 		const int INITIAL_SE_MAP_RESERVE_CAP = 50;				// 初期のSEMAP許容量
 		const int INITIAL_BGM_MAP_RESERVE_CAP = 50;				// 初期のBGMMAP許容量
-		m_ResourceMap.m_pElm->m_TextureMap.resize( INITIAL_TEXTURE_MAP_RESERVE_CAP, -1 );
-		m_ResourceMap.m_pElm->m_SEMap.resize( INITIAL_SE_MAP_RESERVE_CAP, -1 );
-		m_ResourceMap.m_pElm->m_BGMMap.resize( INITIAL_BGM_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( INITIAL_TEXTURE_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( INITIAL_SE_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( INITIAL_BGM_MAP_RESERVE_CAP, -1 );
 		std::shared_ptr < ResourceScriptData > pScriptData = data.m_pResourceScriptData;
 		// テクスチャの読み込み
 		typedef std::map < int, std::string > ::iterator	TextureIter;
@@ -39,34 +56,36 @@ namespace GameEngine
 				it != pScriptData->m_TextureList.end();
 				++it ){
 			// 許容値を超えたインデックスが必要な場合は、指定されたインデックスの2倍のサイズのresizeする。
-			if( it->first > m_ResourceMap.m_pElm->m_TextureMap.size() ){
-				m_ResourceMap.m_pElm->m_TextureMap.resize( it->first * 2 );
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_TextureMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( it->first * 2 );
 			}
-			//m_pResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( m_Archiver, it->second.c_str() );
+			m_ResourceMap.m_pStageResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( it->second.c_str() );
 		}
 		// SEの読み込み
 		typedef std::map < int, std::string > ::iterator	SEIter;
 		for(	SEIter it = pScriptData->m_SEList.begin();
 				it != pScriptData->m_SEList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pElm->m_SEMap.size() ){
-				m_ResourceMap.m_pElm->m_SEMap.resize( it->first * 2 );
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_SEMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( it->first * 2 );
 			}
+			int id = MAPIL::CreateStaticBuffer( it->second.c_str() );
 			//int id = MAPIL::CreateStaticBuffer( m_Archiver, it->second.c_str() );
 			//MAPIL::SetStaticBufferVolume( id, ResourceHandler::GetInst()->m_pGameManager->GetSEVolume() );
-			//m_ResourceMap.m_SEMap[ it->first ] = id;
+			m_ResourceMap.m_pStageResourceMap->m_SEMap[ it->first ] = id;
 		}
 		// BGMの読み込み
 		typedef std::map < int, std::string > ::iterator	BGMIter;
 		for(	BGMIter it = pScriptData->m_BGMList.begin();
 				it != pScriptData->m_BGMList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pElm->m_BGMMap.size() ){
-				m_ResourceMap.m_pElm->m_BGMMap.resize( it->first * 2 );
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_BGMMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( it->first * 2 );
 			}
+			int id = MAPIL::CreateStreamingBuffer( it->second.c_str() );
 			//int id = MAPIL::CreateStreamingBuffer( m_Archiver, it->second.c_str() );
 			//MAPIL::SetStreamingBufferVolume( id, ResourceHandler::GetInst()->m_pGameManager->GetBGMVolume() );
-			//m_ResourceMap.m_BGMMap[ it->first ] = id;
+			m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
 		}
 	}
 
@@ -77,6 +96,53 @@ namespace GameEngine
 	ResourceMap ResourceManager::Impl::GetStageResourceMap()
 	{
 		return m_ResourceMap;
+	}
+
+	void ResourceManager::Impl::LoadGlobalResource( int resourceType, int index, const std::string& fileName )
+	{
+		switch( resourceType ){
+			case RESOURCE_TYPE_BGM:{
+				int id = MAPIL::CreateStreamingBuffer( fileName.c_str() );
+				m_ResourceMap.m_pGlobalResourceMap->m_BGMMap[ index ] = id;
+				break;
+			}
+			case RESOURCE_TYPE_SE:{
+				int id = MAPIL::CreateStaticBuffer( fileName.c_str() );
+				m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ index ] = id;
+				break;
+			}
+			case RESOURCE_TYPE_TEXTURE:{
+				int id = MAPIL::CreateTexture( fileName.c_str() );
+				m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ index ] = id;
+				break;
+			}
+			default:
+				break;
+		}
+	}
+
+	void ResourceManager::Impl::LoadGlobalResource(	int resourceType,
+													int indexFirst,
+													int indexLast,
+													int column,
+													int row,
+													int width,
+													int height,
+													const std::string& fileName )
+	{
+		switch( resourceType ){
+			case RESOURCE_TYPE_MULTI_TEXTURE:{
+				int* pID = new int [ column * row ];
+				MAPIL::CreateSplitedTexture( pID, fileName.c_str(), column, row, width, height );
+				for( int i = 0; i < indexLast - indexFirst; ++i ){
+					m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ indexFirst + i ] = pID[ i ];
+				}
+				MAPIL::SafeDeleteArray( pID );
+				break;
+			}
+			default:
+				break;
+		}
 	}
 
 
@@ -106,6 +172,23 @@ namespace GameEngine
 	ResourceMap ResourceManager::GetStageResourceMap()
 	{
 		return m_pImpl->GetStageResourceMap();
+	}
+
+	void ResourceManager::LoadGlobalResource( int resourceType, int index, const std::string& fileName )
+	{
+		m_pImpl->LoadGlobalResource( resourceType, index, fileName );
+	}
+
+	void ResourceManager::LoadGlobalResource(	int resourceType,
+												int indexFirst,
+												int indexLast,
+												int column,
+												int row,
+												int width,
+												int height,
+												const std::string& fileName )
+	{
+		m_pImpl->LoadGlobalResource( resourceType, indexFirst, indexLast, column, row, width, height, fileName );
 	}
 
 }

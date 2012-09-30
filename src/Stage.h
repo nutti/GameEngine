@@ -27,7 +27,6 @@ namespace GameEngine
 	{
 		int					m_StageNo;				// ステージ番号
 		int					m_Frame;				// フレーム数
-		int					m_Score;				// ステージのスコア
 		bool				m_IsReplay;				// リプレイ状態ならtrue
 		GameObjectBuilder	m_ObjBuilder;			// ゲームオブジェクト構築クラス
 		RandomGenerator		m_RandGen;
@@ -38,6 +37,11 @@ namespace GameEngine
 		EnemyShotList		m_EnemyShotList;		// 敵ショットリスト
 		ItemList			m_ItemList;				// アイテムリスト
 		EffectList			m_EffectList;			// エフェクトリスト
+		
+		GameDataMsg			m_GameData;				// 現フレームにおけるゲームデータ
+		GameDataMsg			m_FrameGameData;		// 現フレームで更新されるゲームデータ
+
+		ResourceMap			m_ResourceMap;
 	};
 
 	struct ScriptData;
@@ -55,6 +59,8 @@ namespace GameEngine
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
+		void AttachGameData( const GameDataMsg& msg );
+		GameDataMsg GetFrameData() const;
 	};
 }
 

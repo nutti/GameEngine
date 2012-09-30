@@ -1,6 +1,7 @@
 #include <MAPIL/MAPIL.h>
 
 #include "EnemyShot.h"
+#include "ResourceTypes.h"
 
 namespace GameEngine
 {
@@ -17,6 +18,7 @@ namespace GameEngine
 		float								m_ColRadius;		// 衝突判定の半径
 		int									m_ImgID;			// 画像ID
 		bool								m_Colided;			// 衝突したか？
+		int									m_Counter;			// カウンタ
 	public:
 		Impl( std::shared_ptr < ResourceMap > pMap, int id );
 		~Impl();
@@ -36,6 +38,7 @@ namespace GameEngine
 																			m_ShotID( id ),
 																			m_Colided( false )
 	{
+		m_Counter = 0;
 	}
 
 	EnemyShot::Impl::~Impl()
@@ -44,11 +47,16 @@ namespace GameEngine
 
 	void EnemyShot::Impl::Draw()
 	{
-		MAPIL::DrawString( m_PosX, m_PosY, "●" );
+		MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+							m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
 	}
 
 	bool EnemyShot::Impl::Update()
 	{
+		if( m_Counter < 20 ){
+			m_Speed -= 0.1f;
+		}
+
 		m_PosX += m_Speed * ::cos( m_Angle );
 		m_PosY -= m_Speed * ::sin( m_Angle );
 
@@ -60,6 +68,8 @@ namespace GameEngine
 		if( m_Colided ){
 			return false;
 		}
+
+		++m_Counter;
 
 		return true;
 	}
@@ -82,7 +92,7 @@ namespace GameEngine
 	}
 	void EnemyShot::Impl::SetSpeed( float speed )
 	{
-		m_Speed = speed;
+		m_Speed = speed + 2.0f;
 	}
 
 	void EnemyShot::Impl::SetImage( int id )

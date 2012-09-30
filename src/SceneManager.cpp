@@ -18,6 +18,7 @@ namespace GameEngine
 		std::weak_ptr < EventMediator >			m_pEventMediator;		// イベント仲介役クラス
 		ResourceMap								m_ResourceMap;			// リソース一覧
 		ScriptData								m_ScriptData;			// スクリプトデータ
+		SceneType								m_CurSceneType;			// 現在のシーン
 	public:
 		Impl( std::shared_ptr < EventMediator > pEventMediator );
 		~Impl(){}
@@ -26,14 +27,17 @@ namespace GameEngine
 		void AttachSceneResourceMap( const ResourceMap& map );
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachScriptData( const ScriptData& data );
-		void GetScoreData();
-		void ChangeScene( int scene );
+		void AttachGameData( const GameDataMsg& msg );
+		GameDataMsg GetFrameScoreData() const;
+		void ChangeScene( SceneType scene );
+		SceneType GetCurSceneType() const;
 	};
 
 	SceneManager::Impl::Impl( std::shared_ptr < EventMediator > pEventMediator ) :	m_pSceneBuilder( new SceneBuilder ),
 																					m_pEventMediator( pEventMediator )
 	{
 		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( SCENE_TYPE_UNKNOWN ) );
+		m_CurSceneType = SCENE_TYPE_UNKNOWN;
 	}
 
 	void SceneManager::Impl::Draw()
@@ -75,11 +79,17 @@ namespace GameEngine
 		m_pCurScene->AttachButtonState( pHolder );
 	}
 
-	void SceneManager::Impl::GetScoreData()
+	void SceneManager::Impl::AttachGameData( const GameDataMsg& msg )
 	{
+		m_pCurScene->AttachGameData( msg );
 	}
 
-	void SceneManager::Impl::ChangeScene( int scene )
+	GameDataMsg SceneManager::Impl::GetFrameScoreData() const
+	{
+		return m_pCurScene->GetFrameData();
+	}
+
+	void SceneManager::Impl::ChangeScene( SceneType scene )
 	{
 		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( scene ) );
 		Stage* p = dynamic_cast < Stage* > ( m_pCurScene.get() );
@@ -88,11 +98,17 @@ namespace GameEngine
 			p->AttachScriptData( m_ScriptData );
 		}
 		m_pCurScene->Init();
+		m_CurSceneType = scene;
 	}
 
 	void SceneManager::Impl::AttachScriptData( const ScriptData& data )
 	{
 		m_ScriptData = data;
+	}
+
+	SceneType SceneManager::Impl::GetCurSceneType() const
+	{
+		return m_CurSceneType;
 	}
 
 
@@ -129,12 +145,17 @@ namespace GameEngine
 		m_pImpl->AttachButtonState( pHolder );
 	}
 
-	void SceneManager::GetScoreData()
+	void SceneManager::AttachGameData( const GameDataMsg& msg )
 	{
-		m_pImpl->GetScoreData();
+		m_pImpl->AttachGameData( msg );
 	}
 
-	void SceneManager::ChangeScene( int scene )
+	GameDataMsg SceneManager::GetFrameScoreData() const
+	{
+		return m_pImpl->GetFrameScoreData();
+	}
+
+	void SceneManager::ChangeScene( SceneType scene )
 	{
 		m_pImpl->ChangeScene( scene );
 	}
@@ -142,5 +163,10 @@ namespace GameEngine
 	void SceneManager::AttachScriptData( const ScriptData& data )
 	{
 		m_pImpl->AttachScriptData( data );
+	}
+
+	SceneType SceneManager::GetCurSceneType() const
+	{
+		return m_pImpl->GetCurSceneType();
 	}
 }

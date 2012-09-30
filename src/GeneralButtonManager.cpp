@@ -14,15 +14,17 @@ namespace GameEngine
 	class GeneralButtonManager::Impl
 	{
 	private:
-		std::auto_ptr < InputStateHolder >		m_pInputStateHolder;	// 入力デバイス
-		int										m_PrevButtonStatus;		// 前回のキーの状態
-		int										m_CurButtonStatus;		// 現在のキーの状態
-		ButtonStatusHolder						m_ButtonStatus;			// ボタンの状態 ( ButtonStatus )
+		std::auto_ptr < InputStateHolder >		m_pInputStateHolder;		// 入力デバイス
+		int										m_PrevButtonStatus;			// 前回のキーの状態
+		int										m_CurButtonStatus;			// 現在のキーの状態
+		ButtonStatusHolder						m_ButtonStatus;				// ボタンの状態 ( ButtonStatus )
+		int										m_SpecialKeyStatus[ 2 ];	// 特殊キーの状態
 	public:
 		Impl();
 		~Impl(){}
 		void Update();
 		void GetButtonStatus( ButtonStatusHolder* pHolder );
+		bool IsSpecialKeyPushed( int key );
 		void ChangeDevice( InputDevice device );
 	};
 
@@ -52,11 +54,30 @@ namespace GameEngine
 				m_ButtonStatus.m_Status[ i ] = BUTTON_STATUS_NO_EVENT;
 			}
 		}
+
+		
+		
+		if( MAPIL::IsKeyboardKeyPushed( MAPIL::KEYBOARD_KEY_F12 ) ){
+			if( m_SpecialKeyStatus[ 0 ] == BUTTON_STATUS_NO_EVENT ){
+				m_SpecialKeyStatus[ 0 ] = BUTTON_STATUS_PUSHED;
+			}
+			else if( m_SpecialKeyStatus[ 0 ] == BUTTON_STATUS_PUSHED ){
+				m_SpecialKeyStatus[ 0 ] = BUTTON_STATUS_KEEP;
+			}
+		}
+		else{
+			m_SpecialKeyStatus[ 0 ] = BUTTON_STATUS_NO_EVENT;
+		}
 	}
 
 	void GeneralButtonManager::Impl::GetButtonStatus( ButtonStatusHolder* pHolder )
 	{
 		*pHolder = m_ButtonStatus;
+	}
+
+	bool GeneralButtonManager::Impl::IsSpecialKeyPushed( int key )
+	{
+		return m_SpecialKeyStatus[ key ] == BUTTON_STATUS_PUSHED;
 	}
 
 	void GeneralButtonManager::Impl::ChangeDevice( InputDevice device )
@@ -94,6 +115,11 @@ namespace GameEngine
 	void GeneralButtonManager::GetButtonStatus( ButtonStatusHolder* pHolder )
 	{
 		m_pImpl->GetButtonStatus( pHolder );
+	}
+
+	bool GeneralButtonManager::IsSpecialKeyPushed( int key )
+	{
+		return m_pImpl->IsSpecialKeyPushed( key );
 	}
 
 	void GeneralButtonManager::ChangeDevice( InputDevice device )

@@ -17,7 +17,16 @@ namespace GameEngine
 		~ResourceManager();
 		void LoadStageResources( const ScriptData& data );		// ステージリソースの読み込み
 		void ReleaseStageResources();							// ステージリソースの解放
-		ResourceMap GetStageResourceMap();	// ステージリソースMAPの取得
+		ResourceMap GetStageResourceMap();						// ステージリソースMAPの取得
+		void LoadGlobalResource( int resourceType, int index, const std::string& fileName );	// グローバル用リソースの読み込み
+		void LoadGlobalResource(	int resourceType,
+									int indexFirst,
+									int indexLast,
+									int column,
+									int row,
+									int width,
+									int height,
+									const std::string& fileName );
 	};
 }
 

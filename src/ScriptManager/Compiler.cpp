@@ -39,6 +39,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_PLAY_BGM, TYPE_VOID, "PlayBGM", "i" );	// void PlayBGM( id );
 	AddFunction( VM::SYS_STOP_BGM, TYPE_VOID, "StopBGM", "i" );	// void StopBGM( id );
 
+	// System calll for MAPIL function call.
+
 	// System call for enemy.
 	AddFunction( VM::SYS_ENEMY_GET_POSX, TYPE_FLOAT, "GetEnemyPosX", "" );				// float GetEnemyPosX();
 	AddFunction( VM::SYS_ENEMY_GET_POSY, TYPE_FLOAT, "GetEnemyPosY", "" );				// float GetEnemyPosY();
@@ -47,6 +49,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_GET_COUNTER, TYPE_INTEGER, "GetEnemyCounter", "" );			// int GetEnemyCounter();
 	AddFunction( VM::SYS_ENEMY_GET_COUNTER_F, TYPE_FLOAT, "GetEnemyCounterF", "" );			// float GetEnemyCounterF();
 	AddFunction( VM::SYS_ENEMY_SET_ANGLE, TYPE_INTEGER, "GetEnemyAngle", "" );				// int GetEnemyAngle();
+	AddFunction( VM::SYS_ENEMY_GET_CONS_GAUGE, TYPE_INTEGER, "GetEnemyConsGauge", "" );		// int GetEnemyConsGauge();
+
 	AddFunction( VM::SYS_ENEMY_SET_POS, TYPE_VOID, "SetEnemyPos", "ff" );					// void SetEnemyPos( x, y );
 	AddFunction( VM::SYS_ENEMY_SET_ANGLE, TYPE_VOID, "SetEnemyAngle", "i" );				// void SetEnemyAngle( angle );
 	AddFunction( VM::SYS_ENEMY_SET_SPEED, TYPE_VOID, "SetEnemySpeed", "i" );				// void SetEnemySpeed( speed );
@@ -54,8 +58,10 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_IMAGE, TYPE_VOID, "SetEnemyImgID", "i" );				// void SetEnemyImage( texture_id );
 	AddFunction( VM::SYS_ENEMY_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyCollisionRadius", "f" );		// void SetEnemyCollisionRadius( radius );
 	AddFunction( VM::SYS_ENEMY_SET_SCORE, TYPE_VOID, "SetEnemyScore", "i" );							// void SetEnemyScore( score );
+	AddFunction( VM::SYS_ENEMY_SET_CONS_GAUGE, TYPE_VOID, "SetEnemyConsGauge", "i" );					// void SetEnemyConsGauge( gauge );
+
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_1, TYPE_VOID, "CreateEnemyShot1", "fffffi" );	// void CreateEnemyShot1( x, y, speed, angle, radius, texture_id );
-	AddFunction( VM::SYS_ENEMY_CREATE_EFFECT_1, TYPE_VOID, "CreateEffect1", "ffi" );		// void CreateEffect1( x, y, texture_id );
+	AddFunction( VM::SYS_ENEMY_CREATE_EFFECT_1, TYPE_VOID, "CreateEffect1", "ffii" );		// void CreateEffect1( x, y, id, subid );
 	AddFunction( VM::SYS_ENEMY_SET_BOSS_FLAG, TYPE_VOID, "SetEnemyBossFlag", "i" );			// void SetEnemyBossFlag( flag );
 	AddFunction( VM::SYS_CREATE_ITEM, TYPE_VOID, "CreateItem", "iiff" );			// void CreateItem( item_id, item_sub_id, x, y );
 

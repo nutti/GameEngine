@@ -15,6 +15,8 @@
 
 #include "ScriptManager.h"
 
+#include "Util.h"
+
 namespace GameEngine
 {
 	class Application::Impl
@@ -60,6 +62,7 @@ namespace GameEngine
 		m_FPSManager.SetFPS( 60 );
 		m_FPSManager.SetPrecise( 10 );
 		m_pEventMediator->SendEvent( EVENT_TYPE_INITIALIZE );
+		//MAPIL::ChangeWindowMode( 1 );
 	}
 
 	// アプリケーション実行
@@ -67,6 +70,12 @@ namespace GameEngine
 	{
 		// メインループ
 		while( !MAPIL::ProcessMessage() ){
+
+			if( MAPIL::IsKeyboardKeyPushed( MAPIL::KEYBOARD_KEY_DELETE ) ){
+				break;
+			}
+			
+
 			if( m_FPSManager.DoesElapseNextTime() ){
 				// 描画設定
 				MAPIL::BeginRendering();
@@ -77,6 +86,10 @@ namespace GameEngine
 				MAPIL::SetCullingMode( MAPIL::CULL_MODE_DISABLED );
 				MAPIL::SetAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
 				MAPIL::SetViewPort( 0, 0, 640, 480 );
+
+				if( m_pButtonManager->IsSpecialKeyPushed( SPECIAL_KEY_SS ) ){
+					ScreenShot( "screenshot", "screenshot" );
+				}
 
 				// 新しいフレーム開始の合図を送信
 				m_pEventMediator->SendEvent( EVENT_TYPE_FRAME_UPDATE );

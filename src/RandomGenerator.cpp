@@ -38,7 +38,7 @@ namespace GameEngine
 		data.m_pPlayer->GetPos( &x, &y );
 		m_RandData.m_PosX = static_cast < int > ( x );
 		m_RandData.m_PosY = static_cast < int > ( y );
-		m_RandData.m_Score = data.m_Score;
+		m_RandData.m_Score = data.m_GameData.m_Score;
 		m_RandData.m_Frame = data.m_Frame;
 	}
 

@@ -28,8 +28,8 @@ namespace GameEngine
 		Enemy* CreateEnemy( int id );
 		PlayerShot* CreatePlayerShot( int id );
 		EnemyShot* CreateEnemyShot( int id );
-		Effect* CreateEffect( int id );
-		Item* CreateItem( int id );
+		Effect* CreateEffect( int id, int subID );
+		Item* CreateItem( int id, int subID );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachStageData( StageData* pData );
@@ -91,14 +91,14 @@ namespace GameEngine
 		return new EnemyShot( m_pResourceMap, id );
 	}
 
-	Effect* GameObjectBuilder::Impl::CreateEffect( int id )
+	Effect* GameObjectBuilder::Impl::CreateEffect( int id, int subID )
 	{
-		return new Effect;
+		return new Effect( m_pResourceMap, id, subID );
 	}
 
-	Item* GameObjectBuilder::Impl::CreateItem( int id )
+	Item* GameObjectBuilder::Impl::CreateItem( int id, int subID )
 	{
-		return new Item( m_pResourceMap, id );
+		return new Item( m_pResourceMap, id, subID );
 	}
 
 	void GameObjectBuilder::Impl::AttachResourceMap( const ResourceMap& map )
@@ -160,14 +160,14 @@ namespace GameEngine
 		return m_pImpl->CreateEnemyShot( id );
 	}
 
-	Effect* GameObjectBuilder::CreateEffect( int id )
+	Effect* GameObjectBuilder::CreateEffect( int id, int subID )
 	{
-		return m_pImpl->CreateEffect( id );
+		return m_pImpl->CreateEffect( id, subID );
 	}
 
-	Item* GameObjectBuilder::CreateItem( int id )
+	Item* GameObjectBuilder::CreateItem( int id, int subID )
 	{
-		return m_pImpl->CreateItem( id );
+		return m_pImpl->CreateItem( id, subID );
 	}
 
 	void GameObjectBuilder::AttachResourceMap( const ResourceMap& map )

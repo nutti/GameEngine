@@ -17,6 +17,9 @@ namespace GameEngine
 		void SysSetFrame();
 		void SysUpdate();
 		void SysGetRand();
+
+		void SysPlayBGM();
+		void SysStopBGM();
 	public:
 		StageVCPU();
 		~StageVCPU();

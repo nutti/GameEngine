@@ -3,6 +3,13 @@
 
 namespace GameEngine
 {
+	// 特殊キー
+	enum SpecialKey
+	{
+		SPECIAL_KEY_SS		= 0,		// スクリーンショット用
+	};
+
+
 	// 入力デバイス
 	enum InputDevice
 	{

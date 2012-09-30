@@ -4,6 +4,8 @@
 #include "ResourceTypes.h"
 #include "ScriptTypes.h"
 #include "Stage.h"
+#include "Effect.h"
+#include "PlayerShot.h"
 
 namespace GameEngine
 {
@@ -16,6 +18,16 @@ namespace GameEngine
 	{
 		m_Data.m_pStageData = pStageData;
 		m_Data.m_Destroyed = false;
+		m_Data.m_pResouceMap = pMap;
+		m_Data.m_ColRadius = 0.0f;
+		m_Data.m_PosX = 0.0f;
+		m_Data.m_PosY = 0.0f;
+		m_Data.m_Score = 0;
+		m_Data.m_HP = 2000;
+		m_Data.m_Counter = 0;
+		m_Data.m_ConsGauge = 200;
+		m_Data.m_IsBoss = false;
+		m_Data.m_ConsType = 0;
 	}
 
 	Enemy::~Enemy()
@@ -32,6 +44,14 @@ namespace GameEngine
 	void Enemy::Draw()
 	{
 		MAPIL::DrawString( m_Data.m_PosX, m_Data.m_PosY, "Бе" );
+		MAPIL::DrawTexture(	m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
+							m_Data.m_PosX + 5.0f, m_Data.m_PosY - 5.0f,
+							m_Data.m_ConsGauge / 150.0f, 0.3f, false );
+		MAPIL::DrawTexture(	m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE ],
+							m_Data.m_PosX + 5.0f, m_Data.m_PosY - 10.0f,
+							m_Data.m_HP * 1.5f / m_Data.m_MaxHP, 0.3f, false );
+		//MAPIL::DrawString( m_Data.m_PosX, m_Data.m_PosY - 32.0f, 0xFFFFFFAA, "%d", m_Data.m_HP );
+		//MAPIL::DrawString( m_Data.m_PosX, m_Data.m_PosY - 16.0f, 0xFFAAFFFF, "%d", m_Data.m_ConsGauge );
 	}
 
 	bool Enemy::Update()
@@ -62,13 +82,27 @@ namespace GameEngine
 	void Enemy::ProcessCollision( PlayerShot* pPlayerShot )
 	{
 		if( !m_Data.m_Destroyed ){
-			++m_Data.m_pStageData->m_Score;
-			--m_Data.m_HP;
+			m_Data.m_pStageData->m_FrameGameData.m_Score += 10;
+			m_Data.m_HP -= pPlayerShot->GetShotPower();
 			if( m_Data.m_HP <= 0 ){
-				m_Data.m_pStageData->m_Score += m_Data.m_Score;
+				m_Data.m_HP = 0;
+				m_Data.m_pStageData->m_FrameGameData.m_Score += m_Data.m_Score;
+				++m_Data.m_pStageData->m_FrameGameData.m_Killed;
 				m_Data.m_Destroyed = true;
 			}
-		}	
+			Effect* pEffect = m_Data.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_PLAYER_SHOT_COLLIDED, 0 );
+			float x;
+			float y;
+			pPlayerShot->GetPos( &x, &y );
+			pEffect->SetPos( x, y );
+			m_Data.m_pStageData->m_EffectList.push_back( pEffect );
+		}
+		else{
+			if( m_Data.m_HP > 0 ){
+				int dummy;
+				dummy += 1;
+			}
+		}
 	}
 
 	void Enemy::ProcessCollision( EnemyShot* pEnemyShot )

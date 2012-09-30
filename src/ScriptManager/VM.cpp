@@ -157,7 +157,6 @@ void VM::VCPU::SysDegToRad()
 {
 	float deg = Top().m_Float;
 	Pop();
-	//Push( VM::Value( static_cast < float > ( 1.0 ) ) );
 	Push( VM::Value( static_cast < float > ( MAPIL::DegToRad( deg ) ) ) );
 }
 

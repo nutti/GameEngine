@@ -9,6 +9,14 @@
 namespace GameEngine
 {
 
+	enum PlayerConsMode
+	{
+		PLAYER_CONS_MODE_NORMAL		= 0,		// 通常モード
+		PLAYER_CONS_MODE_GREEN		= 1,		// 緑（追尾モード）
+		PLAYER_CONS_MODE_BLUE		= 2,		// 青（一転集中モード）
+		PLAYER_CONS_MODE_RED		= 3,		// 赤（全方位モード）
+	};
+
 	struct PlayerData
 	{
 		float		m_PosX;				// 位置（X座標）
@@ -19,6 +27,7 @@ namespace GameEngine
 		int			m_ConsLevel[ 3 ];	// 意識レベル
 		int			m_ShotPower;		// ショットのパワー
 		float		m_ColRadius;		// 衝突半径
+		int			m_Counter;			// カウンタ
 	};
 
 	struct ResourceMap;
@@ -44,6 +53,7 @@ namespace GameEngine
 		void GetPos( float* pPosX, float* pPosY );						// 位置を取得
 		float GetCollisionRadius();										// 衝突半径を取得
 		int GetHP() const;												// HPを取得
+		int GetShotPower() const;										// ショットの威力を取得
 		int GetConsGauge( int cons ) const;								// 意識ゲージの取得
 		int GetConsLevel( int cons ) const;								// 意識レベルの取得
 	};

@@ -16,6 +16,7 @@ namespace GameEngine
 		~GeneralButtonManager();
 		void Update();
 		void GetButtonStatus( ButtonStatusHolder* pHolder );
+		bool IsSpecialKeyPushed( int key );
 		void ChangeDevice( InputDevice device );
 	};
 }
