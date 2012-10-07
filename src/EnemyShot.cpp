@@ -47,8 +47,16 @@ namespace GameEngine
 
 	void EnemyShot::Impl::Draw()
 	{
-		MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-							m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+		if( m_Counter >= 6 ){
+			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+								m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+		}
+		else{
+			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+								m_PosX, m_PosY,
+								( 6 - m_Counter ) * 1.0f, ( 3 - m_Counter ) * 1.0f,
+								m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+		}
 	}
 
 	bool EnemyShot::Impl::Update()

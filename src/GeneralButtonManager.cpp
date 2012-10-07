@@ -57,7 +57,7 @@ namespace GameEngine
 
 		
 		
-		if( MAPIL::IsKeyboardKeyPushed( MAPIL::KEYBOARD_KEY_F12 ) ){
+		if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_F12 ) ) ){
 			if( m_SpecialKeyStatus[ 0 ] == BUTTON_STATUS_NO_EVENT ){
 				m_SpecialKeyStatus[ 0 ] = BUTTON_STATUS_PUSHED;
 			}

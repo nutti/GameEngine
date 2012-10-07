@@ -56,6 +56,7 @@ namespace GameEngine
 		int GetShotPower() const;										// ショットの威力を取得
 		int GetConsGauge( int cons ) const;								// 意識ゲージの取得
 		int GetConsLevel( int cons ) const;								// 意識レベルの取得
+		int GetCurCons() const;											// 現在の意識状態を取得
 	};
 }
 

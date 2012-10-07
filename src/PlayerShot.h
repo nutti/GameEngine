@@ -34,6 +34,7 @@ namespace GameEngine
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
 		int GetShotPower() const;
+		void SetPlayer( Player* pPlayer );
 	};
 }
 

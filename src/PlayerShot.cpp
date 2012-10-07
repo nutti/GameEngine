@@ -3,6 +3,7 @@
 #include "PlayerShot.h"
 #include "Player.h"
 #include "ResourceTypes.h"
+#include "ResourceID.h"
 
 namespace GameEngine
 {
@@ -10,6 +11,8 @@ namespace GameEngine
 	{
 		PLAYER_SHOT_ID_NORMAL_MAIN		= 0,	// 通常モードのメインショット
 		PLAYER_SHOT_ID_GREEN_MAIN		= 1,	// 緑モードのメインショット
+		PLAYER_SHOT_ID_BLUE_MAIN		= 2,	// 青モードのメインショット
+		PLAYER_SHOT_ID_RED_MAIN			= 3,	// 赤モードのメインショット
 	};
 
 	class PlayerShot::Impl
@@ -25,6 +28,7 @@ namespace GameEngine
 		int									m_ShotPower;
 		bool								m_Colided;			// 衝突したか？
 		int									m_Counter;
+		Player*								m_pPlayer;
 	public:
 		Impl( std::shared_ptr < ResourceMap > pMap, int id );
 		~Impl();
@@ -39,11 +43,13 @@ namespace GameEngine
 		void ProcessCollision( Enemy* pEnemy );							// 衝突時の処理（敵）
 		float GetCollisionRadius() const;
 		int GetShotPower() const;
+		void SetPlayer( Player* pPlayer );
 	};
 
 	PlayerShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
 																				m_ShotID( id ),
-																				m_Colided( false )
+																				m_Colided( false ),
+																				m_pPlayer( NULL )
 	{
 		m_PosX = 0.0f;
 		m_PosY = 0.0f;
@@ -68,25 +74,51 @@ namespace GameEngine
 									m_PosX, m_PosY, true, alpha << 24 | 0xFFFFFF );
 			}
 			else if( m_ShotID == PLAYER_SHOT_ID_GREEN_MAIN ){
-				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_PLAYER_SHOT_1_TEXTURE ],
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_GREEN_MAIN ],
 									m_PosX, m_PosY, m_Angle - MAPIL::DegToRad( 90.0f ), true, alpha << 24 | 0xFFFFFF );
 			}
+		}
+
+		if( m_ShotID == PLAYER_SHOT_ID_RED_MAIN ){
+			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_RED_MAIN ],
+								m_PosX, m_PosY, m_Angle - static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+		}
+		else if( m_ShotID == PLAYER_SHOT_ID_BLUE_MAIN ){
+			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_BLUE_MAIN ],
+								m_PosX, m_PosY, 1.0f + ( m_ShotPower - 4 ) * 0.3f, 1.0f );
 		}
 	}
 
 	bool PlayerShot::Impl::Update()
 	{
-		if( m_ShotID == PLAYER_SHOT_ID_NORMAL_MAIN ){
+		if( m_ShotID == PLAYER_SHOT_ID_NORMAL_MAIN || m_ShotID == PLAYER_SHOT_ID_BLUE_MAIN ){
 			m_PosY -= 15.0f;
+			if( m_pPlayer ){
+				float x;
+				float y;
+				m_pPlayer->GetPos( &x, &y );
+				m_PosX = x;
+			}
+			if( m_PosY <= -10.0f ){
+				return false;
+			}
 		}
 		else if( m_ShotID == PLAYER_SHOT_ID_GREEN_MAIN ){
 			m_PosX += m_Speed * ::cos( m_Angle );
 			m_PosY -= m_Speed * ::sin( m_Angle );
+			if( m_PosY <= -10.0f ){
+				return false;
+			}
+		}
+		else if( m_ShotID == PLAYER_SHOT_ID_RED_MAIN ){
+			m_PosX += m_Speed * ::cos( m_Angle );
+			m_PosY -= m_Speed * ::sin( m_Angle );
+			if( m_PosY <= -10.0f || m_PosY >= 500.0f || m_PosX <= 100.0f || m_PosX >= 550.0f ){
+				return false;
+			}
 		}
 
-		if( m_PosY <= -10.0f ){
-			return false;
-		}
+		
 
 		if( m_Colided ){
 			return false;
@@ -141,6 +173,11 @@ namespace GameEngine
 	int PlayerShot::Impl::GetShotPower() const
 	{
 		return m_ShotPower;
+	}
+
+	void PlayerShot::Impl::SetPlayer( Player* pPlayer )
+	{
+		m_pPlayer = pPlayer;
 	}
 
 	// ----------------------------------
@@ -234,5 +271,10 @@ namespace GameEngine
 	int PlayerShot::GetShotPower() const
 	{
 		return m_pImpl->GetShotPower();
+	}
+
+	void PlayerShot::SetPlayer( Player* pPlayer )
+	{
+		return m_pImpl->SetPlayer( pPlayer );
 	}
 }

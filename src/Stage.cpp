@@ -13,6 +13,8 @@
 
 #include "ScriptTypes.h"
 
+#include "ResourceID.h"
+
 #include "StageVCPU.h"
 
 #include "Util.h"
@@ -27,6 +29,18 @@ namespace GameEngine
 		StageData					m_Data;				// ステージ用データ
 
 		StageVCPU					m_VM;				// 仮想マシン
+
+		void ProcessCollision();		// 衝突判定
+		void UpdateGameObjects();		// 全GameObjectの更新
+		void ProcessMessage();			// ステージ用メッセージの処理
+
+		// GameObject全削除メソッド
+		void DeleteAllEnemyShots();
+		void DeleteAllPlayerShots();
+		void DeleteAllEnemies();
+		void DeleteAllEffects();
+		void DeleteAllItems();
+
 	public:
 		Impl( int stageNo, bool isReplay );
 		~Impl();
@@ -54,57 +68,22 @@ namespace GameEngine
 		m_Data.m_Frame = 0;
 		m_Data.m_RandGen.SetRandSeed( 47 );
 		m_Data.m_RandGen.Reset();
+		m_Data.m_ConsLevel = 700;
 	}
 
 	Stage::Impl::~Impl()
 	{
-		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){
-			delete ( *it );
-		}
-		for( PlayerShotList::iterator it = m_Data.m_PlayerShotList.begin(); it != m_Data.m_PlayerShotList.end(); ++it ){
-			delete ( *it );
-		}
-		for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
-			delete ( *it );
-		}
-		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){
-			delete ( *it );
-		}
-		for( EffectList::iterator it = m_Data.m_EffectList.begin(); it != m_Data.m_EffectList.end(); ++it ){
-			delete ( *it );
-		}
-
-
+		// GameObjectの破棄
+		DeleteAllPlayerShots();
+		DeleteAllEnemies();
+		DeleteAllEnemyShots();
+		DeleteAllItems();
+		DeleteAllEffects();
 		MAPIL::SafeDelete( m_Data.m_pPlayer );
-		m_Data.m_EnemyList.clear();
-		m_Data.m_PlayerShotList.clear();
-		m_Data.m_EnemyShotList.clear();
-		m_Data.m_ItemList.clear();
-		m_Data.m_EffectList.clear();
 	}
 
-	void Stage::Impl::Init()
-	{	
-		m_VM.Init( &m_ScriptData.m_pStageScriptData->m_Data, &m_Data );
-		m_Data.m_ObjBuilder.AttachStageData( &m_Data );
-		m_Data.m_pPlayer = reinterpret_cast < Player* > ( m_Data.m_ObjBuilder.CreateCollisionObject( GAME_OBJECT_ID_PLAYER ) );
-		MAPIL::ZeroObject( &m_Data.m_FrameGameData, sizeof( m_Data.m_FrameGameData ) );
-	}
-
-	SceneType Stage::Impl::Update()
+	void Stage::Impl::ProcessCollision()
 	{
-		// 現フレームでのスコアをリセット
-		MAPIL::ZeroObject( &m_Data.m_FrameGameData, sizeof( m_Data.m_FrameGameData ) );
-
-		// ランダムジェネレータの更新
-		m_Data.m_RandGen.Update( m_Data );
-
-		// スクリプトコマンドの実行
-		m_VM.Run();
-		if( m_VM.Terminated() ){
-			return SCENE_TYPE_MENU;
-		}
-
 		// 衝突判定
 		// 敵-プレイヤーショット
 		for( PlayerShotList::iterator itShot = m_Data.m_PlayerShotList.begin(); itShot != m_Data.m_PlayerShotList.end(); ++itShot ){
@@ -147,6 +126,11 @@ namespace GameEngine
 			}
 		}
 		// プレイヤー-アイテム
+		float extraRadius = 50.0f;
+		if(	m_Data.m_pPlayer->GetCurCons() != PLAYER_CONS_MODE_NORMAL &&
+			m_Data.m_pPlayer->GetConsGauge( m_Data.m_pPlayer->GetCurCons() - 1 ) > 0 ){
+			extraRadius = 600.0f;
+		}
 		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){
 			float iX;
 			float iY;
@@ -154,7 +138,7 @@ namespace GameEngine
 			( *it )->GetPos( &iX, &iY );
 			iRad = ( *it )->GetCollisionRadius();
 			float distance = ( iX - pX ) * ( iX - pX ) + ( iY - pY ) * ( iY - pY );
-			float nearRadius = ( pRad + iRad + 30.0f ) * ( pRad + iRad + 30.0f );
+			float nearRadius = ( pRad + iRad + extraRadius ) * ( pRad + iRad + extraRadius );
 			float colRadius = ( pRad + iRad ) * ( pRad + iRad );
 			if( distance < nearRadius ){
 				// 衝突時
@@ -168,7 +152,10 @@ namespace GameEngine
 				}
 			}
 		}
-		
+	}
+
+	void Stage::Impl::UpdateGameObjects()
+	{
 		// プレイヤーの更新
 		m_Data.m_pPlayer->AttachButtonState( m_ButtonStatus );
 		m_Data.m_pPlayer->Update();
@@ -217,6 +204,84 @@ namespace GameEngine
 			}
 			++it;
 		}
+	}
+
+	void Stage::Impl::ProcessMessage()
+	{
+		while( !m_Data.m_MsgQueue.empty() ){
+			if( m_Data.m_MsgQueue.front() == STAGE_MESSAGE_PLAYER_DAMAGED ){
+			}
+			m_Data.m_MsgQueue.pop();
+		}
+	}
+
+	void Stage::Impl::DeleteAllEnemyShots()
+	{
+		for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
+			delete ( *it );
+		}
+		m_Data.m_EnemyShotList.clear();
+	}
+
+	void Stage::Impl::DeleteAllPlayerShots()
+	{
+		for( PlayerShotList::iterator it = m_Data.m_PlayerShotList.begin(); it != m_Data.m_PlayerShotList.end(); ++it ){
+			delete ( *it );
+		}
+		m_Data.m_PlayerShotList.clear();
+	}
+
+	void Stage::Impl::DeleteAllEnemies()
+	{
+		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){
+			delete ( *it );
+		}
+		m_Data.m_EnemyList.clear();
+	}
+
+	void Stage::Impl::DeleteAllEffects()
+	{
+		for( EffectList::iterator it = m_Data.m_EffectList.begin(); it != m_Data.m_EffectList.end(); ++it ){
+			delete ( *it );
+		}
+		m_Data.m_EffectList.clear();
+	}
+
+	void Stage::Impl::DeleteAllItems()
+	{
+		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){
+			delete ( *it );
+		}
+		m_Data.m_ItemList.clear();
+	}
+
+	void Stage::Impl::Init()
+	{	
+		m_VM.Init( &m_ScriptData.m_pStageScriptData->m_Data, &m_Data );
+		m_Data.m_ObjBuilder.AttachStageData( &m_Data );
+		m_Data.m_pPlayer = reinterpret_cast < Player* > ( m_Data.m_ObjBuilder.CreateCollisionObject( GAME_OBJECT_ID_PLAYER ) );
+		MAPIL::ZeroObject( &m_Data.m_FrameGameData, sizeof( m_Data.m_FrameGameData ) );
+	}
+
+	SceneType Stage::Impl::Update()
+	{
+		// 現フレームでのスコアをリセット
+		MAPIL::ZeroObject( &m_Data.m_FrameGameData, sizeof( m_Data.m_FrameGameData ) );
+
+		// ランダムジェネレータの更新
+		m_Data.m_RandGen.Update( m_Data );
+
+		// スクリプトコマンドの実行
+		m_VM.Run();
+		if( m_VM.Terminated() ){
+			return SCENE_TYPE_MENU;
+		}
+
+		// 衝突判定
+		ProcessCollision();
+		
+		// 全GameObjectの更新
+		UpdateGameObjects();
 
 		++m_Data.m_Frame;
 
@@ -227,6 +292,19 @@ namespace GameEngine
 	{
 		// 2D画像描画開始
 		MAPIL::BeginRendering2DGraphics();
+
+		if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x5544FF44 );
+		}
+		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_BLUE ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x554444FF );
+		}
+		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_RED ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x55FF4444 );
+		}
 
 		
 
@@ -267,19 +345,138 @@ namespace GameEngine
 		DrawFontString( m_Data.m_ResourceMap, 30.0f, 120.0f, 0.4f, 0xFFFFFF00, "Power %d", m_Data.m_pPlayer->GetShotPower() );
 		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
 							25.0f, 150.0f, m_Data.m_pPlayer->GetShotPower() * 5.0f / 50.0f, 0.7f, false );
-		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
-							25.0f, 200.0f, m_Data.m_pPlayer->GetConsGauge( 0 ) * 5.0f / 200.0f, 0.8f, false );
-		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
-							25.0f, 220.0f, m_Data.m_pPlayer->GetConsGauge( 1 ) * 5.0f / 200.0f, 0.8f, false );
-		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
-							25.0f, 240.0f, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 200.0f, 0.8f, false );
+
+		static int moveCount = 0;
+		static int prevCons = PLAYER_CONS_MODE_NORMAL;
+
+		const float CONS_GAUGE_OFFSET = 32.0f;
+		const float CONS_GAUGE_BASE = 200.0f;
+
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+							0.0f, 166.0f, 8.0f, 7.5f, false, 0xFF000000 );
+
+		if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_NORMAL ){
+			prevCons = PLAYER_CONS_MODE_NORMAL;
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE, m_Data.m_pPlayer->GetConsGauge( 0 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x22FF22 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET, m_Data.m_pPlayer->GetConsGauge( 1 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x5555FF );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF7722 );
+		}
+		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
+			if( prevCons == PLAYER_CONS_MODE_NORMAL ){
+				prevCons = PLAYER_CONS_MODE_GREEN;
+			}
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 190.0f, 8.0f, 2.0f, false, 0xFF00CCEE );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE, m_Data.m_pPlayer->GetConsGauge( 0 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0x22FF22 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE, m_Data.m_pPlayer->GetConsGauge( 0 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0x22FF22 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET, m_Data.m_pPlayer->GetConsGauge( 1 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x5555FF );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF7722 );
+		}
+		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_BLUE ){
+			if( prevCons == PLAYER_CONS_MODE_GREEN ){
+				moveCount = 0;
+				prevCons = PLAYER_CONS_MODE_BLUE;
+			}
+			else if( moveCount < 32 ){
+				moveCount += 2;
+			}
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 190.0f + moveCount, 8.0f, 2.0f, false, 0xFF00CCEE );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET, m_Data.m_pPlayer->GetConsGauge( 1 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0x5555FF );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET, m_Data.m_pPlayer->GetConsGauge( 1 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0x5555FF );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE, m_Data.m_pPlayer->GetConsGauge( 0 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x22FF22 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF7722 );
+		}
+		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_RED ){
+			if( prevCons == PLAYER_CONS_MODE_BLUE ){
+				moveCount = 0;
+				prevCons = PLAYER_CONS_MODE_RED;
+			}
+			else if( moveCount < 32 ){
+				moveCount += 2;
+			}
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 222.0f + moveCount, 8.0f, 2.0f, false, 0xFF00CCEE );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0xFF7722 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0xFF7722 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE, m_Data.m_pPlayer->GetConsGauge( 0 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x22FF22 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								35.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET, m_Data.m_pPlayer->GetConsGauge( 1 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x5555FF );
+		}
+
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+							0.0f, 292.0f, 8.0f, 7.5f, false, 0xFF000000 );
+
+		for( int i = 1; i <= 10; ++i ){
+			if( m_Data.m_pPlayer->GetConsLevel( 0 ) / ( i * 100 ) >= 1 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 340.0f - 16 * ( 0.2f + i * 0.08f ), 0.3f, 0.2f + i * 0.08f, false, 0xAA22FF22 );
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 340.0f - 16 * ( 0.2f + i * 0.08f ), 0.3f, 0.2f + i * 0.08f, false, ( ( m_Data.m_Frame % 10 ) * 15 + 100 ) << 24 | 0x22FF22 );
+			}
+			else{
+				MAPIL::DrawTexture( m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 340.0f - 16 * ( 0.2f + i * 0.08f ), 0.3f, 0.2f + i * 0.08f, false, ( ( m_Data.m_pPlayer->GetConsLevel( 0 ) % 100 ) * 255 / 100 ) << 24 | 0x22FF22 );
+				break;
+			}
+		}
+		for( int i = 1; i <= 10; ++i ){
+			if( m_Data.m_pPlayer->GetConsLevel( 1 ) / ( i * 100 ) >= 1 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 350.0f - 16 * ( 0.2f + i * 0.08f ) + 20.0f, 0.3f, 0.2f + i * 0.08f, false, 0xAA5555FF );
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 350.0f - 16 * ( 0.2f + i * 0.08f ) + 20.0f, 0.3f, 0.2f + i * 0.08f, false, ( ( m_Data.m_Frame % 10 ) * 15 + 100 ) << 24 | 0x5555FF );
+			}
+			else{
+				MAPIL::DrawTexture( m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 350.0f - 16 * ( 0.2f + i * 0.08f ) + 20.0f, 0.3f, 0.2f + i * 0.08f, false, ( ( m_Data.m_pPlayer->GetConsLevel( 0 ) % 100 ) * 255 / 100 ) << 24 | 0x5555FF );
+				break;
+			}
+		}
+		for( int i = 1; i <= 10; ++i ){
+			if( m_Data.m_pPlayer->GetConsLevel( 2 ) / ( i * 100 ) >= 1 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 360.0f - 16 * ( 0.2f + i * 0.08f ) + 40.0f, 0.3f, 0.2f + i * 0.08f, false, 0xAAFF7722 );
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 360.0f - 16 * ( 0.2f + i * 0.08f ) + 40.0f, 0.3f, 0.2f + i * 0.08f, false, ( ( m_Data.m_Frame % 10 ) * 15 + 100 ) << 24 | 0xFF7722 );
+			}
+			else{
+				MAPIL::DrawTexture( m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									25.0f + i * 9.0f, 360.0f - 16 * ( 0.2f + i * 0.08f ) + 40.0f, 0.3f, 0.2f + i * 0.08f, false, ( ( m_Data.m_pPlayer->GetConsLevel( 0 ) % 100 ) * 255 / 100 ) << 24 | 0xFF7722 );
+				break;
+			}
+		}
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_GREEN_SYMBOL ],
+							18.0f, 207.0f, 0.3f, 0.3f );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_BLUE_SYMBOL ],
+							18.0f, 239.0f, 0.3f, 0.3f );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL ],
+							18.0f, 270.0f, 0.3f, 0.3f );
+
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_GREEN_SYMBOL ],
+							18.0f, 330.0f, 0.3f, 0.3f );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_BLUE_SYMBOL ],
+							18.0f, 362.0f, 0.3f, 0.3f );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL ],
+							18.0f, 393.0f, 0.3f, 0.3f );
+		
 
 
-		//MAPIL::DrawString( 10.0f, 220.0f, "Cons Level" );
-		//MAPIL::DrawString( 10.0f, 240.0f, "1 : %d / 10", m_Data.m_pPlayer->GetConsLevel( 0 ) );
-		//MAPIL::DrawString( 10.0f, 260.0f, "2 : %d / 10", m_Data.m_pPlayer->GetConsLevel( 1 ) );
-		//MAPIL::DrawString( 10.0f, 280.0f, "3 : %d / 10", m_Data.m_pPlayer->GetConsLevel( 2 ) );
-		DrawFontString( m_Data.m_ResourceMap, 30.0f, 400.0f, 0.4f, 0xFFFF0000, "hazard" );
+		DrawFontString( m_Data.m_ResourceMap, 30.0f, 440.0f, 0.4f, 0xFFFF0000, "hazard" );
 		// 右画面
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 70.0f, 0.4f, 0xFFAAFFAA, "hi score" );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 90.0f, 0.4f, "%08d", m_Data.m_GameData.m_HIScore );

@@ -71,10 +71,12 @@ namespace GameEngine
 		// ƒƒCƒ“ƒ‹[ƒv
 		while( !MAPIL::ProcessMessage() ){
 
-			if( MAPIL::IsKeyboardKeyPushed( MAPIL::KEYBOARD_KEY_DELETE ) ){
+			MAPIL::UpdateKeyboard();
+
+			if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_DELETE ) ) ){
 				break;
 			}
-			
+
 
 			if( m_FPSManager.DoesElapseNextTime() ){
 				// •`‰æİ’è

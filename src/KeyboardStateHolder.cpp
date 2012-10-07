@@ -8,7 +8,7 @@ namespace GameEngine
 	class KeyboardStateHolder::Impl
 	{
 	private:
-		char				m_KeyMaps[ 8 ];
+		unsigned char				m_KeyMaps[ 8 ];
 		ButtonPushedStatus	m_ButtonStatus;
 	public:
 		Impl();
@@ -26,14 +26,14 @@ namespace GameEngine
 
 	void KeyboardStateHolder::Impl::Init()
 	{
-		m_KeyMaps[ GENERAL_BUTTON_SHOT ] = MAPIL::KEYBOARD_KEY_Z;
-		m_KeyMaps[ GENERAL_BUTTON_BOMB ] = MAPIL::KEYBOARD_KEY_X;
-		m_KeyMaps[ GENERAL_BUTTON_CHANGE_MODE ] = MAPIL::KEYBOARD_KEY_C;
-		m_KeyMaps[ GENERAL_BUTTON_ADD_OPT ] = MAPIL::KEYBOARD_KEY_A;
-		m_KeyMaps[ GENERAL_BUTTON_MOVE_UP ] = MAPIL::KEYBOARD_KEY_UP;
-		m_KeyMaps[ GENERAL_BUTTON_MOVE_DOWN ] = MAPIL::KEYBOARD_KEY_DOWN;
-		m_KeyMaps[ GENERAL_BUTTON_MOVE_LEFT ] = MAPIL::KEYBOARD_KEY_LEFT;
-		m_KeyMaps[ GENERAL_BUTTON_MOVE_RIGHT ] = MAPIL::KEYBOARD_KEY_RIGHT;
+		m_KeyMaps[ GENERAL_BUTTON_SHOT ] = MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_Z );
+		m_KeyMaps[ GENERAL_BUTTON_BOMB ] = MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_X );
+		m_KeyMaps[ GENERAL_BUTTON_CHANGE_MODE ] = MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_C );
+		m_KeyMaps[ GENERAL_BUTTON_ADD_OPT ] = MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_A );
+		m_KeyMaps[ GENERAL_BUTTON_MOVE_UP ] = MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_UP );
+		m_KeyMaps[ GENERAL_BUTTON_MOVE_DOWN ] = MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_DOWN );
+		m_KeyMaps[ GENERAL_BUTTON_MOVE_LEFT ] = MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_LEFT );
+		m_KeyMaps[ GENERAL_BUTTON_MOVE_RIGHT ] = MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_RIGHT );
 	}
 
 	void KeyboardStateHolder::Impl::Update()

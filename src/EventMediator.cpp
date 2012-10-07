@@ -9,6 +9,7 @@
 #include "GameStateManager.h"
 
 #include "ResourceManager.h"
+#include "ResourceID.h"
 
 #include "ScriptManager.h"
 
@@ -93,6 +94,30 @@ namespace GameEngine
 				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_PLAYER_SHOT_COLLIDED_TEXTURE, "archive/resource/texture/player_shot_collided_effect.png" );
 				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_ENEMY_DESTROYED_TEXTURE, "archive/resource/texture/enemy_destroyed.png" );
 				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ENEMY_DESTROYED_SE, "archive/resource/se/rtg_se2.wav" );
+				m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_GREEN_MAIN,
+														"archive/resource/texture/player_shot_2.png" );
+				m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_SE,
+														GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE,
+														"archive/resource/se/change_mode.wav" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_BAR,
+														"archive/resource/texture/bar.png" );
+				m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL,
+														"archive/resource/texture/red_cons_2_1.png" );
+				m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_CONS_GREEN_SYMBOL,
+														"archive/resource/texture/green_cons.png" );
+				m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_CONS_BLUE_SYMBOL,
+														"archive/resource/texture/blue_cons.png" );
+				m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_BLUE_MAIN,
+														"archive/resource/texture/player_shot_3.png" );
+				m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_RED_MAIN,
+														"archive/resource/texture/player_shot_4.png" );
 				break;
 			// メニュー画面移行要求
 			case EVENT_TYPE_MOVE_TO_MENU:

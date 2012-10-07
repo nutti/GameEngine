@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <list>
+#include <queue>
 #include "Scene.h"
 
 #include "GameObjectBuilder.h"
@@ -23,6 +24,14 @@ namespace GameEngine
 	typedef std::list < Item* >			ItemList;
 	typedef std::list < Effect* >		EffectList;
 
+	typedef std::queue < int >			StageMessageQueue;
+
+	enum StageMessage
+	{
+		STAGE_MESSAGE_PLAYER_DAMAGED			= 0,		// プレイヤーがダメージを受けた
+		STAGE_MESSAGE_PLAYER_DESTORYED			= 1,		// プレイヤーが撃破された（HPが0以下になった）
+	};
+
 	struct StageData
 	{
 		int					m_StageNo;				// ステージ番号
@@ -41,7 +50,11 @@ namespace GameEngine
 		GameDataMsg			m_GameData;				// 現フレームにおけるゲームデータ
 		GameDataMsg			m_FrameGameData;		// 現フレームで更新されるゲームデータ
 
+		StageMessageQueue	m_MsgQueue;				// ステージ用メッセージキュー
+
 		ResourceMap			m_ResourceMap;
+
+		int					m_ConsLevel;			// 意識レベルのベースレベル
 	};
 
 	struct ScriptData;

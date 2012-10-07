@@ -33,7 +33,7 @@ namespace GameEngine
 	void Effect::Draw()
 	{
 		if( m_EffectData.m_EffectID == EFFECT_ID_PLAYER_SHOT_COLLIDED ){
-			float scale = 1.0f - m_EffectData.m_Counter / 30.0f;
+			float scale = 1.5f - m_EffectData.m_Counter / 20.0f;
 			MAPIL::DrawTexture(	m_EffectData.m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_PLAYER_SHOT_COLLIDED_TEXTURE ],
 								m_EffectData.m_PosX, m_EffectData.m_PosY - m_EffectData.m_Counter,
 								scale, scale, m_EffectData.m_Counter * MAPIL::DegToRad( 12.0f ), true, 0xFFFFFFFF );
