@@ -107,4 +107,18 @@ namespace GameEngine
 			}
 		}
 	}
+
+	void WriteInt( std::ofstream* pFOut, int val )
+	{
+		char str[ 4 ];
+		MAPIL::TransformInt32IntoChar( val, str, MAPIL::BYTE_ORDER_LITTLE );
+		pFOut->write( str, sizeof( str ) );
+	}
+
+	int ReadInt( std::ifstream* pFIn )
+	{
+		char str[ 4 ];
+		pFIn->read( str, sizeof( str ) );
+		return MAPIL::TransformCharIntoInt32( str, MAPIL::BYTE_ORDER_LITTLE );
+	}
 }

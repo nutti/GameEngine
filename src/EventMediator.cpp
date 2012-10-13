@@ -24,6 +24,9 @@ namespace GameEngine
 		std::shared_ptr < GameStateManager >		m_pGameStateManager;
 		std::shared_ptr < ResourceManager >			m_pResourceManager;
 		std::shared_ptr < ScriptManager >			m_pScriptManager;
+
+		bool m_HasTermSig;
+
 		void FrameUpdate();
 	public:
 		Impl();
@@ -35,9 +38,10 @@ namespace GameEngine
 		void SetGameStateManger( std::shared_ptr < GameStateManager > pGameStateManager );
 		void SetResourceManager( std::shared_ptr < ResourceManager > pResourceManager );
 		void SetScriptManager( std::shared_ptr < ScriptManager > pScriptManager );
+		bool HasTermSig() const;
 	};
 
-	EventMediator::Impl::Impl()
+	EventMediator::Impl::Impl() : m_HasTermSig( false )
 	{
 	}
 
@@ -66,7 +70,13 @@ namespace GameEngine
 			m_pGameStateManager->AddGameData( msg );
 			m_pGameStateManager->UpdateGameData();
 		}
-		
+
+		// 時間の表示（暫定版）
+		m_pGameStateManager->UpdatePlayTime();
+		int time = m_pGameStateManager->GetPlayTime();
+		MAPIL::BeginRendering2DGraphics();
+		MAPIL::DrawString( 10.0f, 10.0f, "%d : %d : %d", time / 3600, ( time / 60 ) % 60, time % 60 );
+		MAPIL::EndRendering2DGraphics();
 	}
 
 	void EventMediator::Impl::SendEvent( int type )
@@ -74,6 +84,7 @@ namespace GameEngine
 		switch( type ){
 			// 初期化要求
 			case EVENT_TYPE_INITIALIZE:
+				m_pGameStateManager->StartGameDataRecording();
 				m_pSceneManager->ChangeScene( SCENE_TYPE_INITIALIZE );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				m_pScriptManager->BuildFileStructure( "archive/script/build.isc" );
@@ -118,15 +129,64 @@ namespace GameEngine
 				m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
 														GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_RED_MAIN,
 														"archive/resource/texture/player_shot_4.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_SE,
+														GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED,
+														"archive/resource/se/player_damaged.wav" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_SE,
+														GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED,
+														"archive/resource/se/player_destroyed.wav" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START,
+														"archive/resource/texture/game_start.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START_SELECTED,
+														"archive/resource/texture/game_start_selected.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT,
+														"archive/resource/texture/exit.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT_SELECTED,
+														"archive/resource/texture/exit_selected.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE,
+														"archive/resource/texture/score.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE_SELECTED,
+														"archive/resource/texture/score_selected.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY,
+														"archive/resource/texture/replay.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY_SELECTED,
+														"archive/resource/texture/replay_selected.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG,
+														"archive/resource/texture/config.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG_SELECTED,
+														"archive/resource/texture/config_selected.png" );
+
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_HI_SCORE,
+														"archive/resource/texture/hi_score.png" );
 				break;
 			// メニュー画面移行要求
-			case EVENT_TYPE_MOVE_TO_MENU:
+			case EVENT_TYPE_MOVE_TO_MENU:{
+				m_pResourceManager->ReleaseStageResources();
+				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
+				m_pSceneManager->AttachSceneResourceMap( rcMap );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
+			}
 			// フレーム更新要求
 			case EVENT_TYPE_FRAME_UPDATE:
 				FrameUpdate();
+				break;
+			// ゲーム終了要求
+			case EVENT_TYPE_GAME_TERM:
+				m_pGameStateManager->EndGameDataRecording();
+				m_HasTermSig = true;
 				break;
 			default:
 				break;
@@ -138,6 +198,7 @@ namespace GameEngine
 		switch( type ){
 			// ステージ変更要求
 			case EVENT_TYPE_MOVE_TO_STAGE:{
+				m_pResourceManager->ReleaseStageResources();
 				int stage = *( static_cast < int* > ( pArg ) );
 				m_pScriptManager->BuildScriptData( stage );
 				ScriptData data = m_pScriptManager->GetScriptData();
@@ -145,7 +206,7 @@ namespace GameEngine
 				m_pResourceManager->LoadStageResources( data );
 				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
 				m_pSceneManager->AttachSceneResourceMap( rcMap );
-				m_pGameStateManager->StartGameDataRecording();
+				//m_pGameStateManager->StartGameDataRecording();
 				m_pSceneManager->ChangeScene( SCENE_TYPE_STAGE );
 				break;
 			}
@@ -177,6 +238,11 @@ namespace GameEngine
 	void EventMediator::Impl::SetScriptManager( std::shared_ptr < ScriptManager > pScriptManager )
 	{
 		m_pScriptManager = pScriptManager;
+	}
+
+	bool EventMediator::Impl::HasTermSig() const
+	{
+		return m_HasTermSig;
 	}
 
 	// ----------------------------------
@@ -226,4 +292,8 @@ namespace GameEngine
 		m_pImpl->SetScriptManager( pScriptManager );
 	}
 
+	bool EventMediator::HasTermSig() const
+	{
+		return m_pImpl->HasTermSig();
+	}
 }

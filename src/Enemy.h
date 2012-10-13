@@ -1,14 +1,17 @@
 #ifndef INCLUDED_GAMEENGINE_ENEMY_H
 #define INCLUDED_GAMEENGINE_ENEMY_H
 
-#include "CollisionObject.h"
+#include <vector>
 
+#include "CollisionObject.h"
 #include "EnemyVCPU.h"
 
 namespace GameEngine
 {
+
 	struct StageData;
 	struct ResourceMap;
+	class EnemyShotGroup;
 
 	struct EnemyData
 	{
@@ -32,6 +35,7 @@ namespace GameEngine
 		StageData*	m_pStageData;		// ステージデータ
 		ItemDrop	m_ItemDrop[ 6 ];	// 落とすアイテムの状態
 		std::shared_ptr < ResourceMap >		m_pResouceMap;
+		std::vector < EnemyShotGroup* >		m_ShotGroupList;		// 現在保持しているショットグループ
 	};
 
 	// 速度向上のため、pimplイディオムは使用しない。

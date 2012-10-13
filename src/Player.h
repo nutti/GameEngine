@@ -19,15 +19,16 @@ namespace GameEngine
 
 	struct PlayerData
 	{
-		float		m_PosX;				// 位置（X座標）
-		float		m_PosY;				// 位置（Y座標）
-		int			m_HP;				// HP
-		int			m_ConsCur;			// 現在の意識状態
-		int			m_ConsGauge[ 3 ];	// 意識ゲージ
-		int			m_ConsLevel[ 3 ];	// 意識レベル
-		int			m_ShotPower;		// ショットのパワー
-		float		m_ColRadius;		// 衝突半径
-		int			m_Counter;			// カウンタ
+		float		m_PosX;					// 位置（X座標）
+		float		m_PosY;					// 位置（Y座標）
+		int			m_HP;					// HP
+		int			m_ConsCur;				// 現在の意識状態
+		int			m_ConsGauge[ 3 ];		// 意識ゲージ
+		int			m_ConsLevel[ 3 ];		// 意識レベル
+		int			m_ShotPower;			// ショットのパワー
+		float		m_ColRadius;			// 衝突半径
+		int			m_Counter;				// カウンタ
+		int			m_RestInvincibleTime;	// 残りの無敵時間
 	};
 
 	struct ResourceMap;

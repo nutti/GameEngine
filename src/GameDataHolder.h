@@ -20,6 +20,9 @@ namespace GameEngine
 		void Update();
 		GameDataMsg GetScoreData() const;
 		void Add( const GameDataMsg& data );
+		void Flush();
+		int GetPlayTime() const;
+		void UpdatePlayTime();
 	};
 }
 

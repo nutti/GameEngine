@@ -9,6 +9,7 @@ namespace GameEngine
 {
 
 	struct ResourceMap;
+	class EnemyShotGroup;
 	class EnemyShot : public CollisionObject
 	{
 	private:
@@ -25,6 +26,7 @@ namespace GameEngine
 		void SetSpeed( float speed );						// 速度を設定
 		void SetImage( int id );							// 画像を設定
 		void SetCollisionRadius( float radius );			// 衝突判定の半径を設定
+		void JoinShotGroup( int id, EnemyShotGroup* pGroup );
 		void Colided( CollisionObject* pObject );			// 衝突時の処理 ディスパッチャ
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 		void ProcessCollision( Enemy* pEnemy );				// 衝突時の処理（敵）

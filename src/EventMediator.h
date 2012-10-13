@@ -24,6 +24,7 @@ namespace GameEngine
 		void SetGameStateManager( std::shared_ptr < GameStateManager > pGameStateManager );
 		void SetResourceManager( std::shared_ptr < ResourceManager > pResourceManager );
 		void SetScriptManager( std::shared_ptr < ScriptManager > pScriptManager );
+		bool HasTermSig() const;
 	};
 }
 

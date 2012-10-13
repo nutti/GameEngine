@@ -5,6 +5,8 @@
 #include "ResourceTypes.h"
 #include "ResourceID.h"
 
+#include "GameObjectImplBase.h"
+
 namespace GameEngine
 {
 	enum PlayerShotID
@@ -15,7 +17,7 @@ namespace GameEngine
 		PLAYER_SHOT_ID_RED_MAIN			= 3,	// 赤モードのメインショット
 	};
 
-	class PlayerShot::Impl
+	class PlayerShot::Impl : public GameObjectImplBase
 	{
 	private:
 		std::shared_ptr < ResourceMap >		m_pResourceMap;
@@ -46,7 +48,8 @@ namespace GameEngine
 		void SetPlayer( Player* pPlayer );
 	};
 
-	PlayerShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
+	PlayerShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	GameObjectImplBase(),
+																				m_pResourceMap( pMap ),
 																				m_ShotID( id ),
 																				m_Colided( false ),
 																				m_pPlayer( NULL )
@@ -129,53 +132,53 @@ namespace GameEngine
 		return true;
 	}
 
-	void PlayerShot::Impl::GetPos( float* pX, float* pY )
+	inline void PlayerShot::Impl::GetPos( float* pX, float* pY )
 	{
 		*pX = m_PosX;
 		*pY = m_PosY;
 	}
 
-	void PlayerShot::Impl::SetPos( const Player& player )
+	inline void PlayerShot::Impl::SetPos( const Player& player )
 	{
 	}
 
-	void PlayerShot::Impl::SetPos( float posX, float posY )
+	inline void PlayerShot::Impl::SetPos( float posX, float posY )
 	{
 		m_PosX = posX;
 		m_PosY = posY;
 	}
 
-	void PlayerShot::Impl::SetAngle( float angle )
+	inline void PlayerShot::Impl::SetAngle( float angle )
 	{
 		m_Angle = angle;
 	}
 
-	void PlayerShot::Impl::SetSpeed( float speed )
+	inline void PlayerShot::Impl::SetSpeed( float speed )
 	{
 		m_Speed = speed;
 	}
 
-	void PlayerShot::Impl::SetShotPower( int power )
+	inline void PlayerShot::Impl::SetShotPower( int power )
 	{
 		m_ShotPower = power;
 	}
 
-	void PlayerShot::Impl::ProcessCollision( Enemy* pEnemy )
+	inline void PlayerShot::Impl::ProcessCollision( Enemy* pEnemy )
 	{
 		m_Colided = true;
 	}
 
-	float PlayerShot::Impl::GetCollisionRadius() const
+	inline float PlayerShot::Impl::GetCollisionRadius() const
 	{
 		return m_ColRadius;
 	}
 
-	int PlayerShot::Impl::GetShotPower() const
+	inline int PlayerShot::Impl::GetShotPower() const
 	{
 		return m_ShotPower;
 	}
 
-	void PlayerShot::Impl::SetPlayer( Player* pPlayer )
+	inline void PlayerShot::Impl::SetPlayer( Player* pPlayer )
 	{
 		m_pPlayer = pPlayer;
 	}

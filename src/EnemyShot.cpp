@@ -2,11 +2,19 @@
 
 #include "EnemyShot.h"
 #include "ResourceTypes.h"
+#include "EnemyShotGroup.h"
+#include "GameObjectImplBase.h"
 
 namespace GameEngine
 {
 
-	class EnemyShot::Impl
+	struct ShotGroupData
+	{
+		EnemyShotGroup*						m_pShotGroup;		// 所属しているショットグループ
+		int									m_ID;				// ショットグループID
+	};
+
+	class EnemyShot::Impl : public GameObjectImplBase
 	{
 	private:
 		std::shared_ptr < ResourceMap >		m_pResourceMap;		// リソース管理データ
@@ -19,6 +27,7 @@ namespace GameEngine
 		int									m_ImgID;			// 画像ID
 		bool								m_Colided;			// 衝突したか？
 		int									m_Counter;			// カウンタ
+		ShotGroupData						m_ShotGroupData;	// ショットグループデータ
 	public:
 		Impl( std::shared_ptr < ResourceMap > pMap, int id );
 		~Impl();
@@ -30,6 +39,7 @@ namespace GameEngine
 		void SetSpeed( float speed );						// 速度を設定
 		void SetImage( int id );							// 画像を設定
 		void SetCollisionRadius( float radius );			// 衝突判定の半径を設定
+		void JoinShotGroup( int id, EnemyShotGroup* pGroup );
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 		float GetCollisionRadius() const;
 	};
@@ -39,10 +49,15 @@ namespace GameEngine
 																			m_Colided( false )
 	{
 		m_Counter = 0;
+		MAPIL::ZeroObject( &m_ShotGroupData, sizeof( m_ShotGroupData ) );
 	}
 
 	EnemyShot::Impl::~Impl()
 	{
+		if( m_ShotGroupData.m_pShotGroup ){
+			m_ShotGroupData.m_pShotGroup->DeleteShot( m_ShotGroupData.m_ID );
+		}
+		MAPIL::ZeroObject( &m_ShotGroupData, sizeof( m_ShotGroupData ) );
 	}
 
 	void EnemyShot::Impl::Draw()
@@ -82,45 +97,52 @@ namespace GameEngine
 		return true;
 	}
 
-	void EnemyShot::Impl::GetPos( float* pX, float* pY )
+	inline void EnemyShot::Impl::GetPos( float* pX, float* pY )
 	{
 		*pX = m_PosX;
 		*pY = m_PosY;
 	}
 
-	void EnemyShot::Impl::SetPos( float posX, float posY )
+	inline void EnemyShot::Impl::SetPos( float posX, float posY )
 	{
 		m_PosX = posX;
 		m_PosY = posY;
 	}
 
-	void EnemyShot::Impl::SetAngle( float angle )
+	inline void EnemyShot::Impl::SetAngle( float angle )
 	{
 		m_Angle = angle;
 	}
-	void EnemyShot::Impl::SetSpeed( float speed )
+
+	inline void EnemyShot::Impl::SetSpeed( float speed )
 	{
 		m_Speed = speed + 2.0f;
 	}
 
-	void EnemyShot::Impl::SetImage( int id )
+	inline void EnemyShot::Impl::SetImage( int id )
 	{
 		m_ImgID = id;
 	}
 
-	void EnemyShot::Impl::SetCollisionRadius( float radius )
+	inline void EnemyShot::Impl::SetCollisionRadius( float radius )
 	{
 		m_ColRadius = radius;
 	}
 
-	void EnemyShot::Impl::ProcessCollision( Player* pPlayer )
+	inline void EnemyShot::Impl::ProcessCollision( Player* pPlayer )
 	{
 		m_Colided = true;
 	}
 
-	float EnemyShot::Impl::GetCollisionRadius() const
+	inline float EnemyShot::Impl::GetCollisionRadius() const
 	{
 		return m_ColRadius;
+	}
+
+	inline void EnemyShot::Impl::JoinShotGroup( int id, EnemyShotGroup* pGroup )
+	{
+		m_ShotGroupData.m_ID = id;
+		m_ShotGroupData.m_pShotGroup = pGroup;
 	}
 
 	// ----------------------------------
@@ -209,5 +231,10 @@ namespace GameEngine
 	void EnemyShot::SetCollisionRadius( float radius )
 	{
 		m_pImpl->SetCollisionRadius( radius );
+	}
+
+	void EnemyShot::JoinShotGroup( int id, EnemyShotGroup* pGroup )
+	{
+		m_pImpl->JoinShotGroup( id, pGroup );
 	}
 }

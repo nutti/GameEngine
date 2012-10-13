@@ -6,6 +6,8 @@
 #include "Util.h"
 #include "Item.h"
 
+#include "GameObjectImplBase.h"
+
 #include "Stage.h"
 
 #include "ResourceID.h"
@@ -13,9 +15,11 @@
 namespace GameEngine
 {
 
-	class Player::Impl
+	class Player::Impl : public GameObjectImplBase
 	{
 	private:
+		const int	INVINCIBLE_TIME;
+
 		ButtonStatusHolder					m_ButtonStatus;
 		PlayerData							m_Data;
 		std::shared_ptr < ResourceMap >		m_pResourceMap;
@@ -46,7 +50,10 @@ namespace GameEngine
 		int GetCurCons() const;
 	};
 
-	Player::Impl::Impl( std::shared_ptr < ResourceMap > pMap, StageData* pStageData ) : m_pResourceMap( pMap ), m_pStageData( pStageData )
+	Player::Impl::Impl( std::shared_ptr < ResourceMap > pMap, StageData* pStageData ) :	GameObjectImplBase(),
+																						m_pResourceMap( pMap ),
+																						m_pStageData( pStageData ),
+																						INVINCIBLE_TIME( 240 )
 	{
 		MAPIL::ZeroObject( &m_Data, sizeof( m_Data ) );
 		m_Data.m_HP = 10;
@@ -58,6 +65,7 @@ namespace GameEngine
 		m_Data.m_ColRadius = 3.0f;
 		m_Data.m_Counter = 0;
 		m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
+		m_Data.m_RestInvincibleTime = 0;
 	}
 
 	Player::Impl::~Impl()
@@ -307,15 +315,31 @@ namespace GameEngine
 		}
 	}
 
-	void Player::Impl::AttachButtonState( const ButtonStatusHolder& holder )
+	inline void Player::Impl::AttachButtonState( const ButtonStatusHolder& holder )
 	{
 		m_ButtonStatus = holder;
 	}
 
 	void Player::Impl::Draw()
 	{
-		MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
-							m_Data.m_PosX, m_Data.m_PosY );
+		if( m_Data.m_RestInvincibleTime <= 0 || ( m_Data.m_Counter % 3 ) == 0 ){
+			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+									m_Data.m_PosX, m_Data.m_PosY );
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+									m_Data.m_PosX, m_Data.m_PosY, true, 0xFF55FF55 );
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+									m_Data.m_PosX, m_Data.m_PosY, true, 0xFF5555FF );
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+									m_Data.m_PosX, m_Data.m_PosY, true, 0xFFFF5555 );
+			}
+		}
 
 		if( m_Data.m_ConsCur != PLAYER_CONS_MODE_NORMAL ){
 			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
@@ -346,25 +370,46 @@ namespace GameEngine
 
 		UpdateCons();
 
+		--m_Data.m_RestInvincibleTime;
 		++m_Data.m_Counter;
 		
 		return true;
 	}
 
-	void Player::Impl::GetPos( float* pX, float* pY ) const
+	inline void Player::Impl::GetPos( float* pX, float* pY ) const
 	{
 		*pX = m_Data.m_PosX;
 		*pY = m_Data.m_PosY;
 	}
 
-	void Player::Impl::ProcessCollision( Enemy* pEnemy )
+	inline void Player::Impl::ProcessCollision( Enemy* pEnemy )
 	{
 		--m_Data.m_HP;
 	}
 
 	void Player::Impl::ProcessCollision( EnemyShot* pEnemyShot )
 	{
-		--m_Data.m_HP;
+		if( m_Data.m_RestInvincibleTime <= 0 ){
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED ] );
+			m_pStageData->m_MsgQueue.push( STAGE_MESSAGE_PLAYER_DAMAGED );
+			--m_Data.m_HP;
+			if( m_Data.m_HP <= 0 ){
+				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED ] );
+				m_pStageData->m_MsgQueue.push( STAGE_MESSAGE_PLAYER_DESTORYED );
+			}
+		
+			if( m_Data.m_ConsCur != PLAYER_CONS_MODE_NORMAL ){
+				m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 200;
+			}
+			for( int i = 0; i < 3; ++i ){
+				m_Data.m_ConsGauge[ i ] -= 100;
+				if( m_Data.m_ConsGauge[ i ] < 0 ){
+					m_Data.m_ConsGauge[ i ] = 0;
+				}
+			}
+
+			m_Data.m_RestInvincibleTime = INVINCIBLE_TIME;
+		}
 	}
 
 	void Player::Impl::ProcessCollision( Item* pItem )
@@ -383,32 +428,32 @@ namespace GameEngine
 		}
 	}
 
-	float Player::Impl::GetCollisionRadius() const
+	inline float Player::Impl::GetCollisionRadius() const
 	{
 		return m_Data.m_ColRadius;
 	}
 
-	int Player::Impl::GetHP() const
+	inline int Player::Impl::GetHP() const
 	{
 		return m_Data.m_HP;
 	}
 
-	int Player::Impl::GetConsGauge( int cons ) const
+	inline int Player::Impl::GetConsGauge( int cons ) const
 	{
 		return m_Data.m_ConsGauge[ cons ];
 	}
 
-	int Player::Impl::GetConsLevel( int cons ) const
+	inline int Player::Impl::GetConsLevel( int cons ) const
 	{
 		return m_Data.m_ConsLevel[ cons ];
 	}
 
-	int Player::Impl::GetShotPower() const
+	inline int Player::Impl::GetShotPower() const
 	{
 		return m_Data.m_ShotPower;
 	}
 
-	int Player::Impl::GetCurCons() const
+	inline int Player::Impl::GetCurCons() const
 	{
 		return m_Data.m_ConsCur;
 	}

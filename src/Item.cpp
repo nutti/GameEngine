@@ -77,8 +77,8 @@ namespace GameEngine
 			float py;
 			m_pPlayer->GetPos( &px, &py );
 			m_ItemData.m_Angle = ::atan2( py - m_ItemData.m_PosY, m_ItemData.m_PosX - px );
-			m_ItemData.m_PosX -= 4.0f * ::cos( m_ItemData.m_Angle );
-			m_ItemData.m_PosY += 4.0f * ::sin( m_ItemData.m_Angle );
+			m_ItemData.m_PosX -= 6.0f * ::cos( m_ItemData.m_Angle );
+			m_ItemData.m_PosY += 6.0f * ::sin( m_ItemData.m_Angle );
 		}
 		else{
 			if( m_ItemData.m_Counter < 100 ){

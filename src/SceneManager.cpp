@@ -60,6 +60,9 @@ namespace GameEngine
 					int stage = 1;
 					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &stage );
 				}
+				else if( next == SCENE_TYPE_GAME_TERM ){
+					p->SendEvent( EVENT_TYPE_GAME_TERM );
+				}
 			}
 			else{
 				exit( 1 );
@@ -94,9 +97,10 @@ namespace GameEngine
 		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( scene ) );
 		Stage* p = dynamic_cast < Stage* > ( m_pCurScene.get() );
 		if( p ){
-			p->AttachResourceMap( m_ResourceMap );
+			//p->AttachResourceMap( m_ResourceMap );
 			p->AttachScriptData( m_ScriptData );
 		}
+		m_pCurScene->AttachResourceMap( m_ResourceMap );
 		m_pCurScene->Init();
 		m_CurSceneType = scene;
 	}

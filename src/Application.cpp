@@ -35,11 +35,7 @@ namespace GameEngine
 		void Run();
 	};
 
-	Application::Impl::Impl()/* :	m_pSceneManager( new SceneManager ),
-								m_pEventMediator( new EventMediator ),
-								m_pButtonManager( new GeneralButtonManager ),
-								m_pGameStateManager( new GameStateManager ),
-								m_pResourceManager( new ResourceManager )*/
+	Application::Impl::Impl()
 	{
 		m_pEventMediator.reset( new EventMediator );
 		m_pSceneManager.reset( new SceneManager( m_pEventMediator ) );
@@ -73,7 +69,12 @@ namespace GameEngine
 
 			MAPIL::UpdateKeyboard();
 
+			// 強制終了用
 			if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_DELETE ) ) ){
+				break;
+			}
+			// ゲーム終了要求を受信
+			if( m_pEventMediator->HasTermSig() ){
 				break;
 			}
 

@@ -6,6 +6,7 @@
 #include "Stage.h"
 #include "Effect.h"
 #include "PlayerShot.h"
+#include "EnemyShotGroup.h"
 
 namespace GameEngine
 {
@@ -28,10 +29,17 @@ namespace GameEngine
 		m_Data.m_ConsGauge = 200;
 		m_Data.m_IsBoss = false;
 		m_Data.m_ConsType = 0;
+		m_Data.m_ShotGroupList.clear();
 	}
 
 	Enemy::~Enemy()
 	{
+		for( int i = 0; i < m_Data.m_ShotGroupList.size(); ++i ){
+			if( m_Data.m_ShotGroupList[ i ] != NULL ){
+				m_Data.m_ShotGroupList[ i ]->DetachEnemyControl();
+			}
+		}
+		m_Data.m_ShotGroupList.clear();
 	}
 
 	void Enemy::Init( float posX, float posY )
@@ -50,8 +58,6 @@ namespace GameEngine
 		MAPIL::DrawTexture(	m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE ],
 							m_Data.m_PosX + 5.0f, m_Data.m_PosY - 10.0f,
 							m_Data.m_HP * 1.5f / m_Data.m_MaxHP, 0.3f, false );
-		//MAPIL::DrawString( m_Data.m_PosX, m_Data.m_PosY - 32.0f, 0xFFFFFFAA, "%d", m_Data.m_HP );
-		//MAPIL::DrawString( m_Data.m_PosX, m_Data.m_PosY - 16.0f, 0xFFAAFFFF, "%d", m_Data.m_ConsGauge );
 	}
 
 	bool Enemy::Update()
@@ -60,6 +66,18 @@ namespace GameEngine
 			return false;
 		}
 		m_VM.Run();
+
+		if( m_Data.m_Counter == 30 ){
+			m_Data.m_ShotGroupList.push_back( new EnemyShotGroup( m_Data.m_pResouceMap, &m_Data ) );
+			int id = m_Data.m_ShotGroupList[ 0 ]->CreateShot();
+			m_Data.m_ShotGroupList[ 0 ]->SetShotStatus( id, 250.0f, 100.0f, MAPIL::DegToRad( -90.0f ), 1.0f, 2.0f, 0 );
+		}
+
+		for( int i = 0; i < m_Data.m_ShotGroupList.size(); ++i ){
+			if( m_Data.m_ShotGroupList[ i ] != NULL && m_Data.m_ShotGroupList[ i ]->IsEmpty() ){
+				MAPIL::SafeDelete( m_Data.m_ShotGroupList[ i ] );
+			}
+		}
 
 		++m_Data.m_Counter;
 

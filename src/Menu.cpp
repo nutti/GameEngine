@@ -2,40 +2,119 @@
 
 #include "Menu.h"
 
+#include "ResourceID.h"
+
+#include "Util.h"
+
 namespace GameEngine
 {
+	enum MenuID
+	{
+		MENU_ID_GAME_START		= 0,	// ゲーム開始
+		MENU_ID_SCORE			= 1,	// スコア
+		MENU_ID_REPLAY			= 2,	// リプレイ
+		MENU_ID_CONFIG			= 3,	// 設定
+		MENU_ID_EXIT			= 4,	// ゲーム終了
+	};
+
 	class Menu::Impl
 	{
 	private:
 		ButtonStatusHolder			m_ButtonStatus;
+		ResourceMap					m_ResourceMap;
+		int							m_Counter;
+		int							m_MenuPointed;
 	public:
 		Impl();
 		~Impl(){}
 		SceneType Update();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
+		void AttachResourceMap( const ResourceMap& map );
 	};
 
 	Menu::Impl::Impl()
 	{
+		m_Counter = 0;
+		m_MenuPointed = MENU_ID_GAME_START;
 	}
 
 	SceneType Menu::Impl::Update()
 	{
-		if( m_ButtonStatus.m_Status[ 0 ] == BUTTON_STATUS_KEEP ){
-			MAPIL::BeginRendering2DGraphics();
-			MAPIL::DrawString( 20.0f, 20.0f, "aiueo" );
-			MAPIL::EndRendering2DGraphics();
+		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
+			switch( m_MenuPointed ){
+				case MENU_ID_GAME_START:
+					return SCENE_TYPE_STAGE;
+				case MENU_ID_EXIT:
+					return SCENE_TYPE_GAME_TERM;
+				default:
+					break;
+			}
 		}
-		else if( m_ButtonStatus.m_Status[ 1 ] == BUTTON_STATUS_PUSHED ){
-			return SCENE_TYPE_STAGE;
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
+			if( m_MenuPointed == MENU_ID_EXIT ){
+				return SCENE_TYPE_GAME_TERM;
+			}
+			m_MenuPointed = MENU_ID_EXIT;
 		}
+
+		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
+			++m_MenuPointed;
+			if( m_MenuPointed > MENU_ID_EXIT ){
+				m_MenuPointed = MENU_ID_GAME_START;
+			}
+		}
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
+			--m_MenuPointed;
+			if( m_MenuPointed < MENU_ID_GAME_START ){
+				m_MenuPointed = MENU_ID_EXIT;
+			}
+		}
+
+		++m_Counter;
 
 		return SCENE_TYPE_NOT_CHANGE;
 	}
 
 	void Menu::Impl::Draw()
 	{
+		MAPIL::BeginRendering2DGraphics();
+
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START ],
+							20.0f, 250.0f, 0.8f, 0.8f, false );
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE ],
+							20.0f, 280.0f, 0.8f, 0.8f, false );
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY ],
+							20.0f, 310.0f, 0.8f, 0.8f, false );
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG ],
+							20.0f, 340.0f, 0.8f, 0.8f, false );
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT ],
+							20.0f, 370.0f, 0.8f, 0.8f, false );
+
+		unsigned char alpha = 255 - ( m_Counter % 20 ) * 5;
+		if( m_MenuPointed == MENU_ID_GAME_START ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START_SELECTED ],
+								20.0f, 250.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+		}
+		else if( m_MenuPointed == MENU_ID_SCORE ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE_SELECTED ],
+								20.0f, 280.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+		}
+		else if( m_MenuPointed == MENU_ID_REPLAY ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY_SELECTED ],
+								20.0f, 310.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+		}
+		else if( m_MenuPointed == MENU_ID_CONFIG ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG_SELECTED ],
+								20.0f, 340.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+		}
+		else if( m_MenuPointed == MENU_ID_EXIT ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT_SELECTED ],
+								20.0f, 370.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+		}
+		
+
+		MAPIL::EndRendering2DGraphics();
 	}
 
 	void Menu::Impl::AttachButtonState( ButtonStatusHolder* pHolder )
@@ -43,6 +122,10 @@ namespace GameEngine
 		m_ButtonStatus = *pHolder;
 	}
 
+	void Menu::Impl::AttachResourceMap( const ResourceMap& map )
+	{
+		m_ResourceMap = map;
+	}
 
 	// ----------------------------------
 	// 実装クラスの呼び出し
@@ -77,5 +160,6 @@ namespace GameEngine
 
 	void Menu::AttachResourceMap( const ResourceMap& map )
 	{
+		m_pImpl->AttachResourceMap( map );
 	}
 }

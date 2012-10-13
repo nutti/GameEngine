@@ -9,6 +9,8 @@
 #include "Item.h"
 #include "Effect.h"
 
+#include "EnemyShotGroup.h"
+
 #include "GameObjectBuilder.h"
 
 #include "ScriptTypes.h"
@@ -69,6 +71,7 @@ namespace GameEngine
 		m_Data.m_RandGen.SetRandSeed( 47 );
 		m_Data.m_RandGen.Reset();
 		m_Data.m_ConsLevel = 700;
+		m_Data.m_HasTermSig = false;
 	}
 
 	Stage::Impl::~Impl()
@@ -79,6 +82,10 @@ namespace GameEngine
 		DeleteAllEnemyShots();
 		DeleteAllItems();
 		DeleteAllEffects();
+		for( EnemyShotGroupList::iterator it = m_Data.m_EnemyShotGroupList.begin(); it != m_Data.m_EnemyShotGroupList.end(); ++it ){
+			delete ( *it );
+		}
+		m_Data.m_EnemyShotGroupList.clear();
 		MAPIL::SafeDelete( m_Data.m_pPlayer );
 	}
 
@@ -204,12 +211,30 @@ namespace GameEngine
 			}
 			++it;
 		}
+		// 敵ショットグループの更新
+		for( EnemyShotGroupList::iterator it = m_Data.m_EnemyShotGroupList.begin(); it != m_Data.m_EnemyShotGroupList.end(); ){
+			if( ( *it )->IsEmpty() ){
+				delete ( *it );
+				it = m_Data.m_EnemyShotGroupList.erase( it );
+				continue;
+			}
+			++it;
+		}
 	}
 
 	void Stage::Impl::ProcessMessage()
 	{
 		while( !m_Data.m_MsgQueue.empty() ){
-			if( m_Data.m_MsgQueue.front() == STAGE_MESSAGE_PLAYER_DAMAGED ){
+			int msg = m_Data.m_MsgQueue.front();
+			switch( msg ){
+				case STAGE_MESSAGE_PLAYER_DAMAGED:
+					DeleteAllEnemyShots();
+					break;
+				case STAGE_MESSAGE_PLAYER_DESTORYED:
+					m_Data.m_HasTermSig = true;
+					break;
+				default:
+					break;
 			}
 			m_Data.m_MsgQueue.pop();
 		}
@@ -270,6 +295,27 @@ namespace GameEngine
 
 		// ランダムジェネレータの更新
 		m_Data.m_RandGen.Update( m_Data );
+
+		//static EnemyShotGroup group( NULL, &m_Data );
+		//static int id = 5;
+
+		//if( m_Data.m_Frame == 60 ){
+		//	id = group.CreateShot();
+		//	group.SetShotStatus( id, 250.0f, 100.0f, MAPIL::DegToRad( -90.0f ), 1.0f, 5.0f, 0 );
+		//	id = group.CreateShot();
+		//	group.SetShotStatus( id, 300.0f, 100.0f, MAPIL::DegToRad( -80.0f ), 1.0f, 5.0f, 0 );
+		//}
+
+		//if( group.IsEmpty() ){
+		//	int i = 0;
+		//	++i;
+		//}
+
+		// ステージ向けのメッセージを処理
+		ProcessMessage();
+		if( m_Data.m_HasTermSig ){
+			return SCENE_TYPE_MENU;
+		}
 
 		// スクリプトコマンドの実行
 		m_VM.Run();
@@ -478,7 +524,9 @@ namespace GameEngine
 
 		DrawFontString( m_Data.m_ResourceMap, 30.0f, 440.0f, 0.4f, 0xFFFF0000, "hazard" );
 		// 右画面
-		DrawFontString( m_Data.m_ResourceMap, 530.0f, 70.0f, 0.4f, 0xFFAAFFAA, "hi score" );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_HI_SCORE ],
+							525.0f, 55.0f, 0.8f, 0.8f, false );
+		//DrawFontString( m_Data.m_ResourceMap, 530.0f, 70.0f, 0.4f, 0xFFAAFFAA, "hi score" );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 90.0f, 0.4f, "%08d", m_Data.m_GameData.m_HIScore );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 140.0f, 0.4f, 0xFFAAFFAA, "score" );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 160.0f, 0.4f, "%08d", m_Data.m_GameData.m_Score );
@@ -493,6 +541,7 @@ namespace GameEngine
 		MAPIL::DrawString( 530.0f, 390.0f, "Item : %d", m_Data.m_ItemList.size() );
 		MAPIL::DrawString( 530.0f, 410.0f, "Effect : %d", m_Data.m_EffectList.size() );
 		MAPIL::DrawString( 530.0f, 430.0f, "PlayerShot : %d", m_Data.m_PlayerShotList.size() );
+		MAPIL::DrawString( 500.0f, 450.0f, "EnemyShotGroup : %d", m_Data.m_EnemyShotGroupList.size() );
 		
 		
 		// 2D描画終了

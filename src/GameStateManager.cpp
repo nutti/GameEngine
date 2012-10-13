@@ -24,6 +24,9 @@ namespace GameEngine
 		GameDataMsg GetGameData() const;
 		void AddGameData( const GameDataMsg& data );
 		void UpdateGameData();
+		void FlushGameData();
+		int GetPlayTime() const;
+		void UpdatePlayTime();
 	};
 
 	GameStateManager::Impl::Impl() : m_ReplayBuilder()
@@ -72,6 +75,20 @@ namespace GameEngine
 	void GameStateManager::Impl::UpdateGameData()
 	{
 		m_GameDataHolder.Update();
+	}
+
+	void GameStateManager::Impl::FlushGameData()
+	{
+	}
+
+	int GameStateManager::Impl::GetPlayTime() const
+	{
+		return m_GameDataHolder.GetPlayTime();
+	}
+
+	void GameStateManager::Impl::UpdatePlayTime()
+	{
+		m_GameDataHolder.UpdatePlayTime();
 	}
 
 	// ----------------------------------
@@ -131,4 +148,18 @@ namespace GameEngine
 		m_pImpl->UpdateGameData();
 	}
 
+	void GameStateManager::FlushGameData()
+	{
+		m_pImpl->FlushGameData();
+	}
+
+	int GameStateManager::GetPlayTime() const
+	{
+		return m_pImpl->GetPlayTime();
+	}
+
+	void GameStateManager::UpdatePlayTime()
+	{
+		m_pImpl->UpdatePlayTime();
+	}
 }

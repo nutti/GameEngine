@@ -4,8 +4,8 @@
 
 namespace GameEngine
 {
-	typedef MAPIL::Allocator < 6000, 3000 >		Allocator;
-	static Allocator	g_Allocator;
+	typedef MAPIL::HeapAllocator Allocator;
+	static Allocator	g_Allocator( 6000, 2000 );
 
 	// ----------------------------------
 	// À‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ

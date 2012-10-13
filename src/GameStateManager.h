@@ -26,6 +26,9 @@ namespace GameEngine
 		GameDataMsg GetGameData() const;
 		void AddGameData( const GameDataMsg& data );
 		void UpdateGameData();
+		void FlushGameData();			// ファイルへ現在のゲームデータを保存
+		int GetPlayTime() const;
+		void UpdatePlayTime();
 	};
 }
 

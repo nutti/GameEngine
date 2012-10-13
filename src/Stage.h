@@ -17,12 +17,14 @@ namespace GameEngine
 	class EnemyShot;
 	class Item;
 	class Effect;
+	class EnemyShotGroup;
 
-	typedef std::list < Enemy* >		EnemyList;
-	typedef std::list < PlayerShot* >	PlayerShotList;
-	typedef std::list < EnemyShot* >	EnemyShotList;
-	typedef std::list < Item* >			ItemList;
-	typedef std::list < Effect* >		EffectList;
+	typedef std::list < Enemy* >			EnemyList;
+	typedef std::list < PlayerShot*	>		PlayerShotList;
+	typedef std::list < EnemyShot* >		EnemyShotList;
+	typedef std::list < Item* >				ItemList;
+	typedef std::list < Effect* >			EffectList;
+	typedef std::list < EnemyShotGroup* >	EnemyShotGroupList;
 
 	typedef std::queue < int >			StageMessageQueue;
 
@@ -46,11 +48,14 @@ namespace GameEngine
 		EnemyShotList		m_EnemyShotList;		// 敵ショットリスト
 		ItemList			m_ItemList;				// アイテムリスト
 		EffectList			m_EffectList;			// エフェクトリスト
+		EnemyShotGroupList	m_EnemyShotGroupList;	// 敵ショットグループリスト
 		
 		GameDataMsg			m_GameData;				// 現フレームにおけるゲームデータ
 		GameDataMsg			m_FrameGameData;		// 現フレームで更新されるゲームデータ
 
 		StageMessageQueue	m_MsgQueue;				// ステージ用メッセージキュー
+
+		bool				m_HasTermSig;
 
 		ResourceMap			m_ResourceMap;
 
