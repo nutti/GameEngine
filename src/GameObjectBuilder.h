@@ -14,9 +14,13 @@ namespace GameEngine
 	class EnemyShot;
 	class Item;
 	class Effect;
+	class EnemyShotGroup;
+
 	struct ResourceMap;
 	struct ScriptData;
 	struct StageData;
+	struct EnemyData;
+	
 	class GameObjectBuilder
 	{
 	private:
@@ -33,6 +37,7 @@ namespace GameEngine
 		EnemyShot* CreateEnemyShot( int id );
 		Effect* CreateEffect( int id, int subID );
 		Item* CreateItem( int id, int subID );
+		EnemyShotGroup* CreateEnemyShotGroup( int id, EnemyData* pData );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachStageData( StageData* pData );

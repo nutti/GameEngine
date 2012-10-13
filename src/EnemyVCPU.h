@@ -37,6 +37,7 @@ namespace GameEngine
 
 		void SysCreateEnemyShot1();
 		void SysCreateEffect1();
+		void SysCreateEnemyShotGroup();
 
 		void SysCreateItem();
 

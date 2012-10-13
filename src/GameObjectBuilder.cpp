@@ -6,6 +6,7 @@
 #include "EnemyShot.h"
 #include "Item.h"
 #include "Effect.h"
+#include "EnemyShotGroup.h"
 
 #include "ResourceTypes.h"
 #include "ScriptTypes.h"
@@ -30,6 +31,7 @@ namespace GameEngine
 		EnemyShot* CreateEnemyShot( int id );
 		Effect* CreateEffect( int id, int subID );
 		Item* CreateItem( int id, int subID );
+		EnemyShotGroup* CreateEnemyShotGroup( int id, EnemyData* pData );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachStageData( StageData* pData );
@@ -71,49 +73,54 @@ namespace GameEngine
 		return NULL;
 	}
 
-	Player* GameObjectBuilder::Impl::CreatePlayer()
+	inline Player* GameObjectBuilder::Impl::CreatePlayer()
 	{
 		return new Player( m_pResourceMap, m_pStageData );
 	}
 
-	Enemy* GameObjectBuilder::Impl::CreateEnemy( int id )
+	inline Enemy* GameObjectBuilder::Impl::CreateEnemy( int id )
 	{
 		return new Enemy( m_pResourceMap, m_pScriptData->m_pEnemyScriptData, id, m_pStageData );
 	}
 
-	PlayerShot* GameObjectBuilder::Impl::CreatePlayerShot( int id )
+	inline PlayerShot* GameObjectBuilder::Impl::CreatePlayerShot( int id )
 	{
 		return new PlayerShot( m_pResourceMap, id );
 	}
 
-	EnemyShot* GameObjectBuilder::Impl::CreateEnemyShot( int id )
+	inline EnemyShot* GameObjectBuilder::Impl::CreateEnemyShot( int id )
 	{
 		return new EnemyShot( m_pResourceMap, id );
 	}
 
-	Effect* GameObjectBuilder::Impl::CreateEffect( int id, int subID )
+	inline Effect* GameObjectBuilder::Impl::CreateEffect( int id, int subID )
 	{
 		return new Effect( m_pResourceMap, id, subID );
 	}
 
-	Item* GameObjectBuilder::Impl::CreateItem( int id, int subID )
+	inline Item* GameObjectBuilder::Impl::CreateItem( int id, int subID )
 	{
 		return new Item( m_pResourceMap, id, subID );
 	}
 
-	void GameObjectBuilder::Impl::AttachResourceMap( const ResourceMap& map )
+	inline EnemyShotGroup* GameObjectBuilder::Impl::CreateEnemyShotGroup( int id, EnemyData* pData )
+	{
+		return new EnemyShotGroup( m_pResourceMap, m_pScriptData->m_pEnemyShotGroupScriptData, id, pData );
+	}
+
+	inline void GameObjectBuilder::Impl::AttachResourceMap( const ResourceMap& map )
 	{
 		m_pResourceMap.reset( new ResourceMap );
 		*m_pResourceMap = map;
 	}
 
-	void GameObjectBuilder::Impl::AttachScriptData( const ScriptData& data )
+	inline void GameObjectBuilder::Impl::AttachScriptData( const ScriptData& data )
 	{
 		m_pScriptData.reset( new ScriptData );
 		*m_pScriptData = data;
 	}
 
-	void GameObjectBuilder::Impl::AttachStageData( StageData* pData )
+	inline void GameObjectBuilder::Impl::AttachStageData( StageData* pData )
 	{
 		m_pStageData = pData;
 	}
@@ -168,6 +175,11 @@ namespace GameEngine
 	Item* GameObjectBuilder::CreateItem( int id, int subID )
 	{
 		return m_pImpl->CreateItem( id, subID );
+	}
+
+	EnemyShotGroup* GameObjectBuilder::CreateEnemyShotGroup( int id, EnemyData* pData )
+	{
+		return m_pImpl->CreateEnemyShotGroup( id, pData );
 	}
 
 	void GameObjectBuilder::AttachResourceMap( const ResourceMap& map )

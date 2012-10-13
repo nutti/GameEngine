@@ -35,10 +35,10 @@ namespace GameEngine
 	class ScriptCompiler::Impl
 	{
 	private:
-		std::shared_ptr < StageScriptData >			m_pStageScriptData;		// ステージスクリプトデータ
-		std::shared_ptr < ResourceScriptData >		m_pResourceScriptData;	// リソーススクリプトデータ
-		std::shared_ptr < EnemyScriptData >			m_pEnemyScriptData;		// 敵スクリプトデータ
-		std::shared_ptr < EnemyShotScriptData >		m_pEnemyShotScriptData;	// 敵ショットスクリプトデータ
+		std::shared_ptr < StageScriptData >					m_pStageScriptData;		// ステージスクリプトデータ
+		std::shared_ptr < ResourceScriptData >				m_pResourceScriptData;	// リソーススクリプトデータ
+		std::shared_ptr < EnemyScriptData >					m_pEnemyScriptData;		// 敵スクリプトデータ
+		std::shared_ptr < EnemyShotGroupScriptData >		m_pEnemyShotGroupScriptData;	// 敵ショットスクリプトデータ
 
 		int GetID( const char* pStr );		// データ列から、IDを取得する
 		char* GetFileName( char* pStr );	// データ列から、ファイル名を取得する
@@ -46,7 +46,7 @@ namespace GameEngine
 		void CompileStageScript( const std::string& fileName );				// ステージのスクリプトのコンパイル
 		void CompileResourceScript( const std::string& fileName );			// リソーススクリプトのコンパイル
 		void CompileEnemyScript( int id, const std::string& fileName );		// 敵のスクリプトのコンパイル
-		void CompileEnemyShotScript( int id, const std::string& fileName );	// 敵弾のスクリプトのコンパイル
+		void CompileEnemyShotGroupScript( int id, const std::string& fileName );	// 敵弾のスクリプトのコンパイル
 	public:
 		Impl();
 		~Impl(){}
@@ -130,11 +130,11 @@ namespace GameEngine
 		compiler.Compile( fileName, m_pEnemyScriptData->m_pElm[ id ].m_Data );
 	}
 
-	void ScriptCompiler::Impl::CompileEnemyShotScript( int id, const std::string& fileName )
+	void ScriptCompiler::Impl::CompileEnemyShotGroupScript( int id, const std::string& fileName )
 	{
-		m_pEnemyShotScriptData->m_pElm[ id ].m_ID = id;
+		m_pEnemyShotGroupScriptData->m_pElm[ id ].m_ID = id;
 		Compiler compiler;
-		compiler.Compile( fileName, m_pEnemyShotScriptData->m_pElm[ id ].m_Data );
+		compiler.Compile( fileName, m_pEnemyShotGroupScriptData->m_pElm[ id ].m_Data );
 	}
 
 	ScriptCompiler::Impl::Impl() : m_pStageScriptData()
@@ -208,10 +208,10 @@ namespace GameEngine
 		}
 
 		// 敵弾のスクリプトの読み込み
-		m_pEnemyShotScriptData.reset( new EnemyShotScriptData );
-		m_pEnemyShotScriptData->m_pElm = new EnemyShotScriptData::EnemyShotScriptDataElm[ enemyShotScriptList.size() ];
+		m_pEnemyShotGroupScriptData.reset( new EnemyShotGroupScriptData );
+		m_pEnemyShotGroupScriptData->m_pElm = new EnemyShotGroupScriptData::EnemyShotGroupScriptDataElm[ enemyShotScriptList.size() ];
 		for( unsigned int i = 0; i < enemyShotScriptList.size(); ++i ){
-			CompileEnemyShotScript( i, enemyShotScriptList[ i ].m_FileName );
+			CompileEnemyShotGroupScript( i, enemyShotScriptList[ i ].m_FileName );
 		}
 	}
 
@@ -221,7 +221,7 @@ namespace GameEngine
 
 		data.m_pStageScriptData = m_pStageScriptData;
 		data.m_pEnemyScriptData = m_pEnemyScriptData;
-		data.m_pEnemyShotScriptData = m_pEnemyShotScriptData;
+		data.m_pEnemyShotGroupScriptData = m_pEnemyShotGroupScriptData;
 		data.m_pResourceScriptData = m_pResourceScriptData;
 
 		return data;

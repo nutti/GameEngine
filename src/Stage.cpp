@@ -166,6 +166,15 @@ namespace GameEngine
 		// プレイヤーの更新
 		m_Data.m_pPlayer->AttachButtonState( m_ButtonStatus );
 		m_Data.m_pPlayer->Update();
+		// 敵ショットグループの更新（Updateが2回呼ばれないようにするため、敵の更新の上に持ってくる。）
+		for( EnemyShotGroupList::iterator it = m_Data.m_EnemyShotGroupList.begin(); it != m_Data.m_EnemyShotGroupList.end(); ){
+			if( !( *it )->Update() ){
+				delete ( *it );
+				it = m_Data.m_EnemyShotGroupList.erase( it );
+				continue;
+			}
+			++it;
+		}
 		// 敵の更新
 		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ){
 			if( !( *it )->Update() ){
@@ -207,15 +216,6 @@ namespace GameEngine
 			if( !( *it )->Update() ){
 				delete ( *it );
 				it = m_Data.m_EffectList.erase( it );
-				continue;
-			}
-			++it;
-		}
-		// 敵ショットグループの更新
-		for( EnemyShotGroupList::iterator it = m_Data.m_EnemyShotGroupList.begin(); it != m_Data.m_EnemyShotGroupList.end(); ){
-			if( ( *it )->IsEmpty() ){
-				delete ( *it );
-				it = m_Data.m_EnemyShotGroupList.erase( it );
 				continue;
 			}
 			++it;

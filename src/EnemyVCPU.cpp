@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "Item.h"
 #include "Effect.h"
+#include "EnemyShotGroup.h"
 
 namespace GameEngine
 {
@@ -235,10 +236,22 @@ namespace GameEngine
 		m_pEnemyData->m_pStageData->m_ItemList.push_back( pNewItem );
 	}
 
+	void EnemyVCPU::SysCreateEnemyShotGroup()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
+		pNewGroup->Init();
+		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
+	}
+
 	void EnemyVCPU::SysPlaySE()
 	{
 		Pop();
 		int id = m_pEnemyData->m_pResouceMap->m_pStageResourceMap->m_SEMap[ Top().m_Integer ];
+		Pop();
 		MAPIL::PlayStaticBuffer( id );
 	}
 
@@ -246,6 +259,7 @@ namespace GameEngine
 	{
 		Pop();
 		int id = m_pEnemyData->m_pResouceMap->m_pStageResourceMap->m_SEMap[ Top().m_Integer ];
+		Pop();
 		MAPIL::StopStaticBuffer( id );
 	}
 
@@ -319,6 +333,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_CREATE_ITEM:
 				SysCreateItem();
+				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_GROUP:
+				SysCreateEnemyShotGroup();
 				break;
 
 			case VM::SYS_PLAY_SE:

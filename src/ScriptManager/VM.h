@@ -65,11 +65,20 @@ namespace VM
 		SYS_ENEMY_SET_SCORE,				// Set score.
 		SYS_ENEMY_SET_BOSS_FLAG,			// Set boss flag.
 		SYS_ENEMY_SET_CONS_GAUGE,			// Set conscious gauge.
-		SYS_ENEMY_CREATE_SHOT_1,	// Create enemy shot. (Linear)
-		SYS_ENEMY_CREATE_EFFECT_1,	// Create effect. (Bombbed Effect.)
-		
-		
+		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
+		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)
+		SYS_ENEMY_CREATE_SHOT_GROUP,		// Create shot group.
 		SYS_CREATE_ITEM,		// Create item.
+
+		// For enemy shot group.
+		SYS_ENEMY_SHOT_GROUP_CREATE_SHOT,
+		SYS_ENEMY_SHOT_GROUP_SET_POS,
+		SYS_ENEMY_SHOT_GROUP_SET_ANGLE,
+		SYS_ENEMY_SHOT_GROUP_SET_SPEED,
+		SYS_ENEMY_SHOT_GROUP_SET_IMAGE,
+		SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS,
+		SYS_ENEMY_SHOT_GROUP_SET_STATUS,
+		SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT,
 
 		// For stage script.
 		SYS_STAGE_ADD_ENEMY,		// Add enemy.

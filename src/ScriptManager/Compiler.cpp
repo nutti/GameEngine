@@ -64,6 +64,17 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_CREATE_EFFECT_1, TYPE_VOID, "CreateEffect1", "ffii" );		// void CreateEffect1( x, y, id, subid );
 	AddFunction( VM::SYS_ENEMY_SET_BOSS_FLAG, TYPE_VOID, "SetEnemyBossFlag", "i" );			// void SetEnemyBossFlag( flag );
 	AddFunction( VM::SYS_CREATE_ITEM, TYPE_VOID, "CreateItem", "iiff" );			// void CreateItem( item_id, item_sub_id, x, y );
+	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP, TYPE_VOID, "CreateEnemyShotGroup", "i" );			// void CreateShotGroup( script_id );
+
+	// System call for enemy shot group.
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT, TYPE_INTEGER, "CreateEnemyShot", "" );	// int CreateEnemyShot();
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_POS, TYPE_VOID, "SetEnemyShotPos", "iff" );		// void SetEnemyShotPos( shot_id, x, y );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_ANGLE, TYPE_VOID, "SetEnemyShotAngle", "if" );		// void SetEnemyShotAngle( shot_id, angle );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_SPEED, TYPE_VOID, "SetEnemyShotSpeed", "if" );		// void SetEnemyShotSpeed( shot_id, speed );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE, TYPE_VOID, "SetEnemyShotImage", "ii" );		// void SetEnemyShotImage( shot_id, texture_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyShotCollisionRadius", "if" );	// void SetEnemyShotCollisionRadius( radius );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS, TYPE_VOID, "SetEnemyShotStatus", "ifffffi" );		// void SetEnemyShotStatus( shot_id, x, y, angle, speed, radius, texture_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT, TYPE_VOID, "SetEnemyShotMovement", "iff" );		// void SetEnemyShotMovement( shot_id, angle, speed );
 
 	// System call for stage.
 	AddFunction( VM::SYS_STAGE_ADD_ENEMY, TYPE_VOID, "AddEnemy", "i" );					// void AddEnemy( script_id );

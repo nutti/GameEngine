@@ -67,17 +67,25 @@ namespace GameEngine
 		}
 		m_VM.Run();
 
-		if( m_Data.m_Counter == 30 ){
-			m_Data.m_ShotGroupList.push_back( new EnemyShotGroup( m_Data.m_pResouceMap, &m_Data ) );
-			int id = m_Data.m_ShotGroupList[ 0 ]->CreateShot();
-			m_Data.m_ShotGroupList[ 0 ]->SetShotStatus( id, 250.0f, 100.0f, MAPIL::DegToRad( -90.0f ), 1.0f, 2.0f, 0 );
-		}
-
 		for( int i = 0; i < m_Data.m_ShotGroupList.size(); ++i ){
-			if( m_Data.m_ShotGroupList[ i ] != NULL && m_Data.m_ShotGroupList[ i ]->IsEmpty() ){
-				MAPIL::SafeDelete( m_Data.m_ShotGroupList[ i ] );
+			if( m_Data.m_ShotGroupList[ i ] != NULL ){
+				if( !m_Data.m_ShotGroupList[ i ]->Update() ){
+					MAPIL::SafeDelete( m_Data.m_ShotGroupList[ i ] );
+				}
 			}
 		}
+
+		//if( m_Data.m_Counter == 30 ){
+		//	m_Data.m_ShotGroupList.push_back( m_Data.m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( 0, &m_Data ) );
+		//	int id = m_Data.m_ShotGroupList[ 0 ]->CreateShot();
+		//	m_Data.m_ShotGroupList[ 0 ]->SetShotStatus( id, 250.0f, 100.0f, MAPIL::DegToRad( -90.0f ), 1.0f, 2.0f, 0 );
+		//}
+
+		//for( int i = 0; i < m_Data.m_ShotGroupList.size(); ++i ){
+		//	if( m_Data.m_ShotGroupList[ i ] != NULL && m_Data.m_ShotGroupList[ i ]->IsEmpty() ){
+		//		MAPIL::SafeDelete( m_Data.m_ShotGroupList[ i ] );
+		//	}
+		//}
 
 		++m_Data.m_Counter;
 
