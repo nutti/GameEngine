@@ -2,6 +2,10 @@
 #include "SceneBuilder.h"
 #include "Scene.h"
 #include "Stage.h"
+#include "Score.h"
+#include "Menu.h"
+#include "Initialize.h"
+#include "ScoreEntry.h"
 #include "SceneTypes.h"
 
 #include "EventMediator.h"
@@ -19,6 +23,10 @@ namespace GameEngine
 		ResourceMap								m_ResourceMap;			// リソース一覧
 		ScriptData								m_ScriptData;			// スクリプトデータ
 		SceneType								m_CurSceneType;			// 現在のシーン
+		DisplayedSaveData						m_SaveData;				// セーブデータ
+		SaveDataRecord							m_SaveDataRecord;		// 現在プレイ中の記録
+		int										m_GameDifficulty;		// 難易度
+		int										m_CurStage;				// 現在のステージ
 	public:
 		Impl( std::shared_ptr < EventMediator > pEventMediator );
 		~Impl(){}
@@ -28,9 +36,11 @@ namespace GameEngine
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachScriptData( const ScriptData& data );
 		void AttachGameData( const GameDataMsg& msg );
+		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		GameDataMsg GetFrameScoreData() const;
 		void ChangeScene( SceneType scene );
 		SceneType GetCurSceneType() const;
+		void SetGameDifficulty( int difficulty );
 	};
 
 	SceneManager::Impl::Impl( std::shared_ptr < EventMediator > pEventMediator ) :	m_pSceneBuilder( new SceneBuilder ),
@@ -38,6 +48,8 @@ namespace GameEngine
 	{
 		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( SCENE_TYPE_UNKNOWN ) );
 		m_CurSceneType = SCENE_TYPE_UNKNOWN;
+		m_GameDifficulty = GAME_DIFFICULTY_EASY;
+		m_CurStage = 0;
 	}
 
 	void SceneManager::Impl::Draw()
@@ -57,8 +69,22 @@ namespace GameEngine
 					p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
 				}
 				else if( next == SCENE_TYPE_STAGE ){
-					int stage = 1;
-					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &stage );
+					if( m_CurSceneType == SCENE_TYPE_MENU ){
+						m_CurStage = STAGE_ID_STAGE_1;
+					}
+					else if( m_CurSceneType == SCENE_TYPE_STAGE ){
+						++m_CurStage;
+					}
+					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
+				}
+				else if( next == SCENE_TYPE_SCORE ){
+					p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE );
+				}
+				else if( next == SCENE_TYPE_SCORE_ENTRY ){
+					if( m_CurSceneType == SCENE_TYPE_STAGE ){
+						m_SaveDataRecord.m_Progress = m_CurStage;
+					}
+					p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
 				}
 				else if( next == SCENE_TYPE_GAME_TERM ){
 					p->SendEvent( EVENT_TYPE_GAME_TERM );
@@ -95,10 +121,21 @@ namespace GameEngine
 	void SceneManager::Impl::ChangeScene( SceneType scene )
 	{
 		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( scene ) );
-		Stage* p = dynamic_cast < Stage* > ( m_pCurScene.get() );
-		if( p ){
+		//Stage* p = dynamic_cast < Stage* > ( m_pCurScene.get() );
+		if( typeid( *m_pCurScene.get() ) == typeid( Initialize ) ){
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Menu ) ){
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Stage ) ){
 			//p->AttachResourceMap( m_ResourceMap );
-			p->AttachScriptData( m_ScriptData );
+			( (Stage*) m_pCurScene.get() )->AttachScriptData( m_ScriptData );
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){
+			( (Score*) m_pCurScene.get() )->AttachDisplayedSaveData( m_SaveData );
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( ScoreEntry ) ){
+			( (ScoreEntry*) m_pCurScene.get() )->SetDifficulty( m_GameDifficulty );
+			( (ScoreEntry*) m_pCurScene.get() )->AttachRecord( m_SaveDataRecord );
 		}
 		m_pCurScene->AttachResourceMap( m_ResourceMap );
 		m_pCurScene->Init();
@@ -110,9 +147,23 @@ namespace GameEngine
 		m_ScriptData = data;
 	}
 
+	void SceneManager::Impl::AttachDisplayedSaveData( const DisplayedSaveData& data )
+	{
+		m_SaveData = data;
+		//Score* p = dynamic_cast < Score* > ( m_pCurScene.get() );
+		//if( p ){
+		//	p->AttachDisplayedSaveData( data );
+		//}
+	}
+
 	SceneType SceneManager::Impl::GetCurSceneType() const
 	{
 		return m_CurSceneType;
+	}
+
+	void SceneManager::Impl::SetGameDifficulty( int difficulty )
+	{
+		m_GameDifficulty = difficulty;
 	}
 
 
@@ -169,8 +220,18 @@ namespace GameEngine
 		m_pImpl->AttachScriptData( data );
 	}
 
+	void SceneManager::AttachDisplayedSaveData( const DisplayedSaveData& data )
+	{
+		m_pImpl->AttachDisplayedSaveData( data );
+	}
+
 	SceneType SceneManager::GetCurSceneType() const
 	{
 		return m_pImpl->GetCurSceneType();
+	}
+
+	void SceneManager::SetGameDifficulty( int difficulty )
+	{
+		m_pImpl->SetGameDifficulty( difficulty );
 	}
 }

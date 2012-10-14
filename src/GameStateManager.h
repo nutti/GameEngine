@@ -23,12 +23,17 @@ namespace GameEngine
 		void EndReplayRecording();
 		void StartGameDataRecording();
 		void EndGameDataRecording();
-		GameDataMsg GetGameData() const;
-		void AddGameData( const GameDataMsg& data );
-		void UpdateGameData();
+		//GameDataMsg GetGameData() const;
+		//void AddGameData( const GameDataMsg& data );
+		//void UpdateGameData();
 		void FlushGameData();			// ファイルへ現在のゲームデータを保存
 		int GetPlayTime() const;
 		void UpdatePlayTime();
+		const SaveDataRecord& GetRecord( int difficulty, int rank ) const;
+		int GetAllClearCount( int difficulty ) const;
+		int GetProgress( int difficulty ) const;
+		int GetProgress() const;
+		int GetPlayTime( int difficulty ) const;
 	};
 }
 

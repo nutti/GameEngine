@@ -69,8 +69,9 @@ namespace GameEngine
 		else{
 			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 								m_PosX, m_PosY,
-								( 6 - m_Counter ) * 1.0f, ( 3 - m_Counter ) * 1.0f,
-								m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+								( 30 - m_Counter ) * 0.1f, ( 30 - m_Counter ) * 0.1f,
+								m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ),
+								true, ( m_Counter * 10 + 100 ) << 24 | 0xFFFFFF );
 		}
 	}
 

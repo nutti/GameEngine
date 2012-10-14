@@ -56,7 +56,7 @@ namespace GameEngine
 																						INVINCIBLE_TIME( 240 )
 	{
 		MAPIL::ZeroObject( &m_Data, sizeof( m_Data ) );
-		m_Data.m_HP = 10;
+		m_Data.m_HP = 1;
 		m_Data.m_ConsGauge[ 0 ] = m_Data.m_ConsGauge[ 1 ] = m_Data.m_ConsGauge[ 2 ] = 1000;
 		m_Data.m_ConsLevel[ 0 ] = m_Data.m_ConsLevel[ 1 ] = m_Data.m_ConsLevel[ 2 ] = 1000;
 		m_Data.m_PosX = 300.0f;
@@ -205,7 +205,7 @@ namespace GameEngine
 	void Player::Impl::RedModeShot()
 	{
 		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			if( ( m_Data.m_Counter % ( 10 - 2 * ( m_Data.m_ShotPower / 10 ) ) ) == 0 ){
+			if( ( m_Data.m_Counter % ( 12 - 2 * ( m_Data.m_ShotPower / 10 ) ) ) == 0 ){
 				for( int i = 0; i < 36; ++i ){
 					PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 3 );
 					pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
@@ -214,7 +214,7 @@ namespace GameEngine
 					pNewShot->SetShotPower( 2 );
 					m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				}
-				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
+				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );	
 			}
 		}
 	}
@@ -421,8 +421,8 @@ namespace GameEngine
 		}
 		else if( pItem->GetItemID() == ITEM_ID_POWER_UP ){
 			m_Data.m_ShotPower += 1;
-			if( m_Data.m_ShotPower > 30 ){
-				m_Data.m_ShotPower = 30;
+			if( m_Data.m_ShotPower > 50 ){
+				m_Data.m_ShotPower = 50;
 			}
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_2_SE ] );
 		}

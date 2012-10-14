@@ -21,12 +21,17 @@ namespace GameEngine
 		void EndReplayRecording();
 		void StartGameDataRecording();
 		void EndGameDataRecording();
-		GameDataMsg GetGameData() const;
-		void AddGameData( const GameDataMsg& data );
-		void UpdateGameData();
+		//GameDataMsg GetGameData() const;
+		//void AddGameData( const GameDataMsg& data );
+		//void UpdateGameData();
 		void FlushGameData();
 		int GetPlayTime() const;
 		void UpdatePlayTime();
+		const SaveDataRecord& GetRecord( int difficulty, int rank ) const;
+		int GetAllClearCount( int difficulty ) const;
+		int GetProgress( int difficulty ) const;
+		int GetProgress() const;
+		int GetPlayTime( int difficulty ) const;
 	};
 
 	GameStateManager::Impl::Impl() : m_ReplayBuilder()
@@ -62,20 +67,20 @@ namespace GameEngine
 		m_GameDataHolder.EndRecording();
 	}
 
-	GameDataMsg GameStateManager::Impl::GetGameData() const
-	{
-		return m_GameDataHolder.GetScoreData();
-	}
+	//GameDataMsg GameStateManager::Impl::GetGameData() const
+	//{
+	//	return m_GameDataHolder.GetScoreData();
+	//}
 
-	void GameStateManager::Impl::AddGameData( const GameDataMsg& data )
-	{
-		m_GameDataHolder.Add( data );
-	}
+	//void GameStateManager::Impl::AddGameData( const GameDataMsg& data )
+	//{
+	//	m_GameDataHolder.Add( data );
+	//}
 
-	void GameStateManager::Impl::UpdateGameData()
-	{
-		m_GameDataHolder.Update();
-	}
+	//void GameStateManager::Impl::UpdateGameData()
+	//{
+	//	m_GameDataHolder.Update();
+	//}
 
 	void GameStateManager::Impl::FlushGameData()
 	{
@@ -89,6 +94,31 @@ namespace GameEngine
 	void GameStateManager::Impl::UpdatePlayTime()
 	{
 		m_GameDataHolder.UpdatePlayTime();
+	}
+
+	const SaveDataRecord& GameStateManager::Impl::GetRecord( int difficulty, int rank ) const
+	{
+		return m_GameDataHolder.GetRecord( difficulty, rank );
+	}
+
+	int GameStateManager::Impl::GetAllClearCount( int difficulty ) const
+	{
+		return m_GameDataHolder.GetAllClearCount( difficulty );
+	}
+
+	int GameStateManager::Impl::GetProgress( int difficulty ) const
+	{
+		return m_GameDataHolder.GetProgress( difficulty );
+	}
+
+	int GameStateManager::Impl::GetProgress() const
+	{
+		return m_GameDataHolder.GetProgress();
+	}
+
+	int GameStateManager::Impl::GetPlayTime( int difficulty ) const
+	{
+		return m_GameDataHolder.GetPlayTime( difficulty );
 	}
 
 	// ----------------------------------
@@ -133,20 +163,20 @@ namespace GameEngine
 		m_pImpl->EndGameDataRecording();
 	}
 
-	GameDataMsg GameStateManager::GetGameData() const
-	{
-		return m_pImpl->GetGameData();
-	}
+	//GameDataMsg GameStateManager::GetGameData() const
+	//{
+	//	return m_pImpl->GetGameData();
+	//}
 
-	void GameStateManager::AddGameData( const GameDataMsg& data )
-	{
-		m_pImpl->AddGameData( data );
-	}
+	//void GameStateManager::AddGameData( const GameDataMsg& data )
+	//{
+	//	m_pImpl->AddGameData( data );
+	//}
 
-	void GameStateManager::UpdateGameData()
-	{
-		m_pImpl->UpdateGameData();
-	}
+	//void GameStateManager::UpdateGameData()
+	//{
+	//	m_pImpl->UpdateGameData();
+	//}
 
 	void GameStateManager::FlushGameData()
 	{
@@ -161,5 +191,30 @@ namespace GameEngine
 	void GameStateManager::UpdatePlayTime()
 	{
 		m_pImpl->UpdatePlayTime();
+	}
+
+	const SaveDataRecord& GameStateManager::GetRecord( int difficulty, int rank ) const
+	{
+		return m_pImpl->GetRecord( difficulty, rank );
+	}
+
+	int GameStateManager::GetAllClearCount( int difficulty ) const
+	{
+		return m_pImpl->GetAllClearCount( difficulty );
+	}
+
+	int GameStateManager::GetProgress( int difficulty ) const
+	{
+		return m_pImpl->GetProgress( difficulty );
+	}
+
+	int GameStateManager::GetProgress() const
+	{
+		return m_pImpl->GetProgress();
+	}
+
+	int GameStateManager::GetPlayTime( int difficulty ) const
+	{
+		return m_pImpl->GetPlayTime( difficulty );
 	}
 }

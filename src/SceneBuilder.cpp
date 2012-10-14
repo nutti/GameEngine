@@ -2,6 +2,7 @@
 #include "SceneTypes.h"
 #include "Menu.h"
 #include "Stage.h"
+#include "Score.h"
 #include "Initialize.h"
 
 namespace GameEngine
@@ -27,6 +28,8 @@ namespace GameEngine
 				return new Initialize;
 			case SCENE_TYPE_MENU:
 				return new Menu;
+			case SCENE_TYPE_SCORE:
+				return new Score;
 			case SCENE_TYPE_STAGE:
 				return new Stage( 0, false );
 			default:

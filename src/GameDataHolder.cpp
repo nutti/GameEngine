@@ -3,7 +3,7 @@
 #include <time.h>
 
 #include "GameDataHolder.h"
-#include "ScoreManager.h"
+//#include "ScoreManager.h"
 #include "Util.h"
 
 namespace GameEngine
@@ -13,37 +13,10 @@ namespace GameEngine
 	{
 		struct Difficulty
 		{
-			struct Record
-			{
-				struct Time
-				{
-					int		m_Year;
-					char	m_Month;
-					char	m_Day;
-					char	m_Hour;
-					char	m_Min;
-					char	m_Sec;
-				};
-				struct StageData
-				{
-					int		m_Score;			// スコア
-					int		m_Killed;			// 撃破数
-					int		m_Crystal;			// 取得クリスタル数
-					int		m_ConsGauge[ 3 ];	// 初期意識ゲージ
-					int		m_ConsLevel[ 3 ];	// 初期意識レベル
-					int		m_Cons;				// 初期意識状態
-					int		m_ShotPower;		// 初期ショットパワー
-					int		m_HP;				// 初期HP
-				};
-
-				char		m_Name[ 10 ];			// エントリ名
-				Time		m_Date;					// 登録日時
-				StageData	m_StageData[ 5 ];		// ステージデータ
-			};
-			Record		m_Record[ 25 ];			// 25エントリまでスコアの記録が可能
-			int			m_AllClear;				// 全クリ回数
-			int			m_PlayTime;				// プレイ時間
-			int			m_StageProgress;		// 各ステージ進行度（1:Stage1クリア）
+			SaveDataRecord		m_Record[ 25 ];			// 25エントリまでスコアの記録が可能
+			int					m_AllClear;				// 全クリ回数
+			int					m_PlayTime;				// プレイ時間
+			int					m_StageProgress;		// 各ステージ進行度（1:Stage1クリア）
 		};
 
 		int			m_PlayTime;						// プレイ時間（秒単位）
@@ -60,22 +33,27 @@ namespace GameEngine
 
 		::time_t			m_TimeStamp;			// 最終更新日時
 
-		ScoreManager		m_ScoreManager;			// スコア管理クラス
+		//ScoreManager		m_ScoreManager;			// スコア管理クラス
 	public:
 		Impl();
 		~Impl(){}
 		void StartRecording();
 		void EndRecording();
-		void Update();
-		GameDataMsg GetScoreData() const;
-		void Add( const GameDataMsg& data );
+		//void Update();
+		//GameDataMsg GetScoreData() const;
+		//void Add( const GameDataMsg& data );
 		void Flush();
 		void Load( const std::string& fileName );
 		int GetPlayTime() const;
 		void UpdatePlayTime();
+		const SaveDataRecord& GetRecord( int difficulty, int rank ) const;
+		int GetAllClearCount( int difficulty ) const;
+		int GetProgress( int difficulty ) const;
+		int GetProgress() const;
+		int GetPlayTime( int difficulty ) const;
 	};
 
-	GameDataHolder::Impl::Impl() : m_ScoreManager(), m_SaveDataFileName()
+	GameDataHolder::Impl::Impl() : /*m_ScoreManager(),*/ m_SaveDataFileName()
 	{
 		MAPIL::ZeroObject( &m_GameData, sizeof( m_GameData ) );
 		MAPIL::ZeroObject( &m_GameFileData, sizeof( m_GameFileData ) );
@@ -100,26 +78,26 @@ namespace GameEngine
 		Flush();
 	}
 
-	void GameDataHolder::Impl::Update()
-	{
-		m_ScoreManager.Update();
-		m_GameData.m_Score = m_ScoreManager.GetScore();
-		if( m_GameData.m_HIScore <= m_GameData.m_Score ){
-			m_GameData.m_HIScore = m_GameData.m_Score;
-		}
-	}
+	//void GameDataHolder::Impl::Update()
+	//{
+	//	m_ScoreManager.Update();
+	//	m_GameData.m_Score = m_ScoreManager.GetScore();
+	//	if( m_GameData.m_HIScore <= m_GameData.m_Score ){
+	//		m_GameData.m_HIScore = m_GameData.m_Score;
+	//	}
+	//}
 
-	GameDataMsg GameDataHolder::Impl::GetScoreData() const
-	{
-		return m_GameData;
-	}
+	//GameDataMsg GameDataHolder::Impl::GetScoreData() const
+	//{
+	//	return m_GameData;
+	//}
 
-	void GameDataHolder::Impl::Add( const GameDataMsg& data )
-	{
-		m_ScoreManager.Add( data.m_Score );
-		m_GameData.m_Killed += data.m_Killed;
-		m_GameData.m_CrystalTotal += data.m_CrystalTotal;
-	}
+	//void GameDataHolder::Impl::Add( const GameDataMsg& data )
+	//{
+	//	m_ScoreManager.Add( data.m_Score );
+	//	m_GameData.m_Killed += data.m_Killed;
+	//	m_GameData.m_CrystalTotal += data.m_CrystalTotal;
+	//}
 
 	void GameDataHolder::Impl::Flush()
 	{
@@ -132,7 +110,7 @@ namespace GameEngine
 			WriteInt( &fOut, m_GameFileData.m_Difficulty[ i ].m_PlayTime );
 			WriteInt( &fOut, m_GameFileData.m_Difficulty[ i ].m_StageProgress );
 			for( int j = 0; j < 25; ++j ){
-				GameFileData::Difficulty::Record record = m_GameFileData.m_Difficulty[ i ].m_Record[ j ];
+				SaveDataRecord record = m_GameFileData.m_Difficulty[ i ].m_Record[ j ];
 				fOut.write( record.m_Name, sizeof( record.m_Name ) );
 				WriteInt( &fOut, record.m_Date.m_Year );
 				fOut.write( &record.m_Date.m_Month, sizeof( char ) );
@@ -141,18 +119,16 @@ namespace GameEngine
 				fOut.write( &record.m_Date.m_Min, sizeof( char ) );
 				fOut.write( &record.m_Date.m_Sec, sizeof( char ) );
 				for( int k = 0; k < 5; ++k ){
-					GameFileData::Difficulty::Record::StageData stage = record.m_StageData[ k ];
+					SaveDataRecord::StageData stage = record.m_StageData[ k ];
 					WriteInt( &fOut, stage.m_Score );
 					WriteInt( &fOut, stage.m_Killed );
 					WriteInt( &fOut, stage.m_Crystal );
-					for( int l = 0; l < 3; ++l ){
-						WriteInt( &fOut, stage.m_ConsGauge[ l ] );
-						WriteInt( &fOut, stage.m_ConsLevel[ l ] );
-					}
-					WriteInt( &fOut, stage.m_Cons );
-					WriteInt( &fOut, stage.m_ShotPower );
-					WriteInt( &fOut, stage.m_HP );
-				}		
+					WriteInt( &fOut, stage.m_Progress );
+				}
+				WriteInt( &fOut, record.m_Score );
+				WriteInt( &fOut, record.m_Progress );
+				WriteInt( &fOut, record.m_Killed );
+				WriteInt( &fOut, record.m_Crystal );
 			}
 		}
 	}
@@ -172,7 +148,7 @@ namespace GameEngine
 			difficulty.m_PlayTime = ReadInt( &fIn );
 			difficulty.m_StageProgress = ReadInt( &fIn );
 			for( int j = 0; j < 25; ++j ){
-				GameFileData::Difficulty::Record record;
+				SaveDataRecord record;
 				fIn.read( record.m_Name, sizeof( record.m_Name ) );
 				record.m_Date.m_Year = ReadInt( &fIn );
 				fIn.read( &record.m_Date.m_Month, sizeof( char ) );
@@ -181,19 +157,17 @@ namespace GameEngine
 				fIn.read( &record.m_Date.m_Min, sizeof( char ) );
 				fIn.read( &record.m_Date.m_Sec, sizeof( char ) );
 				for( int k = 0; k < 5; ++k ){
-					GameFileData::Difficulty::Record::StageData stage;
+					SaveDataRecord::StageData stage;
 					stage.m_Score = ReadInt( &fIn );
 					stage.m_Killed = ReadInt( &fIn );
 					stage.m_Crystal = ReadInt( &fIn );
-					for( int l = 0; l < 3; ++l ){
-						stage.m_ConsGauge[ l ] = ReadInt( &fIn );
-						stage.m_ConsLevel[ l ] = ReadInt( &fIn );
-					}
-					stage.m_Cons = ReadInt( &fIn );
-					stage.m_ShotPower = ReadInt( &fIn );
-					stage.m_HP = ReadInt( &fIn );
+					stage.m_Progress = ReadInt( &fIn );
 					record.m_StageData[ k ] = stage;
 				}
+				record.m_Score = ReadInt( &fIn );
+				record.m_Progress = ReadInt( &fIn );
+				record.m_Killed = ReadInt( &fIn );
+				record.m_Crystal = ReadInt( &fIn );
 				difficulty.m_Record[ j ] = record;
 			}
 			m_GameFileData.m_Difficulty[ i ] = difficulty;
@@ -210,6 +184,31 @@ namespace GameEngine
 		int time = ::time( NULL );
 		m_GameFileData.m_PlayTime += time - m_TimeStamp;
 		m_TimeStamp = time;
+	}
+
+	const SaveDataRecord& GameDataHolder::Impl::GetRecord( int difficulty, int rank ) const
+	{
+		return m_GameFileData.m_Difficulty[ difficulty ].m_Record[ rank ];
+	}
+
+	int GameDataHolder::Impl::GetAllClearCount( int difficulty ) const
+	{
+		return m_GameFileData.m_Difficulty[ difficulty ].m_AllClear;
+	}
+
+	int GameDataHolder::Impl::GetProgress( int difficulty ) const
+	{
+		return m_GameFileData.m_Difficulty[ difficulty ].m_StageProgress;
+	}
+
+	int GameDataHolder::Impl::GetProgress() const
+	{
+		return m_GameFileData.m_Progress;
+	}
+
+	int GameDataHolder::Impl::GetPlayTime( int difficulty ) const
+	{
+		return m_GameFileData.m_Difficulty[ difficulty ].m_PlayTime;
 	}
 
 	// ----------------------------------
@@ -234,20 +233,20 @@ namespace GameEngine
 		m_pImpl->EndRecording();
 	}
 
-	void GameDataHolder::Update()
-	{
-		m_pImpl->Update();
-	}
+	//void GameDataHolder::Update()
+	//{
+	//	m_pImpl->Update();
+	//}
 
-	GameDataMsg GameDataHolder::GetScoreData() const
-	{
-		return m_pImpl->GetScoreData();
-	}
+	//GameDataMsg GameDataHolder::GetScoreData() const
+	//{
+	//	return m_pImpl->GetScoreData();
+	//}
 
-	void GameDataHolder::Add( const GameDataMsg& data )
-	{
-		m_pImpl->Add( data );
-	}
+	//void GameDataHolder::Add( const GameDataMsg& data )
+	//{
+	//	m_pImpl->Add( data );
+	//}
 
 	void GameDataHolder::Flush()
 	{
@@ -262,5 +261,30 @@ namespace GameEngine
 	void GameDataHolder::UpdatePlayTime()
 	{
 		m_pImpl->UpdatePlayTime();
+	}
+
+	const SaveDataRecord& GameDataHolder::GetRecord( int difficulty, int rank ) const
+	{
+		return m_pImpl->GetRecord( difficulty, rank );
+	}
+
+	int GameDataHolder::GetAllClearCount( int difficulty ) const
+	{
+		return m_pImpl->GetAllClearCount( difficulty );
+	}
+
+	int GameDataHolder::GetProgress( int difficulty ) const
+	{
+		return m_pImpl->GetProgress( difficulty );
+	}
+
+	int GameDataHolder::GetProgress() const
+	{
+		return m_pImpl->GetProgress();
+	}
+
+	int GameDataHolder::GetPlayTime( int difficulty ) const
+	{
+		return m_pImpl->GetPlayTime( difficulty );
 	}
 }

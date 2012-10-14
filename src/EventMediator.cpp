@@ -49,10 +49,10 @@ namespace GameEngine
 	{
 		// ゲームの状態を取得
 		GameDataMsg msg;
-		if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
-			msg = m_pGameStateManager->GetGameData();
-			m_pSceneManager->AttachGameData( msg );
-		}
+		//if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
+		//	msg = m_pGameStateManager->GetGameData();
+		//	m_pSceneManager->AttachGameData( msg );
+		//}
 
 		// ボタンの取得
 		ButtonStatusHolder holder;
@@ -65,11 +65,11 @@ namespace GameEngine
 		m_pSceneManager->Draw();
 
 		// ゲームデータの更新
-		if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
-			msg = m_pSceneManager->GetFrameScoreData();
-			m_pGameStateManager->AddGameData( msg );
-			m_pGameStateManager->UpdateGameData();
-		}
+		//if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
+		//	msg = m_pSceneManager->GetFrameScoreData();
+		//	m_pGameStateManager->AddGameData( msg );
+		//	m_pGameStateManager->UpdateGameData();
+		//}
 
 		// 時間の表示（暫定版）
 		m_pGameStateManager->UpdatePlayTime();
@@ -83,7 +83,7 @@ namespace GameEngine
 	{
 		switch( type ){
 			// 初期化要求
-			case EVENT_TYPE_INITIALIZE:
+			case EVENT_TYPE_INITIALIZE:{
 				m_pGameStateManager->StartGameDataRecording();
 				m_pSceneManager->ChangeScene( SCENE_TYPE_INITIALIZE );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
@@ -169,7 +169,34 @@ namespace GameEngine
 				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
 														GLOBAL_RESOURCE_TEXTURE_ID_HI_SCORE,
 														"archive/resource/texture/hi_score.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_GAME_SCORE,
+														"archive/resource/texture/game_score.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_GAME_KILLED,
+														"archive/resource/texture/game_killed.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL,
+														"archive/resource/texture/game_crystal.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_GAME_POWER,
+														"archive/resource/texture/game_power.png" );
+				m_pResourceManager->LoadGlobalResource( RESOURCE_TYPE_TEXTURE,
+														GLOBAL_RESOURCE_TEXTURE_ID_GAME_HP,
+														"archive/resource/texture/game_hp.png" );
+
+				DisplayedSaveData data;
+				for( int i = 0; i < 4; ++i ){
+					for( int j = 0; j < 25; ++j ){
+						data.m_Difficulty[ i ].m_Record[ j ] = m_pGameStateManager->GetRecord( i, j );
+					}
+					data.m_Difficulty[ i ].m_PlayTime = m_pGameStateManager->GetPlayTime( i );
+					data.m_Difficulty[ i ].m_AllClear = m_pGameStateManager->GetAllClearCount( i );
+				}
+				data.m_PlayTime = m_pGameStateManager->GetPlayTime();
+				m_pSceneManager->AttachDisplayedSaveData( data );
 				break;
+			}
 			// メニュー画面移行要求
 			case EVENT_TYPE_MOVE_TO_MENU:{
 				m_pResourceManager->ReleaseStageResources();
@@ -178,6 +205,32 @@ namespace GameEngine
 				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
+			}
+			// スコア画面移行要求
+			case EVENT_TYPE_MOVE_TO_SCORE:{
+				m_pResourceManager->ReleaseStageResources();
+				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
+				m_pSceneManager->AttachSceneResourceMap( rcMap );
+				m_pSceneManager->ChangeScene( SCENE_TYPE_SCORE );
+				//DisplayedSaveData data;
+				//for( int i = 0; i < 4; ++i ){
+				//	for( int j = 0; j < 25; ++j ){
+				//		data.m_Difficulty[ i ].m_Record[ j ] = m_pGameStateManager->GetRecord( i, j );
+				//	}
+				//	data.m_Difficulty[ i ].m_PlayTime = m_pGameStateManager->GetPlayTime( i );
+				//	data.m_Difficulty[ i ].m_AllClear = m_pGameStateManager->GetAllClearCount( i );
+				//}
+				//data.m_PlayTime = m_pGameStateManager->GetPlayTime();
+				//m_pSceneManager->AttachDisplayedSaveData( data );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
+			case EVENT_TYPE_MOVE_TO_SCORE_ENTRY:{
+				m_pResourceManager->ReleaseStageResources();
+				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
+				m_pSceneManager->AttachSceneResourceMap( rcMap );
+				m_pSceneManager->ChangeScene( SCENE_TYPE_SCORE_ENTRY );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 			}
 			// フレーム更新要求
 			case EVENT_TYPE_FRAME_UPDATE:

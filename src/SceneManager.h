@@ -25,9 +25,11 @@ namespace GameEngine
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachScriptData( const ScriptData& data );
 		void AttachGameData( const GameDataMsg& msg );
+		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		GameDataMsg GetFrameScoreData() const;
 		void ChangeScene( SceneType scene );
 		SceneType GetCurSceneType() const;
+		void SetGameDifficulty( int difficulty );
 	};
 }
 

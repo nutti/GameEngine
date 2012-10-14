@@ -45,6 +45,8 @@ namespace GameEngine
 			switch( m_MenuPointed ){
 				case MENU_ID_GAME_START:
 					return SCENE_TYPE_STAGE;
+				case MENU_ID_SCORE:
+					return SCENE_TYPE_SCORE;
 				case MENU_ID_EXIT:
 					return SCENE_TYPE_GAME_TERM;
 				default:

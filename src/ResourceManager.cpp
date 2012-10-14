@@ -101,14 +101,14 @@ namespace GameEngine
 		// SE�̍폜
 		for( int i = 0; i < m_ResourceMap.m_pStageResourceMap->m_SEMap.size(); ++i ){
 			if( m_ResourceMap.m_pStageResourceMap->m_SEMap[ i ] != -1 ){
-				MAPIL::DeleteTexture( m_ResourceMap.m_pStageResourceMap->m_SEMap[ i ] );
+				MAPIL::DeleteStaticBuffer( m_ResourceMap.m_pStageResourceMap->m_SEMap[ i ] );
 				m_ResourceMap.m_pStageResourceMap->m_SEMap[ i ] = -1;
 			}
 		}
 		// BGM�̍폜
 		for( int i = 0; i < m_ResourceMap.m_pStageResourceMap->m_BGMMap.size(); ++i ){
 			if( m_ResourceMap.m_pStageResourceMap->m_BGMMap[ i ] != -1 ){
-				MAPIL::DeleteTexture( m_ResourceMap.m_pStageResourceMap->m_BGMMap[ i ] );
+				MAPIL::DeleteStreamingBuffer( m_ResourceMap.m_pStageResourceMap->m_BGMMap[ i ] );
 				m_ResourceMap.m_pStageResourceMap->m_BGMMap[ i ] = -1;
 			}
 		}

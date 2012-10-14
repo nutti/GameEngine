@@ -19,6 +19,8 @@
 
 #include "StageVCPU.h"
 
+#include "ScoreManager.h"
+
 #include "Util.h"
 
 namespace GameEngine
@@ -29,6 +31,7 @@ namespace GameEngine
 		ButtonStatusHolder			m_ButtonStatus;		// ボタンの状態
 		ScriptData					m_ScriptData;		// スクリプトデータ
 		StageData					m_Data;				// ステージ用データ
+		ScoreManager				m_ScoreManager;		// スコア管理クラス
 
 		StageVCPU					m_VM;				// 仮想マシン
 
@@ -58,7 +61,8 @@ namespace GameEngine
 
 	Stage::Impl::Impl( int stageNo, bool isReplay )	:	m_ButtonStatus(),
 														m_Data(),
-														m_VM()
+														m_VM(),
+														m_ScoreManager()
 	{
 		m_Data.m_EnemyList.clear();
 		m_Data.m_EnemyShotList.clear();
@@ -286,6 +290,7 @@ namespace GameEngine
 		m_Data.m_ObjBuilder.AttachStageData( &m_Data );
 		m_Data.m_pPlayer = reinterpret_cast < Player* > ( m_Data.m_ObjBuilder.CreateCollisionObject( GAME_OBJECT_ID_PLAYER ) );
 		MAPIL::ZeroObject( &m_Data.m_FrameGameData, sizeof( m_Data.m_FrameGameData ) );
+		MAPIL::ZeroObject( &m_Data.m_GameData, sizeof( m_Data.m_GameData ) );
 	}
 
 	SceneType Stage::Impl::Update()
@@ -328,6 +333,16 @@ namespace GameEngine
 		
 		// 全GameObjectの更新
 		UpdateGameObjects();
+
+		// スコアの更新
+		m_ScoreManager.Add( m_Data.m_FrameGameData.m_Score );
+		m_ScoreManager.Update();
+		m_Data.m_GameData.m_Score = m_ScoreManager.GetScore();
+		if( m_Data.m_GameData.m_HIScore <= m_Data.m_GameData.m_Score ){
+			m_Data.m_GameData.m_HIScore = m_Data.m_GameData.m_Score;
+		}
+		m_Data.m_GameData.m_CrystalTotal += m_Data.m_FrameGameData.m_CrystalTotal;
+		m_Data.m_GameData.m_Killed += m_Data.m_FrameGameData.m_Killed;
 
 		++m_Data.m_Frame;
 
@@ -385,12 +400,35 @@ namespace GameEngine
 		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_BACKGROUND_TEXTURE ],
 							512.0f, 0.0f, false );
 		// 左画面
-		DrawFontString( m_Data.m_ResourceMap, 30.0f, 80.0f, 0.5f, "HP %d", m_Data.m_pPlayer->GetHP() );
-		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
-							25.0f, 100.0f, m_Data.m_pPlayer->GetHP() * 5.0f / 10.0f, 1.5f, false );
-		DrawFontString( m_Data.m_ResourceMap, 30.0f, 120.0f, 0.4f, 0xFFFFFF00, "Power %d", m_Data.m_pPlayer->GetShotPower() );
-		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
-							25.0f, 150.0f, m_Data.m_pPlayer->GetShotPower() * 5.0f / 50.0f, 0.7f, false );
+		//DrawFontString( m_Data.m_ResourceMap, 30.0f, 80.0f, 0.5f, "HP %d", m_Data.m_pPlayer->GetHP() );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_HP ],
+							43.0f, 40.0f, false );
+		int hp = m_Data.m_pPlayer->GetHP();
+		for( int i = 0; i < hp; ++i ){
+			int surplus = ( 30 + m_Data.m_Frame - i * 3 ) % 30;
+			if( surplus < 20 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									23.0f + 10.0f * i, 80.0f, 0.7f - surplus * 0.01f, 1.1f - surplus * 0.015f, true,
+									( 200 - surplus * 10 ) << 24 | ( 120 + i * 15 ) << 8 | ( i * 10 ) | ( 255 - i * 10 ) << 16 );
+			}
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								23.0f + 10.0f * i, 80.0f, 0.5f, 0.8f, true, 0xFF000000 | ( 120 + i * 15 ) << 8 | ( i * 10 ) | ( 255 - i * 10 ) << 16 );
+		}
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_POWER ],
+							27.0f, 110.0f, 0.8f, 0.8f, false );
+		//DrawFontString( m_Data.m_ResourceMap, 30.0f, 120.0f, 0.4f, 0xFFFFFF00, "Power %d", m_Data.m_pPlayer->GetShotPower() );
+		int lv =  m_Data.m_pPlayer->GetShotPower() / 10;
+		for( int i = 0; i < lv; ++i ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								15.0f + 20.0f * i, 140.0f, 1.0f, 0.5f, false, 0xEE33FF33 );
+			if( ( m_Data.m_Frame % 3 ) == 0 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								15.0f + 20.0f * i, 140.0f, 1.0f, 0.5f, false, 0xFFFFFFFF );
+			}
+		}
+		MAPIL::DrawTexture( m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+							15.0f + 20.0f * lv, 140.0f, 0.1f * ( m_Data.m_pPlayer->GetShotPower() % 10 ), 0.5f, false,
+							0xEE000033 | ( ( m_Data.m_pPlayer->GetShotPower() % 10 ) * 25 ) << 8 | ( ( 10 - ( m_Data.m_pPlayer->GetShotPower() % 10 ) ) * 25 ) << 16 );
 
 		static int moveCount = 0;
 		static int prevCons = PLAYER_CONS_MODE_NORMAL;
@@ -528,11 +566,17 @@ namespace GameEngine
 							525.0f, 55.0f, 0.8f, 0.8f, false );
 		//DrawFontString( m_Data.m_ResourceMap, 530.0f, 70.0f, 0.4f, 0xFFAAFFAA, "hi score" );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 90.0f, 0.4f, "%08d", m_Data.m_GameData.m_HIScore );
-		DrawFontString( m_Data.m_ResourceMap, 530.0f, 140.0f, 0.4f, 0xFFAAFFAA, "score" );
+		//DrawFontString( m_Data.m_ResourceMap, 530.0f, 140.0f, 0.4f, 0xFFAAFFAA, "score" );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_SCORE ],
+							525.0f, 125.0f, 0.8f, 0.8f, false );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 160.0f, 0.4f, "%08d", m_Data.m_GameData.m_Score );
-		DrawFontString( m_Data.m_ResourceMap, 530.0f, 210.0f, 0.4f, 0xFFAAFFAA, "killed" );
+		//DrawFontString( m_Data.m_ResourceMap, 530.0f, 210.0f, 0.4f, 0xFFAAFFAA, "killed" );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_KILLED ],
+							525.0f, 195.0f, 0.8f, 0.8f, false );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 230.0f, 0.4f, "%d", m_Data.m_GameData.m_Killed );
-		DrawFontString( m_Data.m_ResourceMap, 530.0f, 280.0f, 0.4f, 0xFFAAFFAA, "crystal" );
+		//DrawFontString( m_Data.m_ResourceMap, 530.0f, 280.0f, 0.4f, 0xFFAAFFAA, "crystal" );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL ],
+							525.0f, 265.0f, 0.8f, 0.8f, false );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 300.0f, 0.4f, "%d", m_Data.m_GameData.m_CrystalTotal );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 350.0f, 0.4f, 0xFFAAFFAA, "progress" );
 		DrawFontString( m_Data.m_ResourceMap, 530.0f, 450.0f, 0.4f, 0xFFAAFFAA, "fps" );
