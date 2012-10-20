@@ -4,6 +4,7 @@
 
 #include "ReplayDataBuilder.h"
 #include "GameDataHolder.h"
+#include "ReplayDataLoader.h"
 
 namespace GameEngine
 {
@@ -12,18 +13,16 @@ namespace GameEngine
 	private:
 		ReplayDataBuilder			m_ReplayBuilder;
 		GameDataHolder				m_GameDataHolder;
+		ReplayDataLoader			m_ReplayLoader;
 	public:
 		Impl();
 		~Impl(){}
 		void RecordButtonState( ButtonPushedStatus status );
-		void SaveReplayFile( const std::string& fileName );
+		void SaveReplayFile( int entryNo );
 		void StartReplayRecording();
 		void EndReplayRecording();
 		void StartGameDataRecording();
 		void EndGameDataRecording();
-		//GameDataMsg GetGameData() const;
-		//void AddGameData( const GameDataMsg& data );
-		//void UpdateGameData();
 		void FlushGameData();
 		int GetPlayTime() const;
 		void UpdatePlayTime();
@@ -32,9 +31,14 @@ namespace GameEngine
 		int GetProgress( int difficulty ) const;
 		int GetProgress() const;
 		int GetPlayTime( int difficulty ) const;
+		void SetRecord( int difficulty, const SaveDataRecord& record );
+		int GetRank( int difficulty, const SaveDataRecord& record ) const;
+		DisplayedReplayInfo GetDisplayedReplayInfo() const;
 	};
 
-	GameStateManager::Impl::Impl() : m_ReplayBuilder()
+	GameStateManager::Impl::Impl() :	m_ReplayBuilder(),
+										m_GameDataHolder(),
+										m_ReplayLoader()
 	{
 	}
 
@@ -43,8 +47,12 @@ namespace GameEngine
 		m_ReplayBuilder.AddButtonState( status );
 	}
 
-	void GameStateManager::Impl::SaveReplayFile( const std::string& fileName )
+	void GameStateManager::Impl::SaveReplayFile( int entryNo )
 	{
+		std::string fileName = REPLAY_FILE_NAME_PREFIX;
+		fileName += ( entryNo / 10 ) + '0';
+		fileName += ( entryNo % 10 ) + '0';
+		fileName += REPLAY_FILE_NAME_SUFFIX;
 		m_ReplayBuilder.Save( fileName );
 	}
 
@@ -55,6 +63,7 @@ namespace GameEngine
 
 	void GameStateManager::Impl::EndReplayRecording()
 	{
+		m_ReplayBuilder.Cleanup();
 	}
 
 	void GameStateManager::Impl::StartGameDataRecording()
@@ -67,23 +76,9 @@ namespace GameEngine
 		m_GameDataHolder.EndRecording();
 	}
 
-	//GameDataMsg GameStateManager::Impl::GetGameData() const
-	//{
-	//	return m_GameDataHolder.GetScoreData();
-	//}
-
-	//void GameStateManager::Impl::AddGameData( const GameDataMsg& data )
-	//{
-	//	m_GameDataHolder.Add( data );
-	//}
-
-	//void GameStateManager::Impl::UpdateGameData()
-	//{
-	//	m_GameDataHolder.Update();
-	//}
-
 	void GameStateManager::Impl::FlushGameData()
 	{
+		m_GameDataHolder.Flush();
 	}
 
 	int GameStateManager::Impl::GetPlayTime() const
@@ -121,6 +116,31 @@ namespace GameEngine
 		return m_GameDataHolder.GetPlayTime( difficulty );
 	}
 
+	void GameStateManager::Impl::SetRecord( int difficulty, const SaveDataRecord& record )
+	{
+		m_GameDataHolder.SetRecord( difficulty, record );
+	}
+
+	int GameStateManager::Impl::GetRank( int difficulty, const SaveDataRecord& record ) const
+	{
+		return m_GameDataHolder.GetRank( difficulty, record );
+	}
+
+	DisplayedReplayInfo GameStateManager::Impl::GetDisplayedReplayInfo() const
+	{
+		DisplayedReplayInfo info;
+
+		for( int i = 0; i < 25; ++i ){
+			std::string fileName = REPLAY_FILE_NAME_PREFIX;
+			fileName += ( i / 10 ) + '0';
+			fileName += ( i % 10 ) + '0';
+			fileName += REPLAY_FILE_NAME_SUFFIX;
+			info.m_Entries[ i ] = m_ReplayLoader.GetDisplayedInfo( fileName );
+		}
+
+		return info;
+	}
+
 	// ----------------------------------
 	// ŽÀ‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ
 	// ----------------------------------
@@ -138,9 +158,9 @@ namespace GameEngine
 		m_pImpl->RecordButtonState( status );
 	}
 
-	void GameStateManager::SaveReplayFile( const std::string& fileName )
+	void GameStateManager::SaveReplayFile( int entryNo )
 	{
-		m_pImpl->SaveReplayFile( fileName );
+		m_pImpl->SaveReplayFile( entryNo );
 	}
 
 	void GameStateManager::StartReplayRecording()
@@ -162,21 +182,6 @@ namespace GameEngine
 	{
 		m_pImpl->EndGameDataRecording();
 	}
-
-	//GameDataMsg GameStateManager::GetGameData() const
-	//{
-	//	return m_pImpl->GetGameData();
-	//}
-
-	//void GameStateManager::AddGameData( const GameDataMsg& data )
-	//{
-	//	m_pImpl->AddGameData( data );
-	//}
-
-	//void GameStateManager::UpdateGameData()
-	//{
-	//	m_pImpl->UpdateGameData();
-	//}
 
 	void GameStateManager::FlushGameData()
 	{
@@ -216,5 +221,20 @@ namespace GameEngine
 	int GameStateManager::GetPlayTime( int difficulty ) const
 	{
 		return m_pImpl->GetPlayTime( difficulty );
+	}
+
+	void GameStateManager::SetRecord( int difficulty, const SaveDataRecord& record )
+	{
+		m_pImpl->SetRecord( difficulty, record );
+	}
+
+	int GameStateManager::GetRank( int difficulty, const SaveDataRecord& record ) const
+	{
+		return m_pImpl->GetRank( difficulty, record );
+	}
+
+	DisplayedReplayInfo GameStateManager::GetDisplayedReplayInfo() const
+	{
+		return m_pImpl->GetDisplayedReplayInfo();
 	}
 }

@@ -78,6 +78,10 @@ namespace GameEngine
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachGameData( const GameDataMsg& msg );
+		int GetProgress() const;
+		int GetScore() const;
+		int GetKilled() const;
+		int GetCrystal() const;
 		GameDataMsg GetFrameData() const;
 	};
 }

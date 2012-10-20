@@ -24,12 +24,17 @@ namespace GameEngine
 		void AttachSceneResourceMap( const ResourceMap& map );
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachScriptData( const ScriptData& data );
-		void AttachGameData( const GameDataMsg& msg );
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
-		GameDataMsg GetFrameScoreData() const;
+		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
+		const DisplayedSaveData& GetDisplayedSaveData() const;
+		//GameDataMsg GetFrameScoreData() const;
 		void ChangeScene( SceneType scene );
 		SceneType GetCurSceneType() const;
 		void SetGameDifficulty( int difficulty );
+		void SetRecordRank( int rank );
+		const SaveDataRecord& GetRecord() const;
+		int GetGameDifficulty() const;
+		void ClearGameData();
 	};
 }
 

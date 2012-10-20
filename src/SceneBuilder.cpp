@@ -3,6 +3,8 @@
 #include "Menu.h"
 #include "Stage.h"
 #include "Score.h"
+#include "ScoreEntry.h"
+#include "ReplayEntry.h"
 #include "Initialize.h"
 
 namespace GameEngine
@@ -30,8 +32,12 @@ namespace GameEngine
 				return new Menu;
 			case SCENE_TYPE_SCORE:
 				return new Score;
+			case SCENE_TYPE_SCORE_ENTRY:
+				return new ScoreEntry;
 			case SCENE_TYPE_STAGE:
 				return new Stage( 0, false );
+			case SCENE_TYPE_REPLAY_ENTRY:
+				return new ReplayEntry;
 			default:
 				return NULL;
 		}

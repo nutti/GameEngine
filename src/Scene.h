@@ -25,8 +25,6 @@ namespace GameEngine
 		void SetButtonState();
 		virtual void AttachButtonState( ButtonStatusHolder* pHolder ) = 0;
 		virtual void AttachResourceMap( const ResourceMap& map ) = 0;
-		virtual void AttachGameData( const GameDataMsg& msg ){}
-		virtual GameDataMsg GetFrameData() const{ GameDataMsg msg; return msg;}
 	};
 }
 

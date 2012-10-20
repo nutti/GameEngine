@@ -18,14 +18,11 @@ namespace GameEngine
 		GameStateManager();
 		~GameStateManager();
 		void RecordButtonState( ButtonPushedStatus status );
-		void SaveReplayFile( const std::string& fileName );
+		void SaveReplayFile( int entryNo );
 		void StartReplayRecording();
 		void EndReplayRecording();
 		void StartGameDataRecording();
 		void EndGameDataRecording();
-		//GameDataMsg GetGameData() const;
-		//void AddGameData( const GameDataMsg& data );
-		//void UpdateGameData();
 		void FlushGameData();			// ファイルへ現在のゲームデータを保存
 		int GetPlayTime() const;
 		void UpdatePlayTime();
@@ -34,6 +31,9 @@ namespace GameEngine
 		int GetProgress( int difficulty ) const;
 		int GetProgress() const;
 		int GetPlayTime( int difficulty ) const;
+		void SetRecord( int difficulty, const SaveDataRecord& record );
+		int GetRank( int difficulty, const SaveDataRecord& record ) const;
+		DisplayedReplayInfo GetDisplayedReplayInfo() const;
 	};
 }
 

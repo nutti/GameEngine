@@ -2,6 +2,7 @@
 
 #include "GeneralButtonManager.h"
 #include "KeyboardStateHolder.h"
+#include "FileInputStateHolder.h"
 
 namespace GameEngine
 {
@@ -26,6 +27,8 @@ namespace GameEngine
 		void GetButtonStatus( ButtonStatusHolder* pHolder );
 		bool IsSpecialKeyPushed( int key );
 		void ChangeDevice( InputDevice device );
+		ButtonPushedStatus GetRawButtonStatus() const;
+		void SetReplayNo( int entryNo );
 	};
 
 	GeneralButtonManager::Impl::Impl() : m_pInputStateHolder()
@@ -86,13 +89,30 @@ namespace GameEngine
 			case INPUT_DEVICE_KEYBOARD:
 				m_pInputStateHolder.reset( new KeyboardStateHolder );
 				break;
+			case INPUT_DEVICE_FILE:
+				m_pInputStateHolder.reset( new FileInputStateHolder );
+				break;
 			default:
 				break;
 		}
 		m_pInputStateHolder->Init();
 	}
 
+	ButtonPushedStatus GeneralButtonManager::Impl::GetRawButtonStatus() const
+	{
+		return m_pInputStateHolder->GetButtonState();
+	}
 
+	void GeneralButtonManager::Impl::SetReplayNo( int entryNo )
+	{
+		FileInputStateHolder* p = dynamic_cast < FileInputStateHolder* > ( m_pInputStateHolder.get() );
+		if( p ){
+			p->LoadFile( entryNo );
+		}
+		else{
+			exit( 0 );
+		}
+	}
 
 	// ----------------------------------
 	// ŽÀ‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ
@@ -125,5 +145,15 @@ namespace GameEngine
 	void GeneralButtonManager::ChangeDevice( InputDevice device )
 	{
 		m_pImpl->ChangeDevice( device );
+	}
+
+	ButtonPushedStatus GeneralButtonManager::GetRawButtonStatus() const
+	{
+		return m_pImpl->GetRawButtonStatus();
+	}
+
+	void GeneralButtonManager::SetReplayNo( int entryNo )
+	{
+		m_pImpl->SetReplayNo( entryNo );
 	}
 }

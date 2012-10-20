@@ -28,7 +28,8 @@ namespace GameEngine
 		int GetProgress( int difficulty ) const;
 		int GetProgress() const;
 		int GetPlayTime( int difficulty ) const;
-
+		void SetRecord( int difficulty, const SaveDataRecord& record );
+		int GetRank( int difficulty, const SaveDataRecord& record ) const;
 	};
 }
 

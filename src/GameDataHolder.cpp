@@ -3,7 +3,6 @@
 #include <time.h>
 
 #include "GameDataHolder.h"
-//#include "ScoreManager.h"
 #include "Util.h"
 
 namespace GameEngine
@@ -32,16 +31,11 @@ namespace GameEngine
 		std::string			m_SaveDataFileName;		// セーブファイル名
 
 		::time_t			m_TimeStamp;			// 最終更新日時
-
-		//ScoreManager		m_ScoreManager;			// スコア管理クラス
 	public:
 		Impl();
 		~Impl(){}
 		void StartRecording();
 		void EndRecording();
-		//void Update();
-		//GameDataMsg GetScoreData() const;
-		//void Add( const GameDataMsg& data );
 		void Flush();
 		void Load( const std::string& fileName );
 		int GetPlayTime() const;
@@ -51,6 +45,8 @@ namespace GameEngine
 		int GetProgress( int difficulty ) const;
 		int GetProgress() const;
 		int GetPlayTime( int difficulty ) const;
+		void SetRecord( int difficulty, const SaveDataRecord& record );
+		int GetRank( int difficulty, const SaveDataRecord& record ) const;
 	};
 
 	GameDataHolder::Impl::Impl() : /*m_ScoreManager(),*/ m_SaveDataFileName()
@@ -72,35 +68,13 @@ namespace GameEngine
 
 	void GameDataHolder::Impl::EndRecording()
 	{
-		int time = ::time( NULL );
-		m_GameFileData.m_PlayTime += time - m_TimeStamp;
-		m_TimeStamp = time;
 		Flush();
 	}
 
-	//void GameDataHolder::Impl::Update()
-	//{
-	//	m_ScoreManager.Update();
-	//	m_GameData.m_Score = m_ScoreManager.GetScore();
-	//	if( m_GameData.m_HIScore <= m_GameData.m_Score ){
-	//		m_GameData.m_HIScore = m_GameData.m_Score;
-	//	}
-	//}
-
-	//GameDataMsg GameDataHolder::Impl::GetScoreData() const
-	//{
-	//	return m_GameData;
-	//}
-
-	//void GameDataHolder::Impl::Add( const GameDataMsg& data )
-	//{
-	//	m_ScoreManager.Add( data.m_Score );
-	//	m_GameData.m_Killed += data.m_Killed;
-	//	m_GameData.m_CrystalTotal += data.m_CrystalTotal;
-	//}
-
 	void GameDataHolder::Impl::Flush()
 	{
+		UpdatePlayTime();
+
 		std::ofstream fOut( m_SaveDataFileName, std::ios::binary | std::ios::out );
 
 		WriteInt( &fOut, m_GameFileData.m_PlayTime );
@@ -211,6 +185,34 @@ namespace GameEngine
 		return m_GameFileData.m_Difficulty[ difficulty ].m_PlayTime;
 	}
 
+	void GameDataHolder::Impl::SetRecord( int difficulty, const SaveDataRecord& record )
+	{
+		int newScore = record.m_Score;
+		for( int i = 0; i < sizeof( m_GameFileData.m_Difficulty[ difficulty ].m_Record ) / sizeof( m_GameFileData.m_Difficulty[ difficulty ].m_Record[ 0 ] ); ++i ){
+			if( m_GameFileData.m_Difficulty[ difficulty ].m_Record[ i ].m_Score < newScore ){
+				int newRank = i;
+				// 消去されるものの全コピー
+				for( int j = sizeof( m_GameFileData.m_Difficulty[ difficulty ].m_Record ) / sizeof( m_GameFileData.m_Difficulty[ difficulty ].m_Record[ 0 ] ) - 1; j > i; --j ){
+					m_GameFileData.m_Difficulty[ difficulty ].m_Record[ j ] = m_GameFileData.m_Difficulty[ difficulty ].m_Record[ j - 1 ];
+				}
+				m_GameFileData.m_Difficulty[ difficulty ].m_Record[ newRank ] = record;
+				break;
+			}
+		}
+	}
+
+	int GameDataHolder::Impl::GetRank( int difficulty, const SaveDataRecord& record ) const
+	{
+		int newScore = record.m_Score;
+		for( int i = 0; i < sizeof( m_GameFileData.m_Difficulty[ difficulty ].m_Record ) / sizeof( m_GameFileData.m_Difficulty[ difficulty ].m_Record[ 0 ] ); ++i ){
+			if( m_GameFileData.m_Difficulty[ difficulty ].m_Record[ i ].m_Score < newScore ){
+				return i;		// ランクイン
+			}
+		}
+
+		return -1;		// ランク外
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -232,21 +234,6 @@ namespace GameEngine
 	{
 		m_pImpl->EndRecording();
 	}
-
-	//void GameDataHolder::Update()
-	//{
-	//	m_pImpl->Update();
-	//}
-
-	//GameDataMsg GameDataHolder::GetScoreData() const
-	//{
-	//	return m_pImpl->GetScoreData();
-	//}
-
-	//void GameDataHolder::Add( const GameDataMsg& data )
-	//{
-	//	m_pImpl->Add( data );
-	//}
 
 	void GameDataHolder::Flush()
 	{
@@ -286,5 +273,15 @@ namespace GameEngine
 	int GameDataHolder::GetPlayTime( int difficulty ) const
 	{
 		return m_pImpl->GetPlayTime( difficulty );
+	}
+
+	void GameDataHolder::SetRecord( int difficulty, const SaveDataRecord& record )
+	{
+		m_pImpl->SetRecord( difficulty, record );
+	}
+
+	int GameDataHolder::GetRank( int difficulty, const SaveDataRecord& record ) const
+	{
+		return m_pImpl->GetRank( difficulty, record );
 	}
 }

@@ -56,7 +56,7 @@ namespace GameEngine
 																						INVINCIBLE_TIME( 240 )
 	{
 		MAPIL::ZeroObject( &m_Data, sizeof( m_Data ) );
-		m_Data.m_HP = 1;
+		m_Data.m_HP = 10;
 		m_Data.m_ConsGauge[ 0 ] = m_Data.m_ConsGauge[ 1 ] = m_Data.m_ConsGauge[ 2 ] = 1000;
 		m_Data.m_ConsLevel[ 0 ] = m_Data.m_ConsLevel[ 1 ] = m_Data.m_ConsLevel[ 2 ] = 1000;
 		m_Data.m_PosX = 300.0f;

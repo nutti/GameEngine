@@ -13,25 +13,25 @@ namespace GameEngine
 	};
 
 	// ステージ進行度
-	enum StageProgress
-	{
-		STAGE_PROGRESS_NONE			= 0,
-		STAGE_PROGRESS_STAGE_1		= 1,
-		STAGE_PROGRESS_STAGE_2		= 2,
-		STAGE_PROGRESS_STAGE_3		= 3,
-		STAGE_PROGRESS_STAGE_4		= 4,
-		STAGE_PROGRESS_STAGE_5		= 5,
-		STAGE_PROGRESS_ALL_CLEAR	= 6,
-	};
+	//enum StageProgress
+	//{
+	//	STAGE_PROGRESS_NONE			= 0,
+	//	STAGE_PROGRESS_STAGE_1		= 1,
+	//	STAGE_PROGRESS_STAGE_2		= 2,
+	//	STAGE_PROGRESS_STAGE_3		= 3,
+	//	STAGE_PROGRESS_STAGE_4		= 4,
+	//	STAGE_PROGRESS_STAGE_5		= 5,
+	//	STAGE_PROGRESS_ALL_CLEAR	= 6,
+	//};
 
 	// 難易度
 	enum GameDifficulty
 	{
 		GAME_DIFFICULTY_UNKNOWN		= -1,
-		GAME_DIFFICULTY_EASY		= 1,
-		GAME_DIFFICULTY_NORMAL		= 2,
-		GAME_DIFFICULTY_HARD		= 3,
-		GAME_DIFFICULTY_HAZARD		= 4,
+		GAME_DIFFICULTY_EASY		= 0,
+		GAME_DIFFICULTY_NORMAL		= 1,
+		GAME_DIFFICULTY_HARD		= 2,
+		GAME_DIFFICULTY_HAZARD		= 3,
 	};
 
 	// セーブデータ用レコード
@@ -75,6 +75,34 @@ namespace GameEngine
 		int			m_PlayTime;
 		Difficulty	m_Difficulty[ 4 ];				// 難易度別ゲーム状態
 	};
+
+	// 表示用リプレイ情報
+	struct DisplayedReplayInfo
+	{
+		struct Entry
+		{
+			struct Date
+			{
+			int		m_Year;
+			char	m_Month;
+			char	m_Day;
+			char	m_Hour;
+			char	m_Min;
+			char	m_Sec;
+			};
+
+			char					m_Name[ 10 ];			// 名前
+			int						m_Progress;				// 進行度
+			int						m_Score;				// スコア
+			int						m_Crystal;				// クリスタル獲得数
+			int						m_Killed;				// 撃破数
+			int						m_Difficulty;			// 難易度
+			Date					m_Date;					// 作成日時
+		};
+		Entry		m_Entries[ 25 ];
+	};
+
+
 }
 
 #endif

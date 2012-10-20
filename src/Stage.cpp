@@ -56,6 +56,10 @@ namespace GameEngine
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachGameData( const GameDataMsg& msg );
+		int GetProgress() const;
+		int GetScore() const;
+		int GetKilled() const;
+		int GetCrystal() const;
 		GameDataMsg GetFrameData() const;
 	};
 
@@ -319,13 +323,13 @@ namespace GameEngine
 		// ステージ向けのメッセージを処理
 		ProcessMessage();
 		if( m_Data.m_HasTermSig ){
-			return SCENE_TYPE_MENU;
+			return SCENE_TYPE_SCORE_ENTRY;
 		}
 
 		// スクリプトコマンドの実行
 		m_VM.Run();
 		if( m_VM.Terminated() ){
-			return SCENE_TYPE_MENU;
+			return SCENE_TYPE_SCORE_ENTRY;
 		}
 
 		// 衝突判定
@@ -614,6 +618,26 @@ namespace GameEngine
 		m_Data.m_GameData = msg;
 	}
 
+	int Stage::Impl::GetProgress() const
+	{
+		return m_Data.m_Frame;
+	}
+	
+	int Stage::Impl::GetScore() const
+	{
+		return m_Data.m_GameData.m_Score;
+	}
+
+	int Stage::Impl::GetKilled() const
+	{
+		return m_Data.m_GameData.m_Killed;
+	}
+
+	int Stage::Impl::GetCrystal() const
+	{
+		return m_Data.m_GameData.m_CrystalTotal;
+	}
+
 	GameDataMsg Stage::Impl::GetFrameData() const
 	{
 		return m_Data.m_FrameGameData;
@@ -664,6 +688,26 @@ namespace GameEngine
 	void Stage::AttachGameData( const GameDataMsg& msg )
 	{
 		m_pImpl->AttachGameData( msg );
+	}
+
+	int Stage::GetProgress() const
+	{
+		return m_pImpl->GetProgress();
+	}
+
+	int Stage::GetScore() const
+	{
+		return m_pImpl->GetScore();
+	}
+
+	int Stage::GetKilled() const
+	{
+		return m_pImpl->GetKilled();
+	}
+
+	int Stage::GetCrystal() const
+	{
+		return m_pImpl->GetCrystal();
 	}
 
 	GameDataMsg Stage::GetFrameData() const

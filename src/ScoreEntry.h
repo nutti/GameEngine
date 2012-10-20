@@ -22,6 +22,9 @@ namespace GameEngine
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		void AttachRecord( const SaveDataRecord& record );
 		void SetDifficulty( int difficulty );
+		const DisplayedSaveData& GetDisplayedSaveData() const;
+		void SetRecordRank( int rank );
+		const SaveDataRecord& GetRecord() const;
 	};
 }
 

@@ -32,7 +32,7 @@ namespace GameEngine
 		GENERAL_BUTTON_MOVE_RIGHT		= 7,		// 移動（右）
 	};
 
-	typedef int ButtonPushedStatus;
+	typedef char ButtonPushedStatus;
 
 	// ボタンの状態
 	enum ButtonStatus

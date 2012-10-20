@@ -47,29 +47,19 @@ namespace GameEngine
 
 	void EventMediator::Impl::FrameUpdate()
 	{
-		// ゲームの状態を取得
-		GameDataMsg msg;
-		//if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
-		//	msg = m_pGameStateManager->GetGameData();
-		//	m_pSceneManager->AttachGameData( msg );
-		//}
-
 		// ボタンの取得
 		ButtonStatusHolder holder;
 		m_pButtonManager->Update();
 		m_pButtonManager->GetButtonStatus( &holder );
 		m_pSceneManager->AttachButtonState( &holder );
+		if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
+			// リプレイ用に記録
+			m_pGameStateManager->RecordButtonState( m_pButtonManager->GetRawButtonStatus() );
+		}
 
 		// 画面の更新
 		m_pSceneManager->Update();
 		m_pSceneManager->Draw();
-
-		// ゲームデータの更新
-		//if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
-		//	msg = m_pSceneManager->GetFrameScoreData();
-		//	m_pGameStateManager->AddGameData( msg );
-		//	m_pGameStateManager->UpdateGameData();
-		//}
 
 		// 時間の表示（暫定版）
 		m_pGameStateManager->UpdatePlayTime();
@@ -211,17 +201,19 @@ namespace GameEngine
 				m_pResourceManager->ReleaseStageResources();
 				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
 				m_pSceneManager->AttachSceneResourceMap( rcMap );
+				// 履歴表示
+				DisplayedSaveData data;
+				for( int i = 0; i < 4; ++i ){
+					for( int j = 0; j < 25; ++j ){
+						data.m_Difficulty[ i ].m_Record[ j ] = m_pGameStateManager->GetRecord( i, j );
+					}
+					data.m_Difficulty[ i ].m_PlayTime = m_pGameStateManager->GetPlayTime( i );
+					data.m_Difficulty[ i ].m_AllClear = m_pGameStateManager->GetAllClearCount( i );
+				}
+				data.m_PlayTime = m_pGameStateManager->GetPlayTime();
+				m_pSceneManager->AttachDisplayedSaveData( data );
+				// シーン変更
 				m_pSceneManager->ChangeScene( SCENE_TYPE_SCORE );
-				//DisplayedSaveData data;
-				//for( int i = 0; i < 4; ++i ){
-				//	for( int j = 0; j < 25; ++j ){
-				//		data.m_Difficulty[ i ].m_Record[ j ] = m_pGameStateManager->GetRecord( i, j );
-				//	}
-				//	data.m_Difficulty[ i ].m_PlayTime = m_pGameStateManager->GetPlayTime( i );
-				//	data.m_Difficulty[ i ].m_AllClear = m_pGameStateManager->GetAllClearCount( i );
-				//}
-				//data.m_PlayTime = m_pGameStateManager->GetPlayTime();
-				//m_pSceneManager->AttachDisplayedSaveData( data );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
@@ -229,8 +221,50 @@ namespace GameEngine
 				m_pResourceManager->ReleaseStageResources();
 				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
 				m_pSceneManager->AttachSceneResourceMap( rcMap );
+				// ランキングを取得
+				int rank = m_pGameStateManager->GetRank( m_pSceneManager->GetGameDifficulty(), m_pSceneManager->GetRecord() );
+				m_pSceneManager->SetRecordRank( rank );
+				// 履歴表示
+				DisplayedSaveData data;
+				for( int i = 0; i < 4; ++i ){
+					for( int j = 0; j < 25; ++j ){
+						data.m_Difficulty[ i ].m_Record[ j ] = m_pGameStateManager->GetRecord( i, j );
+					}
+					data.m_Difficulty[ i ].m_PlayTime = m_pGameStateManager->GetPlayTime( i );
+					data.m_Difficulty[ i ].m_AllClear = m_pGameStateManager->GetAllClearCount( i );
+				}
+				data.m_PlayTime = m_pGameStateManager->GetPlayTime();
+				m_pSceneManager->AttachDisplayedSaveData( data );
+				// シーン変更
 				m_pSceneManager->ChangeScene( SCENE_TYPE_SCORE_ENTRY );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
+			case EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SCORE_ENTRY:{
+				m_pResourceManager->ReleaseStageResources();
+				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
+				m_pSceneManager->AttachSceneResourceMap( rcMap );
+				// スコアの保存
+				m_pGameStateManager->SetRecord( m_pSceneManager->GetGameDifficulty(), m_pSceneManager->GetRecord() );
+				m_pGameStateManager->FlushGameData();
+				// リプレイ一覧を取得
+				DisplayedReplayInfo info = m_pGameStateManager->GetDisplayedReplayInfo();
+				m_pSceneManager->AttachDisplayedReplayInfo( info );
+				// シーンの変更
+				m_pSceneManager->ChangeScene( SCENE_TYPE_REPLAY_ENTRY );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
+			case EVENT_TYPE_MOVE_TO_MENU_FROM_SCORE_ENTRY:{
+				m_pResourceManager->ReleaseStageResources();
+				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
+				m_pSceneManager->AttachSceneResourceMap( rcMap );
+				//m_pGameStateManager->SetRecord( m_pSceneManager->GetGameDifficulty(), m_pSceneManager->GetRecord() );
+				//m_pGameStateManager->FlushGameData();
+				//m_pGameStateManager->SaveReplayFile( 0 );
+				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
 			}
 			// フレーム更新要求
 			case EVENT_TYPE_FRAME_UPDATE:
@@ -246,21 +280,26 @@ namespace GameEngine
 		}
 	}
 
+
 	void EventMediator::Impl::SendEvent( int type, void* pArg )
 	{
 		switch( type ){
 			// ステージ変更要求
 			case EVENT_TYPE_MOVE_TO_STAGE:{
 				m_pResourceManager->ReleaseStageResources();
-				int stage = *( static_cast < int* > ( pArg ) );
+				int stage = *( static_cast < int* > ( pArg ) ) + 1;
 				m_pScriptManager->BuildScriptData( stage );
 				ScriptData data = m_pScriptManager->GetScriptData();
 				m_pSceneManager->AttachScriptData( data );
 				m_pResourceManager->LoadStageResources( data );
 				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
 				m_pSceneManager->AttachSceneResourceMap( rcMap );
-				//m_pGameStateManager->StartGameDataRecording();
+				m_pSceneManager->ClearGameData();
+				m_pSceneManager->SetGameDifficulty( GAME_DIFFICULTY_EASY );
+				m_pGameStateManager->StartReplayRecording();
 				m_pSceneManager->ChangeScene( SCENE_TYPE_STAGE );
+				//m_pButtonManager->ChangeDevice( INPUT_DEVICE_FILE );
+				//m_pButtonManager->SetReplayNo( 0 );
 				break;
 			}
 			default:
@@ -319,6 +358,7 @@ namespace GameEngine
 	{
 		m_pImpl->SendEvent( type, pArg );
 	}
+
 
 	void EventMediator::SetSceneManager( std::shared_ptr < SceneManager > pSceneManager )
 	{
