@@ -42,7 +42,13 @@ namespace GameEngine
 
 	SceneType Score::Impl::Update()
 	{
-		
+		if( m_Counter < 20 || m_MovementCounter <= 30 ){
+			++m_Counter;
+			++m_MovementCounter;
+			return SCENE_TYPE_NOT_CHANGE;
+		}
+
+
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
 			return SCENE_TYPE_MENU;
 		}
@@ -93,8 +99,7 @@ namespace GameEngine
 
 		DrawFontString( m_ResourceMap, 200.0f, 30.0f, 1.0f, 0xFFFFFF00, difStr[ m_Difficulty ] );
 
-		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-							0.0f, 99.0f + m_SelectedRecord * 17.0f, 50.0f, 1.0f, false, 0xDD5577FF );
+		
 
 		// 縦にスクロールした場合
 		if( m_Counter < 20 ){
@@ -139,30 +144,36 @@ namespace GameEngine
 			DrawFontString( m_ResourceMap, 500.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 85.0f, 0.5f, 0xFFAAFFAA, "date" );
 
 			for( int i = 0; i < 15; ++i ){
-				DrawFontString( m_ResourceMap, 30.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
-				DrawFontString( m_ResourceMap, 100.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Name );
-				DrawFontString( m_ResourceMap, 200.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Progress ] );
-				DrawFontString( m_ResourceMap, 350.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Score );
-				DrawFontString( m_ResourceMap, 500.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%04d%02d%02d%02d%02d",
-								m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Year,
-								m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Month,
-								m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Day,
-								m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Hour,
-								m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Min );
-				DrawFontString( m_ResourceMap, 30.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
-				DrawFontString( m_ResourceMap, 100.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Name );
-				DrawFontString( m_ResourceMap, 200.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Progress ] );
-				DrawFontString( m_ResourceMap, 350.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Score );
-				DrawFontString( m_ResourceMap, 500.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%04d%02d%02d%02d%02d",
-								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year,
-								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Month,
-								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Day,
-								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Hour,
-								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Min );
+				if( m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Year != 0 ){
+					DrawFontString( m_ResourceMap, 30.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
+					DrawFontString( m_ResourceMap, 100.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Name );
+					DrawFontString( m_ResourceMap, 200.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Progress ] );
+					DrawFontString( m_ResourceMap, 350.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Score );
+					DrawFontString( m_ResourceMap, 500.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%04d%02d%02d%02d%02d",
+									m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Year,
+									m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Month,
+									m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Day,
+									m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Hour,
+									m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Min );
+				}
+				else if( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year != 0 ){
+					DrawFontString( m_ResourceMap, 30.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
+					DrawFontString( m_ResourceMap, 100.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Name );
+					DrawFontString( m_ResourceMap, 200.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Progress ] );
+					DrawFontString( m_ResourceMap, 350.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Score );
+					DrawFontString( m_ResourceMap, 500.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%04d%02d%02d%02d%02d",
+									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year,
+									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Month,
+									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Day,
+									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Hour,
+									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Min );
+				}
 			}
 		}
 		// 通常の表示
 		else{
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 99.0f + m_SelectedRecord * 17.0f, 50.0f, 1.0f, false, 0xDD5577FF );
 			DrawFontString( m_ResourceMap, 30.0f, 85.0f, 0.5f, 0xFFAAFFAA, "rank" );
 			DrawFontString( m_ResourceMap, 100.0f, 85.0f, 0.5f, 0xFFAAFFAA, "name" );
 			DrawFontString( m_ResourceMap, 200.0f, 85.0f, 0.5f, 0xFFAAFFAA, "progress" );

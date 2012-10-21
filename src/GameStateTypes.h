@@ -1,6 +1,8 @@
 #ifndef INCLUDED_GAMEENGINE_GAMESTATETYPES_H
 #define INCLUDED_GAMEENGINE_GAMESTATETYPES_H
 
+#include "Date.h"
+
 namespace GameEngine
 {
 	// メッセージ交換用ゲームデータ
@@ -37,15 +39,6 @@ namespace GameEngine
 	// セーブデータ用レコード
 	struct SaveDataRecord
 	{
-		struct Time
-		{
-			int		m_Year;
-			char	m_Month;
-			char	m_Day;
-			char	m_Hour;
-			char	m_Min;
-			char	m_Sec;
-		};
 		struct StageData
 		{
 			int		m_Score;			// スコア
@@ -55,7 +48,7 @@ namespace GameEngine
 		};
 
 		char		m_Name[ 10 ];			// エントリ名
-		Time		m_Date;					// 登録日時
+		Date		m_Date;					// 登録日時
 		StageData	m_StageData[ 5 ];		// ステージデータ
 		int			m_Score;				// スコア
 		int			m_Progress;				// 進行状況
@@ -81,16 +74,7 @@ namespace GameEngine
 	{
 		struct Entry
 		{
-			struct Date
-			{
-			int		m_Year;
-			char	m_Month;
-			char	m_Day;
-			char	m_Hour;
-			char	m_Min;
-			char	m_Sec;
-			};
-
+			int						m_EntryNo;				// エントリ番号
 			char					m_Name[ 10 ];			// 名前
 			int						m_Progress;				// 進行度
 			int						m_Score;				// スコア

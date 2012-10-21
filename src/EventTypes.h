@@ -11,7 +11,9 @@ namespace GameEngine
 		EVENT_TYPE_MOVE_TO_SCORE								= 3,	// スコア画面へ移動
 		EVENT_TYPE_MOVE_TO_SCORE_ENTRY							= 4,	// スコアエントリ画面へ移動
 		EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SCORE_ENTRY		= 5,	// リプレイエントリ画面へ移動（スコアエントリ画面から移動）
-		EVENT_TYPE_MOVE_TO_MENU_FROM_SCORE_ENTRY				= 6,	// メニュー画面移行要求（スコアエントリ画面から）
+		EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY				= 6,	// メニュー画面移行要求（リプレイエントリ画面から）
+		EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF				= 7,	// リプレイエントリ画面へ移動（リプレイエントリ画面から移動）
+		EVENT_TYPE_MOVE_TO_REPLAY								= 8,	// リプレイ画面へ移動
 		EVENT_TYPE_FRAME_UPDATE									= 100,	// フレーム更新要求
 		EVENT_TYPE_GAME_TERM									= 101,	// ゲーム終了要求
 		EVENT_TYPE_UNKNOWN										= 200,

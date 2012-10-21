@@ -18,7 +18,7 @@ namespace GameEngine
 		Impl();
 		~Impl(){}
 		void RecordButtonState( ButtonPushedStatus status );
-		void SaveReplayFile( int entryNo );
+		void SaveReplayFile( const DisplayedReplayInfo::Entry& entry );
 		void StartReplayRecording();
 		void EndReplayRecording();
 		void StartGameDataRecording();
@@ -47,11 +47,19 @@ namespace GameEngine
 		m_ReplayBuilder.AddButtonState( status );
 	}
 
-	void GameStateManager::Impl::SaveReplayFile( int entryNo )
+	void GameStateManager::Impl::SaveReplayFile( const DisplayedReplayInfo::Entry& entry )
 	{
+		m_ReplayBuilder.SetName( entry.m_Name );
+		m_ReplayBuilder.SetProgress( entry.m_Progress );
+		m_ReplayBuilder.SetScore( entry.m_Score );
+		m_ReplayBuilder.SetCrystal( entry.m_Crystal );
+		m_ReplayBuilder.SetKilled( entry.m_Killed );
+		m_ReplayBuilder.SetDifficulty( entry.m_Difficulty );
+		m_ReplayBuilder.SetDate( entry.m_Date );
+
 		std::string fileName = REPLAY_FILE_NAME_PREFIX;
-		fileName += ( entryNo / 10 ) + '0';
-		fileName += ( entryNo % 10 ) + '0';
+		fileName += ( entry.m_EntryNo / 10 ) + '0';
+		fileName += ( entry.m_EntryNo % 10 ) + '0';
 		fileName += REPLAY_FILE_NAME_SUFFIX;
 		m_ReplayBuilder.Save( fileName );
 	}
@@ -158,9 +166,9 @@ namespace GameEngine
 		m_pImpl->RecordButtonState( status );
 	}
 
-	void GameStateManager::SaveReplayFile( int entryNo )
+	void GameStateManager::SaveReplayFile( const DisplayedReplayInfo::Entry& entry )
 	{
-		m_pImpl->SaveReplayFile( entryNo );
+		m_pImpl->SaveReplayFile( entry );
 	}
 
 	void GameStateManager::StartReplayRecording()

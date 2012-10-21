@@ -50,10 +50,11 @@ namespace GameEngine
 	SceneType ScoreEntry::Impl::Update()
 	{
 		if( m_NewEntryRank == -1 ){
-			return SCENE_TYPE_MENU;
+			return SCENE_TYPE_REPLAY_ENTRY;
 		}
 
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
+			m_NewRecord.m_Name[ m_NameInputPos ] = '\0';
 			return SCENE_TYPE_REPLAY_ENTRY;
 		}
 

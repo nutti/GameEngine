@@ -12,6 +12,7 @@ namespace GameEngine
 		SCENE_TYPE_SCORE		= 3,
 		SCENE_TYPE_SCORE_ENTRY	= 4,
 		SCENE_TYPE_REPLAY_ENTRY	= 5,
+		SCENE_TYPE_REPLAY		= 6,
 		SCENE_TYPE_NOT_CHANGE	= 100,
 		SCENE_TYPE_GAME_TERM	= 101,
 		SCENE_TYPE_UNKNOWN		= 200,
@@ -37,6 +38,13 @@ namespace GameEngine
 		GAME_OBJECT_ID_PLAYER_SHOT	= 3,	// プレイヤーショット
 		GAME_OBJECT_ID_ENEMY_SHOT	= 4,	// 敵ショット
 		GAME_OBJECT_ID_EFFECT		= 5,	// エフェクト
+	};
+
+	// ゲームモード
+	enum GameMode
+	{
+		GAME_MODE_NORMAL			= 0,	// 通常プレイ
+		GAME_MODE_REPLAY			= 1,	// リプレイ
 	};
 }
 

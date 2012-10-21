@@ -18,7 +18,7 @@ namespace GameEngine
 		GameStateManager();
 		~GameStateManager();
 		void RecordButtonState( ButtonPushedStatus status );
-		void SaveReplayFile( int entryNo );
+		void SaveReplayFile( const DisplayedReplayInfo::Entry& entry );
 		void StartReplayRecording();
 		void EndReplayRecording();
 		void StartGameDataRecording();

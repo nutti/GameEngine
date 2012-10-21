@@ -84,11 +84,11 @@ namespace GameEngine
 		m_ReplayDataInfo.m_Killed = ReadInt( &fIn );
 		m_ReplayDataInfo.m_Difficulty = ReadInt( &fIn );
 		m_ReplayDataInfo.m_Date.m_Year = ReadInt( &fIn );
-		m_ReplayDataInfo.m_Date.m_Month = ReadInt( &fIn );
-		m_ReplayDataInfo.m_Date.m_Day = ReadInt( &fIn );
-		m_ReplayDataInfo.m_Date.m_Hour = ReadInt( &fIn );
-		m_ReplayDataInfo.m_Date.m_Min = ReadInt( &fIn );
-		m_ReplayDataInfo.m_Date.m_Sec = ReadInt( &fIn );
+		fIn.read( &m_ReplayDataInfo.m_Date.m_Month, sizeof( char ) );
+		fIn.read( &m_ReplayDataInfo.m_Date.m_Day, sizeof( char ) );
+		fIn.read( &m_ReplayDataInfo.m_Date.m_Hour, sizeof( char ) );
+		fIn.read( &m_ReplayDataInfo.m_Date.m_Min, sizeof( char ) );
+		fIn.read( &m_ReplayDataInfo.m_Date.m_Sec, sizeof( char ) );
 		// 各ステージデータ開始時のデータを取得
 		for( int i = 0; i < 5; ++i ){
 			ReplayDataInfo::StageData stage;
@@ -144,6 +144,12 @@ namespace GameEngine
 		entry.m_Crystal = ReadInt( &fIn );
 		entry.m_Killed = ReadInt( &fIn );
 		entry.m_Difficulty = ReadInt( &fIn );
+		entry.m_Date.m_Year = ReadInt( &fIn );
+		fIn.read( &entry.m_Date.m_Month, sizeof( char ) );
+		fIn.read( &entry.m_Date.m_Day, sizeof( char ) );
+		fIn.read( &entry.m_Date.m_Hour, sizeof( char ) );
+		fIn.read( &entry.m_Date.m_Min, sizeof( char ) );
+		fIn.read( &entry.m_Date.m_Sec, sizeof( char ) );
 
 		fIn.close();
 

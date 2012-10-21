@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include "Stage.h"
 #include "Score.h"
+#include "Replay.h"
 #include "Menu.h"
 #include "Initialize.h"
 #include "ScoreEntry.h"
@@ -19,6 +20,7 @@
 
 namespace GameEngine
 {
+
 	// SceneManager実装クラス
 	class SceneManager::Impl
 	{
@@ -31,9 +33,13 @@ namespace GameEngine
 		DisplayedSaveData						m_SaveData;				// セーブデータ
 		SaveDataRecord							m_SaveDataRecord;		// 現在プレイ中の記録
 		DisplayedReplayInfo						m_DisplayedReplayInfo;	// 表示用リプレイ情報
+		DisplayedReplayInfo::Entry				m_ReplayInfo;			// 現在プレイ中の情報
 		int										m_GameDifficulty;		// 難易度
 		int										m_CurStage;				// 現在のステージ
 		int										m_RecordRank;			// スコアのランク
+		int										m_GameMode;				// ゲームモード
+
+		void PrepareScoreEntry();			// スコアエントリ状態遷移のための準備
 	public:
 		Impl( std::shared_ptr < EventMediator > pEventMediator );
 		~Impl(){}
@@ -53,6 +59,8 @@ namespace GameEngine
 		const SaveDataRecord& GetRecord() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();
+		const DisplayedReplayInfo::Entry& GetReplayInfo() const;
+		int GetGameMode() const;
 	};
 
 	SceneManager::Impl::Impl( std::shared_ptr < EventMediator > pEventMediator ) :	m_pSceneBuilder( new SceneBuilder ),
@@ -64,6 +72,42 @@ namespace GameEngine
 		m_CurStage = 0;
 		MAPIL::ZeroObject( &m_SaveDataRecord, sizeof( m_SaveDataRecord ) );
 		MAPIL::ZeroObject( &m_DisplayedReplayInfo, sizeof( m_DisplayedReplayInfo ) );
+		MAPIL::ZeroObject( &m_ReplayInfo, sizeof( m_ReplayInfo ) );
+		m_GameMode = GAME_MODE_NORMAL;
+	}
+
+	void SceneManager::Impl::PrepareScoreEntry()
+	{
+		if( m_CurSceneType == SCENE_TYPE_STAGE ){
+			// ゲーム到達度の保存
+			m_SaveDataRecord.m_Progress = m_CurStage;
+			// 最後のステージの記録
+			Stage* pp = dynamic_cast < Stage* > ( m_pCurScene.get() );
+			if( pp ){
+				m_SaveDataRecord.m_StageData[ m_CurStage ].m_Crystal = pp->GetCrystal();
+				m_SaveDataRecord.m_StageData[ m_CurStage ].m_Killed = pp->GetKilled();
+				m_SaveDataRecord.m_StageData[ m_CurStage ].m_Score = pp->GetScore();
+				m_SaveDataRecord.m_StageData[ m_CurStage ].m_Progress = pp->GetProgress();
+			}
+			else{
+				exit( 1 );
+			}
+			// 最終的なスコアを算出
+			for( int i = 0; i < m_CurStage + 1; ++i ){
+				m_SaveDataRecord.m_Crystal += m_SaveDataRecord.m_StageData[ i ].m_Crystal;
+				m_SaveDataRecord.m_Killed += m_SaveDataRecord.m_StageData[ i ].m_Killed;
+				m_SaveDataRecord.m_Score += m_SaveDataRecord.m_StageData[ i ].m_Score;
+				::time_t t;
+				::time( &t );
+				::tm* time = localtime( &t );
+				m_SaveDataRecord.m_Date.m_Year = time->tm_year + 1900;
+				m_SaveDataRecord.m_Date.m_Month = time->tm_mon + 1;
+				m_SaveDataRecord.m_Date.m_Day = time->tm_mday;
+				m_SaveDataRecord.m_Date.m_Hour = time->tm_hour;
+				m_SaveDataRecord.m_Date.m_Min = time->tm_min;
+				m_SaveDataRecord.m_Date.m_Sec = time->tm_sec;
+			}
+		}
 	}
 
 	void SceneManager::Impl::Draw()
@@ -80,22 +124,20 @@ namespace GameEngine
 		if( next != SCENE_TYPE_NOT_CHANGE ){
 			if( std::shared_ptr < EventMediator > p = m_pEventMediator.lock() ){
 				if( next == SCENE_TYPE_MENU ){
-					if( m_CurSceneType == SCENE_TYPE_SCORE_ENTRY ){
-						//ScoreEntry* pp = dynamic_cast < ScoreEntry* > ( m_pCurScene.get() );
-						//if( pp ){
-						//	m_SaveData = pp->GetDisplayedSaveData();
-						//	//m_SaveDataRecord = pp->GetRecord();
-						//}
-						//else{
-						//	exit( 1 );
-						//}
-						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_SCORE_ENTRY );
+					if( m_CurSceneType == SCENE_TYPE_REPLAY_ENTRY ){
+						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY );
 					}
 					else{
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
 					}
 				}
 				else if( next == SCENE_TYPE_STAGE ){
+					if( m_CurSceneType == SCENE_TYPE_REPLAY ){
+						m_GameMode = GAME_MODE_REPLAY;
+					}
+					else{
+						m_GameMode = GAME_MODE_NORMAL;
+					}
 					if( m_CurSceneType == SCENE_TYPE_MENU ){
 						m_CurStage = STAGE_ID_STAGE_1;
 					}
@@ -107,50 +149,41 @@ namespace GameEngine
 				else if( next == SCENE_TYPE_SCORE ){
 					p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE );
 				}
+				else if( next == SCENE_TYPE_REPLAY ){
+					p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY );
+				}
 				else if( next == SCENE_TYPE_SCORE_ENTRY ){
-					if( m_CurSceneType == SCENE_TYPE_STAGE ){
-						// ゲーム到達度の保存
-						m_SaveDataRecord.m_Progress = m_CurStage;
-						// 最後のステージの記録
-						Stage* pp = dynamic_cast < Stage* > ( m_pCurScene.get() );
-						if( pp ){
-							m_SaveDataRecord.m_StageData[ m_CurStage ].m_Crystal = pp->GetCrystal();
-							m_SaveDataRecord.m_StageData[ m_CurStage ].m_Killed = pp->GetKilled();
-							m_SaveDataRecord.m_StageData[ m_CurStage ].m_Score = pp->GetScore();
-							m_SaveDataRecord.m_StageData[ m_CurStage ].m_Progress = pp->GetProgress();
-						}
-						else{
-							exit( 1 );
-						}
-						// 最終的なスコアを算出
-						for( int i = 0; i < m_CurStage + 1; ++i ){
-							m_SaveDataRecord.m_Crystal += m_SaveDataRecord.m_StageData[ i ].m_Crystal;
-							m_SaveDataRecord.m_Killed += m_SaveDataRecord.m_StageData[ i ].m_Killed;
-							m_SaveDataRecord.m_Score += m_SaveDataRecord.m_StageData[ i ].m_Score;
-							::time_t t;
-							::time( &t );
-							::tm* time = localtime( &t );
-							m_SaveDataRecord.m_Date.m_Year = time->tm_year + 1900;
-							m_SaveDataRecord.m_Date.m_Month = time->tm_mon + 1;
-							m_SaveDataRecord.m_Date.m_Day = time->tm_mday;
-							m_SaveDataRecord.m_Date.m_Hour = time->tm_hour;
-							m_SaveDataRecord.m_Date.m_Min = time->tm_min;
-							m_SaveDataRecord.m_Date.m_Sec = time->tm_sec;
-						}
+					if( m_GameMode == GAME_MODE_NORMAL ){
+						PrepareScoreEntry();
+						p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
 					}
-					p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
+					// ※新たな状態を作り、リプレイかどうかで分岐を行う。
+					else if( m_GameMode == GAME_MODE_REPLAY ){
+						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
+					}
 				}
 				else if( next == SCENE_TYPE_REPLAY_ENTRY ){
-					ScoreEntry* pp = dynamic_cast < ScoreEntry* > ( m_pCurScene.get() );
-					if( pp ){
-						//m_SaveData = pp->GetDisplayedSaveData();
-						m_SaveDataRecord = pp->GetRecord();
+					if( typeid( *m_pCurScene.get() ) == typeid( ScoreEntry ) ){
+						m_SaveDataRecord = ( (ScoreEntry*) m_pCurScene.get() )->GetRecord();
+						// リプレイ情報を取得する。
+						MAPIL::ZeroObject( m_ReplayInfo.m_Name, sizeof( m_ReplayInfo.m_Name ) );
+						m_ReplayInfo.m_Progress = m_SaveDataRecord.m_Progress;
+						m_ReplayInfo.m_Crystal = m_SaveDataRecord.m_Crystal;
+						m_ReplayInfo.m_Killed = m_SaveDataRecord.m_Killed;
+						m_ReplayInfo.m_Score = m_SaveDataRecord.m_Score;
+						m_ReplayInfo.m_Date = m_SaveDataRecord.m_Date;
+						m_ReplayInfo.m_Difficulty = m_GameDifficulty;
+						p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SCORE_ENTRY );
+					}
+					else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
+						m_ReplayInfo = ( ( ReplayEntry*) m_pCurScene.get() )->GetReplayInfo();
+						p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF );
 					}
 					else{
 						exit( 1 );
 					}
-					// ※リプレイ情報を取得する。
-					p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SCORE_ENTRY );
+					
+					
 				}
 				else if( next == SCENE_TYPE_GAME_TERM ){
 					p->SendEvent( EVENT_TYPE_GAME_TERM );
@@ -200,6 +233,9 @@ namespace GameEngine
 		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){
 			( (Score*) m_pCurScene.get() )->AttachDisplayedSaveData( m_SaveData );
 		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Replay ) ){
+			( (Replay*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
+		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( ScoreEntry ) ){
 			( (ScoreEntry*) m_pCurScene.get() )->AttachDisplayedSaveData( m_SaveData );
 			( (ScoreEntry*) m_pCurScene.get() )->SetDifficulty( m_GameDifficulty );
@@ -208,6 +244,7 @@ namespace GameEngine
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
 			( (ReplayEntry*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
+			( (ReplayEntry*) m_pCurScene.get() )->AttachReplayInfo( m_ReplayInfo );
 		}
 		m_pCurScene->AttachResourceMap( m_ResourceMap );
 		m_pCurScene->Init();
@@ -263,6 +300,16 @@ namespace GameEngine
 		MAPIL::ZeroObject( &m_SaveData, sizeof( m_SaveData ) );
 		MAPIL::ZeroObject( &m_SaveDataRecord, sizeof( m_SaveDataRecord ) );
 		m_RecordRank = -1;
+	}
+
+	const DisplayedReplayInfo::Entry& SceneManager::Impl::GetReplayInfo() const
+	{
+		return m_ReplayInfo;
+	}
+
+	int SceneManager::Impl::GetGameMode() const
+	{
+		return m_GameMode;
 	}
 
 	// ----------------------------------
@@ -356,5 +403,15 @@ namespace GameEngine
 	void SceneManager::ClearGameData()
 	{
 		m_pImpl->ClearGameData();
+	}
+
+	const DisplayedReplayInfo::Entry& SceneManager::GetReplayInfo() const
+	{
+		return m_pImpl->GetReplayInfo();
+	}
+
+	int SceneManager::GetGameMode() const
+	{
+		return m_pImpl->GetGameMode();
 	}
 }

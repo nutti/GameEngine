@@ -47,6 +47,8 @@ namespace GameEngine
 					return SCENE_TYPE_STAGE;
 				case MENU_ID_SCORE:
 					return SCENE_TYPE_SCORE;
+				case MENU_ID_REPLAY:
+					return SCENE_TYPE_REPLAY;
 				case MENU_ID_EXIT:
 					return SCENE_TYPE_GAME_TERM;
 				default:

@@ -35,6 +35,8 @@ namespace GameEngine
 		const SaveDataRecord& GetRecord() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();
+		const DisplayedReplayInfo::Entry& GetReplayInfo() const;
+		int GetGameMode() const;
 	};
 }
 

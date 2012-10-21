@@ -217,6 +217,18 @@ namespace GameEngine
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
+			// リプレイ画面移行要求
+			case EVENT_TYPE_MOVE_TO_REPLAY:{
+				m_pResourceManager->ReleaseStageResources();
+				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
+				m_pSceneManager->AttachSceneResourceMap( rcMap );
+				// リプレイ取得
+				m_pSceneManager->AttachDisplayedReplayInfo( m_pGameStateManager->GetDisplayedReplayInfo() );
+				// シーン変更
+				m_pSceneManager->ChangeScene( SCENE_TYPE_REPLAY );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
 			case EVENT_TYPE_MOVE_TO_SCORE_ENTRY:{
 				m_pResourceManager->ReleaseStageResources();
 				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
@@ -255,7 +267,7 @@ namespace GameEngine
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
-			case EVENT_TYPE_MOVE_TO_MENU_FROM_SCORE_ENTRY:{
+			case EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY:{
 				m_pResourceManager->ReleaseStageResources();
 				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
 				m_pSceneManager->AttachSceneResourceMap( rcMap );
@@ -263,6 +275,20 @@ namespace GameEngine
 				//m_pGameStateManager->FlushGameData();
 				//m_pGameStateManager->SaveReplayFile( 0 );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
+			case EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF:{
+				m_pResourceManager->ReleaseStageResources();
+				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
+				m_pSceneManager->AttachSceneResourceMap( rcMap );
+				// リプレイの保存
+				m_pGameStateManager->SaveReplayFile( m_pSceneManager->GetReplayInfo() );
+				// リプレイ一覧を取得
+				DisplayedReplayInfo info = m_pGameStateManager->GetDisplayedReplayInfo();
+				m_pSceneManager->AttachDisplayedReplayInfo( info );
+				// シーンの変更
+				m_pSceneManager->ChangeScene( SCENE_TYPE_REPLAY_ENTRY );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}

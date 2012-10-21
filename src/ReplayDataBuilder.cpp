@@ -24,15 +24,6 @@ namespace GameEngine
 			int		m_IniConsLevel[ 3 ];	// 初期の意識レベル
 			int		m_FrameTotal;			// ステージのフレーム数
 		};
-		struct Date
-		{
-			int		m_Year;
-			char	m_Month;
-			char	m_Day;
-			char	m_Hour;
-			char	m_Min;
-			char	m_Sec;
-		};
 
 		char					m_Name[ 10 ];			// 名前
 		int						m_Progress;				// 進行度
@@ -56,6 +47,13 @@ namespace GameEngine
 		void AddButtonState( ButtonPushedStatus status );
 		void Save( const std::string& fileName );
 		void Cleanup();
+		void SetName( const char* pName );
+		void SetProgress( int progress );
+		void SetScore( int score );
+		void SetCrystal( int crystal );
+		void SetKilled( int killed );
+		void SetDifficulty( int difficulty );
+		void SetDate( const Date& date );
 	};
 
 	ReplayDataBuilder::Impl::Impl()
@@ -64,7 +62,7 @@ namespace GameEngine
 		m_ButtonList.clear();
 	}
 
-	void ReplayDataBuilder::Impl::AddButtonState( ButtonPushedStatus status )
+	inline void ReplayDataBuilder::Impl::AddButtonState( ButtonPushedStatus status )
 	{
 		m_ButtonList.push_back( status );
 	}
@@ -81,11 +79,11 @@ namespace GameEngine
 		WriteInt( &fOut, m_ReplayDataInfo.m_Killed );
 		WriteInt( &fOut, m_ReplayDataInfo.m_Difficulty );
 		WriteInt( &fOut, m_ReplayDataInfo.m_Date.m_Year );
-		WriteInt( &fOut, m_ReplayDataInfo.m_Date.m_Month );
-		WriteInt( &fOut, m_ReplayDataInfo.m_Date.m_Day );
-		WriteInt( &fOut, m_ReplayDataInfo.m_Date.m_Hour );
-		WriteInt( &fOut, m_ReplayDataInfo.m_Date.m_Min );
-		WriteInt( &fOut, m_ReplayDataInfo.m_Date.m_Sec );
+		fOut.write( &m_ReplayDataInfo.m_Date.m_Month, sizeof( char ) );
+		fOut.write( &m_ReplayDataInfo.m_Date.m_Day, sizeof( char ) );
+		fOut.write( &m_ReplayDataInfo.m_Date.m_Hour, sizeof( char ) );
+		fOut.write( &m_ReplayDataInfo.m_Date.m_Min, sizeof( char ) );
+		fOut.write( &m_ReplayDataInfo.m_Date.m_Sec, sizeof( char ) );
 		// 各ステージ開始時のデータを保存
 		for( int i = 0; i < 5; ++i ){
 			ReplayDataInfo::StageData stage = m_ReplayDataInfo.m_StageData[ i ];
@@ -120,10 +118,46 @@ namespace GameEngine
 		fOut.close();
 	}
 
-	void ReplayDataBuilder::Impl::Cleanup()
+	inline void ReplayDataBuilder::Impl::Cleanup()
 	{
 		MAPIL::ZeroObject( &m_ReplayDataInfo, sizeof( m_ReplayDataInfo ) );
 		m_ButtonList.clear();
+	}
+
+	inline void ReplayDataBuilder::Impl::SetName( const char* pName )
+	{
+		memcpy( m_ReplayDataInfo.m_Name, pName, sizeof( char ) * 9 );
+		m_ReplayDataInfo.m_Name[ 9 ] = '\0';
+	}
+
+	inline void ReplayDataBuilder::Impl::SetProgress( int progress )
+	{
+		m_ReplayDataInfo.m_Progress = progress;
+	}
+
+	inline void ReplayDataBuilder::Impl::SetScore( int score )
+	{
+		m_ReplayDataInfo.m_Score = score;
+	}
+
+	inline void ReplayDataBuilder::Impl::SetCrystal( int crystal )
+	{
+		m_ReplayDataInfo.m_Crystal = crystal;
+	}
+
+	inline void ReplayDataBuilder::Impl::SetKilled( int killed )
+	{
+		m_ReplayDataInfo.m_Killed = killed;
+	}
+
+	inline void ReplayDataBuilder::Impl::SetDifficulty( int difficulty )
+	{
+		m_ReplayDataInfo.m_Difficulty = difficulty;
+	}
+
+	inline void ReplayDataBuilder::Impl::SetDate( const Date& date )
+	{
+		m_ReplayDataInfo.m_Date = date;
 	}
 
 	// ----------------------------------
@@ -151,6 +185,41 @@ namespace GameEngine
 	void ReplayDataBuilder::Cleanup()
 	{
 		m_pImpl->Cleanup();
+	}
+
+	void ReplayDataBuilder::SetName( const char* pName )
+	{
+		m_pImpl->SetName( pName );
+	}
+
+	void ReplayDataBuilder::SetProgress( int progress )
+	{
+		m_pImpl->SetProgress( progress );
+	}
+
+	void ReplayDataBuilder::SetScore( int score )
+	{
+		m_pImpl->SetScore( score );
+	}
+
+	void ReplayDataBuilder::SetCrystal( int crystal )
+	{
+		m_pImpl->SetCrystal( crystal );
+	}
+
+	void ReplayDataBuilder::SetKilled( int killed )
+	{
+		m_pImpl->SetKilled( killed );
+	}
+
+	void ReplayDataBuilder::SetDifficulty( int difficulty )
+	{
+		m_pImpl->SetDifficulty( difficulty );
+	}
+
+	void ReplayDataBuilder::SetDate( const Date& date )
+	{
+		m_pImpl->SetDate( date );
 	}
 
 }
