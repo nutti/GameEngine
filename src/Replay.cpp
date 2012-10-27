@@ -32,6 +32,8 @@ namespace GameEngine
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
+		int GetReplayStage() const;
+		int GetReplayNo() const;
 	};
 
 	Replay::Impl::Impl()
@@ -73,7 +75,9 @@ namespace GameEngine
 		}
 		else if( m_CurSelectState == REPLAY_SELECT_STAGE ){
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-				return SCENE_TYPE_STAGE;
+				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress >= m_SelectedStage ){
+					return SCENE_TYPE_STAGE;
+				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
 				m_CurSelectState = REPLAY_SELECT_NO;
@@ -169,6 +173,9 @@ namespace GameEngine
 				if( m_SelectedStage == ( STAGE_ID_STAGE_1 + i ) ){
 					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFAAFFAA, str.c_str() );
 				}
+				else if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress < i ){
+					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFAAAAAA, str.c_str() );
+				}
 				else{
 					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFFFFFFF, str.c_str() );
 				}
@@ -192,6 +199,16 @@ namespace GameEngine
 	void Replay::Impl::AttachDisplayedReplayInfo( const DisplayedReplayInfo& info )
 	{
 		m_DisplayedReplayInfo = info;
+	}
+
+	int Replay::Impl::GetReplayStage() const
+	{
+		return m_SelectedStage;
+	}
+
+	int Replay::Impl::GetReplayNo() const
+	{
+		return m_SelectedReplayNo;
 	}
 
 	// ----------------------------------
@@ -233,5 +250,15 @@ namespace GameEngine
 	void Replay::AttachDisplayedReplayInfo( const DisplayedReplayInfo& info )
 	{
 		m_pImpl->AttachDisplayedReplayInfo( info );
+	}
+
+	int Replay::GetReplayStage() const
+	{
+		return m_pImpl->GetReplayStage();
+	}
+
+	int Replay::GetReplayNo() const
+	{
+		return m_pImpl->GetReplayNo();
 	}
 }

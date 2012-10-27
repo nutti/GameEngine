@@ -9,6 +9,7 @@ namespace GameEngine
 	{
 	private:
 		ResourceMap			m_ResourceMap;		// リソース対応関係
+		int					m_ArchiveHandle;	// アーカイバのハンドラ
 	public:
 		Impl();
 		~Impl(){}
@@ -24,10 +25,25 @@ namespace GameEngine
 									int width,
 									int height,
 									const std::string& fileName );
+		// アーカイバ
+		void OpenArchive( const std::string& fileName );
+		void LoadStageResourcesFromArchive( const ScriptData& data );
+		void LoadGlobalResourceFromArchive( int resourceType, int index, const std::string& fileName );
+		void LoadGlobalResourceFromArchive(	int resourceType,
+											int indexFirst,
+											int indexLast,
+											int column,
+											int row,
+											int width,
+											int height,
+											const std::string& fileName );
+		int GetArchiveHandle() const;
 	};
 
 	ResourceManager::Impl::Impl()
 	{
+		m_ArchiveHandle = -1;
+
 		m_ResourceMap.m_pGlobalResourceMap.reset( new ResourceMap::GlobalResourceMapElm );
 
 		const int INITIAL_TEXTURE_MAP_RESERVE_CAP = 100;			// 初期のテクスチャMAP許容量
@@ -50,8 +66,6 @@ namespace GameEngine
 
 	void ResourceManager::Impl::LoadStageResources( const ScriptData& data )
 	{
-		
-
 		// 各種リソースの読み込み
 		std::shared_ptr < ResourceScriptData > pScriptData = data.m_pResourceScriptData;
 		// テクスチャの読み込み
@@ -166,6 +180,113 @@ namespace GameEngine
 		}
 	}
 
+	void ResourceManager::Impl::OpenArchive( const std::string& fileName )
+	{
+		m_ArchiveHandle = MAPIL::OpenArchiveFile( fileName.c_str(), MAPIL::FILE_OPEN_READ_MODE );
+	}
+
+	void ResourceManager::Impl::LoadStageResourcesFromArchive( const ScriptData& data )
+	{
+		if( m_ArchiveHandle == -1 ){
+			exit( -1 );
+		}
+
+		// 各種リソースの読み込み
+		std::shared_ptr < ResourceScriptData > pScriptData = data.m_pResourceScriptData;
+		// テクスチャの読み込み
+		typedef std::map < int, std::string > ::iterator	TextureIter;
+		for(	TextureIter it = pScriptData->m_TextureList.begin();
+				it != pScriptData->m_TextureList.end();
+				++it ){
+			// 許容値を超えたインデックスが必要な場合は、指定されたインデックスの2倍のサイズのresizeする。
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_TextureMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( it->first * 2 );
+			}
+			m_ResourceMap.m_pStageResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( m_ArchiveHandle, it->second.c_str() );
+		}
+		// SEの読み込み
+		typedef std::map < int, std::string > ::iterator	SEIter;
+		for(	SEIter it = pScriptData->m_SEList.begin();
+				it != pScriptData->m_SEList.end();
+				++it ){
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_SEMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( it->first * 2 );
+			}
+			int id = MAPIL::CreateStaticBuffer( m_ArchiveHandle, it->second.c_str() );
+			m_ResourceMap.m_pStageResourceMap->m_SEMap[ it->first ] = id;
+		}
+		// BGMの読み込み
+		typedef std::map < int, std::string > ::iterator	BGMIter;
+		for(	BGMIter it = pScriptData->m_BGMList.begin();
+				it != pScriptData->m_BGMList.end();
+				++it ){
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_BGMMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( it->first * 2 );
+			}
+			int id = MAPIL::CreateStreamingBuffer( m_ArchiveHandle, it->second.c_str() );
+			m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
+		}
+	}
+
+	void ResourceManager::Impl::LoadGlobalResourceFromArchive( int resourceType, int index, const std::string& fileName )
+	{
+		if( m_ArchiveHandle == -1 ){
+			exit( -1 );
+		}
+
+		switch( resourceType ){
+			case RESOURCE_TYPE_BGM:{
+				int id = MAPIL::CreateStreamingBuffer( m_ArchiveHandle, fileName.c_str() );
+				m_ResourceMap.m_pGlobalResourceMap->m_BGMMap[ index ] = id;
+				break;
+			}
+			case RESOURCE_TYPE_SE:{
+				int id = MAPIL::CreateStaticBuffer( m_ArchiveHandle, fileName.c_str() );
+				m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ index ] = id;
+				break;
+			}
+			case RESOURCE_TYPE_TEXTURE:{
+				int id = MAPIL::CreateTexture( m_ArchiveHandle, fileName.c_str() );
+				m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ index ] = id;
+				break;
+			}
+			default:
+				break;
+		}
+	}
+
+	void ResourceManager::Impl::LoadGlobalResourceFromArchive(	int resourceType,
+																int indexFirst,
+																int indexLast,
+																int column,
+																int row,
+																int width,
+																int height,
+																const std::string& fileName )
+	{
+		if( m_ArchiveHandle == -1 ){
+			exit( -1 );
+		}
+
+		switch( resourceType ){
+			case RESOURCE_TYPE_MULTI_TEXTURE:{
+				int* pID = new int [ column * row ];
+				MAPIL::CreateSplitedTexture( pID, m_ArchiveHandle, fileName.c_str(), column, row, width, height );
+				for( int i = 0; i < indexLast - indexFirst; ++i ){
+					m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ indexFirst + i ] = pID[ i ];
+				}
+				MAPIL::SafeDeleteArray( pID );
+				break;
+			}
+			default:
+				break;
+		}
+	}
+
+	int ResourceManager::Impl::GetArchiveHandle() const
+	{
+		return m_ArchiveHandle;
+	}
 
 	// ----------------------------------
 	// 実装クラスの呼び出し
@@ -210,6 +331,38 @@ namespace GameEngine
 												const std::string& fileName )
 	{
 		m_pImpl->LoadGlobalResource( resourceType, indexFirst, indexLast, column, row, width, height, fileName );
+	}
+
+	void ResourceManager::OpenArchive( const std::string& fileName )
+	{
+		m_pImpl->OpenArchive( fileName );
+	}
+
+	void ResourceManager::LoadStageResourcesFromArchive( const ScriptData& data )
+	{
+		m_pImpl->LoadStageResourcesFromArchive( data );
+	}
+
+	void ResourceManager::LoadGlobalResourceFromArchive( int resourceType, int index, const std::string& fileName )
+	{
+		m_pImpl->LoadGlobalResourceFromArchive( resourceType, index, fileName );
+	}
+
+	void ResourceManager::LoadGlobalResourceFromArchive(	int resourceType,
+															int indexFirst,
+															int indexLast,
+															int column,
+															int row,
+															int width,
+															int height,
+															const std::string& fileName )
+	{
+		m_pImpl->LoadGlobalResourceFromArchive( resourceType, indexFirst, indexLast, column, row, width, height, fileName );
+	}
+
+	int ResourceManager::GetArchiveHandle() const
+	{
+		return m_pImpl->GetArchiveHandle();
 	}
 
 }

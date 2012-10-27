@@ -37,6 +37,9 @@ namespace GameEngine
 		void ClearGameData();
 		const DisplayedReplayInfo::Entry& GetReplayInfo() const;
 		int GetGameMode() const;
+		int GetReplayNo() const;
+		void SwitchToNextScene();
+		bool NeedToSwitch() const;
 	};
 }
 

@@ -2,6 +2,7 @@
 #define INCLUDED_GAMEENGINE_UTIL_H
 
 #include <fstream>
+#include <vector>
 
 #include "InputTypes.h"
 #include "ResourceTypes.h"
@@ -21,6 +22,16 @@ namespace GameEngine
 	void WriteInt( std::ofstream* pFOut, int val );
 
 	int ReadInt( std::ifstream* pFIn );
+
+	int GetInt( char** p );
+
+	int GetFileSize( std::fstream &f );
+
+	void GetLineFromString( char** pStr, char* pEnd, char* pOut, int outSize );
+
+	void CopyArray( std::vector < char >* pVOut, const char* pIn, int size );
+
+	void CopyInt( std::vector < char >* pVOut, int val );
 }
 
 #endif

@@ -115,10 +115,67 @@ namespace GameEngine
 		pFOut->write( str, sizeof( str ) );
 	}
 
+
 	int ReadInt( std::ifstream* pFIn )
 	{
 		char str[ 4 ];
 		pFIn->read( str, sizeof( str ) );
 		return MAPIL::TransformCharIntoInt32( str, MAPIL::BYTE_ORDER_LITTLE );
+	}
+
+	int GetInt( char** p )
+	{
+		int i = MAPIL::TransformCharIntoInt32( *p, MAPIL::BYTE_ORDER_LITTLE );
+		*p += 4;
+
+		return i;
+	}
+
+	int GetFileSize( std::fstream &f )
+	{
+		int size = 0;
+		int begin = 0;
+		int end = 0;
+		f.seekg( 0, std::ios::beg );
+		begin = f.tellg();
+		f.seekg( 0, std::ios::end );
+		end = f.tellg();
+		size = end - begin;
+		f.seekg( 0, std::ios::beg );
+
+		return size;
+	}
+
+	void GetLineFromString( char** pStr, char* pEnd, char* pOut, int outSize )
+	{
+		while( *pStr != pEnd ){
+			if( **pStr == '\r' ){
+				( *pStr )++;
+				continue;
+			}
+			else if( **pStr == '\n' ){
+				( *pStr )++;
+				break;
+			}
+			*pOut++ = **pStr;
+			( *pStr )++;
+		}
+		*pOut = '\0';
+	}
+
+	void CopyArray( std::vector < char >* pVOut, const char* pIn, int size )
+	{
+		for( int i = 0; i < size; ++i ){
+			pVOut->push_back( pIn[ i ] );
+		}
+	}
+
+	void CopyInt( std::vector < char >* pVOut, int val )
+	{
+		char str[ 4 ];
+		MAPIL::TransformInt32IntoChar( val, str, MAPIL::BYTE_ORDER_LITTLE );
+		for( int i = 0; i < 4; ++i ){
+			pVOut->push_back( str[ i ] );
+		}
 	}
 }

@@ -74,7 +74,13 @@ namespace GameEngine
 		}
 		else if( m_CurSelectState == REPLAY_ENTRY_SELECT_STATE_NAME ){
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
-				m_CurSelectState = REPLAY_ENTRY_SELECT_STATE_NO;
+				if( m_NameInputPos == 0 ){
+					m_CurSelectState = REPLAY_ENTRY_SELECT_STATE_NO;
+				}
+				else{
+					m_EntryName[ m_NameInputPos ] = '\0';
+					--m_NameInputPos;
+				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
 				m_EntryName[ m_NameInputPos ] = '\0';

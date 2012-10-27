@@ -26,6 +26,7 @@ namespace GameEngine
 	{
 		std::tr1::shared_ptr < SceneBuilder >	m_pSceneBuilder;		// シーン構築クラス
 		std::auto_ptr < Scene >					m_pCurScene;			// 現在のシーン
+		std::auto_ptr < Scene >					m_pNextScene;			// 次のシーン
 		std::weak_ptr < EventMediator >			m_pEventMediator;		// イベント仲介役クラス
 		ResourceMap								m_ResourceMap;			// リソース一覧
 		ScriptData								m_ScriptData;			// スクリプトデータ
@@ -51,7 +52,6 @@ namespace GameEngine
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
-		//GameDataMsg GetFrameScoreData() const;
 		void ChangeScene( SceneType scene );
 		SceneType GetCurSceneType() const;
 		void SetGameDifficulty( int difficulty );
@@ -61,12 +61,16 @@ namespace GameEngine
 		void ClearGameData();
 		const DisplayedReplayInfo::Entry& GetReplayInfo() const;
 		int GetGameMode() const;
+		int GetReplayNo() const;
+		void SwitchToNextScene();
+		bool NeedToSwitch() const;
 	};
 
 	SceneManager::Impl::Impl( std::shared_ptr < EventMediator > pEventMediator ) :	m_pSceneBuilder( new SceneBuilder ),
 																					m_pEventMediator( pEventMediator )
 	{
-		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( SCENE_TYPE_UNKNOWN ) );
+		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( SCENE_TYPE_INITIALIZE ) );
+		m_pNextScene.reset();
 		m_CurSceneType = SCENE_TYPE_UNKNOWN;
 		m_GameDifficulty = GAME_DIFFICULTY_EASY;
 		m_CurStage = 0;
@@ -113,6 +117,11 @@ namespace GameEngine
 	void SceneManager::Impl::Draw()
 	{
 		m_pCurScene->Draw();
+		if( m_CurSceneType == SCENE_TYPE_LOADING ){
+			MAPIL::BeginRendering2DGraphics();
+			MAPIL::DrawString( 200.0f, 200.0f, "Loading ..." );
+			MAPIL::EndRendering2DGraphics();
+		}
 	}
 
 	SceneType SceneManager::Impl::Update()
@@ -121,7 +130,7 @@ namespace GameEngine
 		SceneType next = m_pCurScene->Update();
 
 		// シーン遷移
-		if( next != SCENE_TYPE_NOT_CHANGE ){
+		if( next != SCENE_TYPE_NOT_CHANGE && m_CurSceneType != SCENE_TYPE_LOADING ){
 			if( std::shared_ptr < EventMediator > p = m_pEventMediator.lock() ){
 				if( next == SCENE_TYPE_MENU ){
 					if( m_CurSceneType == SCENE_TYPE_REPLAY_ENTRY ){
@@ -134,6 +143,13 @@ namespace GameEngine
 				else if( next == SCENE_TYPE_STAGE ){
 					if( m_CurSceneType == SCENE_TYPE_REPLAY ){
 						m_GameMode = GAME_MODE_REPLAY;
+						Replay* pp = dynamic_cast < Replay* > ( m_pCurScene.get() );
+						if( pp ){
+							m_CurStage = pp->GetReplayStage();
+						}
+						else{
+							exit( -1 );
+						}
 					}
 					else{
 						m_GameMode = GAME_MODE_NORMAL;
@@ -157,7 +173,7 @@ namespace GameEngine
 						PrepareScoreEntry();
 						p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
 					}
-					// ※新たな状態を作り、リプレイかどうかで分岐を行う。
+					// ※最終的には新たな状態を作り、リプレイかどうかで分岐を行う。
 					else if( m_GameMode == GAME_MODE_REPLAY ){
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
 					}
@@ -204,7 +220,9 @@ namespace GameEngine
 
 	void SceneManager::Impl::AttachButtonState( ButtonStatusHolder* pHolder )
 	{
-		m_pCurScene->AttachButtonState( pHolder );
+		if( m_CurSceneType != SCENE_TYPE_LOADING ){
+			m_pCurScene->AttachButtonState( pHolder );
+		}
 	}
 
 	void SceneManager::Impl::AttachDisplayedReplayInfo( const DisplayedReplayInfo& info )
@@ -212,43 +230,10 @@ namespace GameEngine
 		m_DisplayedReplayInfo = info;
 	}
 
-
-	//GameDataMsg SceneManager::Impl::GetFrameScoreData() const
-	//{
-	//	return m_pCurScene->GetFrameData();
-	//}
-
 	void SceneManager::Impl::ChangeScene( SceneType scene )
 	{
-		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( scene ) );
-		//Stage* p = dynamic_cast < Stage* > ( m_pCurScene.get() );
-		if( typeid( *m_pCurScene.get() ) == typeid( Initialize ) ){
-		}
-		else if( typeid( *m_pCurScene.get() ) == typeid( Menu ) ){
-		}
-		else if( typeid( *m_pCurScene.get() ) == typeid( Stage ) ){
-			//p->AttachResourceMap( m_ResourceMap );
-			( (Stage*) m_pCurScene.get() )->AttachScriptData( m_ScriptData );
-		}
-		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){
-			( (Score*) m_pCurScene.get() )->AttachDisplayedSaveData( m_SaveData );
-		}
-		else if( typeid( *m_pCurScene.get() ) == typeid( Replay ) ){
-			( (Replay*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
-		}
-		else if( typeid( *m_pCurScene.get() ) == typeid( ScoreEntry ) ){
-			( (ScoreEntry*) m_pCurScene.get() )->AttachDisplayedSaveData( m_SaveData );
-			( (ScoreEntry*) m_pCurScene.get() )->SetDifficulty( m_GameDifficulty );
-			( (ScoreEntry*) m_pCurScene.get() )->AttachRecord( m_SaveDataRecord );
-			( (ScoreEntry*) m_pCurScene.get() )->SetRecordRank( m_RecordRank );
-		}
-		else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
-			( (ReplayEntry*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
-			( (ReplayEntry*) m_pCurScene.get() )->AttachReplayInfo( m_ReplayInfo );
-		}
-		m_pCurScene->AttachResourceMap( m_ResourceMap );
-		m_pCurScene->Init();
-		m_CurSceneType = scene;
+		m_pNextScene.reset( m_pSceneBuilder->CreateNextScene( scene ) );
+		m_CurSceneType = SCENE_TYPE_LOADING;
 	}
 
 	void SceneManager::Impl::AttachScriptData( const ScriptData& data )
@@ -259,10 +244,6 @@ namespace GameEngine
 	void SceneManager::Impl::AttachDisplayedSaveData( const DisplayedSaveData& data )
 	{
 		m_SaveData = data;
-		//Score* p = dynamic_cast < Score* > ( m_pCurScene.get() );
-		//if( p ){
-		//	p->AttachDisplayedSaveData( data );
-		//}
 	}
 
 	SceneType SceneManager::Impl::GetCurSceneType() const
@@ -312,6 +293,61 @@ namespace GameEngine
 		return m_GameMode;
 	}
 
+	int SceneManager::Impl::GetReplayNo() const
+	{
+		Replay* p = dynamic_cast < Replay* > ( m_pCurScene.get() );
+		if( p ){
+			return p->GetReplayNo();
+		}
+		else{
+			exit( -1 );
+		}
+
+		return -1;
+	}
+
+	void SceneManager::Impl::SwitchToNextScene()
+	{
+		m_pCurScene.reset( m_pNextScene.release() );
+		if( typeid( *m_pCurScene.get() ) == typeid( Initialize ) ){
+			m_CurSceneType = SCENE_TYPE_INITIALIZE;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Menu ) ){
+			m_CurSceneType = SCENE_TYPE_MENU;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Stage ) ){
+			( (Stage*) m_pCurScene.get() )->AttachScriptData( m_ScriptData );
+			m_CurSceneType = SCENE_TYPE_STAGE;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){
+			( (Score*) m_pCurScene.get() )->AttachDisplayedSaveData( m_SaveData );
+			m_CurSceneType = SCENE_TYPE_SCORE;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Replay ) ){
+			( (Replay*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
+			m_CurSceneType = SCENE_TYPE_REPLAY;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( ScoreEntry ) ){
+			( (ScoreEntry*) m_pCurScene.get() )->AttachDisplayedSaveData( m_SaveData );
+			( (ScoreEntry*) m_pCurScene.get() )->SetDifficulty( m_GameDifficulty );
+			( (ScoreEntry*) m_pCurScene.get() )->AttachRecord( m_SaveDataRecord );
+			( (ScoreEntry*) m_pCurScene.get() )->SetRecordRank( m_RecordRank );
+			m_CurSceneType = SCENE_TYPE_SCORE_ENTRY;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
+			( (ReplayEntry*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
+			( (ReplayEntry*) m_pCurScene.get() )->AttachReplayInfo( m_ReplayInfo );
+			m_CurSceneType = SCENE_TYPE_REPLAY;
+		}
+		m_pCurScene->AttachResourceMap( m_ResourceMap );
+		m_pCurScene->Init();
+	}
+
+	bool SceneManager::Impl::NeedToSwitch() const
+	{
+		return m_CurSceneType == SCENE_TYPE_LOADING;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -344,11 +380,6 @@ namespace GameEngine
 	{
 		m_pImpl->AttachButtonState( pHolder );
 	}
-
-	//GameDataMsg SceneManager::GetFrameScoreData() const
-	//{
-	//	return m_pImpl->GetFrameScoreData();
-	//}
 
 	void SceneManager::ChangeScene( SceneType scene )
 	{
@@ -413,5 +444,20 @@ namespace GameEngine
 	int SceneManager::GetGameMode() const
 	{
 		return m_pImpl->GetGameMode();
+	}
+
+	int SceneManager::GetReplayNo() const
+	{
+		return m_pImpl->GetReplayNo();
+	}
+
+	void SceneManager::SwitchToNextScene()
+	{
+		m_pImpl->SwitchToNextScene();
+	}
+
+	bool SceneManager::NeedToSwitch() const
+	{
+		return m_pImpl->NeedToSwitch();
 	}
 }

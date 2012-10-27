@@ -61,6 +61,14 @@ namespace GameEngine
 		std::shared_ptr < EnemyShotGroupScriptData >		m_pEnemyShotGroupScriptData;
 		std::shared_ptr < ResourceScriptData >				m_pResourceScriptData;
 	};
+
+	// スクリプトのファイル形式
+	enum ScriptFileType
+	{
+		SCRIPT_FILE_TYPE_UNKNOWN			= 0,		// 不明な形式
+		SCRIPT_FILE_TYPE_SOURCE_CODE		= 1,		// ソースコード形式
+		SCRIPT_FILE_TYPE_BINARY				= 2,		// バイナリ形式
+	};
 }
 
 #endif

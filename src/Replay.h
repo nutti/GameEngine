@@ -20,6 +20,8 @@ namespace GameEngine
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
+		int GetReplayStage() const;
+		int GetReplayNo() const;
 	};
 }
 

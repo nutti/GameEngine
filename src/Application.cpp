@@ -81,6 +81,8 @@ namespace GameEngine
 
 			if( m_FPSManager.DoesElapseNextTime() ){
 				// •`‰æİ’è
+
+				
 				MAPIL::BeginRendering();
 				MAPIL::EnableBlending();
 				MAPIL::DisableLighting();

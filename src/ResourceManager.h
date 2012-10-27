@@ -27,6 +27,19 @@ namespace GameEngine
 									int width,
 									int height,
 									const std::string& fileName );
+		// アーカイバ
+		void OpenArchive( const std::string& fileName );
+		void LoadStageResourcesFromArchive( const ScriptData& data );
+		void LoadGlobalResourceFromArchive( int resourceType, int index, const std::string& fileName );
+		void LoadGlobalResourceFromArchive(	int resourceType,
+											int indexFirst,
+											int indexLast,
+											int column,
+											int row,
+											int width,
+											int height,
+											const std::string& fileName );
+		int GetArchiveHandle() const;
 	};
 }
 
