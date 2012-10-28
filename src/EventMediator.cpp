@@ -32,6 +32,8 @@ namespace GameEngine
 		bool										m_HasTermSig;
 
 		void FrameUpdate();
+
+		void LoadGlobalResources();
 	public:
 		Impl();
 		~Impl();
@@ -80,8 +82,10 @@ namespace GameEngine
 		}
 
 		// 画面の更新
+		//if( m_pSceneManager->GetCurSceneType() != SCENE_TYPE_LOADING ){
 		m_pSceneManager->Update();
 		m_pSceneManager->Draw();
+		
 
 		// 時間の表示（暫定版）
 		m_pGameStateManager->UpdatePlayTime();
@@ -89,6 +93,111 @@ namespace GameEngine
 		MAPIL::BeginRendering2DGraphics();
 		MAPIL::DrawString( 10.0f, 10.0f, "%d : %d : %d", time / 3600, ( time / 60 ) % 60, time % 60 );
 		MAPIL::EndRendering2DGraphics();
+		//}
+	}
+
+	void EventMediator::Impl::LoadGlobalResources()
+	{
+		// ロードの予約
+		m_Loading.CleanupSession();
+		m_Loading.SetupSession( m_pResourceManager, m_pScriptManager );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ITEM_1_SE, "archive/resource/se/item01.wav", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ITEM_2_SE, "archive/resource/se/item02.wav", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_SHOT_SE, "archive/resource/se/shot.wav", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE, "archive/resource/texture/hpbar.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE, "archive/resource/texture/consbar.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_BACKGROUND_TEXTURE, "archive/resource/texture/background.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_MULTI_TEXTURE,
+											GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST,
+											GLOBAL_RESOURCE_ID_FONT_TEXTURE_LAST,
+											5, 8, 32, 32, "archive/resource/texture/game_font.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_1_TEXTURE, "archive/resource/texture/powerup_item_1.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_2_TEXTURE, "archive/resource/texture/powerup_item_2.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE, "archive/resource/texture/crystal.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_PLAYER_SHOT_1_TEXTURE, "archive/resource/texture/player_shot_1.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_PLAYER_SHOT_COLLIDED_TEXTURE, "archive/resource/texture/player_shot_collided_effect.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_ENEMY_DESTROYED_TEXTURE, "archive/resource/texture/enemy_destroyed.png", true );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ENEMY_DESTROYED_SE, "archive/resource/se/rtg_se2.wav", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_GREEN_MAIN,
+											"archive/resource/texture/player_shot_2.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
+											GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE,
+											"archive/resource/se/change_mode.wav", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_BAR,
+											"archive/resource/texture/bar.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL,
+											"archive/resource/texture/red_cons_2_1.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_CONS_GREEN_SYMBOL,
+											"archive/resource/texture/green_cons.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_CONS_BLUE_SYMBOL,
+											"archive/resource/texture/blue_cons.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_BLUE_MAIN,
+											"archive/resource/texture/player_shot_3.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_RED_MAIN,
+											"archive/resource/texture/player_shot_4.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
+											GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED,
+											"archive/resource/se/player_damaged.wav", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
+											GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED,
+											"archive/resource/se/player_destroyed.wav", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START,
+											"archive/resource/texture/game_start.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START_SELECTED,
+											"archive/resource/texture/game_start_selected.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT,
+											"archive/resource/texture/exit.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT_SELECTED,
+											"archive/resource/texture/exit_selected.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE,
+											"archive/resource/texture/score.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE_SELECTED,
+											"archive/resource/texture/score_selected.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY,
+											"archive/resource/texture/replay.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY_SELECTED,
+											"archive/resource/texture/replay_selected.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG,
+											"archive/resource/texture/config.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG_SELECTED,
+											"archive/resource/texture/config_selected.png", true );
+
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_HI_SCORE,
+											"archive/resource/texture/hi_score.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_GAME_SCORE,
+											"archive/resource/texture/game_score.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_GAME_KILLED,
+											"archive/resource/texture/game_killed.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL,
+											"archive/resource/texture/game_crystal.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_GAME_POWER,
+											"archive/resource/texture/game_power.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_GAME_HP,
+											"archive/resource/texture/game_hp.png", true );
+		m_Loading.Start();
 	}
 
 	void EventMediator::Impl::SendEvent( int type )
@@ -98,7 +207,7 @@ namespace GameEngine
 			case EVENT_TYPE_INITIALIZE:{
 				m_pResourceManager->OpenArchive( "resource.dat" );
 				m_pGameStateManager->StartGameDataRecording();
-				//m_pSceneManager->ChangeScene( SCENE_TYPE_INITIALIZE );
+				m_pSceneManager->ChangeScene( SCENE_TYPE_INITIALIZE );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				m_pScriptManager->BuildFileStructure( m_pResourceManager->GetArchiveHandle(), "archive/script/build.isc", SCRIPT_FILE_TYPE_BINARY );
 				//m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ITEM_1_SE, "archive/resource/se/item01.wav" );
@@ -208,113 +317,20 @@ namespace GameEngine
 				}
 				data.m_PlayTime = m_pGameStateManager->GetPlayTime();
 				m_pSceneManager->AttachDisplayedSaveData( data );
-				// ロードの予約
-				m_Loading.CleanupSession();
-				m_Loading.SetupSession( m_pResourceManager, m_pScriptManager );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ITEM_1_SE, "archive/resource/se/item01.wav", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ITEM_2_SE, "archive/resource/se/item02.wav", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_SHOT_SE, "archive/resource/se/shot.wav", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE, "archive/resource/texture/hpbar.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE, "archive/resource/texture/consbar.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_BACKGROUND_TEXTURE, "archive/resource/texture/background.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_MULTI_TEXTURE,
-													GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST,
-													GLOBAL_RESOURCE_ID_FONT_TEXTURE_LAST,
-													5, 8, 32, 32, "archive/resource/texture/game_font.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_1_TEXTURE, "archive/resource/texture/powerup_item_1.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_2_TEXTURE, "archive/resource/texture/powerup_item_2.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE, "archive/resource/texture/crystal.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_PLAYER_SHOT_1_TEXTURE, "archive/resource/texture/player_shot_1.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_PLAYER_SHOT_COLLIDED_TEXTURE, "archive/resource/texture/player_shot_collided_effect.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_ENEMY_DESTROYED_TEXTURE, "archive/resource/texture/enemy_destroyed.png", true );
-				m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ENEMY_DESTROYED_SE, "archive/resource/se/rtg_se2.wav", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_GREEN_MAIN,
-													"archive/resource/texture/player_shot_2.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
-													GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE,
-													"archive/resource/se/change_mode.wav", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_BAR,
-													"archive/resource/texture/bar.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL,
-													"archive/resource/texture/red_cons_2_1.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_CONS_GREEN_SYMBOL,
-													"archive/resource/texture/green_cons.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_CONS_BLUE_SYMBOL,
-													"archive/resource/texture/blue_cons.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_BLUE_MAIN,
-													"archive/resource/texture/player_shot_3.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_RED_MAIN,
-													"archive/resource/texture/player_shot_4.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
-													GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED,
-													"archive/resource/se/player_damaged.wav", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
-													GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED,
-													"archive/resource/se/player_destroyed.wav", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START,
-													"archive/resource/texture/game_start.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START_SELECTED,
-													"archive/resource/texture/game_start_selected.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT,
-													"archive/resource/texture/exit.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT_SELECTED,
-													"archive/resource/texture/exit_selected.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE,
-													"archive/resource/texture/score.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE_SELECTED,
-													"archive/resource/texture/score_selected.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY,
-													"archive/resource/texture/replay.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY_SELECTED,
-													"archive/resource/texture/replay_selected.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG,
-													"archive/resource/texture/config.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG_SELECTED,
-													"archive/resource/texture/config_selected.png", true );
-
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_HI_SCORE,
-													"archive/resource/texture/hi_score.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_GAME_SCORE,
-													"archive/resource/texture/game_score.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_GAME_KILLED,
-													"archive/resource/texture/game_killed.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL,
-													"archive/resource/texture/game_crystal.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_GAME_POWER,
-													"archive/resource/texture/game_power.png", true );
-				m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
-													GLOBAL_RESOURCE_TEXTURE_ID_GAME_HP,
-													"archive/resource/texture/game_hp.png", true );
-				m_Loading.Start();
+				
+				break;
+			}
+			// 初期化状態からメニュー画面移行要求
+			case EVENT_TYPE_MOVE_TO_MENU_FROM_INITIALIZE:{
+				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				LoadGlobalResources();
 				break;
 			}
 			// メニュー画面移行要求
 			case EVENT_TYPE_MOVE_TO_MENU:{
 				m_pResourceManager->ReleaseStageResources();
-				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
-				m_pSceneManager->AttachSceneResourceMap( rcMap );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
@@ -322,8 +338,6 @@ namespace GameEngine
 			// スコア画面移行要求
 			case EVENT_TYPE_MOVE_TO_SCORE:{
 				m_pResourceManager->ReleaseStageResources();
-				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
-				m_pSceneManager->AttachSceneResourceMap( rcMap );
 				// 履歴表示
 				DisplayedSaveData data;
 				for( int i = 0; i < 4; ++i ){
@@ -343,8 +357,6 @@ namespace GameEngine
 			// リプレイ画面移行要求
 			case EVENT_TYPE_MOVE_TO_REPLAY:{
 				m_pResourceManager->ReleaseStageResources();
-				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
-				m_pSceneManager->AttachSceneResourceMap( rcMap );
 				// リプレイ取得
 				m_pSceneManager->AttachDisplayedReplayInfo( m_pGameStateManager->GetDisplayedReplayInfo() );
 				// シーン変更
@@ -354,8 +366,6 @@ namespace GameEngine
 			}
 			case EVENT_TYPE_MOVE_TO_SCORE_ENTRY:{
 				m_pResourceManager->ReleaseStageResources();
-				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
-				m_pSceneManager->AttachSceneResourceMap( rcMap );
 				// ランキングを取得
 				int rank = m_pGameStateManager->GetRank( m_pSceneManager->GetGameDifficulty(), m_pSceneManager->GetRecord() );
 				m_pSceneManager->SetRecordRank( rank );
@@ -377,8 +387,6 @@ namespace GameEngine
 			}
 			case EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SCORE_ENTRY:{
 				m_pResourceManager->ReleaseStageResources();
-				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
-				m_pSceneManager->AttachSceneResourceMap( rcMap );
 				// スコアの保存
 				m_pGameStateManager->SetRecord( m_pSceneManager->GetGameDifficulty(), m_pSceneManager->GetRecord() );
 				m_pGameStateManager->FlushGameData();
@@ -392,8 +400,6 @@ namespace GameEngine
 			}
 			case EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY:{
 				m_pResourceManager->ReleaseStageResources();
-				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
-				m_pSceneManager->AttachSceneResourceMap( rcMap );
 				//m_pGameStateManager->SetRecord( m_pSceneManager->GetGameDifficulty(), m_pSceneManager->GetRecord() );
 				//m_pGameStateManager->FlushGameData();
 				//m_pGameStateManager->SaveReplayFile( 0 );
@@ -403,8 +409,6 @@ namespace GameEngine
 			}
 			case EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF:{
 				m_pResourceManager->ReleaseStageResources();
-				ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
-				m_pSceneManager->AttachSceneResourceMap( rcMap );
 				// リプレイの保存
 				m_pGameStateManager->SaveReplayFile( m_pSceneManager->GetReplayInfo() );
 				// リプレイ一覧を取得
@@ -441,7 +445,7 @@ namespace GameEngine
 				int stage = *( static_cast < int* > ( pArg ) ) + 1;
 				m_Loading.CleanupSession();
 				m_Loading.SetupSession( m_pResourceManager, m_pScriptManager );
-				m_Loading.AddStageResourceItem( stage );
+				m_Loading.AddStageResourceItem( stage, true );
 				m_Loading.Start();
 				//m_pScriptManager->BuildScriptData( m_pResourceManager->GetArchiveHandle(), stage );
 				//ScriptData data = m_pScriptManager->GetScriptData();

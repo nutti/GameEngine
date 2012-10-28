@@ -54,6 +54,8 @@ namespace GameEngine
 		std::vector < GlobalMultiTextureItem >	m_GlobalMultiTextureList;
 		std::vector < StageResourceItem >		m_StageResourceList;
 
+		::HANDLE		m_Mutex;
+
 		void Cleanup();
 	public:
 		Impl();
@@ -86,11 +88,13 @@ namespace GameEngine
 	{
 		m_HasTermSig = false;
 		Cleanup();
+		m_Mutex = ::CreateMutex( NULL, FALSE, TSTR( "Mutex" ) );
 	}
 
 	Loading::Impl::~Impl()
 	{
 		Cleanup();
+		::CloseHandle( m_Mutex );
 	}
 
 	void Loading::Impl::Cleanup()
@@ -100,7 +104,9 @@ namespace GameEngine
 		m_GlobalMultiTextureList.clear();
 		m_pResourceManager.reset();
 		m_pScriptManager.reset();
+		::WaitForSingleObject( m_Mutex, INFINITE );
 		m_State = LOADING_STATE_UNINITIALIZED;
+		::ReleaseMutex( m_Mutex );
 	}
 
 	void Loading::Impl::Init()
@@ -114,7 +120,11 @@ namespace GameEngine
 			return 1;
 		}
 
-		if( m_State == LOADING_STATE_LOADING ){
+		::WaitForSingleObject( m_Mutex, INFINITE );
+		bool result = ( m_State == LOADING_STATE_LOADING );
+		::ReleaseMutex( m_Mutex );
+
+		if( result ){
 			for( int i = 0; i < m_GlobalResourceList.size(); ++i ){
 				GlobalResourceItem item = m_GlobalResourceList[ i ];
 				if( item.m_Archived ){
@@ -152,7 +162,9 @@ namespace GameEngine
 					m_pResourceManager->LoadStageResources( m_pScriptManager->GetScriptData() );
 				}
 			}
+			::WaitForSingleObject( m_Mutex, INFINITE );
 			m_State = LOADING_STATE_SESSION_END;
+			::ReleaseMutex( m_Mutex );
 		}
 		else{
 			Sleep( 1 );
@@ -167,7 +179,9 @@ namespace GameEngine
 		Cleanup();
 		m_pResourceManager = pResourceManager;
 		m_pScriptManager = pScriptManager;
+		::WaitForSingleObject( m_Mutex, INFINITE );
 		m_State = LOADING_STATE_STOPPED;
+		::ReleaseMutex( m_Mutex );
 	}
 
 	void Loading::Impl::AddGlobalResourceItem(	int resourceType,
@@ -221,14 +235,19 @@ namespace GameEngine
 
 	bool Loading::Impl::SessionEnded() const
 	{
-		return m_State == LOADING_STATE_SESSION_END;
+		::WaitForSingleObject( m_Mutex, INFINITE );
+		bool result = ( m_State == LOADING_STATE_SESSION_END || m_State == LOADING_STATE_UNINITIALIZED );
+		::ReleaseMutex( m_Mutex );
+		return result;
 	}
 
 	void Loading::Impl::Start()
 	{
+		::WaitForSingleObject( m_Mutex, INFINITE );
 		if( m_State == LOADING_STATE_STOPPED ){
 			m_State = LOADING_STATE_LOADING;
 		}
+		::ReleaseMutex( m_Mutex );
 	}
 
 	void Loading::Impl::Terminate()

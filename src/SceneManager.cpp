@@ -69,7 +69,7 @@ namespace GameEngine
 	SceneManager::Impl::Impl( std::shared_ptr < EventMediator > pEventMediator ) :	m_pSceneBuilder( new SceneBuilder ),
 																					m_pEventMediator( pEventMediator )
 	{
-		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( SCENE_TYPE_INITIALIZE ) );
+		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( SCENE_TYPE_UNKNOWN ) );
 		m_pNextScene.reset();
 		m_CurSceneType = SCENE_TYPE_UNKNOWN;
 		m_GameDifficulty = GAME_DIFFICULTY_EASY;
@@ -116,12 +116,15 @@ namespace GameEngine
 
 	void SceneManager::Impl::Draw()
 	{
+		static int count = 0;
 		m_pCurScene->Draw();
 		if( m_CurSceneType == SCENE_TYPE_LOADING ){
 			MAPIL::BeginRendering2DGraphics();
-			MAPIL::DrawString( 200.0f, 200.0f, "Loading ..." );
+			MAPIL::DrawString( 200.0f, 200.0f, "Loading ... %d", count );
 			MAPIL::EndRendering2DGraphics();
 		}
+
+		++count;
 	}
 
 	SceneType SceneManager::Impl::Update()
@@ -135,6 +138,9 @@ namespace GameEngine
 				if( next == SCENE_TYPE_MENU ){
 					if( m_CurSceneType == SCENE_TYPE_REPLAY_ENTRY ){
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY );
+					}
+					else if( m_CurSceneType == SCENE_TYPE_INITIALIZE ){
+						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_INITIALIZE );
 					}
 					else{
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );

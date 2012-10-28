@@ -388,23 +388,23 @@ namespace GameEngine
 		
 
 		// ステージスクリプトの読み込み
-		LoadStageScript( stageScriptFileName );
+		LoadStageScript( archiveHandle, stageScriptFileName );
 
 		// リソーススクリプトの読み込み
-		LoadResourceScript( resourceScriptFileName );
+		LoadResourceScript( archiveHandle, resourceScriptFileName );
 
 		// 敵の行動パターンスクリプトの読み込み
 		m_pEnemyScriptData.reset( new EnemyScriptData );
 		m_pEnemyScriptData->m_pElm = new EnemyScriptData::EnemyScriptDataElm[ enemyScriptList.size() ];
 		for( unsigned int i = 0; i < enemyScriptList.size(); ++i ){
-			LoadEnemyScript( i, enemyScriptList[ i ].m_FileName );
+			LoadEnemyScript( archiveHandle, i, enemyScriptList[ i ].m_FileName );
 		}
 
 		// 敵弾のスクリプトの読み込み
 		m_pEnemyShotGroupScriptData.reset( new EnemyShotGroupScriptData );
 		m_pEnemyShotGroupScriptData->m_pElm = new EnemyShotGroupScriptData::EnemyShotGroupScriptDataElm[ enemyShotScriptList.size() ];
 		for( unsigned int i = 0; i < enemyShotScriptList.size(); ++i ){
-			LoadEnemyShotGroupScript( i, enemyShotScriptList[ i ].m_FileName );
+			LoadEnemyShotGroupScript( archiveHandle, i, enemyShotScriptList[ i ].m_FileName );
 		}
 
 		MAPIL::SafeDeleteArray( pBegin );
