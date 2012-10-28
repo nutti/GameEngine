@@ -6,6 +6,8 @@ namespace GameEngine
 {
 	class Initialize::Impl
 	{
+	private:
+		int				m_Counter;
 	public:
 		Impl();
 		~Impl(){}
@@ -15,17 +17,20 @@ namespace GameEngine
 
 	Initialize::Impl::Impl()
 	{
+		m_Counter = 0;
 	}
 
 	SceneType Initialize::Impl::Update()
 	{
+		++m_Counter;
+
 		return SCENE_TYPE_MENU;
 	}
 
 	void Initialize::Impl::Draw()
 	{
 		MAPIL::BeginRendering2DGraphics();
-		MAPIL::DrawString( 300.0f, 240.0f, "Initializing..." );
+		MAPIL::DrawString( 300.0f, 240.0f, "Initializing... %d", m_Counter );
 
 		MAPIL::EndRendering2DGraphics();
 	}

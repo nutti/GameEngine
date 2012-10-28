@@ -5,6 +5,7 @@
 #include "ReplayDataBuilder.h"
 #include "GameDataHolder.h"
 #include "ReplayDataLoader.h"
+#include "Util.h"
 
 namespace GameEngine
 {
@@ -49,6 +50,10 @@ namespace GameEngine
 
 	void GameStateManager::Impl::SaveReplayFile( const DisplayedReplayInfo::Entry& entry )
 	{
+		if( !FileExist( REPLAY_FILE_DIR ) ){
+			CreateDirectory( REPLAY_FILE_DIR );
+		}
+
 		m_ReplayBuilder.SetName( entry.m_Name );
 		m_ReplayBuilder.SetProgress( entry.m_Progress );
 		m_ReplayBuilder.SetScore( entry.m_Score );
@@ -57,7 +62,9 @@ namespace GameEngine
 		m_ReplayBuilder.SetDifficulty( entry.m_Difficulty );
 		m_ReplayBuilder.SetDate( entry.m_Date );
 
-		std::string fileName = REPLAY_FILE_NAME_PREFIX;
+		std::string fileName = REPLAY_FILE_DIR;
+		fileName += '/';
+		fileName += REPLAY_FILE_NAME_PREFIX;
 		fileName += ( entry.m_EntryNo / 10 ) + '0';
 		fileName += ( entry.m_EntryNo % 10 ) + '0';
 		fileName += REPLAY_FILE_NAME_SUFFIX;
@@ -139,7 +146,9 @@ namespace GameEngine
 		DisplayedReplayInfo info;
 
 		for( int i = 0; i < 25; ++i ){
-			std::string fileName = REPLAY_FILE_NAME_PREFIX;
+			std::string fileName = REPLAY_FILE_DIR;
+			fileName += '/';
+			fileName += REPLAY_FILE_NAME_PREFIX;
 			fileName += ( i / 10 ) + '0';
 			fileName += ( i % 10 ) + '0';
 			fileName += REPLAY_FILE_NAME_SUFFIX;

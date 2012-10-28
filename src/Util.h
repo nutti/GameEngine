@@ -32,6 +32,10 @@ namespace GameEngine
 	void CopyArray( std::vector < char >* pVOut, const char* pIn, int size );
 
 	void CopyInt( std::vector < char >* pVOut, int val );
+
+	void CreateDirectory( const std::string& pathName );
+
+	bool FileExist( const std::string& fileName );
 }
 
 #endif

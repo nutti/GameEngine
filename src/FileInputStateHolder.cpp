@@ -56,7 +56,9 @@ namespace GameEngine
 	{
 		Cleanup();
 
-		std::string fileName = REPLAY_FILE_NAME_PREFIX;
+		std::string fileName = REPLAY_FILE_DIR;
+		fileName += '/';
+		fileName += REPLAY_FILE_NAME_PREFIX;
 		fileName += ( entryNo / 10 ) + '0';
 		fileName += ( entryNo % 10 ) + '0';
 		fileName += REPLAY_FILE_NAME_SUFFIX;

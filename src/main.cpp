@@ -1,47 +1,37 @@
 #include <MAPIL/MAPIL.h>
 
+#include <MAPIL/GUI/WinAPIGUIFactory.h>
+
 #include "Application.h"
 
-void SelectWindowMode()
+int SelectWindowMode()
 {
-	class Sig : public MAPIL::KeyboardSignal
-	{
-	private:
-		int d;
-	public:
-		Sig() : MAPIL::KeyboardSignal(), d( 0 )
-		{
-		}
-		~Sig()
-		{
-		}
-		void Handle()
-		{
-			d = 1;
-		}
-		bool HasTermSig()
-		{
-			return d == 1 ? true : false;
-		}
-	};
-
 	MAPIL::IGUIDevice dev = MAPIL::CreateGUIDevice( MAPIL::GUI_API_WIN32API );
 	MAPIL::GUIFactory* pFactory = MAPIL::CreateGUIFactory( dev );
-	MAPIL::IWindow window = pFactory->CreateWnd( TSTR( "Screen mode" ) );
-	window->Create( TSTR( "画面選択" ), 200, 100 );
-	Sig sig;
-	window->Connect( &sig );
+	MAPIL::IWindow window = pFactory->CreateWnd( TSTR( "Windows mode selection" ) );
+	window->Create( TSTR( "画面の大きさを選択" ), 200, 40 );
+	MAPIL::IRadioButton radio1 = pFactory->CreateRadioButton( TSTR( "Window mode" ) );
+	radio1->Create( TSTR( "ウィンドウモード" ), 0, 00, 200, 20, window, 0 );
+	MAPIL::IRadioButton radio2 = pFactory->CreateRadioButton( TSTR( "Full screen mode" ) );
+	radio2->Create( TSTR( "フルスクリーンモード" ), 0, 20, 200, 20, window, 1 );
+
+	int ret = -1;
 
 	while( !window->ProcessMessage() ){
-		if( sig.HasTermSig() ){
-			MAPIL::SharedPointer < MAPIL::WinAPIWindow > w;
-			w.DownCast( window );
-			SendMessage( w->GetHWnd(), WM_CLOSE, 0, 0 );
+		if( radio1->Checked() ){
+			ret = 0;
+			window->Destroy();
+		}
+		else if( radio2->Checked() ){
+			ret = 1;
+			window->Destroy();
 		}
 		Sleep( 1 );
 	}
 
 	MAPIL::SafeDelete( pFactory );
+
+	return ret;
 }
 
 int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd )
@@ -49,10 +39,21 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd 
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 
 	try{
-		//SelectWindowMode();
+		int wndMode = SelectWindowMode();
+
+		if( wndMode == -1 ){
+			return -1;
+		}
 
 		GameEngine::Application app;
-		app.Init();
+		// ウィンドウモードで起動
+		if( wndMode == 0 ){
+			app.Init( true );
+		}
+		// フルスクリーンモードで起動
+		else if( wndMode == 1 ){
+			app.Init( false );
+		}
 		app.Run();
 	}
 	catch( MAPIL::MapilException& e ){

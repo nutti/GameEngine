@@ -82,7 +82,6 @@ namespace GameEngine
 		}
 
 		// 画面の更新
-		//if( m_pSceneManager->GetCurSceneType() != SCENE_TYPE_LOADING ){
 		m_pSceneManager->Update();
 		m_pSceneManager->Draw();
 		
@@ -93,7 +92,6 @@ namespace GameEngine
 		MAPIL::BeginRendering2DGraphics();
 		MAPIL::DrawString( 10.0f, 10.0f, "%d : %d : %d", time / 3600, ( time / 60 ) % 60, time % 60 );
 		MAPIL::EndRendering2DGraphics();
-		//}
 	}
 
 	void EventMediator::Impl::LoadGlobalResources()
@@ -210,103 +208,6 @@ namespace GameEngine
 				m_pSceneManager->ChangeScene( SCENE_TYPE_INITIALIZE );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				m_pScriptManager->BuildFileStructure( m_pResourceManager->GetArchiveHandle(), "archive/script/build.isc", SCRIPT_FILE_TYPE_BINARY );
-				//m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ITEM_1_SE, "archive/resource/se/item01.wav" );
-				//m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ITEM_2_SE, "archive/resource/se/item02.wav" );
-				//m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_SHOT_SE, "archive/resource/se/shot.wav" );
-				//m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE, "archive/resource/texture/hpbar.png" );
-				//m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE, "archive/resource/texture/consbar.png" );
-				//m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_BACKGROUND_TEXTURE, "archive/resource/texture/background.png" );
-				/*m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_MULTI_TEXTURE,
-																	GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST,
-																	GLOBAL_RESOURCE_ID_FONT_TEXTURE_LAST,
-																	5, 8, 32, 32, "archive/resource/texture/game_font.png" );*/
-				/*m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_1_TEXTURE, "archive/resource/texture/powerup_item_1.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_2_TEXTURE, "archive/resource/texture/powerup_item_2.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE, "archive/resource/texture/crystal.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_PLAYER_SHOT_1_TEXTURE, "archive/resource/texture/player_shot_1.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_PLAYER_SHOT_COLLIDED_TEXTURE, "archive/resource/texture/player_shot_collided_effect.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_ENEMY_DESTROYED_TEXTURE, "archive/resource/texture/enemy_destroyed.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_ID_ENEMY_DESTROYED_SE, "archive/resource/se/rtg_se2.wav" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_GREEN_MAIN,
-																	"archive/resource/texture/player_shot_2.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_SE,
-																	GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE,
-																	"archive/resource/se/change_mode.wav" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_BAR,
-																	"archive/resource/texture/bar.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL,
-																	"archive/resource/texture/red_cons_2_1.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_CONS_GREEN_SYMBOL,
-																	"archive/resource/texture/green_cons.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_CONS_BLUE_SYMBOL,
-																	"archive/resource/texture/blue_cons.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_BLUE_MAIN,
-																	"archive/resource/texture/player_shot_3.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_RED_MAIN,
-																	"archive/resource/texture/player_shot_4.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_SE,
-																	GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED,
-																	"archive/resource/se/player_damaged.wav" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_SE,
-																	GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED,
-																	"archive/resource/se/player_destroyed.wav" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START,
-																	"archive/resource/texture/game_start.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START_SELECTED,
-																	"archive/resource/texture/game_start_selected.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT,
-																	"archive/resource/texture/exit.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT_SELECTED,
-																	"archive/resource/texture/exit_selected.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE,
-																	"archive/resource/texture/score.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE_SELECTED,
-																	"archive/resource/texture/score_selected.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY,
-																	"archive/resource/texture/replay.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY_SELECTED,
-																	"archive/resource/texture/replay_selected.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG,
-																	"archive/resource/texture/config.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG_SELECTED,
-																	"archive/resource/texture/config_selected.png" );
-
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_HI_SCORE,
-																	"archive/resource/texture/hi_score.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_GAME_SCORE,
-																	"archive/resource/texture/game_score.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_GAME_KILLED,
-																	"archive/resource/texture/game_killed.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL,
-																	"archive/resource/texture/game_crystal.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_GAME_POWER,
-																	"archive/resource/texture/game_power.png" );
-				m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
-																	GLOBAL_RESOURCE_TEXTURE_ID_GAME_HP,
-																	"archive/resource/texture/game_hp.png" );*/
-
 				DisplayedSaveData data;
 				for( int i = 0; i < 4; ++i ){
 					for( int j = 0; j < 25; ++j ){
@@ -400,9 +301,6 @@ namespace GameEngine
 			}
 			case EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY:{
 				m_pResourceManager->ReleaseStageResources();
-				//m_pGameStateManager->SetRecord( m_pSceneManager->GetGameDifficulty(), m_pSceneManager->GetRecord() );
-				//m_pGameStateManager->FlushGameData();
-				//m_pGameStateManager->SaveReplayFile( 0 );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
@@ -447,13 +345,6 @@ namespace GameEngine
 				m_Loading.SetupSession( m_pResourceManager, m_pScriptManager );
 				m_Loading.AddStageResourceItem( stage, true );
 				m_Loading.Start();
-				//m_pScriptManager->BuildScriptData( m_pResourceManager->GetArchiveHandle(), stage );
-				//ScriptData data = m_pScriptManager->GetScriptData();
-				//m_pSceneManager->AttachScriptData( data );
-				// リソースの読み込み
-				//m_pResourceManager->LoadStageResourcesFromArchive( data );
-				//ResourceMap rcMap = m_pResourceManager->GetStageResourceMap();
-				//m_pSceneManager->AttachSceneResourceMap( rcMap );
 				// ゲームデータの初期化（※2面以降が問題？）
 				m_pSceneManager->ClearGameData();
 				// 難易度の設定（※複数の難易度で問題化？）

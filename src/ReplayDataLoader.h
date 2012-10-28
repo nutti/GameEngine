@@ -9,6 +9,7 @@
 
 namespace GameEngine
 {
+	extern const char* REPLAY_FILE_DIR;
 	extern const char* REPLAY_FILE_NAME_PREFIX;
 	extern const char* REPLAY_FILE_NAME_SUFFIX;
 

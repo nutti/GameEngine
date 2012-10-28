@@ -178,4 +178,18 @@ namespace GameEngine
 			pVOut->push_back( str[ i ] );
 		}
 	}
+
+	void CreateDirectory( const std::string& pathName )
+	{
+		::CreateDirectoryA( pathName.c_str(), NULL );
+	}
+
+	bool FileExist( const std::string& fileName )
+	{
+		if( ::GetFileAttributesA( fileName.c_str() ) != 0xFFFFFFFF ){
+			return true;
+		}
+		
+		return false;
+	}
 }

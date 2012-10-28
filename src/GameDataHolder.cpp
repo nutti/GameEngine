@@ -49,7 +49,7 @@ namespace GameEngine
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
 	};
 
-	GameDataHolder::Impl::Impl() : /*m_ScoreManager(),*/ m_SaveDataFileName()
+	GameDataHolder::Impl::Impl() : m_SaveDataFileName()
 	{
 		MAPIL::ZeroObject( &m_GameData, sizeof( m_GameData ) );
 		MAPIL::ZeroObject( &m_GameFileData, sizeof( m_GameFileData ) );
@@ -73,79 +73,126 @@ namespace GameEngine
 
 	void GameDataHolder::Impl::Flush()
 	{
+		if( !FileExist( "save" ) ){
+			CreateDirectory( "save" );
+		}
+
 		UpdatePlayTime();
 
-		std::ofstream fOut( m_SaveDataFileName, std::ios::binary | std::ios::out );
+		std::vector < char > data;
+		data.reserve( 30000 );
 
-		WriteInt( &fOut, m_GameFileData.m_PlayTime );
-		WriteInt( &fOut, m_GameFileData.m_Progress );
+		std::ofstream fOut( m_SaveDataFileName, std::ios::binary | std::ios::out );
+		if( !fOut ){
+			return;
+		}
+
+		CopyInt( &data, m_GameFileData.m_PlayTime );
+		CopyInt( &data, m_GameFileData.m_Progress );
 		for( int i = 0; i < 4; ++i ){
-			WriteInt( &fOut, m_GameFileData.m_Difficulty[ i ].m_AllClear );
-			WriteInt( &fOut, m_GameFileData.m_Difficulty[ i ].m_PlayTime );
-			WriteInt( &fOut, m_GameFileData.m_Difficulty[ i ].m_StageProgress );
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_AllClear );
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_PlayTime );
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_StageProgress );
 			for( int j = 0; j < 25; ++j ){
 				SaveDataRecord record = m_GameFileData.m_Difficulty[ i ].m_Record[ j ];
-				fOut.write( record.m_Name, sizeof( record.m_Name ) );
-				WriteInt( &fOut, record.m_Date.m_Year );
-				fOut.write( &record.m_Date.m_Month, sizeof( char ) );
-				fOut.write( &record.m_Date.m_Day, sizeof( char ) );
-				fOut.write( &record.m_Date.m_Hour, sizeof( char ) );
-				fOut.write( &record.m_Date.m_Min, sizeof( char ) );
-				fOut.write( &record.m_Date.m_Sec, sizeof( char ) );
+				CopyArray( &data, record.m_Name, sizeof( record.m_Name ) );
+				CopyInt( &data, record.m_Date.m_Year );
+				data.push_back( record.m_Date.m_Month );
+				data.push_back( record.m_Date.m_Day );
+				data.push_back( record.m_Date.m_Hour );
+				data.push_back( record.m_Date.m_Min );
+				data.push_back( record.m_Date.m_Sec );
 				for( int k = 0; k < 5; ++k ){
 					SaveDataRecord::StageData stage = record.m_StageData[ k ];
-					WriteInt( &fOut, stage.m_Score );
-					WriteInt( &fOut, stage.m_Killed );
-					WriteInt( &fOut, stage.m_Crystal );
-					WriteInt( &fOut, stage.m_Progress );
+					CopyInt( &data, stage.m_Score );
+					CopyInt( &data, stage.m_Killed );
+					CopyInt( &data, stage.m_Crystal );
+					CopyInt( &data, stage.m_Progress );
 				}
-				WriteInt( &fOut, record.m_Score );
-				WriteInt( &fOut, record.m_Progress );
-				WriteInt( &fOut, record.m_Killed );
-				WriteInt( &fOut, record.m_Crystal );
+				CopyInt( &data, record.m_Score );
+				CopyInt( &data, record.m_Progress );
+				CopyInt( &data, record.m_Killed );
+				CopyInt( &data, record.m_Crystal );
 			}
 		}
+
+		// 圧縮
+		char* pBuf = new char [ data.size() * 2 ];
+		int compSize = 0;
+		MAPIL::LZ lz( 200, 3 );
+		lz.Compress( &data[ 0 ], data.size(), &pBuf, data.size() * 2, &compSize );
+		// シーザ暗号化
+		MAPIL::Caesar caesar( 10 );
+		caesar.Encrypt( pBuf, compSize );
+		// XOR暗号化
+		MAPIL::XOR xor( 60 );
+		xor.Encrypt( pBuf, compSize );
+		fOut.write( pBuf, compSize );
+		fOut.close();
+		MAPIL::SafeDeleteArray( pBuf );
 	}
 
 	void GameDataHolder::Impl::Load( const std::string& fileName )
 	{
-		std::ifstream fIn( m_SaveDataFileName, std::ios::binary | std::ios::out );
+		std::fstream fIn( m_SaveDataFileName, std::ios::binary | std::ios::in );
 		if( !fIn ){
 			return;
 		}
+		int size = GetFileSize( fIn );
+		char* pBuf = new char [ size ];
+		fIn.read( pBuf, size * sizeof( char ) );
+		fIn.close();
 
-		m_GameFileData.m_PlayTime = ReadInt( &fIn );
-		m_GameFileData.m_Progress = ReadInt( &fIn );
+		// XOR暗号復号化
+		MAPIL::XOR xor( 60 );
+		xor.Decrypt( pBuf, size );
+		// シーザ暗号復号化
+		MAPIL::Caesar caesar( 10 );
+		caesar.Decrypt( pBuf, size );
+		// 解凍
+		MAPIL::LZ lz( 200, 3 );
+		char* pData = new char [ size * 1000 ];
+		int dataSize = 0;
+		lz.Expand( pBuf, size, &pData, size * 1000, &dataSize );
+		MAPIL::SafeDeleteArray( pBuf );
+
+		// データ設定
+		char* p = pData;
+		m_GameFileData.m_PlayTime = GetInt( &p );
+		m_GameFileData.m_Progress = GetInt( &p );
 		for( int i = 0; i < 4; ++i ){
 			GameFileData::Difficulty difficulty;
-			difficulty.m_AllClear = ReadInt( &fIn );
-			difficulty.m_PlayTime = ReadInt( &fIn );
-			difficulty.m_StageProgress = ReadInt( &fIn );
+			difficulty.m_AllClear = GetInt( &p );
+			difficulty.m_PlayTime = GetInt( &p );
+			difficulty.m_StageProgress = GetInt( &p );
 			for( int j = 0; j < 25; ++j ){
 				SaveDataRecord record;
-				fIn.read( record.m_Name, sizeof( record.m_Name ) );
-				record.m_Date.m_Year = ReadInt( &fIn );
-				fIn.read( &record.m_Date.m_Month, sizeof( char ) );
-				fIn.read( &record.m_Date.m_Day, sizeof( char ) );
-				fIn.read( &record.m_Date.m_Hour, sizeof( char ) );
-				fIn.read( &record.m_Date.m_Min, sizeof( char ) );
-				fIn.read( &record.m_Date.m_Sec, sizeof( char ) );
+				::memcpy( record.m_Name, p, sizeof( record.m_Name ) );
+				p += sizeof( record.m_Name );
+				record.m_Date.m_Year = GetInt( &p );
+				record.m_Date.m_Month = *p++;
+				record.m_Date.m_Day = *p++;
+				record.m_Date.m_Hour = *p++;
+				record.m_Date.m_Min = *p++;
+				record.m_Date.m_Sec = *p++;
 				for( int k = 0; k < 5; ++k ){
 					SaveDataRecord::StageData stage;
-					stage.m_Score = ReadInt( &fIn );
-					stage.m_Killed = ReadInt( &fIn );
-					stage.m_Crystal = ReadInt( &fIn );
-					stage.m_Progress = ReadInt( &fIn );
+					stage.m_Score = GetInt( &p );
+					stage.m_Killed = GetInt( &p );
+					stage.m_Crystal = GetInt( &p );
+					stage.m_Progress = GetInt( &p );
 					record.m_StageData[ k ] = stage;
 				}
-				record.m_Score = ReadInt( &fIn );
-				record.m_Progress = ReadInt( &fIn );
-				record.m_Killed = ReadInt( &fIn );
-				record.m_Crystal = ReadInt( &fIn );
+				record.m_Score = GetInt( &p );
+				record.m_Progress = GetInt( &p );
+				record.m_Killed = GetInt( &p );
+				record.m_Crystal = GetInt( &p );
 				difficulty.m_Record[ j ] = record;
 			}
 			m_GameFileData.m_Difficulty[ i ] = difficulty;
 		}
+
+		MAPIL::SafeDeleteArray( pData );
 	}
 
 	int GameDataHolder::Impl::GetPlayTime() const

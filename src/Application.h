@@ -12,7 +12,7 @@ namespace GameEngine
 	public:
 		Application();
 		~Application();
-		void Init();
+		void Init( bool wndMode );
 		void Run();
 	};
 }

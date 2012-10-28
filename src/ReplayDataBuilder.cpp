@@ -134,64 +134,6 @@ namespace GameEngine
 		fOut.write( pBuf, compSize );
 		fOut.close();
 		MAPIL::SafeDeleteArray( pBuf );
-
-		//std::ofstream raw( "replay/raw", std::ios::binary | std::ios::out );
-		//raw.write( &data[ 0 ], data.size() );
-		//raw.close();
-
-		//std::ofstream exp( "replay/exp", std::ios::binary | std::ios::out );
-		//char* pp = new char[ data.size() * 4 ];
-		//xor.Decrypt( pBuf, compSize );
-		//caesar.Decrypt( pBuf, compSize );
-		//lz.Expand( pBuf, compSize, &pp, data.size() * 4, &compSize );
-		//exp.write( pp, compSize );
-		//exp.close();
-
-
-
-		//// スコア全体情報を保存
-		//fOut.write( m_ReplayDataInfo.m_Name, sizeof( m_ReplayDataInfo.m_Name ) );
-		//WriteInt( &fOut, m_ReplayDataInfo.m_Progress );
-		//WriteInt( &fOut, m_ReplayDataInfo.m_Score );
-		//WriteInt( &fOut, m_ReplayDataInfo.m_Crystal );
-		//WriteInt( &fOut, m_ReplayDataInfo.m_Killed );
-		//WriteInt( &fOut, m_ReplayDataInfo.m_Difficulty );
-		//WriteInt( &fOut, m_ReplayDataInfo.m_Date.m_Year );
-		//fOut.write( &m_ReplayDataInfo.m_Date.m_Month, sizeof( char ) );
-		//fOut.write( &m_ReplayDataInfo.m_Date.m_Day, sizeof( char ) );
-		//fOut.write( &m_ReplayDataInfo.m_Date.m_Hour, sizeof( char ) );
-		//fOut.write( &m_ReplayDataInfo.m_Date.m_Min, sizeof( char ) );
-		//fOut.write( &m_ReplayDataInfo.m_Date.m_Sec, sizeof( char ) );
-		//// 各ステージ開始時のデータを保存
-		//for( int i = 0; i < 5; ++i ){
-		//	ReplayDataInfo::StageData stage = m_ReplayDataInfo.m_StageData[ i ];
-		//	WriteInt( &fOut, stage.m_IniPosX );
-		//	WriteInt( &fOut, stage.m_IniPosY );
-		//	WriteInt( &fOut, stage.m_IniHP );
-		//	WriteInt( &fOut, stage.m_IniShotPower );
-		//	WriteInt( &fOut, stage.m_IniScore );
-		//	WriteInt( &fOut, stage.m_IniKilled );
-		//	WriteInt( &fOut, stage.m_IniCrystal );
-		//	WriteInt( &fOut, stage.m_IniCons );
-		//	for( int j = 0; j < 3; ++j ){
-		//		WriteInt( &fOut, stage.m_IniConsGauge[ j ] );
-		//	}
-		//	for( int j = 0; j < 3; ++j ){
-		//		WriteInt( &fOut, stage.m_IniConsLevel[ j ] );
-		//	}
-		//	WriteInt( &fOut, stage.m_FrameTotal );
-		//}
-
-		//// 入力ボタンの個数を保存
-		//frame = 0;
-		//for( int i = 0; i < 5; ++i ){
-		//	frame += m_ReplayDataInfo.m_StageData[ i ].m_FrameTotal;
-		//}
-		//WriteInt( &fOut, m_ButtonList.size() );
-		//// 入力ボタンの保存
-		//for( unsigned int i = 0; i < m_ButtonList.size(); ++i ){
-		//	fOut.write( &m_ButtonList[ i ], sizeof( m_ButtonList[ i ] ) );
-		//}
 	}
 
 	inline void ReplayDataBuilder::Impl::Cleanup()

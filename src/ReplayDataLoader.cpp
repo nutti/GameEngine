@@ -7,7 +7,8 @@
 
 namespace GameEngine
 {
-	const char* REPLAY_FILE_NAME_PREFIX = "replay/replay";
+	const char* REPLAY_FILE_DIR = "replay";
+	const char* REPLAY_FILE_NAME_PREFIX = "replay";
 	const char* REPLAY_FILE_NAME_SUFFIX = ".rpy";
 
 	struct ReplayDataInfo
@@ -89,9 +90,9 @@ namespace GameEngine
 		caesar.Decrypt( pBuf, size );
 		// 解凍
 		MAPIL::LZ lz( 200, 5 );
-		char* pData = new char [ size * 10 ];
+		char* pData = new char [ size * 1000 ];
 		int dataSize = 0;
-		lz.Expand( pBuf, size, &pData, size * 10, &dataSize );
+		lz.Expand( pBuf, size, &pData, size * 1000, &dataSize );
 		MAPIL::SafeDeleteArray( pBuf );
 
 		// データ設定
@@ -137,49 +138,6 @@ namespace GameEngine
 		}
 
 		MAPIL::SafeDeleteArray( pData );
-
-		//// スコア全体情報を取得
-		//fIn.read( m_ReplayDataInfo.m_Name, sizeof( m_ReplayDataInfo.m_Name ) );
-		//m_ReplayDataInfo.m_Progress = ReadInt( &fIn );
-		//m_ReplayDataInfo.m_Score = ReadInt( &fIn );
-		//m_ReplayDataInfo.m_Crystal = ReadInt( &fIn );
-		//m_ReplayDataInfo.m_Killed = ReadInt( &fIn );
-		//m_ReplayDataInfo.m_Difficulty = ReadInt( &fIn );
-		//m_ReplayDataInfo.m_Date.m_Year = ReadInt( &fIn );
-		//fIn.read( &m_ReplayDataInfo.m_Date.m_Month, sizeof( char ) );
-		//fIn.read( &m_ReplayDataInfo.m_Date.m_Day, sizeof( char ) );
-		//fIn.read( &m_ReplayDataInfo.m_Date.m_Hour, sizeof( char ) );
-		//fIn.read( &m_ReplayDataInfo.m_Date.m_Min, sizeof( char ) );
-		//fIn.read( &m_ReplayDataInfo.m_Date.m_Sec, sizeof( char ) );
-		//// 各ステージデータ開始時のデータを取得
-		//for( int i = 0; i < 5; ++i ){
-		//	ReplayDataInfo::StageData stage;
-		//	stage.m_IniPosX = ReadInt( &fIn );
-		//	stage.m_IniPosY = ReadInt( &fIn );
-		//	stage.m_IniHP = ReadInt( &fIn );
-		//	stage.m_IniShotPower = ReadInt( &fIn );
-		//	stage.m_IniScore = ReadInt( &fIn );
-		//	stage.m_IniKilled = ReadInt( &fIn );
-		//	stage.m_IniCrystal = ReadInt( &fIn );
-		//	stage.m_IniCons = ReadInt( &fIn );
-		//	for( int j = 0; j < 3; ++j ){
-		//		stage.m_IniConsGauge[ j ] = ReadInt( &fIn );
-		//	}
-		//	for( int j = 0; j < 3; ++j ){
-		//		stage.m_IniConsLevel[ j ] = ReadInt( &fIn );
-		//	}
-		//	stage.m_FrameTotal = ReadInt( &fIn );
-		//}
-
-		//// 入力ボタンのロード
-		//int frame = ReadInt( &fIn );
-		//m_ButtonList.resize( frame, 0 );
-		//for( unsigned int i = 0; i < m_ButtonList.size(); ++i ){
-		//	fIn.read( &m_ButtonList[ i ], sizeof( char ) );
-		//}
-
-		//fIn.close();
-
 	}
 
 	void ReplayDataLoader::Impl::Cleanup()
@@ -236,23 +194,6 @@ namespace GameEngine
 		entry.m_Date.m_Sec = *p++;
 
 		MAPIL::SafeDeleteArray( pData );
-
-
-		//// スコア全体情報を取得
-		//fIn.read( entry.m_Name, sizeof( entry.m_Name ) );
-		//entry.m_Progress = ReadInt( &fIn );
-		//entry.m_Score = ReadInt( &fIn );
-		//entry.m_Crystal = ReadInt( &fIn );
-		//entry.m_Killed = ReadInt( &fIn );
-		//entry.m_Difficulty = ReadInt( &fIn );
-		//entry.m_Date.m_Year = ReadInt( &fIn );
-		//fIn.read( &entry.m_Date.m_Month, sizeof( char ) );
-		//fIn.read( &entry.m_Date.m_Day, sizeof( char ) );
-		//fIn.read( &entry.m_Date.m_Hour, sizeof( char ) );
-		//fIn.read( &entry.m_Date.m_Min, sizeof( char ) );
-		//fIn.read( &entry.m_Date.m_Sec, sizeof( char ) );
-
-		//fIn.close();
 
 		return entry;
 	}

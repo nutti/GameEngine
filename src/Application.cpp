@@ -31,7 +31,7 @@ namespace GameEngine
 	public:
 		Impl();
 		~Impl(){}
-		void Init();
+		void Init( bool wndMode );
 		void Run();
 	};
 
@@ -52,13 +52,15 @@ namespace GameEngine
 	}
 
 	// 初期化処理
-	void Application::Impl::Init()
+	void Application::Impl::Init( bool wndMode )
 	{
 		MAPIL::InitMAPIL( "GameEngine", 640, 480 );
 		m_FPSManager.SetFPS( 60 );
 		m_FPSManager.SetPrecise( 10 );
 		m_pEventMediator->SendEvent( EVENT_TYPE_INITIALIZE );
-		//MAPIL::ChangeWindowMode( 1 );
+		if( !wndMode ){
+			MAPIL::ChangeWindowMode( 1 );
+		}
 	}
 
 	// アプリケーション実行
@@ -93,6 +95,9 @@ namespace GameEngine
 				MAPIL::SetViewPort( 0, 0, 640, 480 );
 
 				if( m_pButtonManager->IsSpecialKeyPushed( SPECIAL_KEY_SS ) ){
+					if( !FileExist( "screenshot" ) ){
+						CreateDirectory( "screenshot" );
+					}
 					ScreenShot( "screenshot", "screenshot" );
 				}
 
@@ -116,9 +121,9 @@ namespace GameEngine
 	{
 	}
 
-	void Application::Init()
+	void Application::Init( bool wndMode )
 	{
-		m_pImpl->Init();
+		m_pImpl->Init( wndMode );
 	}
 
 	void Application::Run()
