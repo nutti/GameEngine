@@ -59,6 +59,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyCollisionRadius", "f" );		// void SetEnemyCollisionRadius( radius );
 	AddFunction( VM::SYS_ENEMY_SET_SCORE, TYPE_VOID, "SetEnemyScore", "i" );							// void SetEnemyScore( score );
 	AddFunction( VM::SYS_ENEMY_SET_CONS_GAUGE, TYPE_VOID, "SetEnemyConsGauge", "i" );					// void SetEnemyConsGauge( gauge );
+	AddFunction( VM::SYS_ENEMY_ENABLE_INVINCIBLE, TYPE_VOID, "EnemyEnableInvincible", "" );				// void EnemyEnableInvincible();
+	AddFunction( VM::SYS_ENEMY_DISABLE_INVINCIBLE, TYPE_VOID, "EnemyDisableInvincible", "" );			// void EnemyDisableInvincible();
+
 
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_1, TYPE_VOID, "CreateEnemyShot1", "fffffi" );	// void CreateEnemyShot1( x, y, speed, angle, radius, texture_id );
 	AddFunction( VM::SYS_ENEMY_CREATE_EFFECT_1, TYPE_VOID, "CreateEffect1", "ffii" );		// void CreateEffect1( x, y, id, subid );
@@ -75,6 +78,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyShotCollisionRadius", "if" );	// void SetEnemyShotCollisionRadius( radius );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS, TYPE_VOID, "SetEnemyShotStatus", "ifffffi" );		// void SetEnemyShotStatus( shot_id, x, y, angle, speed, radius, texture_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT, TYPE_VOID, "SetEnemyShotMovement", "iff" );		// void SetEnemyShotMovement( shot_id, angle, speed );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_COUNTER, TYPE_INTEGER, "GetEnemyShotCounter", "i" );		// int GetEnemyShotCounter( shot_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X, TYPE_FLOAT, "GetEnemyShotPosX", "i" );		// float GetEnemyShotPosX( shot_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y, TYPE_FLOAT, "GetEnemyShotPosY", "i" );		// float GetEnemyShotPosY( shot_id );
 
 	// System call for stage.
 	AddFunction( VM::SYS_STAGE_ADD_ENEMY, TYPE_VOID, "AddEnemy", "i" );					// void AddEnemy( script_id );
@@ -262,7 +268,7 @@ void Compiler::AddValue( const yy::location& location, int type, const std::stri
 {
 	int size = 1;
 	if( pNode ){
-		if( pNode->GetOP() != OP_INT_CONST || pNode->GetOP() != OP_FLOAT_CONST ){
+		if( pNode->GetOP() != OP_INT_CONST /*|| pNode->GetOP() != OP_FLOAT_CONST*/ ){
 			error( location, "Array size must be constant." );
 		}
 		else if( pNode->GetValue() <= 0 ){

@@ -80,6 +80,12 @@ namespace GameEngine
 				m_pGameStateManager->RecordButtonState( m_pButtonManager->GetRawButtonStatus() );
 			}
 		}
+		else{
+			// ボタン無効化
+			ButtonStatusHolder holder;
+			MAPIL::ZeroObject( &holder, sizeof( holder ) );
+			m_pSceneManager->AttachButtonState( &holder );
+		}
 
 		// 画面の更新
 		m_pSceneManager->Update();
@@ -195,6 +201,9 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_GAME_HP,
 											"archive/resource/texture/game_hp.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
+											GLOBAL_RESOURCE_SE_ID_MENU_SELECTED,
+											"archive/resource/se/select.wav", false );
 		m_Loading.Start();
 	}
 
@@ -218,7 +227,6 @@ namespace GameEngine
 				}
 				data.m_PlayTime = m_pGameStateManager->GetPlayTime();
 				m_pSceneManager->AttachDisplayedSaveData( data );
-				
 				break;
 			}
 			// 初期化状態からメニュー画面移行要求
@@ -343,7 +351,7 @@ namespace GameEngine
 				int stage = *( static_cast < int* > ( pArg ) ) + 1;
 				m_Loading.CleanupSession();
 				m_Loading.SetupSession( m_pResourceManager, m_pScriptManager );
-				m_Loading.AddStageResourceItem( stage, true );
+				m_Loading.AddStageResourceItem( stage, false );
 				m_Loading.Start();
 				// ゲームデータの初期化（※2面以降が問題？）
 				m_pSceneManager->ClearGameData();

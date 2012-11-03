@@ -148,6 +148,18 @@ namespace GameEngine
 		m_pEnemyData->m_ConsGauge = gauge;
 	}
 
+	void EnemyVCPU::SysEnemyEnableInvincible()
+	{
+		Pop();
+		m_pEnemyData->m_IsInvincibleMode = true;
+	}
+
+	void EnemyVCPU::SysEnemyDisableInvincible()
+	{
+		Pop();
+		m_pEnemyData->m_IsInvincibleMode = false;
+	}
+
 	void EnemyVCPU::SysCreateEnemyShot1()
 	{
 		Pop();
@@ -326,6 +338,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SET_CONS_GAUGE:
 				SysSetEnemyConsGauge();
+				break;
+			case VM::SYS_ENEMY_ENABLE_INVINCIBLE:
+				SysEnemyEnableInvincible();
+				break;
+			case VM::SYS_ENEMY_DISABLE_INVINCIBLE:
+				SysEnemyDisableInvincible();
 				break;
 
 			case VM::SYS_ENEMY_CREATE_EFFECT_1:

@@ -813,14 +813,10 @@ void SwitchStatement::Analyze( Compiler* pCompiler )
 {
 	m_pExpr->Push( pCompiler );
 
-	printf( "\n\nkiojds" );
-
 	if( m_pStateList ){
 		int label = pCompiler->MakeLabel();
 		int breakLabel = pCompiler->SetBreakLabel( label );
 		int defaultLabel = label;
-
-		printf( "\n\niojofei" );
 
 		CaseActionParam param( pCompiler, defaultLabel );
 

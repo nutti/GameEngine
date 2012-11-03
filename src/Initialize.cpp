@@ -1,6 +1,7 @@
 #include <MAPIL/MAPIL.h>
 
 #include "Initialize.h"
+#include "ResourceID.h"
 
 namespace GameEngine
 {
@@ -8,11 +9,13 @@ namespace GameEngine
 	{
 	private:
 		int				m_Counter;
+		ResourceMap		m_ResourceMap;
 	public:
 		Impl();
 		~Impl(){}
 		SceneType Update();
 		void Draw();
+		void AttachResourceMap( const ResourceMap& map );
 	};
 
 	Initialize::Impl::Impl()
@@ -30,11 +33,16 @@ namespace GameEngine
 	void Initialize::Impl::Draw()
 	{
 		MAPIL::BeginRendering2DGraphics();
-		MAPIL::DrawString( 300.0f, 240.0f, "Initializing... %d", m_Counter );
-
+		//MAPIL::DrawString( 300.0f, 240.0f, "Initializing... %d", m_Counter );
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+							0.0f, 0.0f, false );
 		MAPIL::EndRendering2DGraphics();
 	}
 
+	void Initialize::Impl::AttachResourceMap( const ResourceMap& map )
+	{
+		m_ResourceMap = map;
+	}
 
 	// ----------------------------------
 	// ŽÀ‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ
@@ -68,5 +76,6 @@ namespace GameEngine
 
 	void Initialize::AttachResourceMap( const ResourceMap& map )
 	{
+		m_pImpl->AttachResourceMap( map );
 	}
 }

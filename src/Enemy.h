@@ -32,6 +32,7 @@ namespace GameEngine
 		int			m_Score;			// スコア
 		int			m_IsBoss;			// ボスなら1
 		bool		m_Destroyed;		// 倒された場合はtrue
+		bool		m_IsInvincibleMode;	// 無敵状態の場合はtrue
 		StageData*	m_pStageData;		// ステージデータ
 		ItemDrop	m_ItemDrop[ 6 ];	// 落とすアイテムの状態
 		std::shared_ptr < ResourceMap >		m_pResouceMap;
@@ -64,6 +65,7 @@ namespace GameEngine
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
+
 	};
 }
 

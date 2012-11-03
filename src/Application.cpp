@@ -15,6 +15,8 @@
 
 #include "ScriptManager.h"
 
+#include "ResourceID.h"
+
 #include "Util.h"
 
 namespace GameEngine
@@ -55,6 +57,15 @@ namespace GameEngine
 	void Application::Impl::Init( bool wndMode )
 	{
 		MAPIL::InitMAPIL( "GameEngine", 640, 480 );
+		m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+												GLOBAL_RESOURCE_TEXTURE_ID_LOADING_1,
+												"archive/resource/texture/loading_1.png" );
+		m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+												GLOBAL_RESOURCE_TEXTURE_ID_LOADING_2,
+												"archive/resource/texture/loading_2.png" );
+		m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
+												GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE,
+												"archive/resource/texture/initialize.png" );
 		m_FPSManager.SetFPS( 60 );
 		m_FPSManager.SetPrecise( 10 );
 		m_pEventMediator->SendEvent( EVENT_TYPE_INITIALIZE );

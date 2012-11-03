@@ -33,6 +33,9 @@ namespace GameEngine
 		void SysSetEnemyShotCollisionRadius();
 		void SysSetEnemyShotStatus();
 		void SysSetEnemyShotMovement();
+		void SysGetEnemyShotCounter();
+		void SysGetEnemyShotPosX();
+		void SysGetEnemyShotPosY();
 
 		void SysPlaySE();
 		void SysStopSE();

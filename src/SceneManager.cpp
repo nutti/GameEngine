@@ -17,6 +17,8 @@
 #include "EventMediator.h"
 #include "EventTypes.h"
 
+#include "ResourceID.h"
+
 
 namespace GameEngine
 {
@@ -40,7 +42,10 @@ namespace GameEngine
 		int										m_RecordRank;			// スコアのランク
 		int										m_GameMode;				// ゲームモード
 
+		int										m_Counter;				// カウンタ
+
 		void PrepareScoreEntry();			// スコアエントリ状態遷移のための準備
+		void DrawLoading();					// ローディング状態の描画
 	public:
 		Impl( std::shared_ptr < EventMediator > pEventMediator );
 		~Impl(){}
@@ -78,6 +83,7 @@ namespace GameEngine
 		MAPIL::ZeroObject( &m_DisplayedReplayInfo, sizeof( m_DisplayedReplayInfo ) );
 		MAPIL::ZeroObject( &m_ReplayInfo, sizeof( m_ReplayInfo ) );
 		m_GameMode = GAME_MODE_NORMAL;
+		m_Counter = 0;
 	}
 
 	void SceneManager::Impl::PrepareScoreEntry()
@@ -114,17 +120,44 @@ namespace GameEngine
 		}
 	}
 
+	void SceneManager::Impl::DrawLoading()
+	{
+		MAPIL::BeginRendering2DGraphics();
+		if( ( m_Counter % 30 ) < 15 ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_LOADING_1 ],
+								400.0f, 300.0f, 0.7f, 0.7f, false, ( ( m_Counter % 30 ) * 4 + 130 ) << 24 | 0xFFFFFF );
+		}
+		else{
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_LOADING_1 ],
+								400.0f, 300.0f, 0.7f, 0.7f, false, ( ( 30 - m_Counter % 30 ) * 4 + 130 ) << 24 | 0xFFFFFF );
+		}
+		if( ( m_Counter % 40 ) < 10 ){
+			MAPIL::DrawTexture( m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_LOADING_2 ],
+								400.0f + ( m_Counter % 20 ) * 10.0f, 420.0f, 1.0f, 0.5f,
+								true, 0xFF0000FF | ( ( m_Counter % 10 ) * 255 / 10 ) << 16 | ( ( m_Counter % 10 ) * 255 / 10 ) << 8 );
+			MAPIL::DrawTexture( m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_LOADING_2 ],
+								600.0f - ( m_Counter % 20 ) * 10.0f, 350.0f, 1.0f, 0.5f,
+								true, 0xFF0000FF | ( ( m_Counter % 10 ) * 255 / 10 ) << 16 | ( ( m_Counter % 10 ) * 255 / 10 ) << 8 );
+		}
+		else if( ( m_Counter % 40 ) < 20 ){
+			MAPIL::DrawTexture( m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_LOADING_2 ],
+								400.0f + ( m_Counter % 20 ) * 10.0f, 420.0f, 1.0f, 0.5f,
+								true, 0xFF0000FF | ( ( 10 - m_Counter % 10 ) * 255 / 10 ) << 16 | ( ( 10 - m_Counter % 10 ) * 255 / 10 ) << 8 );
+			MAPIL::DrawTexture( m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_LOADING_2 ],
+								600.0f - ( m_Counter % 20 ) * 10.0f, 350.0f, 1.0f, 0.5f,
+								true, 0xFF0000FF | ( ( 10 - m_Counter % 10 ) * 255 / 10 ) << 16 | ( ( 10 - m_Counter % 10 ) * 255 / 10 ) << 8 );
+		}
+		MAPIL::EndRendering2DGraphics();
+	}
+
 	void SceneManager::Impl::Draw()
 	{
-		static int count = 0;
 		m_pCurScene->Draw();
 		if( m_CurSceneType == SCENE_TYPE_LOADING ){
-			MAPIL::BeginRendering2DGraphics();
-			MAPIL::DrawString( 200.0f, 200.0f, "Loading ... %d", count );
-			MAPIL::EndRendering2DGraphics();
+			DrawLoading();	
 		}
 
-		++count;
+		++m_Counter;
 	}
 
 	SceneType SceneManager::Impl::Update()
@@ -226,9 +259,9 @@ namespace GameEngine
 
 	void SceneManager::Impl::AttachButtonState( ButtonStatusHolder* pHolder )
 	{
-		if( m_CurSceneType != SCENE_TYPE_LOADING ){
+		//if( m_CurSceneType != SCENE_TYPE_LOADING ){
 			m_pCurScene->AttachButtonState( pHolder );
-		}
+		//}
 	}
 
 	void SceneManager::Impl::AttachDisplayedReplayInfo( const DisplayedReplayInfo& info )

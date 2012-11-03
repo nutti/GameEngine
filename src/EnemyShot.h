@@ -35,6 +35,7 @@ namespace GameEngine
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
+		int GetCounter() const;
 	};
 }
 

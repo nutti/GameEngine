@@ -590,7 +590,7 @@ namespace GameEngine
 		MAPIL::DrawString( 530.0f, 410.0f, "Effect : %d", m_Data.m_EffectList.size() );
 		MAPIL::DrawString( 530.0f, 430.0f, "PlayerShot : %d", m_Data.m_PlayerShotList.size() );
 		MAPIL::DrawString( 500.0f, 450.0f, "EnemyShotGroup : %d", m_Data.m_EnemyShotGroupList.size() );
-		
+		MAPIL::DrawString( 30.0f, 400.0f, "Frame : %d", m_Data.m_Frame );
 		
 		// 2Dï`âÊèIóπ
 		MAPIL::EndRendering2DGraphics();

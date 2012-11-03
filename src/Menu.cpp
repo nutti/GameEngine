@@ -42,6 +42,7 @@ namespace GameEngine
 	SceneType Menu::Impl::Update()
 	{
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
+			MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
 			switch( m_MenuPointed ){
 				case MENU_ID_GAME_START:
 					return SCENE_TYPE_STAGE;

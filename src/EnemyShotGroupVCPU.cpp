@@ -181,7 +181,7 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetPos( x, y );
 		}
 	}
@@ -194,7 +194,7 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetAngle( angle );
 		}
 	}
@@ -207,7 +207,7 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetSpeed( speed );
 		}
 	}
@@ -220,7 +220,7 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetImage( imgID );
 		}
 	}
@@ -233,7 +233,7 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetCollisionRadius( radius );
 		}
 	}
@@ -275,9 +275,56 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetAngle( angle );
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetSpeed( speed );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotCounter()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			Push( m_pEnemyShotGroupData->m_pShots[ id ]->GetCounter() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotPosX()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			float x;
+			float y;
+			m_pEnemyShotGroupData->m_pShots[ id ]->GetPos( &x, &y );
+			Push( x );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotPosY()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			float x;
+			float y;
+			m_pEnemyShotGroupData->m_pShots[ id ]->GetPos( &x, &y );
+			Push( y );
+		}
+		else{
+			Push( 0 );
 		}
 	}
 
@@ -345,6 +392,16 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT:
 				SysSetEnemyShotMovement();
+				break;
+			
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_COUNTER:
+				SysGetEnemyShotCounter();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X:
+				SysGetEnemyShotPosX();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y:
+				SysGetEnemyShotPosY();
 				break;
 
 			default:

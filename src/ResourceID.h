@@ -31,6 +31,9 @@ namespace GameEngine
 		GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL					= 70,	// クリスタル数
 		GLOBAL_RESOURCE_TEXTURE_ID_GAME_POWER					= 71,	// パワー
 		GLOBAL_RESOURCE_TEXTURE_ID_GAME_HP						= 72,	// HP
+		GLOBAL_RESOURCE_TEXTURE_ID_LOADING_1					= 73,	// ローディング時の画像
+		GLOBAL_RESOURCE_TEXTURE_ID_LOADING_2					= 74,	// ローディング時の画像
+		GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE					= 75,	// 初期化状態時の画像
 	};
 
 	enum GlobalResourceSEID
@@ -38,6 +41,7 @@ namespace GameEngine
 		GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE		= 4,		// モードチェンジ時
 		GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED			= 5,		// プレイヤーダメージ時
 		GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED			= 6,		// プレイヤー破壊時
+		GLOBAL_RESOURCE_SE_ID_MENU_SELECTED				= 7,		// メニュー選択時
 	};
 }
 

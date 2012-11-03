@@ -42,6 +42,7 @@ namespace GameEngine
 		void JoinShotGroup( int id, EnemyShotGroup* pGroup );
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 		float GetCollisionRadius() const;
+		int GetCounter() const;
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -85,7 +86,7 @@ namespace GameEngine
 		m_PosY -= m_Speed * ::sin( m_Angle );
 
 
-		if( m_PosX < 0.0f || m_PosX > 640.0f || m_PosY < -10.0f || m_PosY > 500.0f ){
+		if( m_PosX < 0.0f || m_PosX > 640.0f || m_PosY < -30.0f || m_PosY > 500.0f ){
 			return false;
 		}
 
@@ -144,6 +145,11 @@ namespace GameEngine
 	{
 		m_ShotGroupData.m_ID = id;
 		m_ShotGroupData.m_pShotGroup = pGroup;
+	}
+
+	inline int EnemyShot::Impl::GetCounter() const
+	{
+		return m_Counter;
 	}
 
 	// ----------------------------------
@@ -237,5 +243,10 @@ namespace GameEngine
 	void EnemyShot::JoinShotGroup( int id, EnemyShotGroup* pGroup )
 	{
 		m_pImpl->JoinShotGroup( id, pGroup );
+	}
+
+	int EnemyShot::GetCounter() const
+	{
+		return m_pImpl->GetCounter();
 	}
 }

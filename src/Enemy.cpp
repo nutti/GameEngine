@@ -28,6 +28,7 @@ namespace GameEngine
 		m_Data.m_Counter = 0;
 		m_Data.m_ConsGauge = 200;
 		m_Data.m_IsBoss = false;
+		m_Data.m_IsInvincibleMode = false;
 		m_Data.m_ConsType = 0;
 		m_Data.m_ShotGroupList.clear();
 	}
@@ -109,7 +110,10 @@ namespace GameEngine
 	{
 		if( !m_Data.m_Destroyed ){
 			m_Data.m_pStageData->m_FrameGameData.m_Score += 10;
-			m_Data.m_HP -= pPlayerShot->GetShotPower();
+			// –³“Gó‘Ô‚ÌŽž
+			if( !m_Data.m_IsInvincibleMode ){
+				m_Data.m_HP -= pPlayerShot->GetShotPower();
+			}
 			if( m_Data.m_HP <= 0 ){
 				m_Data.m_HP = 0;
 				m_Data.m_pStageData->m_FrameGameData.m_Score += m_Data.m_Score;

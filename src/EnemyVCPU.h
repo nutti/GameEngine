@@ -34,6 +34,8 @@ namespace GameEngine
 		void SysSetEnemyScore();
 		void SysSetEnemyBossFlag();
 		void SysSetEnemyConsGauge();
+		void SysEnemyEnableInvincible();
+		void SysEnemyDisableInvincible();
 
 		void SysCreateEnemyShot1();
 		void SysCreateEffect1();
