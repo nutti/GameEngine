@@ -16,17 +16,18 @@ namespace GameEngine
 	// スクリプトファイルの種類
 	enum ScriptType
 	{
-		SCRIPT_TYPE_ENEMY			= 0,
-		SCRIPT_TYPE_ENEMY_SHOT		= 1,
-		SCRIPT_TYPE_STAGE			= 2,
-		SCRIPT_TYPE_RESOURCE		= 3,
+		SCRIPT_TYPE_ENEMY				= 0,
+		SCRIPT_TYPE_ENEMY_SHOT			= 1,
+		SCRIPT_TYPE_STAGE				= 2,
+		SCRIPT_TYPE_STAGE_BACKGROUND	= 3,
+		SCRIPT_TYPE_RESOURCE			= 4,
 	};
 
 	// リソーススクリプトのリソースの種類
 	enum ScriptResourceType
 	{
 		SCRIPT_RESOURCE_TYPE_BGM		= 0,
-		SCRIPT_RESOURCE_TYPE_SE		= 1,
+		SCRIPT_RESOURCE_TYPE_SE			= 1,
 		SCRIPT_RESOURCE_TYPE_TEXTURE	= 2,
 	};
 
@@ -35,6 +36,7 @@ namespace GameEngine
 	{
 	private:
 		std::shared_ptr < StageScriptData >					m_pStageScriptData;		// ステージスクリプトデータ
+		std::shared_ptr < StageBackgroundScriptData >		m_pStageBackgroundScriptData;	// ステージ背景スクリプトデータ
 		std::shared_ptr < ResourceScriptData >				m_pResourceScriptData;	// リソーススクリプトデータ
 		std::shared_ptr < EnemyScriptData >					m_pEnemyScriptData;		// 敵スクリプトデータ
 		std::shared_ptr < EnemyShotGroupScriptData >		m_pEnemyShotGroupScriptData;	// 敵ショットスクリプトデータ
@@ -47,6 +49,8 @@ namespace GameEngine
 
 		void LoadStageScript( const std::string& fileName );					// ステージのスクリプトの読み込み
 		void LoadStageScript( int archiveHandle, const std::string& fileName );
+		void LoadStageBGScript( const std::string& fileName );					// ステージ背景のスクリプトの読み込み
+		void LoadStageBGScript( int archiveHandle, const std::string& fileName );
 		void LoadResourceScript( const std::string& fileName );					// リソーススクリプトの読み込み
 		void LoadResourceScript( int archiveHandle, const std::string& fileName );
 		void LoadEnemyScript( int id, const std::string& fileName );			// 敵のスクリプトの読み込み
@@ -147,6 +151,18 @@ namespace GameEngine
 	{
 		m_pStageScriptData.reset( new StageScriptData );
 		LoadScript( archiveHandle, fileName, &m_pStageScriptData->m_Data );
+	}
+
+	void ScriptLoader::Impl::LoadStageBGScript( const std::string& fileName )
+	{
+		m_pStageBackgroundScriptData.reset( new StageBackgroundScriptData );
+		LoadScript( fileName, &m_pStageBackgroundScriptData->m_Data );
+	}
+
+	void ScriptLoader::Impl::LoadStageBGScript( int archiveHandle, const std::string& fileName )
+	{
+		m_pStageBackgroundScriptData.reset( new StageBackgroundScriptData );
+		LoadScript( archiveHandle, fileName, &m_pStageBackgroundScriptData->m_Data );
 	}
 
 	void ScriptLoader::Impl::LoadResourceScript( const std::string& fileName )
@@ -268,6 +284,7 @@ namespace GameEngine
 		std::vector < ScriptFileTag > enemyScriptList;		// 敵のスクリプトファイルリスト
 		std::vector < ScriptFileTag > enemyShotScriptList;	// 敵弾のスクリプトファイルリスト
 		std::string stageScriptFileName;					// ステージスクリプトのファイル名
+		std::string stageScriptBGFileName;					// ステージ背景スクリプトのファイル名
 		std::string resourceScriptFileName;					// リソーススクリプトのファイル名
 		while( !fIn.eof() ){
 			char buf[ 1024 ];
@@ -282,6 +299,9 @@ namespace GameEngine
 			else if( !strcmp( buf, "[Stage]" ) ){
 				type = SCRIPT_TYPE_STAGE;
 			}
+			else if( !strcmp( buf, "[StageBackground]" ) ){
+				type = SCRIPT_TYPE_STAGE_BACKGROUND;
+			}
 			else if( !strcmp( buf, "[Resource]" ) ){
 				type = SCRIPT_TYPE_RESOURCE;
 			}
@@ -292,6 +312,9 @@ namespace GameEngine
 				// ファイル名取得
 				if( type == SCRIPT_TYPE_STAGE ){
 					stageScriptFileName = buf;
+				}
+				else if( type == SCRIPT_TYPE_STAGE_BACKGROUND ){
+					stageScriptBGFileName = buf;
 				}
 				else if( type == SCRIPT_TYPE_RESOURCE ){
 					resourceScriptFileName = buf;
@@ -312,6 +335,9 @@ namespace GameEngine
 
 		// ステージスクリプトの読み込み
 		LoadStageScript( stageScriptFileName );
+
+		// ステージ背景スクリプトの読み込み
+		LoadStageBGScript( stageScriptBGFileName );
 
 		// リソーススクリプトの読み込み
 		LoadResourceScript( resourceScriptFileName );
@@ -343,6 +369,7 @@ namespace GameEngine
 		std::vector < ScriptFileTag > enemyScriptList;		// 敵のスクリプト
 		std::vector < ScriptFileTag > enemyShotScriptList;	// 敵弾のスクリプト
 		char stageScriptFileName[ 1024 ];					// ステージスクリプトのファイル名
+		char stageScriptBGFileName[ 1024 ];					// ステージ背景スクリプトのファイル名
 		char resourceScriptFileName[ 1024 ];				// リソーススクリプトのファイル名
 		int type;		// スクリプトタイプ
 		while( pData != pEnd ){
@@ -357,6 +384,9 @@ namespace GameEngine
 			else if( !strcmp( buf, "[Stage]" ) ){
 				type = SCRIPT_TYPE_STAGE;
 			}
+			else if( !strcmp( buf, "[StageBackground]" ) ){
+				type = SCRIPT_TYPE_STAGE_BACKGROUND;
+			}
 			else if( !strcmp( buf, "[Resource]" ) ){
 				type = SCRIPT_TYPE_RESOURCE;
 			}
@@ -367,6 +397,9 @@ namespace GameEngine
 				// ファイル名取得
 				if( type == SCRIPT_TYPE_STAGE ){
 					::strcpy( stageScriptFileName, buf );
+				}
+				else if( type == SCRIPT_TYPE_STAGE_BACKGROUND ){
+					::strcpy( stageScriptBGFileName, buf );
 				}
 				else if( type == SCRIPT_TYPE_RESOURCE ){
 					::strcpy( resourceScriptFileName, buf );
@@ -389,6 +422,9 @@ namespace GameEngine
 
 		// ステージスクリプトの読み込み
 		LoadStageScript( archiveHandle, stageScriptFileName );
+
+		// ステージ背景スクリプトの読み込み
+		LoadStageBGScript( archiveHandle, stageScriptBGFileName );
 
 		// リソーススクリプトの読み込み
 		LoadResourceScript( archiveHandle, resourceScriptFileName );
@@ -415,6 +451,7 @@ namespace GameEngine
 		ScriptData data;
 
 		data.m_pStageScriptData = m_pStageScriptData;
+		data.m_pStageBackgroundScriptData = m_pStageBackgroundScriptData;
 		data.m_pEnemyScriptData = m_pEnemyScriptData;
 		data.m_pEnemyShotGroupScriptData = m_pEnemyShotGroupScriptData;
 		data.m_pResourceScriptData = m_pResourceScriptData;

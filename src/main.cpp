@@ -59,6 +59,9 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd 
 	catch( MAPIL::MapilException& e ){
 		::OutputDebugString( e.GetExceptionStr().c_str() );
 	}
+	catch( std::exception& e ){
+		::OutputDebugStringA( e.what() );
+	}
 
 	return 0;
 }

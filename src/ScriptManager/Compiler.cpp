@@ -89,6 +89,19 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STAGE_SET_FRAME, TYPE_VOID, "SetFrame", "i" );					// void SetFrame( frame );
 	AddFunction( VM::SYS_UPDATE, TYPE_VOID, "Update", "" );								// void Update();
 
+	// System call for stage background.
+	AddFunction( VM::SYS_STAGE_BACKGROUND_GET_COUNTER, TYPE_INTEGER, "StageBackgroundGetCounter", "" );	// int StageBackgroundGetCounter();
+
+	// System call for graphics.
+	AddFunction( VM::SYS_ENABLE_CAMERA, TYPE_VOID, "EnableCamera", "" );				// void EnableCamera();
+	AddFunction( VM::SYS_SET_CAMERA_PROJ, TYPE_VOID, "SetCameraProj", "ffff" );			// void SetCameraProj( fovy, aspect, near, far );
+	AddFunction( VM::SYS_SET_CAMERA_VIEW, TYPE_VOID, "SetCameraView", "fffffffff" );	// void SetCameraView( ex, ey, ez, lx, ly, lz, ux, uy, uz );
+	// void DrawRect3DP( texID, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4 );
+	AddFunction( VM::SYS_DRAW_RECTANGLE_3D_FIXED_COLOR_TEXCOORD, TYPE_VOID, "DrawRect3DP", "iffffffffffff" );
+	AddFunction( VM::SYS_BEGIN_3D_GRAPHICS, TYPE_VOID, "Begin3DGraphics", "" );		// void Begin3DGraphics();
+	AddFunction( VM::SYS_END_3D_GRAPHICS, TYPE_VOID, "End3DGraphics", "" );			// void End3DGraphics();
+	AddFunction( VM::SYS_ENABLE_FOG, TYPE_VOID, "EnableFog", "" );					// void EnableFog();
+
 	// Global variables.
 	m_Variables.push_back( ValueTable() );
 	m_Variables[ 0 ].SetGlobal();

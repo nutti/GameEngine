@@ -18,6 +18,7 @@
 #include "ResourceID.h"
 
 #include "StageVCPU.h"
+#include "StageBackground.h"
 
 #include "ScoreManager.h"
 
@@ -34,6 +35,7 @@ namespace GameEngine
 		ScoreManager				m_ScoreManager;		// スコア管理クラス
 
 		StageVCPU					m_VM;				// 仮想マシン
+		StageBackground				m_Background;		// 背景
 
 		void ProcessCollision();		// 衝突判定
 		void UpdateGameObjects();		// 全GameObjectの更新
@@ -66,7 +68,8 @@ namespace GameEngine
 	Stage::Impl::Impl( int stageNo, bool isReplay )	:	m_ButtonStatus(),
 														m_Data(),
 														m_VM(),
-														m_ScoreManager()
+														m_ScoreManager(),
+														m_Background( stageNo )
 	{
 		m_Data.m_EnemyList.clear();
 		m_Data.m_EnemyShotList.clear();
@@ -295,6 +298,9 @@ namespace GameEngine
 		m_Data.m_pPlayer = reinterpret_cast < Player* > ( m_Data.m_ObjBuilder.CreateCollisionObject( GAME_OBJECT_ID_PLAYER ) );
 		MAPIL::ZeroObject( &m_Data.m_FrameGameData, sizeof( m_Data.m_FrameGameData ) );
 		MAPIL::ZeroObject( &m_Data.m_GameData, sizeof( m_Data.m_GameData ) );
+		m_Background.AttachStageData( &m_Data );
+		m_Background.AttachScriptData( m_ScriptData );
+		m_Background.Init();
 	}
 
 	SceneType Stage::Impl::Update()
@@ -304,6 +310,9 @@ namespace GameEngine
 
 		// ランダムジェネレータの更新
 		m_Data.m_RandGen.Update( m_Data );
+
+		// 背景の更新
+		m_Background.Update();
 
 		//static EnemyShotGroup group( NULL, &m_Data );
 		//static int id = 5;
@@ -323,12 +332,14 @@ namespace GameEngine
 		// ステージ向けのメッセージを処理
 		ProcessMessage();
 		if( m_Data.m_HasTermSig ){
+			m_Background.Terminate();
 			return SCENE_TYPE_SCORE_ENTRY;
 		}
 
 		// スクリプトコマンドの実行
 		m_VM.Run();
 		if( m_VM.Terminated() ){
+			m_Background.Terminate();
 			return SCENE_TYPE_SCORE_ENTRY;
 		}
 
@@ -355,6 +366,9 @@ namespace GameEngine
 
 	void Stage::Impl::Draw()
 	{
+		// 背景の描画
+		m_Background.Draw();
+
 		// 2D画像描画開始
 		MAPIL::BeginRendering2DGraphics();
 

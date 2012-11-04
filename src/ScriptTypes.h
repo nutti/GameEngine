@@ -45,6 +45,12 @@ namespace GameEngine
 			MAPIL::SafeDeleteArray( m_pElm );
 		}
 	};
+	
+	struct StageBackgroundScriptData
+	{
+		int				m_ID;		// 識別番号
+		VM::Data		m_Data;		// スクリプトデータ本体
+	};
 
 	struct ResourceScriptData
 	{
@@ -57,6 +63,7 @@ namespace GameEngine
 	struct ScriptData
 	{
 		std::shared_ptr < StageScriptData >					m_pStageScriptData;
+		std::shared_ptr < StageBackgroundScriptData >		m_pStageBackgroundScriptData;
 		std::shared_ptr < EnemyScriptData >					m_pEnemyScriptData;
 		std::shared_ptr < EnemyShotGroupScriptData >		m_pEnemyShotGroupScriptData;
 		std::shared_ptr < ResourceScriptData >				m_pResourceScriptData;

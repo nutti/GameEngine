@@ -85,13 +85,24 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_GET_COUNTER,
 		SYS_ENEMY_SHOT_GROUP_GET_POS_X,
 		SYS_ENEMY_SHOT_GROUP_GET_POS_Y,
-		
 
 		// For stage script.
 		SYS_STAGE_ADD_ENEMY,		// Add enemy.
 		SYS_STAGE_ADD_ENEMY_INIPOS,	// Add enemy with initial position.
 		SYS_STAGE_GET_FRAME,		// Get frame count.
 		SYS_STAGE_SET_FRAME,		// Set frame count.
+
+		// For stage background.
+		SYS_STAGE_BACKGROUND_GET_COUNTER,	// Get count.
+
+		// For graphics.
+		SYS_ENABLE_CAMERA,			// Enable camera.
+		SYS_SET_CAMERA_PROJ,		// Set camera projection matrix.
+		SYS_SET_CAMERA_VIEW,		// Set camera view matrix.
+		SYS_DRAW_RECTANGLE_3D_FIXED_COLOR_TEXCOORD,		// Draw polygon 3D. (Fixed color and texture coordinate.)
+		SYS_BEGIN_3D_GRAPHICS,		// Begin 3D Graphics.
+		SYS_END_3D_GRAPHICS,		// End 3D Graphics.
+		SYS_ENABLE_FOG,			// Enable fog effect.
 	};
 
 	class Data
@@ -126,7 +137,7 @@ namespace VM
 	class VCPU
 	{
 	public:
-		const static int STACK_SIZE = 200;			// Stack size.
+		const static int STACK_SIZE = 300;			// Stack size.
 		const static int GLOBAL_FLAG = 0x4000000;	// Flag for the global variable.
 		const static int GLOBAL_MASK = 0x3ffffff;
 	protected:
