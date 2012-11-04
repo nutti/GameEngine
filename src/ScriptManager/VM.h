@@ -103,6 +103,8 @@ namespace VM
 		SYS_BEGIN_3D_GRAPHICS,		// Begin 3D Graphics.
 		SYS_END_3D_GRAPHICS,		// End 3D Graphics.
 		SYS_ENABLE_FOG,			// Enable fog effect.
+		SYS_SET_FOG_PARAM,		// Set fog parameter.
+		SYS_DRAW_MODEL_FIXED_SCALE_ROT,				// Draw 3D model.
 	};
 
 	class Data

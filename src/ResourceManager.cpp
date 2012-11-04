@@ -49,9 +49,11 @@ namespace GameEngine
 		const int INITIAL_TEXTURE_MAP_RESERVE_CAP = 100;			// 初期のテクスチャMAP許容量
 		const int INITIAL_SE_MAP_RESERVE_CAP = 50;				// 初期のSEMAP許容量
 		const int INITIAL_BGM_MAP_RESERVE_CAP = 50;				// 初期のBGMMAP許容量
+		const int INITIAL_MODEL_MAP_RESERVE_CAP = 50;			// 初期のモデルMAP許容量
 		m_ResourceMap.m_pGlobalResourceMap->m_TextureMap.resize( INITIAL_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_SEMap.resize( INITIAL_SE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_BGMMap.resize( INITIAL_BGM_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pGlobalResourceMap->m_ModelMap.resize( INITIAL_MODEL_MAP_RESERVE_CAP, -1 );
 
 
 		m_ResourceMap.m_pStageResourceMap.reset( new ResourceMap::StageResourceMapElm );
@@ -59,9 +61,11 @@ namespace GameEngine
 		const int INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP = 100;				// 初期のテクスチャMAP許容量
 		const int INITIAL_STAGE_SE_MAP_RESERVE_CAP = 50;					// 初期のSEMAP許容量
 		const int INITIAL_STAGE_BGM_MAP_RESERVE_CAP = 50;					// 初期のBGMMAP許容量
+		const int INITIAL_STAGE_MODEL_MAP_RESERVE_CAP = 50;					// 初期のモデルMAP許容量
 		m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( INITIAL_STAGE_SE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( INITIAL_STAGE_BGM_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( INITIAL_STAGE_MODEL_MAP_RESERVE_CAP, -1 );
 	}
 
 	void ResourceManager::Impl::LoadStageResources( const ScriptData& data )
@@ -101,6 +105,17 @@ namespace GameEngine
 			int id = MAPIL::CreateStreamingBuffer( it->second.c_str() );
 			m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
 		}
+		// 3Dモデルの読み込み
+		typedef std::map < int, std::string > ::iterator	ModelIter;
+		for(	ModelIter it = pScriptData->m_ModelList.begin();
+				it != pScriptData->m_ModelList.end();
+				++it ){
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_ModelMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( it->first * 2 );
+			}
+			int id = MAPIL::CreateModel( it->second.c_str() );
+			m_ResourceMap.m_pStageResourceMap->m_ModelMap[ it->first ] = id;
+		}
 	}
 
 	void ResourceManager::Impl::ReleaseStageResources()
@@ -126,6 +141,13 @@ namespace GameEngine
 				m_ResourceMap.m_pStageResourceMap->m_BGMMap[ i ] = -1;
 			}
 		}
+		// モデルの削除
+		for( int i = 0; i < m_ResourceMap.m_pStageResourceMap->m_ModelMap.size(); ++i ){
+			if( m_ResourceMap.m_pStageResourceMap->m_ModelMap[ i ] != -1 ){
+				MAPIL::DeleteModel( m_ResourceMap.m_pStageResourceMap->m_ModelMap[ i ] );
+				m_ResourceMap.m_pStageResourceMap->m_ModelMap[ i ] = -1;
+			}
+		}
 	}
 
 	ResourceMap ResourceManager::Impl::GetStageResourceMap()
@@ -149,6 +171,11 @@ namespace GameEngine
 			case RESOURCE_TYPE_TEXTURE:{
 				int id = MAPIL::CreateTexture( fileName.c_str() );
 				m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ index ] = id;
+				break;
+			}
+			case RESOURCE_TYPE_MODEL:{
+				int id = MAPIL::CreateModel( fileName.c_str() );
+				m_ResourceMap.m_pGlobalResourceMap->m_ModelMap[ index ] = id;
 				break;
 			}
 			default:

@@ -20,6 +20,8 @@ namespace GameEngine
 		void SysBegin3DGraphics();
 		void SysEnd3DGraphics();
 		void SysEnableFog();
+		void SysSetFogParam();
+		void SysDrawModelP();
 	public:
 		StageBackgroundVCPU();
 		~StageBackgroundVCPU();

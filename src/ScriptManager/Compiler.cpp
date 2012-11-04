@@ -101,6 +101,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_BEGIN_3D_GRAPHICS, TYPE_VOID, "Begin3DGraphics", "" );		// void Begin3DGraphics();
 	AddFunction( VM::SYS_END_3D_GRAPHICS, TYPE_VOID, "End3DGraphics", "" );			// void End3DGraphics();
 	AddFunction( VM::SYS_ENABLE_FOG, TYPE_VOID, "EnableFog", "" );					// void EnableFog();
+	AddFunction( VM::SYS_SET_FOG_PARAM, TYPE_VOID, "SetFogParam", "iiiiifff" );		// void SetFogParam( color_a, color_r, color_g, color_b, mode, begin, end, density );
+	AddFunction( VM::SYS_DRAW_MODEL_FIXED_SCALE_ROT, TYPE_VOID, "DrawModelP", "ifff" );		// void DrawModelP( index, x, y, z );
 
 	// Global variables.
 	m_Variables.push_back( ValueTable() );

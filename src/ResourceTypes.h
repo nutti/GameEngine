@@ -31,6 +31,7 @@ namespace GameEngine
 		RESOURCE_TYPE_SE				= 1,
 		RESOURCE_TYPE_TEXTURE			= 2,
 		RESOURCE_TYPE_MULTI_TEXTURE		= 3,
+		RESOURCE_TYPE_MODEL				= 4,
 	};
 
 	// リソース対応関係
@@ -42,6 +43,7 @@ namespace GameEngine
 			std::vector < int >		m_BGMMap;		// BGM
 			std::vector < int >		m_SEMap;		// SE
 			std::vector < int >		m_TextureMap;	// テクスチャ
+			std::vector < int >		m_ModelMap;		// 3Dモデル
 		};
 		// グローバルリソース
 		struct GlobalResourceMapElm
@@ -49,6 +51,7 @@ namespace GameEngine
 			std::vector < int >		m_BGMMap;		// BGM
 			std::vector < int >		m_SEMap;		// SE
 			std::vector < int >		m_TextureMap;	// テクスチャ
+			std::vector < int >		m_ModelMap;		// 3Dモデル
 		};
 		std::shared_ptr < StageResourceMapElm >		m_pStageResourceMap;
 		std::shared_ptr < GlobalResourceMapElm >	m_pGlobalResourceMap;

@@ -57,6 +57,7 @@ namespace GameEngine
 		std::map < int, std::string >		m_BGMList;
 		std::map < int, std::string >		m_SEList;
 		std::map < int, std::string >		m_TextureList;
+		std::map < int, std::string >		m_ModelList;
 	};
 
 	// メッセージ通信用スクリプトデータ

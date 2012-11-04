@@ -30,6 +30,7 @@ namespace GameEngine
 		RESOURCE_TYPE_BGM		= 0,
 		RESOURCE_TYPE_SE		= 1,
 		RESOURCE_TYPE_TEXTURE	= 2,
+		RESOURCE_TYPE_MODEL		= 3,
 	};
 
 	// ScriptCompilerŽÀ‘•ƒNƒ‰ƒX
@@ -115,6 +116,9 @@ namespace GameEngine
 			else if( !strcmp( buf, "[Texture]" ) ){
 				type = RESOURCE_TYPE_TEXTURE;
 			}
+			else if( !strcmp( buf, "[Model]" ) ){
+				type = RESOURCE_TYPE_MODEL;
+			}
 			else if( !strcmp( buf, "" ) ){
 				// –³Ž‹
 			}
@@ -128,6 +132,9 @@ namespace GameEngine
 				}
 				else if( type == RESOURCE_TYPE_TEXTURE ){
 					m_pResourceScriptData->m_TextureList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf ) ) );
+				}
+				else if( type == RESOURCE_TYPE_MODEL ){
+					m_pResourceScriptData->m_ModelList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf ) ) );
 				}
 			}
 		}

@@ -314,21 +314,6 @@ namespace GameEngine
 		// 背景の更新
 		m_Background.Update();
 
-		//static EnemyShotGroup group( NULL, &m_Data );
-		//static int id = 5;
-
-		//if( m_Data.m_Frame == 60 ){
-		//	id = group.CreateShot();
-		//	group.SetShotStatus( id, 250.0f, 100.0f, MAPIL::DegToRad( -90.0f ), 1.0f, 5.0f, 0 );
-		//	id = group.CreateShot();
-		//	group.SetShotStatus( id, 300.0f, 100.0f, MAPIL::DegToRad( -80.0f ), 1.0f, 5.0f, 0 );
-		//}
-
-		//if( group.IsEmpty() ){
-		//	int i = 0;
-		//	++i;
-		//}
-
 		// ステージ向けのメッセージを処理
 		ProcessMessage();
 		if( m_Data.m_HasTermSig ){
@@ -366,6 +351,16 @@ namespace GameEngine
 
 	void Stage::Impl::Draw()
 	{
+		static bool isFirst = true;
+		static int light;
+
+		if( isFirst ){
+			//light = MAPIL::createdirec
+			isFirst = false;
+		}
+
+		MAPIL::EnableLighting();
+
 		// 背景の描画
 		m_Background.Draw();
 

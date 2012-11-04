@@ -116,6 +116,47 @@ namespace GameEngine
 		MAPIL::EnableFog();
 	}
 
+	void StageBackgroundVCPU::SysSetFogParam()
+	{
+		Pop();
+		float density = Top().m_Float;
+		Pop();
+		float end = Top().m_Float;
+		Pop();
+		float begin = Top().m_Float;
+		Pop();
+		int mode = Top().m_Integer;
+		Pop();
+		int colorB = Top().m_Integer;
+		Pop();
+		int colorG = Top().m_Integer;
+		Pop();
+		int colorR = Top().m_Integer;
+		Pop();
+		int colorA = Top().m_Integer;
+		Pop();
+
+		MAPIL::SetFogParam(	MAPIL::GetColorARGBValue( static_cast < unsigned char > ( colorA & 0xFF ), colorR & 0xFF, colorG & 0xFF, colorB & 0xFF ),
+							mode, begin, end, density );
+	}
+
+	void StageBackgroundVCPU::SysDrawModelP()
+	{
+		Pop();
+		float z = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		MAPIL::Matrix4x4 < float >  mat;
+		MAPIL::CreateTranslationMat( &mat, x, y, z );
+		MAPIL::DrawModel( m_pStageBGData->m_pStageData->m_ResourceMap.m_pStageResourceMap->m_ModelMap[ id ], mat );
+	}
+
 	void StageBackgroundVCPU::Init( VM::Data* pData, StageBackgroundData* pStageBGData )
 	{
 		m_pData = pData;
@@ -150,6 +191,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENABLE_FOG:			// Enable fog effect.
 				SysEnableFog();
+				break;
+			case VM::SYS_SET_FOG_PARAM:
+				SysSetFogParam();
+				break;
+			case VM::SYS_DRAW_MODEL_FIXED_SCALE_ROT:
+				SysDrawModelP();
 				break;
 
 			default:
