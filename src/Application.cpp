@@ -56,16 +56,17 @@ namespace GameEngine
 	// ‰Šú‰»ˆ—
 	void Application::Impl::Init( bool wndMode )
 	{
-		MAPIL::InitMAPIL( "GameEngine", 640, 480 );
-		m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
-												GLOBAL_RESOURCE_TEXTURE_ID_LOADING_1,
-												"archive/resource/texture/loading_1.png" );
-		m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
-												GLOBAL_RESOURCE_TEXTURE_ID_LOADING_2,
-												"archive/resource/texture/loading_2.png" );
-		m_pResourceManager->LoadGlobalResource(	RESOURCE_TYPE_TEXTURE,
-												GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE,
-												"archive/resource/texture/initialize.png" );
+		MAPIL::InitMAPIL( "eriKs", 640, 480 );
+		m_pResourceManager->OpenArchive( "resource.dat" );
+		m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
+															GLOBAL_RESOURCE_TEXTURE_ID_LOADING_1,
+															"archive/resource/texture/loading_1.png" );
+		m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
+															GLOBAL_RESOURCE_TEXTURE_ID_LOADING_2,
+															"archive/resource/texture/loading_2.png" );
+		m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
+															GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE,
+															"archive/resource/texture/initialize.png" );
 		m_FPSManager.SetFPS( 60 );
 		m_FPSManager.SetPrecise( 10 );
 		m_pEventMediator->SendEvent( EVENT_TYPE_INITIALIZE );
@@ -101,7 +102,7 @@ namespace GameEngine
 				MAPIL::DisableLighting();
 				MAPIL::EnableZBuffering();
 				MAPIL::SetTextureMode( MAPIL::TEXTURE_MODE_2D );
-				MAPIL::SetCullingMode( MAPIL::CULL_MODE_DISABLED );
+				MAPIL::SetCullingMode( MAPIL::CULL_MODE_COUNTERCLOCKWISE );
 				MAPIL::SetAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
 				MAPIL::SetViewPort( 0, 0, 640, 480 );
 

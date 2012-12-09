@@ -71,6 +71,7 @@ namespace VM
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)
 		SYS_ENEMY_CREATE_SHOT_GROUP,		// Create shot group.
+		SYS_ENEMY_CREATE_SHOT_GROUP_REG,	// Create shot group. (1 Register)
 		SYS_CREATE_ITEM,		// Create item.
 
 		// For enemy shot group.
@@ -85,26 +86,34 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_GET_COUNTER,
 		SYS_ENEMY_SHOT_GROUP_GET_POS_X,
 		SYS_ENEMY_SHOT_GROUP_GET_POS_Y,
+		SYS_ENEMY_SHOT_GROUP_GET_REG,
 
 		// For stage script.
-		SYS_STAGE_ADD_ENEMY,		// Add enemy.
-		SYS_STAGE_ADD_ENEMY_INIPOS,	// Add enemy with initial position.
-		SYS_STAGE_GET_FRAME,		// Get frame count.
-		SYS_STAGE_SET_FRAME,		// Set frame count.
+		SYS_STAGE_ADD_ENEMY,				// Add enemy.
+		SYS_STAGE_ADD_ENEMY_INIPOS,			// Add enemy with initial position.
+		SYS_STAGE_GET_FRAME,				// Get frame count.
+		SYS_STAGE_SET_FRAME,				// Set frame count.
+		SYS_STAGE_PROC_ENEMY_PATTERN_FILE,	// Process enemy pattern file.
 
 		// For stage background.
 		SYS_STAGE_BACKGROUND_GET_COUNTER,	// Get count.
 
 		// For graphics.
-		SYS_ENABLE_CAMERA,			// Enable camera.
-		SYS_SET_CAMERA_PROJ,		// Set camera projection matrix.
-		SYS_SET_CAMERA_VIEW,		// Set camera view matrix.
+		SYS_ENABLE_CAMERA,								// Enable camera.
+		SYS_SET_CAMERA_PROJ,							// Set camera projection matrix.
+		SYS_SET_CAMERA_VIEW,							// Set camera view matrix.
 		SYS_DRAW_RECTANGLE_3D_FIXED_COLOR_TEXCOORD,		// Draw polygon 3D. (Fixed color and texture coordinate.)
-		SYS_BEGIN_3D_GRAPHICS,		// Begin 3D Graphics.
-		SYS_END_3D_GRAPHICS,		// End 3D Graphics.
-		SYS_ENABLE_FOG,			// Enable fog effect.
-		SYS_SET_FOG_PARAM,		// Set fog parameter.
-		SYS_DRAW_MODEL_FIXED_SCALE_ROT,				// Draw 3D model.
+		SYS_BEGIN_3D_GRAPHICS,							// Begin 3D Graphics.
+		SYS_END_3D_GRAPHICS,							// End 3D Graphics.
+		SYS_ENABLE_FOG,									// Enable fog effect.
+		SYS_SET_FOG_PARAM,								// Set fog parameter.
+		SYS_DRAW_MODEL_FIXED_SCALE_ROT,					// Draw 3D model.
+		SYS_SET_DIRLIGHT_DIR,							// Set direction for directional light.
+		SYS_SET_DIRLIGHT_AMB_COLOR,						// Set ambient color for directional light.
+		SYS_SET_DIRLIGHT_DIF_COLOR,						// Set diffuse color for directional light.
+		SYS_SET_DIRLIGHT_SPC_COLOR,						// Set specular color for directional light.
+		SYS_SET_DIRLIGHT_ATTEN,							// Set attenuation for directional light.
+		SYS_ENABLE_DIRLIGHT,							// Enable directional light.
 	};
 
 	class Data
@@ -139,7 +148,7 @@ namespace VM
 	class VCPU
 	{
 	public:
-		const static int STACK_SIZE = 300;			// Stack size.
+		const static int STACK_SIZE = 400;			// Stack size.
 		const static int GLOBAL_FLAG = 0x4000000;	// Flag for the global variable.
 		const static int GLOBAL_MASK = 0x3ffffff;
 	protected:

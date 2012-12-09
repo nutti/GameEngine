@@ -57,6 +57,7 @@ namespace GameEngine
 	EventMediator::Impl::~Impl()
 	{
 		m_Loading.Terminate();
+		Sleep( 100 );
 	}
 
 	void EventMediator::Impl::FrameUpdate()
@@ -203,7 +204,10 @@ namespace GameEngine
 											"archive/resource/texture/game_hp.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
 											GLOBAL_RESOURCE_SE_ID_MENU_SELECTED,
-											"archive/resource/se/select.wav", false );
+											"archive/resource/se/select.wav", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_BGM,
+											GLOBAL_RESOURCE_BGM_ID_MENU,
+											"archive/resource/bgm/title.wav", true );
 		m_Loading.Start();
 	}
 
@@ -212,7 +216,7 @@ namespace GameEngine
 		switch( type ){
 			// ‰Šú‰»—v‹
 			case EVENT_TYPE_INITIALIZE:{
-				m_pResourceManager->OpenArchive( "resource.dat" );
+				//m_pResourceManager->OpenArchive( "resource.dat" );
 				m_pGameStateManager->StartGameDataRecording();
 				m_pSceneManager->ChangeScene( SCENE_TYPE_INITIALIZE );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );

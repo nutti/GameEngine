@@ -84,11 +84,11 @@ namespace GameEngine
 
 		if( m_ShotID == PLAYER_SHOT_ID_RED_MAIN ){
 			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_RED_MAIN ],
-								m_PosX, m_PosY, m_Angle - static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+								m_PosX, m_PosY, m_Angle - static_cast < float > ( MAPIL::DegToRad( 90.0f ) ), true, 0x55FFFFFF );
 		}
 		else if( m_ShotID == PLAYER_SHOT_ID_BLUE_MAIN ){
 			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_BLUE_MAIN ],
-								m_PosX, m_PosY, 1.0f + ( m_ShotPower - 4 ) * 0.3f, 1.0f );
+								m_PosX, m_PosY, 1.0f + ( m_ShotPower - 4 ) * 0.3f, 1.0f, true, 0x55FFFFFF );
 		}
 	}
 

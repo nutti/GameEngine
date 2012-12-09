@@ -157,6 +157,105 @@ namespace GameEngine
 		MAPIL::DrawModel( m_pStageBGData->m_pStageData->m_ResourceMap.m_pStageResourceMap->m_ModelMap[ id ], mat );
 	}
 
+	void StageBackgroundVCPU::SysSetDirLightDir()
+	{
+		Pop();
+		float z = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		MAPIL::SetDirLightDirection( id, x, y, z );
+	}
+
+	void StageBackgroundVCPU::SysSetDirLightAmbColor()
+	{
+		Pop();
+		int b = Top().m_Integer;
+		Pop();
+		int g = Top().m_Integer;
+		Pop();
+		int r = Top().m_Integer;
+		Pop();
+		int a = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		MAPIL::SetDirLightAmbColor( id, ( a & 0xFF ) << 24 | ( r & 0xFF ) << 16 |
+										( g & 0xFF ) << 8 | ( b & 0xFF ) );
+	}
+
+	void StageBackgroundVCPU::SysSetDirLightDifColor()
+	{
+		Pop();
+		int b = Top().m_Integer;
+		Pop();
+		int g = Top().m_Integer;
+		Pop();
+		int r = Top().m_Integer;
+		Pop();
+		int a = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		MAPIL::SetDirLightDifColor( id, ( a & 0xFF ) << 24 | ( r & 0xFF ) << 16 |
+										( g & 0xFF ) << 8 | ( b & 0xFF ) );
+	}
+
+	void StageBackgroundVCPU::SysSetDirLightSpcColor()
+	{
+		Pop();
+		int b = Top().m_Integer;
+		Pop();
+		int g = Top().m_Integer;
+		Pop();
+		int r = Top().m_Integer;
+		Pop();
+		int a = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		MAPIL::SetDirLightSpcColor( id, ( a & 0xFF ) << 24 | ( r & 0xFF ) << 16 |
+										( g & 0xFF ) << 8 | ( b & 0xFF ) );
+	}
+
+	void StageBackgroundVCPU::SysSetDirLightAtten()
+	{
+		Pop();
+		float atten2 = Top().m_Float;
+		Pop();
+		float atten1 = Top().m_Float;
+		Pop();
+		float atten0 = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		MAPIL::SetDirLightAttenuation( id, atten0, atten1, atten2 );
+	}
+
+	void StageBackgroundVCPU::SysEnableDirLight()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		MAPIL::EnableDirLight( id );
+	}
+
+	void StageBackgroundVCPU::SysStageGetFrame()
+	{
+		Pop();
+		Push( m_pStageBGData->m_pStageData->m_Frame );
+	}
+
 	void StageBackgroundVCPU::Init( VM::Data* pData, StageBackgroundData* pStageBGData )
 	{
 		m_pData = pData;
@@ -197,6 +296,28 @@ namespace GameEngine
 				break;
 			case VM::SYS_DRAW_MODEL_FIXED_SCALE_ROT:
 				SysDrawModelP();
+				break;
+			case VM::SYS_SET_DIRLIGHT_DIR:
+				SysSetDirLightDir();
+				break;
+			case VM::SYS_SET_DIRLIGHT_DIF_COLOR:
+				SysSetDirLightDifColor();
+				break;
+			case VM::SYS_SET_DIRLIGHT_AMB_COLOR:
+				SysSetDirLightAmbColor();
+				break;
+			case VM::SYS_SET_DIRLIGHT_SPC_COLOR:
+				SysSetDirLightSpcColor();
+				break;
+			case VM::SYS_SET_DIRLIGHT_ATTEN:
+				SysSetDirLightAtten();
+				break;
+			case VM::SYS_ENABLE_DIRLIGHT:
+				SysEnableDirLight();
+				break;
+				
+			case VM::SYS_STAGE_GET_FRAME:
+				SysStageGetFrame();
 				break;
 
 			default:

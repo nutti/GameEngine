@@ -328,6 +328,18 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysGetStageFrame()
+	{
+		Pop();
+		Push( m_pEnemyShotGroupData->m_pStageData->m_Frame );
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotGroupReg()
+	{
+		Pop();
+		Push( m_pEnemyShotGroupData->m_Reg );
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -402,6 +414,13 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y:
 				SysGetEnemyShotPosY();
+				break;
+
+			case VM::SYS_STAGE_GET_FRAME:
+				SysGetStageFrame();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_REG:
+				SysGetEnemyShotGroupReg();
 				break;
 
 			default:

@@ -25,7 +25,9 @@ namespace GameEngine
 
 	int GetInt( char** p );
 
-	int GetFileSize( std::fstream &f );
+	int GetFileSize( std::fstream& f );
+
+	void LoadFile( std::fstream& f, char* pBuf, int size );
 
 	void GetLineFromString( char** pStr, char* pEnd, char* pOut, int outSize );
 

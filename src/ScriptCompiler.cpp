@@ -27,10 +27,11 @@ namespace GameEngine
 	// リソーススクリプトのリソースの種類
 	enum ResourceType
 	{
-		RESOURCE_TYPE_BGM		= 0,
-		RESOURCE_TYPE_SE		= 1,
-		RESOURCE_TYPE_TEXTURE	= 2,
-		RESOURCE_TYPE_MODEL		= 3,
+		RESOURCE_TYPE_BGM					= 0,
+		RESOURCE_TYPE_SE					= 1,
+		RESOURCE_TYPE_TEXTURE				= 2,
+		RESOURCE_TYPE_MODEL					= 3,
+		RESOURCE_TYPE_ENEMY_PATTERN_FILE	= 4,
 	};
 
 	// ScriptCompiler実装クラス
@@ -43,8 +44,8 @@ namespace GameEngine
 		std::shared_ptr < EnemyScriptData >					m_pEnemyScriptData;				// 敵スクリプトデータ
 		std::shared_ptr < EnemyShotGroupScriptData >		m_pEnemyShotGroupScriptData;	// 敵ショットスクリプトデータ
 
-		int GetID( const char* pStr );		// データ列から、IDを取得する
-		char* GetFileName( char* pStr );	// データ列から、ファイル名を取得する
+		int GetID( const char* pStr );					// データ列から、IDを取得する
+		char* GetFileName( char* pStr, int column );	// データ列から、ファイル名を取得する
 
 		void CompileStageScript( const std::string& fileName );				// ステージのスクリプトのコンパイル
 		void CompileStageBackgroundScript( const std::string& fileName );	// ステージ背景のスクリプトのコンパイル
@@ -75,9 +76,11 @@ namespace GameEngine
 		return ::atoi( buf );
 	}
 
-	char* ScriptCompiler::Impl::GetFileName( char* pStr )
+	char* ScriptCompiler::Impl::GetFileName( char* pStr, int column )
 	{
-		while( *pStr++ != ' ' ){
+		for( int i = 0; i < column; ++i ){
+			while( *pStr++ != ' ' ){
+			}
 		}
 
 		return pStr;
@@ -119,22 +122,31 @@ namespace GameEngine
 			else if( !strcmp( buf, "[Model]" ) ){
 				type = RESOURCE_TYPE_MODEL;
 			}
+			else if( !strcmp( buf, "[EnemyPatternFile]" ) ){
+				type = RESOURCE_TYPE_ENEMY_PATTERN_FILE;
+			}
 			else if( !strcmp( buf, "" ) ){
 				// 無視
 			}
 			else{
 				// ファイル名取得
 				if( type == RESOURCE_TYPE_BGM ){
-					m_pResourceScriptData->m_BGMList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf ) ) );
+					m_pResourceScriptData->m_BGMList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf, 1 ) ) );
 				}
 				else if( type == RESOURCE_TYPE_SE ){
-					m_pResourceScriptData->m_SEList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf ) ) );
+					m_pResourceScriptData->m_SEList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf, 1 ) ) );
 				}
 				else if( type == RESOURCE_TYPE_TEXTURE ){
-					m_pResourceScriptData->m_TextureList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf ) ) );
+					m_pResourceScriptData->m_TextureList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf, 1 ) ) );
 				}
 				else if( type == RESOURCE_TYPE_MODEL ){
-					m_pResourceScriptData->m_ModelList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf ) ) );
+					ResourceScriptData::ModelResourceData data;
+					data.m_ModelFileName = GetFileName( buf, 1 );
+					data.m_TextureFileName = GetFileName( buf, 2 );
+					m_pResourceScriptData->m_ModelList.insert( std::pair < int, ResourceScriptData::ModelResourceData > ( GetID( buf ), data ) );
+				}
+				else if( type == RESOURCE_TYPE_ENEMY_PATTERN_FILE ){
+					m_pResourceScriptData->m_EnemyPatternList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf, 1 ) ) );
 				}
 			}
 		}
@@ -207,7 +219,7 @@ namespace GameEngine
 				else{
 					ScriptFileTag tag;
 					tag.m_ID = GetID( buf );
-					tag.m_FileName = GetFileName( buf );
+					tag.m_FileName = GetFileName( buf, 1 );
 					if( type == SCRIPT_TYPE_ENEMY ){
 						enemyScriptList.push_back( tag );
 					}

@@ -40,10 +40,11 @@ namespace GameEngine
 		// ステージリソース
 		struct StageResourceMapElm
 		{
-			std::vector < int >		m_BGMMap;		// BGM
-			std::vector < int >		m_SEMap;		// SE
-			std::vector < int >		m_TextureMap;	// テクスチャ
-			std::vector < int >		m_ModelMap;		// 3Dモデル
+			std::vector < int >		m_BGMMap;				// BGM
+			std::vector < int >		m_SEMap;				// SE
+			std::vector < int >		m_TextureMap;			// テクスチャ
+			std::vector < int >		m_ModelMap;				// 3Dモデル
+			std::vector < int >		m_EnemyPatternFileMap;	// 敵出現パターンファイル
 		};
 		// グローバルリソース
 		struct GlobalResourceMapElm

@@ -34,6 +34,8 @@ namespace GameEngine
 		bool Update();
 		int CreateShot();
 		void DeleteShot( int id );
+		void SetReg( int reg );
+		int GetReg() const;
 		void SetShotPos( int id, float x, float y );
 		void SetShotAngle( int id, float angle );
 		void SetShotSpeed( int id, float speed );
@@ -60,6 +62,7 @@ namespace GameEngine
 		m_EnemyShotGroupData.m_ShotTotal = 0;
 		m_EnemyShotGroupData.m_IsNew = true;
 		m_EnemyShotGroupData.m_EnemyControlled = true;
+		m_EnemyShotGroupData.m_Reg = 0;
 		MAPIL::ZeroObject( m_EnemyShotGroupData.m_pShots, sizeof( m_EnemyShotGroupData.m_pShots ) );
 	}
 
@@ -100,6 +103,16 @@ namespace GameEngine
 	inline void EnemyShotGroup::Impl::DeleteShot( int id )
 	{
 		m_EnemyShotGroupData.m_pShots[ id ] = 0;
+	}
+
+	inline void EnemyShotGroup::Impl::SetReg( int reg )
+	{
+		m_EnemyShotGroupData.m_Reg = reg;
+	}
+
+	inline int EnemyShotGroup::Impl::GetReg() const
+	{
+		return m_EnemyShotGroupData.m_Reg;
 	}
 
 	inline void EnemyShotGroup::Impl::SetShotPos( int id, float x, float y )
@@ -211,6 +224,16 @@ namespace GameEngine
 	void EnemyShotGroup::DeleteShot( int id )
 	{
 		m_pImpl->DeleteShot( id );
+	}
+
+	void EnemyShotGroup::SetReg( int reg )
+	{
+		m_pImpl->SetReg( reg );
+	}
+
+	int EnemyShotGroup::GetReg() const
+	{
+		return m_pImpl->GetReg();
 	}
 
 	void EnemyShotGroup::SetShotPos( int id, float x, float y )

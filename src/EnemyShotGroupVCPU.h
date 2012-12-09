@@ -37,6 +37,9 @@ namespace GameEngine
 		void SysGetEnemyShotPosX();
 		void SysGetEnemyShotPosY();
 
+		void SysGetStageFrame();
+		void SysGetEnemyShotGroupReg();
+
 		void SysPlaySE();
 		void SysStopSE();
 	public:

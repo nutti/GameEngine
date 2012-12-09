@@ -2,6 +2,8 @@
 
 #include "GameObjectMemoryAllocator.h"
 
+#include <Windows.h>
+
 namespace GameEngine
 {
 	GameObject::GameObject()
@@ -14,6 +16,10 @@ namespace GameEngine
 
 	void* GameObject::operator new( ::size_t size )
 	{
+		if( size > 8000 ){
+			OutputDebugStringA( "Size over." );
+			exit( 1 );
+		}
 		return GameObjectMemoryAllocator::Allocate();
 	}
 

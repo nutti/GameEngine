@@ -146,6 +146,11 @@ namespace GameEngine
 		return size;
 	}
 
+	void LoadFile( std::fstream& f, char* pBuf, int size )
+	{
+		f.read( pBuf, size );
+	}
+
 	void GetLineFromString( char** pStr, char* pEnd, char* pOut, int outSize )
 	{
 		while( *pStr != pEnd ){

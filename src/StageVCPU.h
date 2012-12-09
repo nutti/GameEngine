@@ -17,6 +17,7 @@ namespace GameEngine
 		void SysSetFrame();
 		void SysUpdate();
 		void SysGetRand();
+		void SysProcEnemyPatternFile();
 
 		void SysPlayBGM();
 		void SysStopBGM();

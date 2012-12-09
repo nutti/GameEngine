@@ -32,6 +32,7 @@ namespace GameEngine
 
 	void Effect::Draw()
 	{
+		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
 		if( m_EffectData.m_EffectID == EFFECT_ID_PLAYER_SHOT_COLLIDED ){
 			float scale = 1.5f - m_EffectData.m_Counter / 20.0f;
 			MAPIL::DrawTexture(	m_EffectData.m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_PLAYER_SHOT_COLLIDED_TEXTURE ],
@@ -68,6 +69,7 @@ namespace GameEngine
 				}
 			}
 		}
+		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 	}
 
 	bool Effect::Update()

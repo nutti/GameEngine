@@ -76,6 +76,7 @@ namespace GameEngine
 		else if( m_CurSelectState == REPLAY_SELECT_STAGE ){
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
 				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress >= m_SelectedStage ){
+					MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
 					return SCENE_TYPE_STAGE;
 				}
 			}

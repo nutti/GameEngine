@@ -55,10 +55,10 @@ namespace GameEngine
 		MAPIL::DrawString( m_Data.m_PosX, m_Data.m_PosY, "Бе" );
 		MAPIL::DrawTexture(	m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
 							m_Data.m_PosX + 5.0f, m_Data.m_PosY - 5.0f,
-							m_Data.m_ConsGauge / 150.0f, 0.3f, false );
+							m_Data.m_ConsGauge / 150.0f, 0.3f, false, 0xAAFFFFFF );
 		MAPIL::DrawTexture(	m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE ],
 							m_Data.m_PosX + 5.0f, m_Data.m_PosY - 10.0f,
-							m_Data.m_HP * 1.5f / m_Data.m_MaxHP, 0.3f, false );
+							m_Data.m_HP * 1.5f / m_Data.m_MaxHP, 0.3f, false, 0xAAFFFFFF );
 	}
 
 	bool Enemy::Update()
@@ -75,18 +75,6 @@ namespace GameEngine
 				}
 			}
 		}
-
-		//if( m_Data.m_Counter == 30 ){
-		//	m_Data.m_ShotGroupList.push_back( m_Data.m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( 0, &m_Data ) );
-		//	int id = m_Data.m_ShotGroupList[ 0 ]->CreateShot();
-		//	m_Data.m_ShotGroupList[ 0 ]->SetShotStatus( id, 250.0f, 100.0f, MAPIL::DegToRad( -90.0f ), 1.0f, 2.0f, 0 );
-		//}
-
-		//for( int i = 0; i < m_Data.m_ShotGroupList.size(); ++i ){
-		//	if( m_Data.m_ShotGroupList[ i ] != NULL && m_Data.m_ShotGroupList[ i ]->IsEmpty() ){
-		//		MAPIL::SafeDelete( m_Data.m_ShotGroupList[ i ] );
-		//	}
-		//}
 
 		++m_Data.m_Counter;
 

@@ -43,6 +43,11 @@ namespace GameEngine
 		GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED			= 6,		// プレイヤー破壊時
 		GLOBAL_RESOURCE_SE_ID_MENU_SELECTED				= 7,		// メニュー選択時
 	};
+
+	enum GlobalResourceBGMID
+	{
+		GLOBAL_RESOURCE_BGM_ID_MENU						= 0,		// メニュー画面
+	};
 }
 
 #endif

@@ -275,6 +275,20 @@ namespace GameEngine
 		MAPIL::StopStaticBuffer( id );
 	}
 
+	void EnemyVCPU::SysCreateEnemyShotGroupReg()
+	{
+		Pop();
+		int reg = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
+		pNewGroup->Init();
+		pNewGroup->SetReg( reg );
+		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -354,6 +368,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_CREATE_SHOT_GROUP:
 				SysCreateEnemyShotGroup();
+				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_REG:
+				SysCreateEnemyShotGroupReg();
 				break;
 
 			case VM::SYS_PLAY_SE:

@@ -22,6 +22,14 @@ namespace GameEngine
 		void SysEnableFog();
 		void SysSetFogParam();
 		void SysDrawModelP();
+		void SysSetDirLightDir();
+		void SysSetDirLightAmbColor();
+		void SysSetDirLightDifColor();
+		void SysSetDirLightSpcColor();
+		void SysSetDirLightAtten();
+		void SysEnableDirLight();
+
+		void SysStageGetFrame();
 	public:
 		StageBackgroundVCPU();
 		~StageBackgroundVCPU();

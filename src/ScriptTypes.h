@@ -54,10 +54,16 @@ namespace GameEngine
 
 	struct ResourceScriptData
 	{
-		std::map < int, std::string >		m_BGMList;
-		std::map < int, std::string >		m_SEList;
-		std::map < int, std::string >		m_TextureList;
-		std::map < int, std::string >		m_ModelList;
+		struct ModelResourceData
+		{
+			std::string				m_ModelFileName;
+			std::string				m_TextureFileName;
+		};
+		std::map < int, std::string >			m_BGMList;
+		std::map < int, std::string >			m_SEList;
+		std::map < int, std::string >			m_TextureList;
+		std::map < int, ModelResourceData >		m_ModelList;
+		std::map < int, std::string >			m_EnemyPatternList;
 	};
 
 	// メッセージ通信用スクリプトデータ

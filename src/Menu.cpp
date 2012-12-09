@@ -24,6 +24,7 @@ namespace GameEngine
 		ResourceMap					m_ResourceMap;
 		int							m_Counter;
 		int							m_MenuPointed;
+		bool						m_PlayBGM;
 	public:
 		Impl();
 		~Impl(){}
@@ -37,14 +38,22 @@ namespace GameEngine
 	{
 		m_Counter = 0;
 		m_MenuPointed = MENU_ID_GAME_START;
+		m_PlayBGM = true;
 	}
 
 	SceneType Menu::Impl::Update()
 	{
+		// BGMÄ¶
+		if( m_PlayBGM ){
+			MAPIL::PlayStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
+		}
+
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
 			MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
 			switch( m_MenuPointed ){
 				case MENU_ID_GAME_START:
+					MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
+					m_PlayBGM = false;
 					return SCENE_TYPE_STAGE;
 				case MENU_ID_SCORE:
 					return SCENE_TYPE_SCORE;
@@ -83,42 +92,9 @@ namespace GameEngine
 
 	void Menu::Impl::Draw()
 	{
-		/*MAPIL::BeginRendering3DGraphics();
-
-		MAPIL::SetCameraProjTrans( 0.3f, 640.0f / 480.0f, 1.0f, 1000.0f );
-		MAPIL::SetCameraViewTrans( 0.0f, 2.0f, 8.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f );
-		MAPIL::EnableCamera();
-
-		MAPIL::Polygon3DVertexFormat fmt[ 4 ];
-		for( int i = 0; i < 4; ++i ){
-			fmt[ i ].m_Color = 0xFFFFFFFF;
-			fmt[ i ].m_Pos.m_Z = 0.5f;
-		}
-		fmt[ 0 ].m_Pos.m_X = -0.5f;
-		fmt[ 0 ].m_Pos.m_Y = 0.5f;
-		fmt[ 1 ].m_Pos.m_X = -0.5f;
-		fmt[ 1 ].m_Pos.m_Y = -0.5f;
-		fmt[ 2 ].m_Pos.m_X = 0.5f;
-		fmt[ 2 ].m_Pos.m_Y = 0.5f;
-		fmt[ 3 ].m_Pos.m_X = 0.5f;
-		fmt[ 3 ].m_Pos.m_Y = -0.5f;
-
-		fmt[ 0 ].m_Tex.m_U = 0.0f;
-		fmt[ 0 ].m_Tex.m_V = 0.0f;
-		fmt[ 1 ].m_Tex.m_U = 0.0f;
-		fmt[ 1 ].m_Tex.m_V = 1.0f;
-		fmt[ 2 ].m_Tex.m_U = 1.0f;
-		fmt[ 2 ].m_Tex.m_V = 0.0f;
-		fmt[ 3 ].m_Tex.m_U = 1.0f;
-		fmt[ 3 ].m_Tex.m_V = 1.0f;
-
-		MAPIL::DrawPolygon3D(	fmt,
-								2,
-								m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START ] );
-
-		MAPIL::EndRendering3DGraphics();*/
 
 		MAPIL::BeginRendering2DGraphics();
+
 
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START ],
 							20.0f, 250.0f, 0.8f, 0.8f, false );

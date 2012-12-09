@@ -4,6 +4,7 @@
 
 #include "Stage.h"
 #include "Enemy.h"
+#include "EnemyPatternFileLoader.h"
 
 namespace GameEngine
 {
@@ -63,6 +64,25 @@ namespace GameEngine
 		Push( m_pStageData->m_RandGen.GetRand() * 1.0f / m_pStageData->m_RandGen.GetRandMax() );
 	}
 
+	void StageVCPU::SysProcEnemyPatternFile()
+	{
+		Pop();
+		int frame = Top().m_Integer;
+		Pop();
+		int fileID = Top().m_Integer;
+		Pop();
+
+		if( ExistEnemyPattern( fileID, frame ) ){
+			EnemyPattern pattern;
+			GetEnemyPattern( fileID, frame, &pattern );
+			for( int i = 0; i < pattern.m_InfoList.size(); ++i ){
+				Enemy* pNewEnemy = m_pStageData->m_ObjBuilder.CreateEnemy( pattern.m_InfoList[ i ].m_EnemyID );
+				pNewEnemy->Init( pattern.m_InfoList[ i ].m_PosX, pattern.m_InfoList[ i ].m_PosY );
+				m_pStageData->m_EnemyList.push_back( pNewEnemy );
+			}
+		}
+	}
+
 	void StageVCPU::SysPlayBGM()
 	{
 		Pop();
@@ -94,6 +114,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_GET_RANDOM_F:
 				SysGetRand();
+				break;
+			case VM::SYS_STAGE_PROC_ENEMY_PATTERN_FILE:
+				SysProcEnemyPatternFile();
 				break;
 
 			case VM::SYS_PLAY_BGM:

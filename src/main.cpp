@@ -11,7 +11,7 @@ int SelectWindowMode()
 	MAPIL::IWindow window = pFactory->CreateWnd( TSTR( "Windows mode selection" ) );
 	window->Create( TSTR( "画面の大きさを選択" ), 200, 40 );
 	MAPIL::IRadioButton radio1 = pFactory->CreateRadioButton( TSTR( "Window mode" ) );
-	radio1->Create( TSTR( "ウィンドウモード" ), 0, 00, 200, 20, window, 0 );
+	radio1->Create( TSTR( "ウィンドウモード" ), 0, 0, 200, 20, window, 0 );
 	MAPIL::IRadioButton radio2 = pFactory->CreateRadioButton( TSTR( "Full screen mode" ) );
 	radio2->Create( TSTR( "フルスクリーンモード" ), 0, 20, 200, 20, window, 1 );
 
@@ -39,13 +39,16 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd 
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 
 	try{
+#if defined ( MAKE_MODE_RELEASE )
 		int wndMode = SelectWindowMode();
 
 		if( wndMode == -1 ){
 			return -1;
 		}
+#endif
 
 		GameEngine::Application app;
+#if defined ( MAKE_MODE_RELEASE )
 		// ウィンドウモードで起動
 		if( wndMode == 0 ){
 			app.Init( true );
@@ -54,6 +57,9 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd 
 		else if( wndMode == 1 ){
 			app.Init( false );
 		}
+#else
+		app.Init( true );
+#endif
 		app.Run();
 	}
 	catch( MAPIL::MapilException& e ){

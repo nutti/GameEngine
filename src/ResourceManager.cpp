@@ -1,6 +1,7 @@
 #include <MAPIL/MAPIL.h>
 
 #include "ResourceManager.h"
+#include "EnemyPatternFileLoader.h"
 
 namespace GameEngine
 {
@@ -62,10 +63,12 @@ namespace GameEngine
 		const int INITIAL_STAGE_SE_MAP_RESERVE_CAP = 50;					// 初期のSEMAP許容量
 		const int INITIAL_STAGE_BGM_MAP_RESERVE_CAP = 50;					// 初期のBGMMAP許容量
 		const int INITIAL_STAGE_MODEL_MAP_RESERVE_CAP = 50;					// 初期のモデルMAP許容量
+		const int INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP = 10;	// 初期の敵出現パターンファイルMAP許容量
 		m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( INITIAL_STAGE_SE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( INITIAL_STAGE_BGM_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( INITIAL_STAGE_MODEL_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP, -1 );
 	}
 
 	void ResourceManager::Impl::LoadStageResources( const ScriptData& data )
@@ -106,15 +109,26 @@ namespace GameEngine
 			m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
 		}
 		// 3Dモデルの読み込み
-		typedef std::map < int, std::string > ::iterator	ModelIter;
+		typedef std::map < int, ResourceScriptData::ModelResourceData > ::iterator	ModelIter;
 		for(	ModelIter it = pScriptData->m_ModelList.begin();
 				it != pScriptData->m_ModelList.end();
 				++it ){
 			if( it->first > m_ResourceMap.m_pStageResourceMap->m_ModelMap.size() ){
 				m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( it->first * 2 );
 			}
-			int id = MAPIL::CreateModel( it->second.c_str() );
+			int id = MAPIL::CreateModel( it->second.m_ModelFileName.c_str() );
 			m_ResourceMap.m_pStageResourceMap->m_ModelMap[ it->first ] = id;
+		}
+		// 敵出現パターンの読み込み
+		typedef std::map < int, std::string > ::iterator	PatternIter;
+		for(	PatternIter it = pScriptData->m_EnemyPatternList.begin();
+				it != pScriptData->m_EnemyPatternList.end();
+				++it ){
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
+			}
+			int id = CreateStageEnemyPattern( it->second );
+			m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
 		}
 	}
 
@@ -146,6 +160,13 @@ namespace GameEngine
 			if( m_ResourceMap.m_pStageResourceMap->m_ModelMap[ i ] != -1 ){
 				MAPIL::DeleteModel( m_ResourceMap.m_pStageResourceMap->m_ModelMap[ i ] );
 				m_ResourceMap.m_pStageResourceMap->m_ModelMap[ i ] = -1;
+			}
+		}
+		// 敵出現パターンファイルの削除
+		for( int i = 0; i < m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.size(); ++i ){
+			if( m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ i ] != -1 ){
+				DeleteStageEnemyPattern( m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ i ] );
+				m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ i ] = -1;
 			}
 		}
 	}
@@ -252,6 +273,28 @@ namespace GameEngine
 			}
 			int id = MAPIL::CreateStreamingBuffer( m_ArchiveHandle, it->second.c_str() );
 			m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
+		}
+		// 3Dモデルの読み込み
+		typedef std::map < int, ResourceScriptData::ModelResourceData > ::iterator	ModelIter;
+		for(	ModelIter it = pScriptData->m_ModelList.begin();
+				it != pScriptData->m_ModelList.end();
+				++it ){
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_ModelMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( it->first * 2 );
+			}
+			int id = MAPIL::CreateModel( m_ArchiveHandle, it->second.m_ModelFileName.c_str(), it->second.m_TextureFileName.c_str() );
+			m_ResourceMap.m_pStageResourceMap->m_ModelMap[ it->first ] = id;
+		}
+		// 敵出現パターンファイルの読み込み
+		typedef std::map < int, std::string > ::iterator	EnemyPatternIter;
+		for(	EnemyPatternIter it = pScriptData->m_EnemyPatternList.begin();
+				it != pScriptData->m_EnemyPatternList.end();
+				++it ){
+			if( it->first > m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.size() ){
+				m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
+			}
+			int id = CreateStageEnemyPattern( m_ArchiveHandle, it->second );
+			m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
 		}
 	}
 

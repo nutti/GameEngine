@@ -118,7 +118,12 @@ namespace GameEngine
 
 	inline void EnemyShot::Impl::SetSpeed( float speed )
 	{
-		m_Speed = speed + 2.0f;
+		if( m_Counter < 20 ){
+			m_Speed = speed + 2.0f - m_Counter * 0.1f;
+		}
+		else{
+			m_Speed = speed;
+		}
 	}
 
 	inline void EnemyShot::Impl::SetImage( int id )

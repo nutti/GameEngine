@@ -68,6 +68,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_BOSS_FLAG, TYPE_VOID, "SetEnemyBossFlag", "i" );			// void SetEnemyBossFlag( flag );
 	AddFunction( VM::SYS_CREATE_ITEM, TYPE_VOID, "CreateItem", "iiff" );			// void CreateItem( item_id, item_sub_id, x, y );
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP, TYPE_VOID, "CreateEnemyShotGroup", "i" );			// void CreateShotGroup( script_id );
+	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP_REG, TYPE_VOID, "CreateEnemyShotGroupReg", "ii" );	// void CreateShotGroupReg( script_id, reg1 );
 
 	// System call for enemy shot group.
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT, TYPE_INTEGER, "CreateEnemyShot", "" );	// int CreateEnemyShot();
@@ -81,6 +82,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_COUNTER, TYPE_INTEGER, "GetEnemyShotCounter", "i" );		// int GetEnemyShotCounter( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X, TYPE_FLOAT, "GetEnemyShotPosX", "i" );		// float GetEnemyShotPosX( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y, TYPE_FLOAT, "GetEnemyShotPosY", "i" );		// float GetEnemyShotPosY( shot_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_REG, TYPE_INTEGER, "GetEnemyShotGroupReg", "" );	// int GetEnemyShotGroupReg();
 
 	// System call for stage.
 	AddFunction( VM::SYS_STAGE_ADD_ENEMY, TYPE_VOID, "AddEnemy", "i" );					// void AddEnemy( script_id );
@@ -88,6 +90,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STAGE_GET_FRAME, TYPE_INTEGER, "GetFrame", "" );				// int GetFrame();
 	AddFunction( VM::SYS_STAGE_SET_FRAME, TYPE_VOID, "SetFrame", "i" );					// void SetFrame( frame );
 	AddFunction( VM::SYS_UPDATE, TYPE_VOID, "Update", "" );								// void Update();
+	AddFunction( VM::SYS_STAGE_PROC_ENEMY_PATTERN_FILE, TYPE_VOID, "ProcEnemyPatternFile", "ii" );	// void ProcEnemyPatternFile( file_id, frame );
 
 	// System call for stage background.
 	AddFunction( VM::SYS_STAGE_BACKGROUND_GET_COUNTER, TYPE_INTEGER, "StageBackgroundGetCounter", "" );	// int StageBackgroundGetCounter();
@@ -103,6 +106,13 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENABLE_FOG, TYPE_VOID, "EnableFog", "" );					// void EnableFog();
 	AddFunction( VM::SYS_SET_FOG_PARAM, TYPE_VOID, "SetFogParam", "iiiiifff" );		// void SetFogParam( color_a, color_r, color_g, color_b, mode, begin, end, density );
 	AddFunction( VM::SYS_DRAW_MODEL_FIXED_SCALE_ROT, TYPE_VOID, "DrawModelP", "ifff" );		// void DrawModelP( index, x, y, z );
+	AddFunction( VM::SYS_SET_DIRLIGHT_DIR, TYPE_VOID, "SetDirLightDir", "ifff" );		// void SetDirLightDirection( index, x, y, z );
+	AddFunction( VM::SYS_SET_DIRLIGHT_DIF_COLOR, TYPE_VOID, "SetDirLightDifColor", "iiiii" );	// void SetDirLightDifColor( idnex, a, r, g, b );
+	AddFunction( VM::SYS_SET_DIRLIGHT_AMB_COLOR, TYPE_VOID, "SetDirLightAmbColor", "iiiii" );	// void SetDirLightAmbColor( idnex, a, r, g, b );
+	AddFunction( VM::SYS_SET_DIRLIGHT_SPC_COLOR, TYPE_VOID, "SetDirLightSpcColor", "iiiii" );	// void SetDirLightSpcColor( idnex, a, r, g, b );
+	AddFunction( VM::SYS_SET_DIRLIGHT_ATTEN, TYPE_VOID, "SetDirLightAtten", "ifff" );			// void SetDirLightAtten( index, atten0, atten1, atten2 );
+	AddFunction( VM::SYS_ENABLE_DIRLIGHT, TYPE_VOID, "EnableDirLight", "i" );					// void EnableDirLight( index );
+
 
 	// Global variables.
 	m_Variables.push_back( ValueTable() );
