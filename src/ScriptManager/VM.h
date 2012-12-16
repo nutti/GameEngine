@@ -94,6 +94,8 @@ namespace VM
 		SYS_STAGE_GET_FRAME,				// Get frame count.
 		SYS_STAGE_SET_FRAME,				// Set frame count.
 		SYS_STAGE_PROC_ENEMY_PATTERN_FILE,	// Process enemy pattern file.
+		SYS_STAGE_SET_BOSS_FLAG,			// Set boss flag.
+		SYS_STAGE_GET_BOSS_FLAG,			// Get boss flag.
 
 		// For stage background.
 		SYS_STAGE_BACKGROUND_GET_COUNTER,	// Get count.

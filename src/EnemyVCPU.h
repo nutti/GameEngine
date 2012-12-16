@@ -42,6 +42,9 @@ namespace GameEngine
 		void SysCreateEnemyShotGroup();
 		void SysCreateEnemyShotGroupReg();
 
+		void SysStageGetBossFlag();
+		void SysStageSetBossFlag();
+
 		void SysCreateItem();
 
 		void SysPlaySE();

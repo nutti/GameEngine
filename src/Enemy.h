@@ -26,6 +26,7 @@ namespace GameEngine
 		int			m_HP;				// HP
 		int			m_MaxHP;			// MaxHP
 		int			m_ConsGauge;		// 意識ゲージ
+		int			m_MaxConsGauge;		// Max意識ゲージ
 		int			m_ConsType;			// 意識タイプ
 		int			m_Counter;			// カウンタ
 		float		m_ColRadius;		// 衝突半径
@@ -44,10 +45,19 @@ namespace GameEngine
 	class Enemy : public CollisionObject
 	{
 	private:
-		EnemyData							m_Data;
+		// Enemyクラス内部用データ
+		struct EnemyPrivateData
+		{
+			int			m_DamagedCounter;		// ダメージ時のカウンタ
+			int			m_PrevConsGauge;		// 前回の意識ゲージ（このゲージが大量に減った時に意識技を使用したとみなす）
+			int			m_SkillUsedCounter;		// 意識技使用時のカウンタ
+		};
+
+		EnemyData							m_Data;			// データ
 		int									m_ScriptID;		// スクリプトID
 		EnemyVCPU							m_VM;			// 仮想マシン
 		std::shared_ptr < EnemyScriptData >	m_pScriptData;	// スクリプトデータ
+		EnemyPrivateData					m_PrivateData;	// Enemyクラス内部向けデータ
 	public:
 		Enemy(	std::shared_ptr < ResourceMap > pMap,
 				std::shared_ptr < EnemyScriptData > pData,

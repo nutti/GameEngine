@@ -91,6 +91,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STAGE_SET_FRAME, TYPE_VOID, "SetFrame", "i" );					// void SetFrame( frame );
 	AddFunction( VM::SYS_UPDATE, TYPE_VOID, "Update", "" );								// void Update();
 	AddFunction( VM::SYS_STAGE_PROC_ENEMY_PATTERN_FILE, TYPE_VOID, "ProcEnemyPatternFile", "ii" );	// void ProcEnemyPatternFile( file_id, frame );
+	AddFunction( VM::SYS_STAGE_SET_BOSS_FLAG, TYPE_VOID, "SetStageBossFlag", "i" );			// void SetBossFlag( flag );
+	AddFunction( VM::SYS_STAGE_GET_BOSS_FLAG, TYPE_INTEGER, "GetStageBossFlag", "" );		// int GetBossFlag();
 
 	// System call for stage background.
 	AddFunction( VM::SYS_STAGE_BACKGROUND_GET_COUNTER, TYPE_INTEGER, "StageBackgroundGetCounter", "" );	// int StageBackgroundGetCounter();

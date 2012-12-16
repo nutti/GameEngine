@@ -56,6 +56,7 @@ namespace GameEngine
 		StageMessageQueue	m_MsgQueue;				// ステージ用メッセージキュー
 
 		bool				m_HasTermSig;
+		int					m_BossMode;				// 1ならボスモード
 
 		ResourceMap			m_ResourceMap;
 

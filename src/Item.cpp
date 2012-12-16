@@ -3,6 +3,7 @@
 #include "Item.h"
 #include "Player.h"
 #include "ResourceTypes.h"
+#include "ResourceID.h"
 
 namespace GameEngine
 {
@@ -67,6 +68,32 @@ namespace GameEngine
 								m_ItemData.m_PosX,
 								m_ItemData.m_PosY,
 								scaleX, scaleY );
+		}
+		else if( m_ItemData.m_ItemID == ITEM_ID_RECOVER ){
+			float scaleX = 0.8f;
+				float scaleY = 0.8f;
+				if( m_ItemData.m_Counter <= 10 ){
+					scaleY = 0.8f * m_ItemData.m_Counter / 10.0f;
+					scaleX = 0.8f + ( 10 - m_ItemData.m_Counter ) * 0.1f;
+				}
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_ITEM_RECOVER_1 + ( m_ItemData.m_Counter / 60 ) % 2 ],
+									m_ItemData.m_PosX,
+									m_ItemData.m_PosY,
+									scaleX, scaleY );
+		}
+		else if( m_ItemData.m_ItemID == ITEM_ID_CONS_LEVEL_RECOVER ){
+			if( m_ItemData.m_ItemSubID == ITEM_SUB_ID_GREEN ){
+				float scaleX = 0.5f;
+				float scaleY = 0.5f;
+				if( m_ItemData.m_Counter <= 10 ){
+					scaleY = 0.5f * m_ItemData.m_Counter / 10.0f;
+					scaleX = 0.5f + ( 10 - m_ItemData.m_Counter ) * 0.1f;
+				}
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_1 + ( m_ItemData.m_Counter / 10 ) % 5 ],
+									m_ItemData.m_PosX,
+									m_ItemData.m_PosY,
+									scaleX, scaleY );
+			}
 		}
 	}
 

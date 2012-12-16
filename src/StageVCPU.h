@@ -19,6 +19,9 @@ namespace GameEngine
 		void SysGetRand();
 		void SysProcEnemyPatternFile();
 
+		void SysStageGetBossFlag();
+		void SysStageSetBossFlag();
+
 		void SysPlayBGM();
 		void SysStopBGM();
 	public:

@@ -17,6 +17,11 @@ namespace GameEngine
 		ITEM_ID_POWER_UP			= 5,		// 意識消滅弾強化
 	};
 
+	enum ItemConsLevelRecoverSubID
+	{
+		ITEM_SUB_ID_GREEN			= 0,		// 緑ゲージ
+	};
+
 	struct ItemData
 	{
 		int			m_ItemID;		// アイテム識別子

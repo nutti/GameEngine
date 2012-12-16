@@ -62,7 +62,7 @@ namespace GameEngine
 		m_Data.m_PosX = 300.0f;
 		m_Data.m_PosY = 400.0f;
 		m_Data.m_ShotPower = 0;
-		m_Data.m_ColRadius = 3.0f;
+		m_Data.m_ColRadius = 2.0f;
 		m_Data.m_Counter = 0;
 		m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
 		m_Data.m_RestInvincibleTime = 0;
@@ -424,6 +424,21 @@ namespace GameEngine
 			if( m_Data.m_ShotPower > 50 ){
 				m_Data.m_ShotPower = 50;
 			}
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_2_SE ] );
+		}
+		else if( pItem->GetItemID() == ITEM_ID_RECOVER ){
+			++m_Data.m_HP;
+			if( m_Data.m_HP > 10 ){
+				m_Data.m_HP = 10;
+			}
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_2_SE ] );
+		}
+		else if( pItem->GetItemID() == ITEM_ID_CONS_LEVEL_RECOVER ){
+			int subID = pItem->GetItemSubID();
+			//m_Data.m_ConsLevel[ subID ] += 100;
+			//if( m_Data.m_ConsLevel[ subID ] > 1000 ){
+				m_Data.m_ConsLevel[ subID ] = 1000;
+			//}
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_2_SE ] );
 		}
 	}

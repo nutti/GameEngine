@@ -97,6 +97,19 @@ namespace GameEngine
 		MAPIL::StopStreamingBuffer( id );
 	}
 
+	void StageVCPU::SysStageGetBossFlag()
+	{
+		Pop();
+		Push( m_pStageData->m_BossMode );
+	}
+
+	void StageVCPU::SysStageSetBossFlag()
+	{
+		Pop();
+		m_pStageData->m_BossMode = Top().m_Integer;
+		Pop();
+	}
+
 	void StageVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -124,6 +137,13 @@ namespace GameEngine
 				break;
 			case VM::SYS_STOP_BGM:
 				SysStopBGM();
+				break;
+
+			case VM::SYS_STAGE_SET_BOSS_FLAG:
+				SysStageSetBossFlag();
+				break;
+			case VM::SYS_STAGE_GET_BOSS_FLAG:
+				SysStageGetBossFlag();
 				break;
 
 			default:

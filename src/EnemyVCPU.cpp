@@ -289,6 +289,19 @@ namespace GameEngine
 		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 	}
 
+	void EnemyVCPU::SysStageGetBossFlag()
+	{
+		Pop();
+		Push( m_pEnemyData->m_pStageData->m_BossMode );
+	}
+
+	void EnemyVCPU::SysStageSetBossFlag()
+	{
+		Pop();
+		m_pEnemyData->m_pStageData->m_BossMode = Top().m_Integer;
+		Pop();
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -378,6 +391,13 @@ namespace GameEngine
 				break;
 			case VM::SYS_STOP_SE:
 				SysStopSE();
+				break;
+
+			case VM::SYS_STAGE_SET_BOSS_FLAG:
+				SysStageSetBossFlag();
+				break;
+			case VM::SYS_STAGE_GET_BOSS_FLAG:
+				SysStageGetBossFlag();
 				break;
 
 			default:

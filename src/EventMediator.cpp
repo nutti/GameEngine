@@ -208,6 +208,27 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_BGM,
 											GLOBAL_RESOURCE_BGM_ID_MENU,
 											"archive/resource/bgm/title.wav", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_1,
+											"archive/resource/texture/cons_level_recover_part1.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_2,
+											"archive/resource/texture/cons_level_recover_part2.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_3,
+											"archive/resource/texture/cons_level_recover_part3.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_4,
+											"archive/resource/texture/cons_level_recover_part4.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_5,
+											"archive/resource/texture/cons_level_recover_part5.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_RECOVER_1,
+											"archive/resource/texture/recover_1.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_RECOVER_2,
+											"archive/resource/texture/recover_2.png", false );
 		m_Loading.Start();
 	}
 
