@@ -25,6 +25,7 @@ namespace GameEngine
 		float								m_Speed;			// 速度
 		float								m_ColRadius;		// 衝突判定の半径
 		int									m_ImgID;			// 画像ID
+		float								m_ImgScale;			// 画像拡大率
 		bool								m_Colided;			// 衝突したか？
 		int									m_Counter;			// カウンタ
 		ShotGroupData						m_ShotGroupData;	// ショットグループデータ
@@ -38,7 +39,11 @@ namespace GameEngine
 		void SetAngle( float angle );						// 角度を設定
 		void SetSpeed( float speed );						// 速度を設定
 		void SetImage( int id );							// 画像を設定
+		void SetImageScale( float scale );					// 画像の拡大率を設定
 		void SetCollisionRadius( float radius );			// 衝突判定の半径を設定
+		void AddPos( float x, float y );					// 位置を加算
+		void AddAngle( float angle );						// 角度を加算
+		void AddSpeed( float speed );						// 速度を加算
 		void JoinShotGroup( int id, EnemyShotGroup* pGroup );
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 		float GetCollisionRadius() const;
@@ -131,6 +136,11 @@ namespace GameEngine
 		m_ImgID = id;
 	}
 
+	inline void EnemyShot::Impl::SetImageScale( float scale )
+	{
+		m_ImgScale = scale;
+	}
+
 	inline void EnemyShot::Impl::SetCollisionRadius( float radius )
 	{
 		m_ColRadius = radius;
@@ -155,6 +165,22 @@ namespace GameEngine
 	inline int EnemyShot::Impl::GetCounter() const
 	{
 		return m_Counter;
+	}
+
+	inline void EnemyShot::Impl::AddPos( float x, float y )
+	{
+		m_PosX += x;
+		m_PosY += y;
+	}
+
+	inline void EnemyShot::Impl::AddAngle( float angle )
+	{
+		m_Angle += angle;
+	}
+
+	inline void EnemyShot::Impl::AddSpeed( float speed )
+	{
+		m_Speed += speed;
 	}
 
 	// ----------------------------------
@@ -240,6 +266,11 @@ namespace GameEngine
 		m_pImpl->SetImage( id );
 	}
 
+	void EnemyShot::SetImageScale( float scale )
+	{
+		m_pImpl->SetImageScale( scale );
+	}
+
 	void EnemyShot::SetCollisionRadius( float radius )
 	{
 		m_pImpl->SetCollisionRadius( radius );
@@ -254,4 +285,20 @@ namespace GameEngine
 	{
 		return m_pImpl->GetCounter();
 	}
+
+	void EnemyShot::AddPos( float x, float y )
+	{
+		m_pImpl->AddPos( x, y );
+	}
+
+	void EnemyShot::AddAngle( float angle )
+	{
+		m_pImpl->AddAngle( angle );
+	}
+
+	void EnemyShot::AddSpeed( float speed )
+	{
+		m_pImpl->SetSpeed( speed );
+	}
+
 }

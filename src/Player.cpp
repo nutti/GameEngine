@@ -391,11 +391,20 @@ namespace GameEngine
 	{
 		if( m_Data.m_RestInvincibleTime <= 0 ){
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED ] );
-			m_pStageData->m_MsgQueue.push( STAGE_MESSAGE_PLAYER_DAMAGED );
+			StageMessage msg;
+			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DAMAGED;
+			StageMessage::StageMessageData data;
+			data.m_Integer = 0;
+			msg.m_MsgDataList.push_back( data );
+			m_pStageData->m_MsgQueue.push( msg );
 			--m_Data.m_HP;
 			if( m_Data.m_HP <= 0 ){
 				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED ] );
-				m_pStageData->m_MsgQueue.push( STAGE_MESSAGE_PLAYER_DESTORYED );
+				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED;
+				StageMessage::StageMessageData data;
+				data.m_Integer = 0;
+				msg.m_MsgDataList.push_back( data );
+				m_pStageData->m_MsgQueue.push( msg );
 			}
 		
 			if( m_Data.m_ConsCur != PLAYER_CONS_MODE_NORMAL ){

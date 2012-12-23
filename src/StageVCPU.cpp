@@ -110,6 +110,25 @@ namespace GameEngine
 		Pop();
 	}
 
+	void StageVCPU::SysStageCreateBoss()
+	{
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		Enemy* pNewEnemy = m_pStageData->m_ObjBuilder.CreateEnemy( id );
+		pNewEnemy->Init( x, y );
+		if( !m_pStageData->m_pBoss ){
+			StageMessage msg;
+			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_STARTED;
+			m_pStageData->m_MsgQueue.push( msg );
+			m_pStageData->m_pBoss = pNewEnemy;
+		}
+	}
+
 	void StageVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -130,6 +149,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_STAGE_PROC_ENEMY_PATTERN_FILE:
 				SysProcEnemyPatternFile();
+				break;
+			case VM::SYS_STAGE_CREATE_BOSS:
+				SysStageCreateBoss();
 				break;
 
 			case VM::SYS_PLAY_BGM:

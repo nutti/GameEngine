@@ -61,6 +61,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_CONS_GAUGE, TYPE_VOID, "SetEnemyConsGauge", "i" );					// void SetEnemyConsGauge( gauge );
 	AddFunction( VM::SYS_ENEMY_ENABLE_INVINCIBLE, TYPE_VOID, "EnemyEnableInvincible", "" );				// void EnemyEnableInvincible();
 	AddFunction( VM::SYS_ENEMY_DISABLE_INVINCIBLE, TYPE_VOID, "EnemyDisableInvincible", "" );			// void EnemyDisableInvincible();
+	AddFunction( VM::SYS_ENEMY_INVOKE_CONS_SKILL, TYPE_VOID, "EnemyInvokeConsSkill", "si" );			// void EnemyInvokeConsSkill( skill_name, dec_gauge );
+	AddFunction( VM::SYS_ENEMY_STOP_CONS_SKILL, TYPE_VOID, "EnemyStopConsSkill", "" );				// void EnemyStopConsSkill();
 
 
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_1, TYPE_VOID, "CreateEnemyShot1", "fffffi" );	// void CreateEnemyShot1( x, y, speed, angle, radius, texture_id );
@@ -80,9 +82,13 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS, TYPE_VOID, "SetEnemyShotStatus", "ifffffi" );		// void SetEnemyShotStatus( shot_id, x, y, angle, speed, radius, texture_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT, TYPE_VOID, "SetEnemyShotMovement", "iff" );		// void SetEnemyShotMovement( shot_id, angle, speed );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_COUNTER, TYPE_INTEGER, "GetEnemyShotCounter", "i" );		// int GetEnemyShotCounter( shot_id );
-	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X, TYPE_FLOAT, "GetEnemyShotPosX", "i" );		// float GetEnemyShotPosX( shot_id );
-	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y, TYPE_FLOAT, "GetEnemyShotPosY", "i" );		// float GetEnemyShotPosY( shot_id );
-	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_REG, TYPE_INTEGER, "GetEnemyShotGroupReg", "" );	// int GetEnemyShotGroupReg();
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X, TYPE_FLOAT, "GetEnemyShotPosX", "i" );				// float GetEnemyShotPosX( shot_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y, TYPE_FLOAT, "GetEnemyShotPosY", "i" );				// float GetEnemyShotPosY( shot_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_REG, TYPE_INTEGER, "GetEnemyShotGroupReg", "" );			// int GetEnemyShotGroupReg();
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE, TYPE_VOID, "EnemyShotAddAngle", "if" );			// void EnemyShotAddAngle( id, angle );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE, TYPE_VOID, "EnemyShotSetImgScale", "if" );	// void EnemyShotSetImgScale( id, scale );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_POS, TYPE_VOID, "EnemyShotAddPos", "iff" );				// void EnemyShotAddPos( id, x, y );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED, TYPE_VOID, "EnemyShotAddSpeed", "if" );			// void EnemyShotAddSpeed( id, speed );
 
 	// System call for stage.
 	AddFunction( VM::SYS_STAGE_ADD_ENEMY, TYPE_VOID, "AddEnemy", "i" );					// void AddEnemy( script_id );
@@ -93,6 +99,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STAGE_PROC_ENEMY_PATTERN_FILE, TYPE_VOID, "ProcEnemyPatternFile", "ii" );	// void ProcEnemyPatternFile( file_id, frame );
 	AddFunction( VM::SYS_STAGE_SET_BOSS_FLAG, TYPE_VOID, "SetStageBossFlag", "i" );			// void SetBossFlag( flag );
 	AddFunction( VM::SYS_STAGE_GET_BOSS_FLAG, TYPE_INTEGER, "GetStageBossFlag", "" );		// int GetBossFlag();
+	AddFunction( VM::SYS_STAGE_CREATE_BOSS, TYPE_INTEGER, "StageCreateBoss", "iff" );			// void CreateBoss( script_id, x, y );
 
 	// System call for stage background.
 	AddFunction( VM::SYS_STAGE_BACKGROUND_GET_COUNTER, TYPE_INTEGER, "StageBackgroundGetCounter", "" );	// int StageBackgroundGetCounter();

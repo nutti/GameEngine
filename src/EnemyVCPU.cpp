@@ -160,6 +160,42 @@ namespace GameEngine
 		m_pEnemyData->m_IsInvincibleMode = false;
 	}
 
+	void EnemyVCPU::SysEnemyInvokeConsSkill()
+	{
+		Pop();
+
+		// メッセージ構築
+		StageMessage msg;
+		// 意識技の呼び出しメッセージ
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL;
+		StageMessage::StageMessageData data;
+		// 第2引数
+		int cost = Top().m_Integer;
+		data.m_Integer = cost;
+		msg.m_MsgDataList.push_back( data );
+		Pop();
+		// 第1引数
+		data.m_pString = new std::string;
+		*data.m_pString = Top().m_pString->m_Str;
+		msg.m_MsgDataList.push_back( data );
+		Pop();
+		if( m_pEnemyData->m_IsBoss ){
+			// メッセージ送信
+			m_pEnemyData->m_pStageData->m_MsgQueue.push( msg );
+		}
+		// 意識ゲージ減少
+		m_pEnemyData->m_ConsGauge -= cost;
+	}
+		
+	void EnemyVCPU::SysEnemyStopConsSkill()
+	{
+		Pop();
+		// メッセージ送信
+		StageMessage msg;
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_STOP_CONS_SKILL;
+		m_pEnemyData->m_pStageData->m_MsgQueue.push( msg );
+	}
+
 	void EnemyVCPU::SysCreateEnemyShot1()
 	{
 		Pop();
@@ -371,6 +407,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_DISABLE_INVINCIBLE:
 				SysEnemyDisableInvincible();
+				break;
+			case VM::SYS_ENEMY_INVOKE_CONS_SKILL:
+				SysEnemyInvokeConsSkill();
+				break;
+			case VM::SYS_ENEMY_STOP_CONS_SKILL:
+				SysEnemyStopConsSkill();
 				break;
 
 			case VM::SYS_ENEMY_CREATE_EFFECT_1:

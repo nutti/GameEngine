@@ -67,6 +67,8 @@ namespace VM
 		SYS_ENEMY_SET_CONS_GAUGE,			// Set conscious gauge.
 		SYS_ENEMY_ENABLE_INVINCIBLE,		// Enable invincible mode.
 		SYS_ENEMY_DISABLE_INVINCIBLE,		// Disable invincible mode.
+		SYS_ENEMY_INVOKE_CONS_SKILL,		// Invoke skill.
+		SYS_ENEMY_STOP_CONS_SKILL,			// Stop skill.
 
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)
@@ -87,6 +89,10 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_GET_POS_X,
 		SYS_ENEMY_SHOT_GROUP_GET_POS_Y,
 		SYS_ENEMY_SHOT_GROUP_GET_REG,
+		SYS_ENEMY_SHOT_GROUP_ADD_ANGLE,
+		SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE,
+		SYS_ENEMY_SHOT_GROUP_ADD_POS,
+		SYS_ENEMY_SHOT_GROUP_ADD_SPEED,
 
 		// For stage script.
 		SYS_STAGE_ADD_ENEMY,				// Add enemy.
@@ -96,6 +102,7 @@ namespace VM
 		SYS_STAGE_PROC_ENEMY_PATTERN_FILE,	// Process enemy pattern file.
 		SYS_STAGE_SET_BOSS_FLAG,			// Set boss flag.
 		SYS_STAGE_GET_BOSS_FLAG,			// Get boss flag.
+		SYS_STAGE_CREATE_BOSS,				// Create boss.
 
 		// For stage background.
 		SYS_STAGE_BACKGROUND_GET_COUNTER,	// Get count.

@@ -340,6 +340,56 @@ namespace GameEngine
 		Push( m_pEnemyShotGroupData->m_Reg );
 	}
 
+	void EnemyShotGroupVCPU::SysEnemyShotAddAngle()
+	{
+		Pop();
+		float angle = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->AddAngle( angle );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotSetImgScale()
+	{
+		Pop();
+		float scale = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetImageScale( scale );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotAddPos()
+	{
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->AddPos( x, y );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotAddSpeed()
+	{
+		Pop();
+		float speed = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->AddSpeed( speed );
+		}
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -414,6 +464,19 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y:
 				SysGetEnemyShotPosY();
+				break;
+
+			case VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE:
+				SysEnemyShotAddAngle();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE:
+				SysEnemyShotSetImgScale();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_ADD_POS:
+				SysEnemyShotAddPos();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED:
+				SysEnemyShotAddSpeed();
 				break;
 
 			case VM::SYS_STAGE_GET_FRAME:

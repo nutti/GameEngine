@@ -29,6 +29,29 @@ namespace GameEngine
 	class Stage::Impl
 	{
 	private:
+		struct PrivateData
+		{
+			// 意識技
+			struct ConsSkillModeData
+			{
+				bool			m_IsConsSkillMode;	// 意識スキルモードならtrue
+				int				m_Counter;			// エフェクト用カウンタ
+				int				m_PostCounter;		// エフェクト終了ときのカウンタ
+				std::string		m_SkillName;		// 意識技名
+				int				m_SkillCost;		// 消費意識ゲージ
+			};
+			// ボス状態に関するデータ
+			struct BossModeData
+			{
+				bool			m_IsBossMode;		// ボス出現状態ならtrue
+				int				m_DamagedCounter;	// ダメージを受けた時のエフェクトカウンタ
+			};
+
+			ConsSkillModeData		m_ConsSkillModeData;
+			BossModeData			m_BossModeData;
+		};
+
+
 		ButtonStatusHolder			m_ButtonStatus;		// ボタンの状態
 		ScriptData					m_ScriptData;		// スクリプトデータ
 		StageData					m_Data;				// ステージ用データ
@@ -37,14 +60,22 @@ namespace GameEngine
 		StageVCPU					m_VM;				// 仮想マシン
 		StageBackground				m_Background;		// 背景
 
+		PrivateData					m_PrivData;
+
 		void ProcessCollision();		// 衝突判定
 		void UpdateGameObjects();		// 全GameObjectの更新
 		void ProcessMessage();			// ステージ用メッセージの処理
+
+		void UpdateConsSkillEffect();		// 意識技エフェクト処理の更新
+		void DrawConsSkillEffect() const;	// 意識技エフェクト処理の描画
+		void UpdateBossModeEffect();		// ボスモード時のエフェクト処理の更新
+		void DrawBossModeEffect() const;	// ボスモード時のエフェクト処理の描画
 
 		// GameObject全削除メソッド
 		void DeleteAllEnemyShots();
 		void DeleteAllPlayerShots();
 		void DeleteAllEnemies();
+		void DeleteBoss();
 		void DeleteAllEffects();
 		void DeleteAllItems();
 
@@ -83,7 +114,15 @@ namespace GameEngine
 		m_Data.m_RandGen.Reset();
 		m_Data.m_ConsLevel = 700;
 		m_Data.m_HasTermSig = false;
-		m_Data.m_BossMode = 0;
+		//m_Data.m_BossMode = 0;
+		m_Data.m_pBoss = NULL;
+
+		m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode = false;
+		m_PrivData.m_ConsSkillModeData.m_Counter = 0;
+		m_PrivData.m_ConsSkillModeData.m_PostCounter = 100;
+		m_PrivData.m_ConsSkillModeData.m_SkillName = "";
+		m_PrivData.m_BossModeData.m_DamagedCounter = 0;
+		m_PrivData.m_BossModeData.m_IsBossMode = false;
 	}
 
 	Stage::Impl::~Impl()
@@ -91,6 +130,7 @@ namespace GameEngine
 		// GameObjectの破棄
 		DeleteAllPlayerShots();
 		DeleteAllEnemies();
+		DeleteBoss();
 		DeleteAllEnemyShots();
 		DeleteAllItems();
 		DeleteAllEffects();
@@ -122,6 +162,27 @@ namespace GameEngine
 				if( distance < radius ){
 					( *itShot )->Colided( *itEnemy );
 					( *itEnemy )->Colided( *itShot );
+				}
+			}
+		}
+		// ボス-プレイヤーショット
+		if( m_Data.m_pBoss ){
+			float eX;
+			float eY;
+			float eRad;
+			m_Data.m_pBoss->GetPos( &eX, &eY );
+			eRad = m_Data.m_pBoss->GetCollisionRadius();
+			for( PlayerShotList::iterator itShot = m_Data.m_PlayerShotList.begin(); itShot != m_Data.m_PlayerShotList.end(); ++itShot ){
+				float psX;
+				float psY;
+				float psRad;
+				( *itShot )->GetPos( &psX, &psY );
+				psRad = ( *itShot )->GetCollisionRadius();
+				float distance = ( eX - psX ) * ( eX - psX ) + ( eY - psY ) * ( eY - psY );
+				float radius = ( psRad + eRad ) * ( psRad + eRad );
+				if( distance < radius ){
+					( *itShot )->Colided( m_Data.m_pBoss );
+					m_Data.m_pBoss->Colided( *itShot );
 				}
 			}
 		}
@@ -196,6 +257,15 @@ namespace GameEngine
 			}
 			++it;
 		}
+		// ボスの更新
+		if( m_Data.m_pBoss ){
+			if( !m_Data.m_pBoss->Update() ){
+				MAPIL::SafeDelete( m_Data.m_pBoss );
+				StageMessage msg;
+				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_ENDED;
+				m_Data.m_MsgQueue.push( msg );
+			}
+		}
 		// プレイヤーショットの更新
 		for( PlayerShotList::iterator it = m_Data.m_PlayerShotList.begin(); it != m_Data.m_PlayerShotList.end(); ){
 			if( !( *it )->Update() ){
@@ -237,13 +307,35 @@ namespace GameEngine
 	void Stage::Impl::ProcessMessage()
 	{
 		while( !m_Data.m_MsgQueue.empty() ){
-			int msg = m_Data.m_MsgQueue.front();
+			int msg = m_Data.m_MsgQueue.front().m_MsgID;
 			switch( msg ){
-				case STAGE_MESSAGE_PLAYER_DAMAGED:
+				case StageMessage::STAGE_MESSAGE_ID_PLAYER_DAMAGED:
 					DeleteAllEnemyShots();
 					break;
-				case STAGE_MESSAGE_PLAYER_DESTORYED:
+				case StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED:
 					m_Data.m_HasTermSig = true;
+					break;
+				case StageMessage::STAGE_MESSAGE_ID_BOSS_DAMAGED:
+					if( m_PrivData.m_BossModeData.m_DamagedCounter <= 5 ){
+						m_PrivData.m_BossModeData.m_DamagedCounter = 10;
+					}
+					break;
+				case StageMessage::STAGE_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL:
+					m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode = true;
+					m_PrivData.m_ConsSkillModeData.m_Counter = 0;
+					m_PrivData.m_ConsSkillModeData.m_PostCounter = 0;
+					m_PrivData.m_ConsSkillModeData.m_SkillName = *m_Data.m_MsgQueue.front().m_MsgDataList[ 1 ].m_pString;
+					m_PrivData.m_ConsSkillModeData.m_SkillCost = m_Data.m_MsgQueue.front().m_MsgDataList[ 0 ].m_Integer;
+					MAPIL::SafeDelete( m_Data.m_MsgQueue.front().m_MsgDataList[ 1 ].m_pString );
+					break;
+				case StageMessage::STAGE_MESSAGE_ID_BOSS_STOP_CONS_SKILL:
+					m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode = false;
+					break;
+				case StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_STARTED:
+					m_PrivData.m_BossModeData.m_IsBossMode = true;
+					break;
+				case StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_ENDED:
+					m_PrivData.m_BossModeData.m_IsBossMode = false;
 					break;
 				default:
 					break;
@@ -276,6 +368,11 @@ namespace GameEngine
 		m_Data.m_EnemyList.clear();
 	}
 
+	void Stage::Impl::DeleteBoss()
+	{
+		MAPIL::SafeDelete( m_Data.m_pBoss );
+	}
+
 	void Stage::Impl::DeleteAllEffects()
 	{
 		for( EffectList::iterator it = m_Data.m_EffectList.begin(); it != m_Data.m_EffectList.end(); ++it ){
@@ -290,6 +387,118 @@ namespace GameEngine
 			delete ( *it );
 		}
 		m_Data.m_ItemList.clear();
+	}
+
+	void Stage::Impl::UpdateConsSkillEffect()
+	{
+		if( m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode ){
+			++m_PrivData.m_ConsSkillModeData.m_Counter;
+		}
+		else{
+			++m_PrivData.m_ConsSkillModeData.m_PostCounter;
+			//if( m_Data.m_pBoss ){
+			//	m_PrivData.m_ConsSkillModeData.m_PrevConsGauge = m_Data.m_pBoss->GetConsGauge();
+			//}
+		}
+	}
+
+	void Stage::Impl::DrawConsSkillEffect() const
+	{
+		if( !m_Data.m_pBoss ){
+			return;
+		}
+
+		if( m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode ){
+			if( m_PrivData.m_ConsSkillModeData.m_Counter < 60 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									0.0f, 0.0f,
+									40.0f, 30.0f, false,
+									( ( m_PrivData.m_ConsSkillModeData.m_Counter * 3 ) << 24 ) | 0x333333 );
+				
+				DrawFontString( m_Data.m_ResourceMap, 400.0f - m_PrivData.m_ConsSkillModeData.m_Counter, 30.0f, 0.5f,
+								( ( m_PrivData.m_ConsSkillModeData.m_Counter * 4 ) << 24 ) | 0xFFFFFF,
+								m_PrivData.m_ConsSkillModeData.m_SkillName.c_str() );
+			}
+			else{
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									0.0f, 0.0f,
+									40.0f, 30.0f, false, 180 << 24 | 0x333333 );
+				DrawFontString( m_Data.m_ResourceMap, 340.0f, 30.0f, 0.5f, m_PrivData.m_ConsSkillModeData.m_SkillName.c_str() );
+			}
+
+			if( m_PrivData.m_ConsSkillModeData.m_Counter <= 60 ){
+				if( m_PrivData.m_ConsSkillModeData.m_Counter <= 30 ){
+					MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+										150.0f + m_Data.m_pBoss->GetConsGauge() * 16.0f / 100.0f, 20.0f,
+										( m_PrivData.m_ConsSkillModeData.m_SkillCost ) * 10.0f / 1000.0f, 0.5f, false,
+										0xCC00FF00 );
+					if( ( m_PrivData.m_ConsSkillModeData.m_Counter % 4 ) == 0 ){
+						MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
+						MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+											150.0f + m_Data.m_pBoss->GetConsGauge() * 16.0f / 100.0f, 20.0f,
+											( m_PrivData.m_ConsSkillModeData.m_SkillCost ) * 10.0f / 1000.0f, 0.5f, false,
+											0x99FFFFFF );
+						MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
+					}
+				}
+				else{
+					float scale = - 0.5f + m_PrivData.m_ConsSkillModeData.m_Counter / 30.0f;
+					MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
+					int length = m_PrivData.m_ConsSkillModeData.m_SkillCost;
+					MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+										150.0f + ( m_Data.m_pBoss->GetConsGauge() + length / 2 ) * 16.0f / 100.0f, 24.0f,
+										( m_PrivData.m_ConsSkillModeData.m_SkillCost ) * 10.0f / 1000.0f + scale, 0.5f + scale, true,
+										( ( 60 - m_PrivData.m_ConsSkillModeData.m_Counter ) * 5 ) << 24 | ( ( 60 - m_PrivData.m_ConsSkillModeData.m_Counter )* 10 ) << 8 );
+					MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
+				}
+			}
+		}
+		else{
+			if( m_PrivData.m_ConsSkillModeData.m_PostCounter < 30 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									0.0f, 0.0f,
+									40.0f, 30.0f, false,
+									( ( ( 30 - m_PrivData.m_ConsSkillModeData.m_PostCounter ) * 6 ) << 24 ) | 0x333333 );
+				DrawFontString(	m_Data.m_ResourceMap, 340.0f - m_PrivData.m_ConsSkillModeData.m_PostCounter, 30.0f, 0.5f,
+								( ( ( 30 - m_PrivData.m_ConsSkillModeData.m_PostCounter ) * 8 ) << 24 ) | 0xFFFFFF, m_PrivData.m_ConsSkillModeData.m_SkillName.c_str() );
+			}
+		}
+	}
+
+	void Stage::Impl::UpdateBossModeEffect()
+	{
+		--m_PrivData.m_BossModeData.m_DamagedCounter;
+	}
+
+	void Stage::Impl::DrawBossModeEffect() const
+	{
+		if( m_PrivData.m_BossModeData.m_IsBossMode ){
+			if( m_Data.m_pBoss ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									150.0f, 10.0f,
+									m_Data.m_pBoss->GetHP() * 20.0f / m_Data.m_pBoss->GetMaxHP(), 0.5f, false, 0xCCFF0000 );
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									150.0f, 20.0f,
+									m_Data.m_pBoss->GetConsGauge() * 10.0f / 1000.0f, 0.5f, false, 0xCC00FF00 );
+				if( m_PrivData.m_BossModeData.m_DamagedCounter >= 5 ){
+					MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
+					MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+										150.0f, 10.0f,
+										m_Data.m_pBoss->GetHP() * 20.0f / m_Data.m_pBoss->GetMaxHP(), 0.5f, false,
+										( m_PrivData.m_BossModeData.m_DamagedCounter * 10 ) << 24 | 0xFFFFFF );
+					MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
+				}
+
+				for( int i = 0; i < 6; ++i ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									150.0f + i * 64.0f, 10.0f,
+									0.1f, 0.5f, false, 0xFFFFFFFF );
+				}
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									246.0f, 20.0f,
+									0.1f, 0.5f, false, 0xFFFFFFFF );
+			}
+		}
 	}
 
 	void Stage::Impl::Init()
@@ -335,6 +544,12 @@ namespace GameEngine
 		// 全GameObjectの更新
 		UpdateGameObjects();
 
+		// スキル使用時のエフェクト処理を更新
+		UpdateConsSkillEffect();
+
+		// ボス戦時のエフェクト処理を更新
+		UpdateBossModeEffect();
+
 		// スコアの更新
 		m_ScoreManager.Add( m_Data.m_FrameGameData.m_Score );
 		m_ScoreManager.Update();
@@ -372,6 +587,10 @@ namespace GameEngine
 
 		// 2D画像描画開始
 		MAPIL::BeginRendering2DGraphics();
+
+		// スキル使用時のエフェクトを描画
+		DrawConsSkillEffect();
+
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 
 		if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
@@ -395,6 +614,10 @@ namespace GameEngine
 		// 敵の描画
 		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){
 			( *it )->Draw();
+		}
+		// ボスの描画
+		if( m_Data.m_pBoss ){
+			m_Data.m_pBoss->Draw();
 		}
 		// プレイヤーショットの描画
 		for( PlayerShotList::iterator it = m_Data.m_PlayerShotList.begin(); it != m_Data.m_PlayerShotList.end(); ++it ){
@@ -608,6 +831,9 @@ namespace GameEngine
 		MAPIL::DrawString( 500.0f, 450.0f, "EnemyShotGroup : %d", m_Data.m_EnemyShotGroupList.size() );
 		MAPIL::DrawString( 30.0f, 400.0f, "Frame : %d", m_Data.m_Frame );
 		
+		// ボス戦闘時のエフェクトの描画
+		DrawBossModeEffect();
+
 		// 2D描画終了
 		MAPIL::EndRendering2DGraphics();
 		

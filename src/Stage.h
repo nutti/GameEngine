@@ -19,6 +19,8 @@ namespace GameEngine
 	class Effect;
 	class EnemyShotGroup;
 
+	typedef Enemy Boss;
+
 	typedef std::list < Enemy* >			EnemyList;
 	typedef std::list < PlayerShot*	>		PlayerShotList;
 	typedef std::list < EnemyShot* >		EnemyShotList;
@@ -26,13 +28,34 @@ namespace GameEngine
 	typedef std::list < Effect* >			EffectList;
 	typedef std::list < EnemyShotGroup* >	EnemyShotGroupList;
 
-	typedef std::queue < int >			StageMessageQueue;
-
-	enum StageMessage
+	struct StageMessage
 	{
-		STAGE_MESSAGE_PLAYER_DAMAGED			= 0,		// プレイヤーがダメージを受けた
-		STAGE_MESSAGE_PLAYER_DESTORYED			= 1,		// プレイヤーが撃破された（HPが0以下になった）
+		enum StageMessageID
+		{
+			STAGE_MESSAGE_ID_PLAYER_DAMAGED			= 0,		// プレイヤーがダメージを受けた
+			STAGE_MESSAGE_ID_PLAYER_DESTORYED		= 1,		// プレイヤーが撃破された（HPが0以下になった）
+			STAGE_MESSAGE_ID_BOSS_MODE_STARTED		= 2,		// ボスモードへ移行した
+			STAGE_MESSAGE_ID_BOSS_MODE_ENDED		= 3,		// ボスモードが終了した
+			STAGE_MESSAGE_ID_BOSS_DAMAGED			= 4,		// ボスがダメージを受けた
+			STAGE_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL	= 5,		// ボスがスキルを使用した
+			STAGE_MESSAGE_ID_BOSS_STOP_CONS_SKILL	= 6,		// ボスがスキルの使用を終了した
+		};
+		union StageMessageData
+		{
+			int				m_Integer;
+			std::string*	m_pString;
+			float			m_Float;
+		};
+
+		StageMessageID		m_MsgID;
+		std::vector < StageMessageData >	m_MsgDataList;
 	};
+
+	
+
+	typedef std::queue < StageMessage >			StageMessageQueue;
+
+	
 
 	struct StageData
 	{
@@ -44,6 +67,7 @@ namespace GameEngine
 
 		Player*				m_pPlayer;				// プレイヤー
 		EnemyList			m_EnemyList;			// 敵リスト
+		Boss*				m_pBoss;				// ボスリスト
 		PlayerShotList		m_PlayerShotList;		// プレイヤーショットリスト
 		EnemyShotList		m_EnemyShotList;		// 敵ショットリスト
 		ItemList			m_ItemList;				// アイテムリスト

@@ -36,6 +36,8 @@ namespace GameEngine
 		void SysSetEnemyConsGauge();
 		void SysEnemyEnableInvincible();
 		void SysEnemyDisableInvincible();
+		void SysEnemyInvokeConsSkill();
+		void SysEnemyStopConsSkill();
 
 		void SysCreateEnemyShot1();
 		void SysCreateEffect1();
