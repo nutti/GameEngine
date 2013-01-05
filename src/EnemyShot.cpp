@@ -14,10 +14,17 @@ namespace GameEngine
 		int									m_ID;				// ショットグループID
 	};
 
+	typedef std::queue < EnemyShotMessage >			EnemyShotMessageQueue;
+
+
 	class EnemyShot::Impl : public GameObjectImplBase
 	{
 	private:
+
 		std::shared_ptr < ResourceMap >		m_pResourceMap;		// リソース管理データ
+		ShotGroupData						m_ShotGroupData;	// ショットグループデータ
+
+		// 状態関連
 		int									m_ShotID;			// ショットID
 		float								m_PosX;				// 位置（X座標）
 		float								m_PosY;				// 位置（Y座標）
@@ -26,9 +33,16 @@ namespace GameEngine
 		float								m_ColRadius;		// 衝突判定の半径
 		int									m_ImgID;			// 画像ID
 		float								m_ImgScale;			// 画像拡大率
-		bool								m_Colided;			// 衝突したか？
 		int									m_Counter;			// カウンタ
-		ShotGroupData						m_ShotGroupData;	// ショットグループデータ
+		int									m_DeadCounter;		// 死亡カウンタ
+
+		// フラグ管理
+		bool								m_Colided;			// 衝突したか？
+		bool								m_IsDead;			// 死んでいたらtrue
+
+		// メッセージ関連
+		EnemyShotMessageQueue				m_MsgQueue;			// メッセージキュー
+		
 	public:
 		Impl( std::shared_ptr < ResourceMap > pMap, int id );
 		~Impl();
@@ -48,6 +62,9 @@ namespace GameEngine
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 		float GetCollisionRadius() const;
 		int GetCounter() const;
+		void ProcessMessages();								// 溜まっていたメッセージの処理
+		void PostMessage( int msgID );						// メッセージの追加
+		void PrepDestroy();									// 削除前処理
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -55,6 +72,7 @@ namespace GameEngine
 																			m_Colided( false )
 	{
 		m_Counter = 0;
+		m_IsDead = false;
 		MAPIL::ZeroObject( &m_ShotGroupData, sizeof( m_ShotGroupData ) );
 	}
 
@@ -68,35 +86,52 @@ namespace GameEngine
 
 	void EnemyShot::Impl::Draw()
 	{
-		if( m_Counter >= 6 ){
-			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-								m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
-		}
-		else{
+		if( m_IsDead ){
 			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 								m_PosX, m_PosY,
-								( 30 - m_Counter ) * 0.1f, ( 30 - m_Counter ) * 0.1f,
+								m_DeadCounter * 0.05f + 1.0f, m_DeadCounter * 0.05f + 1.0f,
 								m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ),
-								true, ( m_Counter * 10 + 100 ) << 24 | 0xFFFFFF );
+								true, ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
+		}
+		else{
+			if( m_Counter >= 6 ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+									m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+			}
+			else{
+				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+									m_PosX, m_PosY,
+									( 30 - m_Counter ) * 0.1f, ( 30 - m_Counter ) * 0.1f,
+									m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ),
+									true, ( m_Counter * 10 + 100 ) << 24 | 0xFFFFFF );
+			}
 		}
 	}
 
 	bool EnemyShot::Impl::Update()
 	{
-		if( m_Counter < 20 ){
-			m_Speed -= 0.1f;
+		// メッセージ処理
+		ProcessMessages();
+		
+		// 死亡判定処理
+		if( m_IsDead ){
+			++m_DeadCounter;
+			if( m_DeadCounter >= 20 ){
+				return false;
+			}
 		}
+		else{
+			if( m_Counter < 20 ){
+				m_Speed -= 0.1f;
+			}
 
-		m_PosX += m_Speed * ::cos( m_Angle );
-		m_PosY -= m_Speed * ::sin( m_Angle );
+			m_PosX += m_Speed * ::cos( m_Angle );
+			m_PosY -= m_Speed * ::sin( m_Angle );
 
 
-		if( m_PosX < 0.0f || m_PosX > 640.0f || m_PosY < -30.0f || m_PosY > 500.0f ){
-			return false;
-		}
-
-		if( m_Colided ){
-			return false;
+			if( m_PosX < 0.0f || m_PosX > 640.0f || m_PosY < -30.0f || m_PosY > 500.0f ){
+				return false;
+			}
 		}
 
 		++m_Counter;
@@ -148,7 +183,7 @@ namespace GameEngine
 
 	inline void EnemyShot::Impl::ProcessCollision( Player* pPlayer )
 	{
-		m_Colided = true;
+		PrepDestroy();
 	}
 
 	inline float EnemyShot::Impl::GetCollisionRadius() const
@@ -181,6 +216,36 @@ namespace GameEngine
 	inline void EnemyShot::Impl::AddSpeed( float speed )
 	{
 		m_Speed += speed;
+	}
+	
+	void EnemyShot::Impl::ProcessMessages()
+	{
+		while( !m_MsgQueue.empty() ){
+			int msg = m_MsgQueue.front().m_MsgID;
+			switch( msg ){
+				case EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED:
+					PrepDestroy();
+					break;
+				default:
+					break;
+			}
+			m_MsgQueue.pop();
+		}
+	}
+
+	inline void EnemyShot::Impl::PostMessage( int msgID )
+	{
+		EnemyShotMessage msg;
+		msg.m_MsgID = msgID;
+		m_MsgQueue.push( msg );
+	}
+
+	void EnemyShot::Impl::PrepDestroy()
+	{
+		if( !m_IsDead ){
+			m_DeadCounter = 0;
+			m_IsDead = true;
+		}
 	}
 
 	// ----------------------------------
@@ -299,6 +364,11 @@ namespace GameEngine
 	void EnemyShot::AddSpeed( float speed )
 	{
 		m_pImpl->SetSpeed( speed );
+	}
+
+	void EnemyShot::PostMessage( int msgID )
+	{
+		m_pImpl->PostMessage( msgID );
 	}
 
 }

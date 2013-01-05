@@ -32,13 +32,15 @@ namespace GameEngine
 	{
 		enum StageMessageID
 		{
-			STAGE_MESSAGE_ID_PLAYER_DAMAGED			= 0,		// プレイヤーがダメージを受けた
-			STAGE_MESSAGE_ID_PLAYER_DESTORYED		= 1,		// プレイヤーが撃破された（HPが0以下になった）
-			STAGE_MESSAGE_ID_BOSS_MODE_STARTED		= 2,		// ボスモードへ移行した
-			STAGE_MESSAGE_ID_BOSS_MODE_ENDED		= 3,		// ボスモードが終了した
-			STAGE_MESSAGE_ID_BOSS_DAMAGED			= 4,		// ボスがダメージを受けた
-			STAGE_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL	= 5,		// ボスがスキルを使用した
-			STAGE_MESSAGE_ID_BOSS_STOP_CONS_SKILL	= 6,		// ボスがスキルの使用を終了した
+			STAGE_MESSAGE_ID_PLAYER_DAMAGED				= 0,		// プレイヤーがダメージを受けた
+			STAGE_MESSAGE_ID_PLAYER_DESTORYED			= 1,		// プレイヤーが撃破された（HPが0以下になった）
+			STAGE_MESSAGE_ID_BOSS_MODE_STARTED			= 2,		// ボスモードへ移行した
+			STAGE_MESSAGE_ID_BOSS_MODE_ENDED			= 3,		// ボスモードが終了した
+			STAGE_MESSAGE_ID_BOSS_DAMAGED				= 4,		// ボスがダメージを受けた
+			STAGE_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL		= 5,		// ボスがスキルを使用した
+			STAGE_MESSAGE_ID_BOSS_STOP_CONS_SKILL		= 6,		// ボスがスキルの使用を終了した
+			STAGE_MESSAGE_ID_BOSS_SHIFT_NEXT_MODE		= 7,		// ボスで次の段階へ進んだ
+			STAGE_MESSAGE_ID_ENEMY_INVOKE_CONS_SKILL	= 8,		// 敵（ボス以外）がスキルを使用した
 		};
 		union StageMessageData
 		{

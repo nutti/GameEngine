@@ -7,6 +7,17 @@
 
 namespace GameEngine
 {
+	struct EnemyShotMessage
+	{
+		enum EnemyShotMessageID
+		{
+			ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED			= 0,		// プレイヤーがダメージを受けた
+			ENEMY_SHOT_MESSAGE_ID_BOSS_MODE_STARTED			= 1,		// ボスモードへ移行した
+			ENEMY_SHOT_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL	= 2,		// ボスがスキルを使用した
+		};
+
+		int		m_MsgID;
+	};
 
 	struct ResourceMap;
 	class EnemyShotGroup;
@@ -40,6 +51,7 @@ namespace GameEngine
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
 		int GetCounter() const;
+		void PostMessage( int msgID );						// メッセージの追加
 	};
 }
 

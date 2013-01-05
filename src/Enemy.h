@@ -34,6 +34,9 @@ namespace GameEngine
 		int					m_IsBoss;			// ボスなら1
 		bool				m_Destroyed;		// 倒された場合はtrue
 		bool				m_IsInvincibleMode;	// 無敵状態の場合はtrue
+		bool				m_IsConsSkillMode;	// 意識技を使用している場合はtrue
+		int					m_ConsSkillAttr;	// 意識技の属性
+		std::string			m_ConsSkillName;	// 意識技名
 		StageData*			m_pStageData;		// ステージデータ
 		ItemDrop			m_ItemDrop[ 6 ];	// 落とすアイテムの状態
 		std::shared_ptr < ResourceMap >		m_pResouceMap;
@@ -48,18 +51,9 @@ namespace GameEngine
 		// Enemyクラス内部用データ
 		struct EnemyPrivateData
 		{
-			// 意識技
-			//struct ConsSkillModeData
-			//{
-			//	bool			m_IsConsSkillMode;	// 意識スキルモードならtrue
-			//	int				m_Counter;			// エフェクト用カウンタ
-			//	int				m_PostCounter;		// エフェクト終了ときのカウンタ
-			//	std::string		m_SkillName;		// 意識技名
-			//};
-			//int					m_DamagedCounter;		// ダメージ時のカウンタ
-			int					m_PrevConsGauge;		// 前回の意識ゲージ（このゲージが大量に減った時に意識技を使用したとみなす）
-			//int					m_SkillUsedCounter;		// 意識技使用時のカウンタ
-			//ConsSkillModeData	m_ConsSkillModeData;	// 意識技用のデータ
+			int			m_ConsSkillEffectCounter;			// 意識技使用時用カウンタ
+			int			m_ConsSkillEffectPostCounter;		// 意識技使用後用カウンタ
+			int			m_PrevConsGauge;					// 前回の意識ゲージ（このゲージが大量に減った時に意識技を使用したとみなす）
 		};
 
 		EnemyData							m_Data;			// データ
@@ -76,8 +70,6 @@ namespace GameEngine
 		void Init( float posX, float posY );				// 初期化
 		void Draw();										// 描画
 		bool Update();										// 更新
-		//void InvokeConsSkill( std::string skillName );		// スキル呼び出し
-		//void StopConsSkill();								// スキル終了要求
 		void Colided( CollisionObject* pObject );			// 衝突時の処理 ディスパッチャ
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 		void ProcessCollision( Enemy* pEnemy );				// 衝突時の処理（敵）

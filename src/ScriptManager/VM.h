@@ -69,6 +69,7 @@ namespace VM
 		SYS_ENEMY_DISABLE_INVINCIBLE,		// Disable invincible mode.
 		SYS_ENEMY_INVOKE_CONS_SKILL,		// Invoke skill.
 		SYS_ENEMY_STOP_CONS_SKILL,			// Stop skill.
+		SYS_ENEMY_SHIFT_NEXT_MODE,			// Sfhit next mode.
 
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)
@@ -123,6 +124,13 @@ namespace VM
 		SYS_SET_DIRLIGHT_SPC_COLOR,						// Set specular color for directional light.
 		SYS_SET_DIRLIGHT_ATTEN,							// Set attenuation for directional light.
 		SYS_ENABLE_DIRLIGHT,							// Enable directional light.
+		SYS_ENABLE_ALPHA_BLENDING,						// Enable alpha blending.
+		SYS_DISABLE_ALPHA_BLENDING,						// Disable alpha blending.
+		SYS_DRAW_MODEL_FIXED_ROT,						// Draw 3D model (with scale).
+		SYS_BEGIN_2D_GRAPHICS,							// Begin 2D Graphics.
+		SYS_END_2D_GRAPHICS,							// End 2D Graphics.
+		SYS_DRAW_TEXTURE_FIXED_ROT,						// Draw 2D texture (with texture).
+		SYS_COLOR_ARGB,									// Get ARGB color.
 	};
 
 	class Data

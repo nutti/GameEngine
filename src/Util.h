@@ -38,6 +38,9 @@ namespace GameEngine
 	void CreateDirectory( const std::string& pathName );
 
 	bool FileExist( const std::string& fileName );
+
+	// •¶š—ñ‚©‚ç“Á’è‚Ì•¶š‚ğíœ
+	void DeleteChar( char* pOut, int size, const char* pStr, char deleteChar );
 }
 
 #endif

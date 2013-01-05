@@ -229,6 +229,27 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_RECOVER_2,
 											"archive/resource/texture/recover_2.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1,
+											"archive/resource/texture/cons_skill_effect_1.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2,
+											"archive/resource/texture/cons_skill_effect_2.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_3,
+											"archive/resource/texture/cons_skill_effect_5.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
+											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_1,
+											"archive/resource/se/cons_skill_effect_1.wav", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
+											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_2,
+											"archive/resource/se/cons_skill_effect_4.wav", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
+											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_3,
+											"archive/resource/se/cons_skill_effect_3.wav", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
+											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_4,
+											"archive/resource/se/cons_skill_effect_5.wav", false );
 		m_Loading.Start();
 	}
 

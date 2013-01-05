@@ -61,9 +61,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_CONS_GAUGE, TYPE_VOID, "SetEnemyConsGauge", "i" );					// void SetEnemyConsGauge( gauge );
 	AddFunction( VM::SYS_ENEMY_ENABLE_INVINCIBLE, TYPE_VOID, "EnemyEnableInvincible", "" );				// void EnemyEnableInvincible();
 	AddFunction( VM::SYS_ENEMY_DISABLE_INVINCIBLE, TYPE_VOID, "EnemyDisableInvincible", "" );			// void EnemyDisableInvincible();
-	AddFunction( VM::SYS_ENEMY_INVOKE_CONS_SKILL, TYPE_VOID, "EnemyInvokeConsSkill", "si" );			// void EnemyInvokeConsSkill( skill_name, dec_gauge );
+	AddFunction( VM::SYS_ENEMY_INVOKE_CONS_SKILL, TYPE_VOID, "EnemyInvokeConsSkill", "sii" );			// void EnemyInvokeConsSkill( skill_name, dec_gauge, attribute );
 	AddFunction( VM::SYS_ENEMY_STOP_CONS_SKILL, TYPE_VOID, "EnemyStopConsSkill", "" );				// void EnemyStopConsSkill();
-
+	AddFunction( VM::SYS_ENEMY_SHIFT_NEXT_MODE, TYPE_VOID, "EnemyShiftNextMode", "" );	// void EnemyShiftNextMode();
 
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_1, TYPE_VOID, "CreateEnemyShot1", "fffffi" );	// void CreateEnemyShot1( x, y, speed, angle, radius, texture_id );
 	AddFunction( VM::SYS_ENEMY_CREATE_EFFECT_1, TYPE_VOID, "CreateEffect1", "ffii" );		// void CreateEffect1( x, y, id, subid );
@@ -121,7 +121,13 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_SET_DIRLIGHT_SPC_COLOR, TYPE_VOID, "SetDirLightSpcColor", "iiiii" );	// void SetDirLightSpcColor( idnex, a, r, g, b );
 	AddFunction( VM::SYS_SET_DIRLIGHT_ATTEN, TYPE_VOID, "SetDirLightAtten", "ifff" );			// void SetDirLightAtten( index, atten0, atten1, atten2 );
 	AddFunction( VM::SYS_ENABLE_DIRLIGHT, TYPE_VOID, "EnableDirLight", "i" );					// void EnableDirLight( index );
-
+	AddFunction( VM::SYS_ENABLE_ALPHA_BLENDING, TYPE_VOID, "EnableAlphaBlending", "" );			// void EnableAlphaBlending();
+	AddFunction( VM::SYS_DISABLE_ALPHA_BLENDING, TYPE_VOID, "DisableAlphaBlending", "" );		// void DisableAlphaBlending();
+	AddFunction( VM::SYS_DRAW_MODEL_FIXED_ROT, TYPE_VOID, "DrawModelPS", "iffffff" );		// void DrawModelP( index, x, y, z, sx, sy, sz );
+	AddFunction( VM::SYS_BEGIN_2D_GRAPHICS, TYPE_VOID, "Begin2DGraphics", "" );				// void Begin2DGraphics();
+	AddFunction( VM::SYS_END_2D_GRAPHICS, TYPE_VOID, "End2DGraphics", "" );					// void End2DGraphics();
+	AddFunction( VM::SYS_DRAW_TEXTURE_FIXED_ROT, TYPE_VOID, "DrawTexturePS", "iffffii" );	// void DrawTexture( index, x, y, sx, sy, centerize, color );
+	AddFunction( VM::SYS_COLOR_ARGB, TYPE_INTEGER, "ColorARGB", "iiii" );					// int ColorARGB( a, r, g, b );
 
 	// Global variables.
 	m_Variables.push_back( ValueTable() );

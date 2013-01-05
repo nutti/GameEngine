@@ -157,6 +157,32 @@ namespace GameEngine
 		MAPIL::DrawModel( m_pStageBGData->m_pStageData->m_ResourceMap.m_pStageResourceMap->m_ModelMap[ id ], mat );
 	}
 
+	void StageBackgroundVCPU::SysDrawModelPS()
+	{
+		Pop();
+		float sz = Top().m_Float;
+		Pop();
+		float sy = Top().m_Float;
+		Pop();
+		float sx = Top().m_Float;
+		Pop();
+		float z = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		MAPIL::Matrix4x4 < float > mat;
+		MAPIL::Matrix4x4 < float > scaleMat;
+		MAPIL::CreateScalingMat( &scaleMat, sx, sy, sz );
+		MAPIL::CreateTranslationMat( &mat, x, y, z );
+		mat = scaleMat * mat;
+		MAPIL::DrawModel( m_pStageBGData->m_pStageData->m_ResourceMap.m_pStageResourceMap->m_ModelMap[ id ], mat );
+	}
+
 	void StageBackgroundVCPU::SysSetDirLightDir()
 	{
 		Pop();
@@ -263,6 +289,66 @@ namespace GameEngine
 		VM::VCPU::Init();
 	}
 
+	void StageBackgroundVCPU::SysEnableAlphaBlending()
+	{
+		Pop();
+		MAPIL::EnableBlending();
+	}
+
+	void StageBackgroundVCPU::SysDisableAlphaBlending()
+	{
+		Pop();
+		MAPIL::DisableBlending();
+	}
+
+	void StageBackgroundVCPU::SysBegin2DGraphics()
+	{
+		Pop();
+		MAPIL::BeginRendering2DGraphics();
+	}
+
+	void StageBackgroundVCPU::SysEnd2DGraphics()
+	{
+		Pop();
+		MAPIL::EndRendering2DGraphics();
+	}
+
+	void StageBackgroundVCPU::SysDrawTexturePS()
+	{
+		Pop();
+		int color = Top().m_Integer;
+		Pop();
+		bool centerize = Top().m_Integer == 0 ? false : true;
+		Pop();
+		float sy = Top().m_Float;
+		Pop();
+		float sx = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int index = Top().m_Integer;
+		Pop();
+
+		MAPIL::DrawTexture( m_pStageBGData->m_pStageData->m_ResourceMap.m_pStageResourceMap->m_TextureMap[ index ], x, y, sx, sy, centerize, color );
+	}
+
+	void StageBackgroundVCPU::SysColorARGB()
+	{
+		Pop();
+		int b = Top().m_Integer;
+		Pop();
+		int g = Top().m_Integer;
+		Pop();
+		int r = Top().m_Integer;
+		Pop();
+		int a = Top().m_Integer;
+		Pop();
+
+		Push( a << 24 | r << 16 | g << 8 | b );
+	}
+
 	void StageBackgroundVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -315,7 +401,28 @@ namespace GameEngine
 			case VM::SYS_ENABLE_DIRLIGHT:
 				SysEnableDirLight();
 				break;
-				
+			case VM::SYS_ENABLE_ALPHA_BLENDING:
+				SysEnableAlphaBlending();
+				break;
+			case VM::SYS_DISABLE_ALPHA_BLENDING:
+				SysDisableAlphaBlending();
+				break;
+			case VM::SYS_DRAW_MODEL_FIXED_ROT:
+				SysDrawModelPS();
+				break;
+			case VM::SYS_BEGIN_2D_GRAPHICS:
+				SysBegin2DGraphics();
+				break;
+			case VM::SYS_END_2D_GRAPHICS:
+				SysEnd2DGraphics();
+				break;
+			case VM::SYS_DRAW_TEXTURE_FIXED_ROT:
+				SysDrawTexturePS();
+				break;
+			case VM::SYS_COLOR_ARGB:
+				SysColorARGB();
+				break;
+
 			case VM::SYS_STAGE_GET_FRAME:
 				SysStageGetFrame();
 				break;

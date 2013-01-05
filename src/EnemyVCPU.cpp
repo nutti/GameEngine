@@ -163,28 +163,50 @@ namespace GameEngine
 	void EnemyVCPU::SysEnemyInvokeConsSkill()
 	{
 		Pop();
-
-		// メッセージ構築
-		StageMessage msg;
-		// 意識技の呼び出しメッセージ
-		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL;
-		StageMessage::StageMessageData data;
-		// 第2引数
+		// 第3引数（属性）
+		int attr = Top().m_Integer;
+		Pop();
+		// 第2引数（消費コスト）
 		int cost = Top().m_Integer;
-		data.m_Integer = cost;
-		msg.m_MsgDataList.push_back( data );
 		Pop();
-		// 第1引数
-		data.m_pString = new std::string;
-		*data.m_pString = Top().m_pString->m_Str;
-		msg.m_MsgDataList.push_back( data );
+		// 第1引数（スキル名）
+		std::string* pStr = new std::string;
+		*pStr = Top().m_pString->m_Str;
 		Pop();
+
+		// 技を使用したのが、ボスの場合
 		if( m_pEnemyData->m_IsBoss ){
+			// メッセージ構築
+			StageMessage msg;
+			// 意識技の呼び出しメッセージ
+			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL;
+			StageMessage::StageMessageData data;
+			data.m_Integer = cost;
+			msg.m_MsgDataList.push_back( data );
+			data.m_pString = pStr;
+			msg.m_MsgDataList.push_back( data );
 			// メッセージ送信
 			m_pEnemyData->m_pStageData->m_MsgQueue.push( msg );
 		}
+		// 技を使用したのが、通常の敵の場合
+		else{
+			// メッセージ構築
+			StageMessage msg;
+			// 意識技の呼び出しメッセージ
+			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_INVOKE_CONS_SKILL;
+			// メッセージ送信
+			m_pEnemyData->m_pStageData->m_MsgQueue.push( msg );
+			// 意識技エフェクト開始
+			m_pEnemyData->m_IsConsSkillMode = true;
+			m_pEnemyData->m_ConsSkillName = *pStr;
+			MAPIL::SafeDelete( pStr );
+		}
+
 		// 意識ゲージ減少
 		m_pEnemyData->m_ConsGauge -= cost;
+		// 無敵状態に設定
+		m_pEnemyData->m_IsInvincibleMode = true;
+		m_pEnemyData->m_ConsSkillAttr = attr;
 	}
 		
 	void EnemyVCPU::SysEnemyStopConsSkill()
@@ -194,6 +216,9 @@ namespace GameEngine
 		StageMessage msg;
 		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_STOP_CONS_SKILL;
 		m_pEnemyData->m_pStageData->m_MsgQueue.push( msg );
+		// 無敵状態に設定
+		m_pEnemyData->m_IsInvincibleMode = false;
+		m_pEnemyData->m_IsConsSkillMode = false;
 	}
 
 	void EnemyVCPU::SysCreateEnemyShot1()
@@ -338,6 +363,15 @@ namespace GameEngine
 		Pop();
 	}
 
+	void EnemyVCPU::SysEnemyShiftNextMode()
+	{
+		Pop();
+		// メッセージ送信
+		StageMessage msg;
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_SHIFT_NEXT_MODE;
+		m_pEnemyData->m_pStageData->m_MsgQueue.push( msg );
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -426,6 +460,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_REG:
 				SysCreateEnemyShotGroupReg();
+				break;
+			case VM::SYS_ENEMY_SHIFT_NEXT_MODE:
+				SysEnemyShiftNextMode();
 				break;
 
 			case VM::SYS_PLAY_SE:

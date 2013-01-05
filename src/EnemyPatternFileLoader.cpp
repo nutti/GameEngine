@@ -51,21 +51,23 @@ namespace GameEngine
 			EnemyPatternInfo info;
 			MAPIL::ZeroObject( &info, sizeof( info ) );
 			for( const char* pToken = ::strtok( str, "," ); pToken; pToken = ::strtok( 0, "," ) ){
+				char s[ 1024 ];
+				DeleteChar( s, sizeof( s ), pToken, ' ' );
 				switch( count ){
 					case 0:
-						frame = ::atoi( pToken );
+						frame = ::atoi( s );
 						if( frame <= 0 ){
 							frame = -100;
 						}
 						break;
 					case 1:
-						info.m_EnemyID = ::atoi( pToken );
+						info.m_EnemyID = ::atoi( s );
 						break;
 					case 2:
-						info.m_PosX = static_cast < float > ( ::atof( pToken ) );
+						info.m_PosX = static_cast < float > ( ::atof( s ) );
 						break;
 					case 3:
-						info.m_PosY = static_cast < float > ( ::atof( pToken ) );
+						info.m_PosY = static_cast < float > ( ::atof( s ) );
 						break;
 					default:
 						break;

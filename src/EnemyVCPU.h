@@ -46,6 +46,7 @@ namespace GameEngine
 
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();
+		void SysEnemyShiftNextMode();
 
 		void SysCreateItem();
 

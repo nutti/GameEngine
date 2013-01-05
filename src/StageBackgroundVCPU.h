@@ -28,6 +28,13 @@ namespace GameEngine
 		void SysSetDirLightSpcColor();
 		void SysSetDirLightAtten();
 		void SysEnableDirLight();
+		void SysEnableAlphaBlending();
+		void SysDisableAlphaBlending();
+		void SysDrawModelPS();
+		void SysBegin2DGraphics();
+		void SysEnd2DGraphics();
+		void SysDrawTexturePS();
+		void SysColorARGB();
 
 		void SysStageGetFrame();
 	public:

@@ -68,7 +68,7 @@ namespace GameEngine
 															GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE,
 															"archive/resource/texture/initialize.png" );
 		m_FPSManager.SetFPS( 60 );
-		m_FPSManager.SetPrecise( 10 );
+		m_FPSManager.SetPrecise( 100 );
 		m_pEventMediator->SendEvent( EVENT_TYPE_INITIALIZE );
 		if( !wndMode ){
 			MAPIL::ChangeWindowMode( 1 );
@@ -115,6 +115,17 @@ namespace GameEngine
 
 				// 新しいフレーム開始の合図を送信
 				m_pEventMediator->SendEvent( EVENT_TYPE_FRAME_UPDATE );
+
+				static int i = 0;
+				static float fps = 0.0f;
+				++i;
+
+				if( ( i % 60 ) == 0 ){ 
+					fps = m_FPSManager.GetNowFPS();
+				}
+				MAPIL::BeginRendering2DGraphics();
+				MAPIL::DrawString( 20.0f, 460.0f, "FPS : %f", fps );
+				MAPIL::EndRendering2DGraphics();
 
 				// 描画終了
 				MAPIL::EndRendering();

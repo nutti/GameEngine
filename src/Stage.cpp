@@ -310,9 +310,12 @@ namespace GameEngine
 			int msg = m_Data.m_MsgQueue.front().m_MsgID;
 			switch( msg ){
 				case StageMessage::STAGE_MESSAGE_ID_PLAYER_DAMAGED:
-					DeleteAllEnemyShots();
+					for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
+						( *it )->PostMessage( EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED );
+					}
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED:
+					DeleteAllEnemyShots();
 					m_Data.m_HasTermSig = true;
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_DAMAGED:
@@ -336,6 +339,13 @@ namespace GameEngine
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_ENDED:
 					m_PrivData.m_BossModeData.m_IsBossMode = false;
+					break;
+				case StageMessage::STAGE_MESSAGE_ID_BOSS_SHIFT_NEXT_MODE:
+					for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
+						( *it )->PostMessage( EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED );
+					}
+					break;
+				case StageMessage::STAGE_MESSAGE_ID_ENEMY_INVOKE_CONS_SKILL:
 					break;
 				default:
 					break;
@@ -578,11 +588,13 @@ namespace GameEngine
 		}
 
 		MAPIL::SetCullingMode( MAPIL::CULL_MODE_COUNTERCLOCKWISE );
+		//MAPIL::SetCullingMode( MAPIL::CULL_MODE_DISABLED );
 		MAPIL::EnableLighting();
 		MAPIL::DisableBlending();
 
 		// ”wŒi‚Ì•`‰æ
 		m_Background.Draw();
+		
 		MAPIL::EnableBlending();
 
 		// 2D‰æ‘œ•`‰æŠJŽn

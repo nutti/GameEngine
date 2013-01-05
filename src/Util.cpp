@@ -197,4 +197,22 @@ namespace GameEngine
 		
 		return false;
 	}
+
+	// •¶Žš—ñ‚©‚ç“Á’è‚Ì•¶Žš‚ðíœ
+	void DeleteChar( char* pOut, int size, const char* pStr, char deleteChar )
+	{
+		if( ::strlen( pStr ) >= size ){
+			*pOut = '\0';
+			return;
+		}
+
+		while( *pStr ){
+			if( deleteChar != *pStr ){
+				*pOut++ = *pStr;
+			}
+			++pStr;
+		}
+
+		*pOut = '\0';
+	}
 }
