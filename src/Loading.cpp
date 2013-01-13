@@ -120,6 +120,10 @@ namespace GameEngine
 			return 1;
 		}
 
+		if( m_pResourceManager.get() == NULL || m_pScriptManager.get() == NULL ){
+			return 0;
+		}
+
 		::WaitForSingleObject( m_Mutex, INFINITE );
 		bool result = ( m_State == LOADING_STATE_LOADING );
 		::ReleaseMutex( m_Mutex );

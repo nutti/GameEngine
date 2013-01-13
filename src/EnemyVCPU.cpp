@@ -114,6 +114,8 @@ namespace GameEngine
 		Pop();
 		int id = Top().m_Integer;
 		Pop();
+
+		m_pEnemyData->m_ImgID = id;
 	}
 
 	void EnemyVCPU::SysSetEnemyCollisionRadius()

@@ -171,6 +171,23 @@ namespace GameEngine
 		Push( id );
 	}
 
+	void EnemyShotGroupVCPU::SysCreateConsEnemyShot()
+	{
+		Pop();
+		int attr = Top().m_Integer;
+		Pop();
+		int id = -1;
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			id = m_pEnemyShotGroupData->m_ShotTotal++;
+			m_pEnemyShotGroupData->m_IsNew = false;
+			m_pEnemyShotGroupData->m_pShots[ id ] = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( 0 );
+			m_pEnemyShotGroupData->m_pShots[ id ]->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetConsAttr( attr );
+			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( m_pEnemyShotGroupData->m_pShots[ id ] );
+		}
+		Push( id );
+	}
+
 	void EnemyShotGroupVCPU::SysSetEnemyShotPos()
 	{
 		Pop();
@@ -433,6 +450,9 @@ namespace GameEngine
 
 			case VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT:
 				SysCreateEnemyShot();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_CREATE_CONS_SHOT:
+				SysCreateConsEnemyShot();
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_POS:
 				SysSetEnemyShotPos();

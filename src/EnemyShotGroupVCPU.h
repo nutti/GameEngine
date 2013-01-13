@@ -26,6 +26,7 @@ namespace GameEngine
 		void SysGetEnemyConsGauge();
 
 		void SysCreateEnemyShot();
+		void SysCreateConsEnemyShot();
 		void SysSetEnemyShotPos();
 		void SysSetEnemyShotAngle();
 		void SysSetEnemyShotSpeed();

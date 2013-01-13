@@ -26,6 +26,7 @@ namespace GameEngine
 		m_Data.m_ColRadius = 0.0f;
 		m_Data.m_PosX = 0.0f;
 		m_Data.m_PosY = 0.0f;
+		m_Data.m_ImgID = -1;
 		m_Data.m_Score = 0;
 		m_Data.m_HP = 2000;
 		m_Data.m_MaxHP = 2000;
@@ -63,12 +64,10 @@ namespace GameEngine
 
 	void Enemy::Draw()
 	{
-		MAPIL::DrawString( m_Data.m_PosX, m_Data.m_PosY, "¥" );
+		
 		if( !m_Data.m_IsBoss ){
+			int attrEffect[] = { 0xFFFFFFFF, 0xFF33FF33, 0xFF3333FF, 0xFFFF3333 };
 			if( m_Data.m_IsConsSkillMode ){
-
-				int attrEffect[] = { 0xFFFFFFFF };
-				
 				// Œø‰Ê‰¹Ä¶
 				if( m_PrivateData.m_ConsSkillEffectCounter == 1 ){
 					MAPIL::PlayStaticBuffer( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_2 ] );
@@ -85,14 +84,15 @@ namespace GameEngine
 						int counter = m_PrivateData.m_ConsSkillEffectCounter - i * 3;
 						MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2 ],
 											m_Data.m_PosX + ( 10 - counter ) * 15.0f * ::sin( MAPIL::DegToRad( i * 36 ) + offsets[ i ] ),
-											m_Data.m_PosY + ( 10 - counter ) * 15.0f * ::cos( MAPIL::DegToRad( i * 36 ) + offsets[ i ] ) );
+											m_Data.m_PosY + ( 10 - counter ) * 15.0f * ::cos( MAPIL::DegToRad( i * 36 ) + offsets[ i ] ),
+											true, attrEffect[ m_Data.m_ConsSkillAttr ] );
 					}
 				}
 				if( m_PrivateData.m_ConsSkillEffectCounter <= 30 && m_PrivateData.m_ConsSkillEffectCounter > 20 ){
 					MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_3 ],
 										m_Data.m_PosX, m_Data.m_PosY,
 										( 30 - m_PrivateData.m_ConsSkillEffectCounter ) * 0.8f,
-										( 30 - m_PrivateData.m_ConsSkillEffectCounter ) * 0.8f );
+										( 30 - m_PrivateData.m_ConsSkillEffectCounter ) * 0.8f, true, attrEffect[ m_Data.m_ConsSkillAttr ] );
 				}
 				else if( m_PrivateData.m_ConsSkillEffectCounter > 60 ){
 					MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2 ],
@@ -106,19 +106,19 @@ namespace GameEngine
 										m_Data.m_PosX, m_Data.m_PosY,
 										m_PrivateData.m_ConsSkillEffectCounter > 80 ? 1.0f : ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.05f,
 										m_PrivateData.m_ConsSkillEffectCounter > 80 ? 1.0f : ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.05f,
-										m_Data.m_Counter * 0.1f, true, 0xBBBBBBBB );
+										m_Data.m_Counter * 0.1f, true, attrEffect[ m_Data.m_ConsSkillAttr ]/*0xBBBBBBBB*/ );
 					MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1 ],
 										m_Data.m_PosX, m_Data.m_PosY,
 										m_PrivateData.m_ConsSkillEffectCounter > 80 ? 0.7f : ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.035f,
 										m_PrivateData.m_ConsSkillEffectCounter > 80 ? 0.7f : ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.035f,
-										-m_Data.m_Counter * 0.1f );
+										-m_Data.m_Counter * 0.1f, true, attrEffect[ m_Data.m_ConsSkillAttr ] );
 					MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 					if( m_PrivateData.m_ConsSkillEffectCounter <= 260 ){
 						MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_3 ],
 											m_Data.m_PosX, m_Data.m_PosY,
 											( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.3f,
 											( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.3f, true,
-											( ( 260 - m_PrivateData.m_ConsSkillEffectCounter ) ) << 24 | 0xFFFFFF );
+											( ( 260 - m_PrivateData.m_ConsSkillEffectCounter ) ) << 24 | attrEffect[ m_Data.m_ConsSkillAttr ] & 0xFFFFFF );
 					}
 				}
 				// ‹Z–¼•\Ž¦
@@ -164,12 +164,12 @@ namespace GameEngine
 										m_Data.m_PosX, m_Data.m_PosY,
 										( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.05f,
 										( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.05f,
-										m_Data.m_Counter * 0.1f, true, 0xBBBBBBBB );
+										m_Data.m_Counter * 0.1f, true, attrEffect[ m_Data.m_ConsSkillAttr ] );
 					MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1 ],
 										m_Data.m_PosX, m_Data.m_PosY,
 										( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.035f,
 										( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.035f,
-										-m_Data.m_Counter * 0.1f );
+										-m_Data.m_Counter * 0.1f, true, attrEffect[ m_Data.m_ConsSkillAttr ] );
 					MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 				}
 			}
@@ -180,6 +180,14 @@ namespace GameEngine
 			MAPIL::DrawTexture(	m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE ],
 								m_Data.m_PosX + 5.0f, m_Data.m_PosY - 10.0f,
 								m_Data.m_HP * 1.5f / m_Data.m_MaxHP, 0.3f, false, 0xAAFFFFFF );
+		}
+
+		if( m_Data.m_ImgID == -1 ){
+			MAPIL::DrawString( m_Data.m_PosX, m_Data.m_PosY, "¥" );
+		}
+		else{
+			MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pStageResourceMap->m_TextureMap[ m_Data.m_ImgID ],
+								m_Data.m_PosX, m_Data.m_PosY );
 		}
 	}
 

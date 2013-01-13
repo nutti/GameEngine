@@ -1,9 +1,13 @@
 #include <MAPIL/MAPIL.h>
 
+#include <bitset>
+
 #include "EnemyShot.h"
 #include "ResourceTypes.h"
 #include "EnemyShotGroup.h"
 #include "GameObjectImplBase.h"
+
+#include "SpriteBatch.h"
 
 namespace GameEngine
 {
@@ -25,20 +29,28 @@ namespace GameEngine
 		ShotGroupData						m_ShotGroupData;	// ショットグループデータ
 
 		// 状態関連
-		int									m_ShotID;			// ショットID
-		float								m_PosX;				// 位置（X座標）
-		float								m_PosY;				// 位置（Y座標）
-		float								m_Angle;			// 角度
-		float								m_Speed;			// 速度
-		float								m_ColRadius;		// 衝突判定の半径
-		int									m_ImgID;			// 画像ID
-		float								m_ImgScale;			// 画像拡大率
-		int									m_Counter;			// カウンタ
-		int									m_DeadCounter;		// 死亡カウンタ
+		int									m_ShotID;					// ショットID
+		float								m_PosX;						// 位置（X座標）
+		float								m_PosY;						// 位置（Y座標）
+		float								m_Angle;					// 角度
+		float								m_Speed;					// 速度
+		float								m_ColRadius;				// 衝突判定の半径
+		int									m_ImgID;					// 画像ID
+		float								m_ImgScale;					// 画像拡大率
+		int									m_Counter;					// カウンタ
+		int									m_DeadCounter;				// 死亡カウンタ
+		int									m_Attr;						// 属性
 
 		// フラグ管理
-		bool								m_Colided;			// 衝突したか？
-		bool								m_IsDead;			// 死んでいたらtrue
+		enum StatusFlag
+		{
+			COLLIDED					= 0,	// 衝突したか？
+			DEAD						= 1,	// 死んでいたらtrue
+			HAS_CONS_ATTR				= 2,	// 意識技用の弾の場合true
+			HAS_BLENDING_MODE_CHAGE		= 3,	// アルファブレンドの変化がある場合、true
+			STATUS_FLAG_TOTAL,
+		};
+		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
 
 		// メッセージ関連
 		EnemyShotMessageQueue				m_MsgQueue;			// メッセージキュー
@@ -55,6 +67,7 @@ namespace GameEngine
 		void SetImage( int id );							// 画像を設定
 		void SetImageScale( float scale );					// 画像の拡大率を設定
 		void SetCollisionRadius( float radius );			// 衝突判定の半径を設定
+		void SetConsAttr( int attr );						// 意識技専用弾に設定
 		void AddPos( float x, float y );					// 位置を加算
 		void AddAngle( float angle );						// 角度を加算
 		void AddSpeed( float speed );						// 速度を加算
@@ -65,14 +78,19 @@ namespace GameEngine
 		void ProcessMessages();								// 溜まっていたメッセージの処理
 		void PostMessage( int msgID );						// メッセージの追加
 		void PrepDestroy();									// 削除前処理
+		bool IsDead() const;
+		int GetConsAttr() const;
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
-																			m_ShotID( id ),
-																			m_Colided( false )
+																			m_ShotID( id )/*,
+																			m_Colided( false )*/
 	{
 		m_Counter = 0;
-		m_IsDead = false;
+		m_Attr = ENEMY_SHOT_ATTR_NORMAL;
+//		m_IsDead = false;
+	//	m_HasConsAttr = false;
+		m_StatusFlags.reset();
 		MAPIL::ZeroObject( &m_ShotGroupData, sizeof( m_ShotGroupData ) );
 	}
 
@@ -86,7 +104,7 @@ namespace GameEngine
 
 	void EnemyShot::Impl::Draw()
 	{
-		if( m_IsDead ){
+		if( m_StatusFlags[ DEAD ] ){
 			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 								m_PosX, m_PosY,
 								m_DeadCounter * 0.05f + 1.0f, m_DeadCounter * 0.05f + 1.0f,
@@ -95,8 +113,20 @@ namespace GameEngine
 		}
 		else{
 			if( m_Counter >= 6 ){
-				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+				if( m_StatusFlags[ HAS_CONS_ATTR ] ){
+					AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+										m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+					if( ( m_Counter / 4 ) % 2 == 0  ){
+						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+										m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+					}
+				}
+				else{
+					MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 									m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+				}
 			}
 			else{
 				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
@@ -114,7 +144,7 @@ namespace GameEngine
 		ProcessMessages();
 		
 		// 死亡判定処理
-		if( m_IsDead ){
+		if( m_StatusFlags[ DEAD ] ){
 			++m_DeadCounter;
 			if( m_DeadCounter >= 20 ){
 				return false;
@@ -181,6 +211,12 @@ namespace GameEngine
 		m_ColRadius = radius;
 	}
 
+	inline void EnemyShot::Impl::SetConsAttr( int attr )
+	{
+		m_Attr = attr;
+		m_StatusFlags.set( HAS_CONS_ATTR );
+	}
+
 	inline void EnemyShot::Impl::ProcessCollision( Player* pPlayer )
 	{
 		PrepDestroy();
@@ -242,10 +278,21 @@ namespace GameEngine
 
 	void EnemyShot::Impl::PrepDestroy()
 	{
-		if( !m_IsDead ){
+		if( !m_StatusFlags[ DEAD ] ){
 			m_DeadCounter = 0;
-			m_IsDead = true;
+			m_StatusFlags.set( DEAD );
+			//m_IsDead = true;
 		}
+	}
+
+	inline bool EnemyShot::Impl::IsDead() const
+	{
+		return m_StatusFlags[ DEAD ];
+	}
+
+	inline int EnemyShot::Impl::GetConsAttr() const
+	{
+		return m_Attr;
 	}
 
 	// ----------------------------------
@@ -278,6 +325,11 @@ namespace GameEngine
 	void EnemyShot::SetPos( float posX, float posY )
 	{
 		m_pImpl->SetPos( posX, posY );
+	}
+
+	void EnemyShot::SetConsAttr( int attr )
+	{
+		m_pImpl->SetConsAttr( attr );
 	}
 
 	void EnemyShot::Colided( CollisionObject* pObject )
@@ -371,4 +423,13 @@ namespace GameEngine
 		m_pImpl->PostMessage( msgID );
 	}
 
+	bool EnemyShot::IsDead() const
+	{
+		return m_pImpl->IsDead();
+	}
+
+	int EnemyShot::GetConsAttr() const
+	{
+		return m_pImpl->GetConsAttr();
+	}
 }

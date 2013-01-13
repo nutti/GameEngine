@@ -22,6 +22,7 @@
 
 #include "ScoreManager.h"
 
+#include "SpriteBatch.h"
 #include "Util.h"
 
 namespace GameEngine
@@ -316,6 +317,7 @@ namespace GameEngine
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED:
 					DeleteAllEnemyShots();
+					DeleteAllEnemies();
 					m_Data.m_HasTermSig = true;
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_DAMAGED:
@@ -531,15 +533,15 @@ namespace GameEngine
 		// ランダムジェネレータの更新
 		m_Data.m_RandGen.Update( m_Data );
 
-		// 背景の更新
-		m_Background.Update();
-
 		// ステージ向けのメッセージを処理
 		ProcessMessage();
 		if( m_Data.m_HasTermSig ){
 			m_Background.Terminate();
 			return SCENE_TYPE_SCORE_ENTRY;
 		}
+
+		// 背景の更新
+		m_Background.Update();
 
 		// スクリプトコマンドの実行
 		m_VM.Run();
@@ -579,6 +581,10 @@ namespace GameEngine
 	{
 		static bool isFirst = true;
 		static int light;
+
+		if( m_Data.m_HasTermSig ){
+			return;
+		}
 
 		if( isFirst ){
 			//light = MAPIL::createdirec
@@ -640,6 +646,8 @@ namespace GameEngine
 		for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
 			( *it )->Draw();
 		}
+
+		ProcAllBatchWorks();
 		
 		// アイテムの描画
 		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){

@@ -2,6 +2,7 @@
 
 #include "Player.h"
 #include "PlayerShot.h"
+#include "EnemyShot.h"
 #include "ResourceTypes.h"
 #include "Util.h"
 #include "Item.h"
@@ -389,8 +390,21 @@ namespace GameEngine
 
 	void Player::Impl::ProcessCollision( EnemyShot* pEnemyShot )
 	{
-		if( m_Data.m_RestInvincibleTime <= 0 ){
-			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED ] );
+		// –³“GŽžŠÔ’†
+		if( m_Data.m_RestInvincibleTime > 0 ){
+			return;
+		}
+		// ’e‚ÍÁ–ÅÏ‚Ý
+		if( pEnemyShot->IsDead() ){
+			return;
+		}
+			
+		// ‘®«‚ªˆê’v‚ÌŽž
+		if( pEnemyShot->GetConsAttr() >= ENEMY_SHOT_ATTR_GREEN && pEnemyShot->GetConsAttr() == m_Data.m_ConsCur ){
+			m_Data.m_ConsGauge[ m_Data.m_ConsCur ] += 10;
+		}
+		// ‘®«‚ªˆê’v‚µ‚È‚¢Žž
+		else{
 			StageMessage msg;
 			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DAMAGED;
 			StageMessage::StageMessageData data;
@@ -418,6 +432,7 @@ namespace GameEngine
 			}
 
 			m_Data.m_RestInvincibleTime = INVINCIBLE_TIME;
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED ] );
 		}
 	}
 

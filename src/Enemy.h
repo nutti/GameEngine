@@ -23,6 +23,7 @@ namespace GameEngine
 
 		float				m_PosX;				// 位置（X座標）
 		float				m_PosY;				// 位置（Y座標）
+		int					m_ImgID;			// 敵画像
 		int					m_HP;				// HP
 		int					m_MaxHP;			// MaxHP
 		int					m_ConsGauge;		// 意識ゲージ

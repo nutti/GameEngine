@@ -231,7 +231,7 @@ namespace GameEngine
 											"archive/resource/texture/recover_2.png", false );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1,
-											"archive/resource/texture/cons_skill_effect_1.png", false );
+											"archive/resource/texture/cons_skill_effect_6.png", false );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2,
 											"archive/resource/texture/cons_skill_effect_2.png", false );

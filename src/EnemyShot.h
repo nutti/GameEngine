@@ -7,6 +7,15 @@
 
 namespace GameEngine
 {
+	enum EnemyShotAttr
+	{
+		ENEMY_SHOT_ATTR_NORMAL	= 0,
+		ENEMY_SHOT_ATTR_GREEN	= 1,
+		ENEMY_SHOT_ATTR_BLUE	= 2,
+		ENEMY_SHOT_ATTR_RED		= 3,
+		ENEMY_SHOT_ATTR_TOTAL,
+	};
+
 	struct EnemyShotMessage
 	{
 		enum EnemyShotMessageID
@@ -38,6 +47,7 @@ namespace GameEngine
 		void SetImage( int id );							// ‰æ‘œ‚ğİ’è
 		void SetImageScale( float scale );					// ‰æ‘œ‚ÌŠg‘å—¦‚ğİ’è
 		void SetCollisionRadius( float radius );			// Õ“Ë”»’è‚Ì”¼Œa‚ğİ’è
+		void SetConsAttr( int attr );						// ˆÓ¯‹Zê—p’e‚Éİ’è
 		void AddPos( float x, float y );					// ˆÊ’u‚ğ‰ÁZ
 		void AddAngle( float angle );						// Šp“x‚ğ‰ÁZ
 		void AddSpeed( float speed );						// ‘¬“x‚ğ‰ÁZ
@@ -52,6 +62,8 @@ namespace GameEngine
 		float GetCollisionRadius();
 		int GetCounter() const;
 		void PostMessage( int msgID );						// ƒƒbƒZ[ƒW‚Ì’Ç‰Á
+		bool IsDead() const;
+		int GetConsAttr() const;
 	};
 }
 
