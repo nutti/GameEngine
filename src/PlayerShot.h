@@ -9,6 +9,7 @@ namespace GameEngine
 {
 
 	struct ResourceMap;
+	struct StageData;
 	class PlayerShot : public CollisionObject
 	{
 	private:
@@ -35,6 +36,9 @@ namespace GameEngine
 		float GetCollisionRadius();
 		int GetShotPower() const;
 		void SetPlayer( Player* pPlayer );
+		void SetEnemy( Enemy* pEnemy );
+		void SetStageData( StageData* pData );
+		int GetID() const;
 	};
 }
 

@@ -48,6 +48,7 @@ namespace GameEngine
 			DEAD						= 1,	// 死んでいたらtrue
 			HAS_CONS_ATTR				= 2,	// 意識技用の弾の場合true
 			HAS_BLENDING_MODE_CHAGE		= 3,	// アルファブレンドの変化がある場合、true
+			PAUSED						= 4,	// 一時停止中の場合true
 			STATUS_FLAG_TOTAL,
 		};
 		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
@@ -80,6 +81,8 @@ namespace GameEngine
 		void PrepDestroy();									// 削除前処理
 		bool IsDead() const;
 		int GetConsAttr() const;
+		void Pause();										// 一時停止
+		void Resume();										// 一時停止から再開
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -140,6 +143,10 @@ namespace GameEngine
 
 	bool EnemyShot::Impl::Update()
 	{
+		if( m_StatusFlags[ PAUSED ] ){
+			return true;
+		}
+
 		// メッセージ処理
 		ProcessMessages();
 		
@@ -262,6 +269,9 @@ namespace GameEngine
 				case EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED:
 					PrepDestroy();
 					break;
+				case EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_BOMBED:
+					PrepDestroy();
+					break;
 				default:
 					break;
 			}
@@ -293,6 +303,16 @@ namespace GameEngine
 	inline int EnemyShot::Impl::GetConsAttr() const
 	{
 		return m_Attr;
+	}
+
+	inline void EnemyShot::Impl::Pause()
+	{
+		m_StatusFlags.set( PAUSED );
+	}
+
+	inline void EnemyShot::Impl::Resume()
+	{
+		m_StatusFlags.reset( PAUSED );
 	}
 
 	// ----------------------------------
@@ -431,5 +451,15 @@ namespace GameEngine
 	int EnemyShot::GetConsAttr() const
 	{
 		return m_pImpl->GetConsAttr();
+	}
+
+	void EnemyShot::Pause()
+	{
+		m_pImpl->Pause();
+	}
+
+	void EnemyShot::Resume()
+	{
+		m_pImpl->Resume();
 	}
 }

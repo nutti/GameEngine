@@ -2,8 +2,11 @@
 
 #include "PlayerShot.h"
 #include "Player.h"
+#include "Enemy.h"
+#include "Stage.h"
 #include "ResourceTypes.h"
 #include "ResourceID.h"
+#include "SpriteBatch.h"
 
 #include "GameObjectImplBase.h"
 
@@ -15,6 +18,7 @@ namespace GameEngine
 		PLAYER_SHOT_ID_GREEN_MAIN		= 1,	// 緑モードのメインショット
 		PLAYER_SHOT_ID_BLUE_MAIN		= 2,	// 青モードのメインショット
 		PLAYER_SHOT_ID_RED_MAIN			= 3,	// 赤モードのメインショット
+		PLAYER_SHOT_ID_GREEN_BOMB		= 4,	// 緑モードのボム
 	};
 
 	class PlayerShot::Impl : public GameObjectImplBase
@@ -31,6 +35,8 @@ namespace GameEngine
 		bool								m_Colided;			// 衝突したか？
 		int									m_Counter;
 		Player*								m_pPlayer;
+		Enemy*								m_pEnemy;
+		StageData*							m_pStageData;
 	public:
 		Impl( std::shared_ptr < ResourceMap > pMap, int id );
 		~Impl();
@@ -46,13 +52,17 @@ namespace GameEngine
 		float GetCollisionRadius() const;
 		int GetShotPower() const;
 		void SetPlayer( Player* pPlayer );
+		void SetEnemy( Enemy* pEnemy );
+		void SetStageData( StageData* pData );
+		int GetID() const;
 	};
 
 	PlayerShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	GameObjectImplBase(),
 																				m_pResourceMap( pMap ),
 																				m_ShotID( id ),
 																				m_Colided( false ),
-																				m_pPlayer( NULL )
+																				m_pPlayer( NULL ),
+																				m_pEnemy( NULL )
 	{
 		m_PosX = 0.0f;
 		m_PosY = 0.0f;
@@ -90,6 +100,12 @@ namespace GameEngine
 			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_BLUE_MAIN ],
 								m_PosX, m_PosY, 1.0f + ( m_ShotPower - 4 ) * 0.3f, 1.0f, true, 0x55FFFFFF );
 		}
+		else if( m_ShotID == PLAYER_SHOT_ID_GREEN_BOMB ){
+			AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT, m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_3 ],
+								m_PosX, m_PosY,
+								0.0f,
+								true, 0xFF33FF33 );
+		}
 	}
 
 	bool PlayerShot::Impl::Update()
@@ -116,6 +132,38 @@ namespace GameEngine
 		else if( m_ShotID == PLAYER_SHOT_ID_RED_MAIN ){
 			m_PosX += m_Speed * ::cos( m_Angle );
 			m_PosY -= m_Speed * ::sin( m_Angle );
+			if( m_PosY <= -10.0f || m_PosY >= 500.0f || m_PosX <= 100.0f || m_PosX >= 550.0f ){
+				return false;
+			}
+		}
+		else if( m_ShotID == PLAYER_SHOT_ID_GREEN_BOMB ){
+	
+			if( m_Speed != 7.0f ){
+				m_ColRadius = 30.0f;
+				if( m_pStageData->m_EnemyList.size() > 0 ){
+					EnemyList::iterator it = m_pStageData->m_EnemyList.begin();
+					int random = m_pStageData->m_RandGen.GetRand() * 10 / m_pStageData->m_RandGen.GetRandMax();
+					int offset = random % m_pStageData->m_EnemyList.size();
+					for( int i = 0; i < offset; ++i ){
+						++it;
+					}
+					m_Speed = 7.0f;
+					float eX;
+					float eY;
+					( *it )->GetPos( &eX, &eY );
+					m_Angle = ::atan2( eY - m_PosY, eX - m_PosX );
+				}
+				else if( m_pStageData->m_pBoss ){
+					m_Speed = 7.0f;
+					float eX;
+					float eY;
+					m_pStageData->m_pBoss->GetPos( &eX, &eY );
+					m_Angle = ::atan2( eY - m_PosY, eX - m_PosX );
+				}
+			}
+
+			m_PosX += m_Speed * ::cos( m_Angle );
+			m_PosY += m_Speed * ::sin( m_Angle );
 			if( m_PosY <= -10.0f || m_PosY >= 500.0f || m_PosX <= 100.0f || m_PosX >= 550.0f ){
 				return false;
 			}
@@ -181,6 +229,21 @@ namespace GameEngine
 	inline void PlayerShot::Impl::SetPlayer( Player* pPlayer )
 	{
 		m_pPlayer = pPlayer;
+	}
+
+	inline void PlayerShot::Impl::SetEnemy( Enemy* pEnemy )
+	{
+		m_pEnemy = pEnemy;
+	}
+
+	inline int PlayerShot::Impl::GetID() const
+	{
+		return m_ShotID;
+	}
+
+	inline void PlayerShot::Impl::SetStageData( StageData* pData )
+	{
+		m_pStageData = pData;
 	}
 
 	// ----------------------------------
@@ -278,6 +341,21 @@ namespace GameEngine
 
 	void PlayerShot::SetPlayer( Player* pPlayer )
 	{
-		return m_pImpl->SetPlayer( pPlayer );
+		m_pImpl->SetPlayer( pPlayer );
+	}
+
+	void PlayerShot::SetEnemy( Enemy* pEnemy )
+	{
+		m_pImpl->SetEnemy( pEnemy );
+	}
+
+	int PlayerShot::GetID() const
+	{
+		return m_pImpl->GetID();
+	}
+
+	void PlayerShot::SetStageData( StageData* pData )
+	{
+		m_pImpl->SetStageData( pData );
 	}
 }

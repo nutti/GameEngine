@@ -19,6 +19,7 @@ namespace GameEngine
 		void SysGetRand();
 		void SysProcEnemyPatternFile();
 		void SysStageCreateBoss();
+		void SysSetFrameTotal();
 
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();

@@ -21,6 +21,7 @@ namespace GameEngine
 			int		m_Total;		// 個数
 		};
 
+		std::string			m_Name;				// 敵の名前
 		float				m_PosX;				// 位置（X座標）
 		float				m_PosY;				// 位置（Y座標）
 		int					m_ImgID;			// 敵画像
@@ -36,6 +37,7 @@ namespace GameEngine
 		bool				m_Destroyed;		// 倒された場合はtrue
 		bool				m_IsInvincibleMode;	// 無敵状態の場合はtrue
 		bool				m_IsConsSkillMode;	// 意識技を使用している場合はtrue
+		bool				m_Paused;			// 行動停止中の場合true
 		int					m_ConsSkillAttr;	// 意識技の属性
 		std::string			m_ConsSkillName;	// 意識技名
 		StageData*			m_pStageData;		// ステージデータ
@@ -57,11 +59,12 @@ namespace GameEngine
 			int			m_PrevConsGauge;					// 前回の意識ゲージ（このゲージが大量に減った時に意識技を使用したとみなす）
 		};
 
-		EnemyData							m_Data;			// データ
-		int									m_ScriptID;		// スクリプトID
-		EnemyVCPU							m_VM;			// 仮想マシン
-		std::shared_ptr < EnemyScriptData >	m_pScriptData;	// スクリプトデータ
-		EnemyPrivateData					m_PrivateData;	// Enemyクラス内部向けデータ
+		EnemyData							m_Data;					// データ
+		int									m_ScriptID;				// スクリプトID
+		EnemyVCPU							m_VM;					// 仮想マシン
+		std::shared_ptr < EnemyScriptData >	m_pScriptData;			// スクリプトデータ
+		EnemyPrivateData					m_PrivateData;			// Enemyクラス内部向けデータ
+		static bool							m_SentLastDamagedMsg;	// 現フレームで、ダメージを受けたメッセージを送った場合true
 	public:
 		Enemy(	std::shared_ptr < ResourceMap > pMap,
 				std::shared_ptr < EnemyScriptData > pData,
@@ -77,14 +80,19 @@ namespace GameEngine
 		void ProcessCollision( PlayerShot* pPlayerShot );	// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
+		void Damage( int val );								// ダメージを与える
 		void GetPos( float* pPosX, float* pPosY );
 		int GetHP() const;									// HPを取得
 		int GetMaxHP() const;								// 最大HPを取得
 		int GetConsGauge() const;							// 意識ゲージの取得
 		int GetMaxConsGauge() const;						// 最大意識ゲージの取得
 		float GetCollisionRadius();
-
+		void Pause();										// 一時停止に設定
+		void Resume();										// 一時停止から再開
+		static void ClearLastDamagedMsg();
 	};
+
+	
 }
 
 #endif

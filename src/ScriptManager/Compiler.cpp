@@ -101,6 +101,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STAGE_SET_BOSS_FLAG, TYPE_VOID, "SetStageBossFlag", "i" );			// void SetBossFlag( flag );
 	AddFunction( VM::SYS_STAGE_GET_BOSS_FLAG, TYPE_INTEGER, "GetStageBossFlag", "" );		// int GetBossFlag();
 	AddFunction( VM::SYS_STAGE_CREATE_BOSS, TYPE_INTEGER, "StageCreateBoss", "iff" );			// void CreateBoss( script_id, x, y );
+	AddFunction( VM::SYS_STAGE_SET_FRAME_TOTAL, TYPE_VOID, "SetFrameTotal", "i" );				// void SetFrameTotal( frame );
 
 	// System call for stage background.
 	AddFunction( VM::SYS_STAGE_BACKGROUND_GET_COUNTER, TYPE_INTEGER, "StageBackgroundGetCounter", "" );	// int StageBackgroundGetCounter();

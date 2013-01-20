@@ -30,6 +30,11 @@ namespace GameEngine
 		void GreenModeShot();
 		void BlueModeShot();
 		void RedModeShot();
+
+		void GreenModeBomb();
+		void BlueModeBomb();
+		void RedModeBomb();
+		
 		void Move();
 		void ChangeMode();
 		void UpdateCons();
@@ -76,148 +81,215 @@ namespace GameEngine
 
 	void Player::Impl::NormalModeShot()
 	{
-		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			if( ( m_Data.m_Counter % 3 ) == 0 ){
+		if( ( m_Data.m_Counter % 3 ) == 0 ){
+			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+			pNewShot->SetPos( m_Data.m_PosX - 7.0f, m_Data.m_PosY + 5.0f );
+			pNewShot->SetShotPower( 5 );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+			pNewShot->SetPos( m_Data.m_PosX + 7.0f, m_Data.m_PosY + 5.0f );
+			pNewShot->SetShotPower( 5 );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			if( m_Data.m_ShotPower >= 10 ){
 				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-				pNewShot->SetPos( m_Data.m_PosX - 7.0f, m_Data.m_PosY + 5.0f );
-				pNewShot->SetShotPower( 5 );
+				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			if( m_Data.m_ShotPower >= 20 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+				pNewShot->SetPos( m_Data.m_PosX - 14.0f, m_Data.m_PosY + 2.0f );
+				pNewShot->SetShotPower( 2 );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-				pNewShot->SetPos( m_Data.m_PosX + 7.0f, m_Data.m_PosY + 5.0f );
-				pNewShot->SetShotPower( 5 );
+				pNewShot->SetPos( m_Data.m_PosX + 14.0f, m_Data.m_PosY + 2.0f );
+				pNewShot->SetShotPower( 2 );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				if( m_Data.m_ShotPower >= 10 ){
-					PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-					pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-					pNewShot->SetShotPower( 2 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				}
-				if( m_Data.m_ShotPower >= 20 ){
-					PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-					pNewShot->SetPos( m_Data.m_PosX - 14.0f, m_Data.m_PosY + 2.0f );
-					pNewShot->SetShotPower( 2 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-					pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-					pNewShot->SetPos( m_Data.m_PosX + 14.0f, m_Data.m_PosY + 2.0f );
-					pNewShot->SetShotPower( 2 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				}
-				if( m_Data.m_ShotPower >= 30 ){
-					PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-					pNewShot->SetPos( m_Data.m_PosX - 21.0f, m_Data.m_PosY + 1.0f );
-					pNewShot->SetShotPower( 2 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-					pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-					pNewShot->SetPos( m_Data.m_PosX + 21.0f, m_Data.m_PosY + 1.0f );
-					pNewShot->SetShotPower( 2 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				}
-				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 			}
+			if( m_Data.m_ShotPower >= 30 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+				pNewShot->SetPos( m_Data.m_PosX - 21.0f, m_Data.m_PosY + 1.0f );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+				pNewShot->SetPos( m_Data.m_PosX + 21.0f, m_Data.m_PosY + 1.0f );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 		}
 	}
 
 	void Player::Impl::GreenModeShot()
 	{
-		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			if( ( m_Data.m_Counter % 3 ) == 0 ){
+		if( ( m_Data.m_Counter % 3 ) == 0 ){
+			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
+			pNewShot->SetAngle( MAPIL::DegToRad( 90.0f ) );
+			pNewShot->SetSpeed( 15.0f );
+			pNewShot->SetShotPower( 5 );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
+			pNewShot->SetSpeed( 15.0f );
+			pNewShot->SetAngle( MAPIL::DegToRad( 10.0f + 90.0f ) );
+			pNewShot->SetShotPower( 1 );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
+			pNewShot->SetSpeed( 15.0f );
+			pNewShot->SetAngle( MAPIL::DegToRad( -10.0f + 90.0f ) );
+			pNewShot->SetShotPower( 1 );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			if( m_Data.m_ShotPower >= 10 ){
 				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( 90.0f ) );
 				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetShotPower( 5 );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( 10.0f + 90.0f ) );
+				pNewShot->SetAngle( MAPIL::DegToRad( 20.0f + 90.0f ) );
 				pNewShot->SetShotPower( 1 );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( -10.0f + 90.0f ) );
+				pNewShot->SetAngle( MAPIL::DegToRad( -20.0f + 90.0f ) );
 				pNewShot->SetShotPower( 1 );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				if( m_Data.m_ShotPower >= 10 ){
-					PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-					pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-					pNewShot->SetSpeed( 15.0f );
-					pNewShot->SetAngle( MAPIL::DegToRad( 20.0f + 90.0f ) );
-					pNewShot->SetShotPower( 1 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-					pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-					pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-					pNewShot->SetSpeed( 15.0f );
-					pNewShot->SetAngle( MAPIL::DegToRad( -20.0f + 90.0f ) );
-					pNewShot->SetShotPower( 1 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				}
-				if( m_Data.m_ShotPower >= 20 ){
-					PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-					pNewShot->SetPos( m_Data.m_PosX , m_Data.m_PosY + 3.0f );
-					pNewShot->SetSpeed( 15.0f );
-					pNewShot->SetAngle( MAPIL::DegToRad( 30.0f + 90.0f ) );
-					pNewShot->SetShotPower( 1 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-					pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-					pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-					pNewShot->SetSpeed( 15.0f );
-					pNewShot->SetAngle( MAPIL::DegToRad( -30.0f + 90.0f ) );
-					pNewShot->SetShotPower( 1 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				}
-				if( m_Data.m_ShotPower >= 30 ){
-					PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-					pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-					pNewShot->SetSpeed( 15.0f );
-					pNewShot->SetAngle( MAPIL::DegToRad( 40.0f + 90.0f ) );
-					pNewShot->SetShotPower( 1 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-					pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-					pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-					pNewShot->SetSpeed( 15.0f );
-					pNewShot->SetAngle( MAPIL::DegToRad( -40.0f + 90.0f ) );
-					pNewShot->SetShotPower( 1 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				}
-				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 			}
+			if( m_Data.m_ShotPower >= 20 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_PosX , m_Data.m_PosY + 3.0f );
+				pNewShot->SetSpeed( 15.0f );
+				pNewShot->SetAngle( MAPIL::DegToRad( 30.0f + 90.0f ) );
+				pNewShot->SetShotPower( 1 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
+				pNewShot->SetSpeed( 15.0f );
+				pNewShot->SetAngle( MAPIL::DegToRad( -30.0f + 90.0f ) );
+				pNewShot->SetShotPower( 1 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			if( m_Data.m_ShotPower >= 30 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
+				pNewShot->SetSpeed( 15.0f );
+				pNewShot->SetAngle( MAPIL::DegToRad( 40.0f + 90.0f ) );
+				pNewShot->SetShotPower( 1 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
+				pNewShot->SetSpeed( 15.0f );
+				pNewShot->SetAngle( MAPIL::DegToRad( -40.0f + 90.0f ) );
+				pNewShot->SetShotPower( 1 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 		}
 	}
 
 	void Player::Impl::BlueModeShot()
 	{
-		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
-			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
-			pNewShot->SetShotPower( 4 + m_Data.m_ShotPower / 10 );
-			pNewShot->SetPlayer( m_pStageData->m_pPlayer );
-			m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
-			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 8.0f );
-			pNewShot->SetShotPower( 4 + m_Data.m_ShotPower / 10 );
-			pNewShot->SetPlayer( m_pStageData->m_pPlayer );
-			m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
-		}
+		PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
+		pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
+		pNewShot->SetShotPower( 4 + m_Data.m_ShotPower / 10 );
+		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
+		m_pStageData->m_PlayerShotList.push_back( pNewShot );
+		pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
+		pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 8.0f );
+		pNewShot->SetShotPower( 4 + m_Data.m_ShotPower / 10 );
+		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
+		m_pStageData->m_PlayerShotList.push_back( pNewShot );
+		MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 	}
 
 	void Player::Impl::RedModeShot()
 	{
-		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			if( ( m_Data.m_Counter % ( 12 - 2 * ( m_Data.m_ShotPower / 10 ) ) ) == 0 ){
-				for( int i = 0; i < 36; ++i ){
-					PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 3 );
-					pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
-					pNewShot->SetAngle( MAPIL::DegToRad( i * 10.0f ) );
-					pNewShot->SetSpeed( 10.0f );
-					pNewShot->SetShotPower( 2 );
-					m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				}
-				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );	
+		if( ( m_Data.m_Counter % ( 12 - 2 * ( m_Data.m_ShotPower / 10 ) ) ) == 0 ){
+			for( int i = 0; i < 36; ++i ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 3 );
+				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
+				pNewShot->SetAngle( MAPIL::DegToRad( i * 10.0f ) );
+				pNewShot->SetSpeed( 10.0f );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );	
 		}
+	}
+
+	void Player::Impl::GreenModeBomb()
+	{
+		// 無敵時間の設定
+		m_Data.m_RestInvincibleTime = 180;
+
+		// メッセージ構築
+		StageMessage msg;
+		// ボム発動メッセージ
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
+		// ボムの属性
+		StageMessage::StageMessageData data;
+		data.m_Integer = PLAYER_CONS_MODE_GREEN;
+		msg.m_MsgDataList.push_back( data );
+		// プレイヤーの位置
+		data.m_Float = m_Data.m_PosX;
+		msg.m_MsgDataList.push_back( data );
+		data.m_Float = m_Data.m_PosY;
+		msg.m_MsgDataList.push_back( data );
+		// ボムの持続時間
+		data.m_Integer = m_Data.m_RestInvincibleTime;
+		msg.m_MsgDataList.push_back( data );
+		// メッセージ送信
+		m_pStageData->m_MsgQueue.push( msg );
+	}
+
+	void Player::Impl::BlueModeBomb()
+	{
+		// 無敵時間の設定
+		m_Data.m_RestInvincibleTime = 120;
+
+		// メッセージ構築
+		StageMessage msg;
+		// ボム発動メッセージ
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
+		// ボムの属性
+		StageMessage::StageMessageData data;
+		data.m_Integer = PLAYER_CONS_MODE_BLUE;
+		msg.m_MsgDataList.push_back( data );
+		// プレイヤーの位置
+		data.m_Float = m_Data.m_PosX;
+		msg.m_MsgDataList.push_back( data );
+		data.m_Float = m_Data.m_PosY;
+		msg.m_MsgDataList.push_back( data );
+		// ボムの持続時間
+		data.m_Integer = m_Data.m_RestInvincibleTime;
+		msg.m_MsgDataList.push_back( data );
+		// メッセージ送信
+		m_pStageData->m_MsgQueue.push( msg );
+	}
+
+	void Player::Impl::RedModeBomb()
+	{
+		// 無敵時間の設定
+		m_Data.m_RestInvincibleTime = 150;
+
+		// メッセージ構築
+		StageMessage msg;
+		// ボム発動メッセージ
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
+		// ボムの属性
+		StageMessage::StageMessageData data;
+		data.m_Integer = PLAYER_CONS_MODE_RED;
+		msg.m_MsgDataList.push_back( data );
+		// プレイヤーの位置
+		data.m_Float = m_Data.m_PosX;
+		msg.m_MsgDataList.push_back( data );
+		data.m_Float = m_Data.m_PosY;
+		msg.m_MsgDataList.push_back( data );
+		// ボムの持続時間
+		data.m_Integer = m_Data.m_RestInvincibleTime;
+		msg.m_MsgDataList.push_back( data );
+		// メッセージ送信
+		m_pStageData->m_MsgQueue.push( msg );
 	}
 
 	void Player::Impl::Move()
@@ -355,18 +427,39 @@ namespace GameEngine
 		ChangeMode();
 		Move();
 
-		if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL || m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] <= 0 ){
-			NormalModeShot();
+		// ショット
+		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
+			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL || m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] <= 0 ){
+				NormalModeShot();
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
+				GreenModeShot();
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
+				BlueModeShot();
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED )
+			{
+				RedModeShot();
+			}
 		}
-		else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
-			GreenModeShot();
-		}
-		else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
-			BlueModeShot();
-		}
-		else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED )
-		{
-			RedModeShot();
+		
+		// ボム
+		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
+			if( m_Data.m_RestInvincibleTime <= 0 ){
+				if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
+					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
+					GreenModeBomb();
+				}
+				else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
+					BlueModeBomb();
+					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
+				}
+				else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
+					RedModeBomb();
+					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
+				}
+			}
 		}
 
 		UpdateCons();

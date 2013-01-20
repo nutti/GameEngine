@@ -23,6 +23,7 @@ namespace GameEngine
 			ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED			= 0,		// プレイヤーがダメージを受けた
 			ENEMY_SHOT_MESSAGE_ID_BOSS_MODE_STARTED			= 1,		// ボスモードへ移行した
 			ENEMY_SHOT_MESSAGE_ID_BOSS_INVOKE_CONS_SKILL	= 2,		// ボスがスキルを使用した
+			ENEMY_SHOT_MESSAGE_ID_PLAYER_BOMBED				= 3,		// プレイヤーがボムを発動
 		};
 
 		int		m_MsgID;
@@ -64,6 +65,8 @@ namespace GameEngine
 		void PostMessage( int msgID );						// メッセージの追加
 		bool IsDead() const;
 		int GetConsAttr() const;
+		void Pause();										// 一時停止
+		void Resume();										// 一時停止から再開
 	};
 }
 

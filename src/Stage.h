@@ -41,6 +41,8 @@ namespace GameEngine
 			STAGE_MESSAGE_ID_BOSS_STOP_CONS_SKILL		= 6,		// ボスがスキルの使用を終了した
 			STAGE_MESSAGE_ID_BOSS_SHIFT_NEXT_MODE		= 7,		// ボスで次の段階へ進んだ
 			STAGE_MESSAGE_ID_ENEMY_INVOKE_CONS_SKILL	= 8,		// 敵（ボス以外）がスキルを使用した
+			STAGE_MESSAGE_ID_PLAYER_BOMBED				= 9,		// プレイヤーがボム発動
+			STAGE_MESSAGE_ID_ENEMY_DAMAGED				= 10,		// 敵（ボス以外）がダメージを受けた
 		};
 		union StageMessageData
 		{
@@ -63,6 +65,7 @@ namespace GameEngine
 	{
 		int					m_StageNo;				// ステージ番号
 		int					m_Frame;				// フレーム数
+		int					m_FrameTotal;			// ステージ全体のフレーム数
 		bool				m_IsReplay;				// リプレイ状態ならtrue
 		GameObjectBuilder	m_ObjBuilder;			// ゲームオブジェクト構築クラス
 		RandomGenerator		m_RandGen;

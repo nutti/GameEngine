@@ -105,6 +105,7 @@ namespace VM
 		SYS_STAGE_SET_BOSS_FLAG,			// Set boss flag.
 		SYS_STAGE_GET_BOSS_FLAG,			// Get boss flag.
 		SYS_STAGE_CREATE_BOSS,				// Create boss.
+		SYS_STAGE_SET_FRAME_TOTAL,			// Set frame total.
 
 		// For stage background.
 		SYS_STAGE_BACKGROUND_GET_COUNTER,	// Get count.

@@ -129,6 +129,13 @@ namespace GameEngine
 		}
 	}
 
+	void StageVCPU::SysSetFrameTotal()
+	{
+		Pop();
+		m_pStageData->m_FrameTotal = Top().m_Integer;
+		Pop();
+	}
+
 	void StageVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -152,6 +159,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_STAGE_CREATE_BOSS:
 				SysStageCreateBoss();
+				break;
+			case VM::SYS_STAGE_SET_FRAME_TOTAL:
+				SysSetFrameTotal();
 				break;
 
 			case VM::SYS_PLAY_BGM:
