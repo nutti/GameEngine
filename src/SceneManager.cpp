@@ -184,7 +184,7 @@ namespace GameEngine
 						m_GameMode = GAME_MODE_REPLAY;
 						Replay* pp = dynamic_cast < Replay* > ( m_pCurScene.get() );
 						if( pp ){
-							m_CurStage = pp->GetReplayStage();
+							m_CurStage = pp->GetReplayStage() + 1;
 						}
 						else{
 							exit( -1 );
@@ -194,10 +194,16 @@ namespace GameEngine
 						m_GameMode = GAME_MODE_NORMAL;
 					}
 					if( m_CurSceneType == SCENE_TYPE_MENU ){
-						m_CurStage = STAGE_ID_STAGE_1;
+						m_CurStage = 1/*STAGE_ID_STAGE_1*/;
 					}
 					else if( m_CurSceneType == SCENE_TYPE_STAGE ){
-						++m_CurStage;
+						Stage* pp = dynamic_cast < Stage* > ( m_pCurScene.get() );
+						if( pp ){
+							m_CurStage = pp->GetNextStageNo();
+						}
+						else{
+							exit( -1 );
+						}
 					}
 					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 				}

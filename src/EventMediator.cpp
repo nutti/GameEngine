@@ -64,6 +64,8 @@ namespace GameEngine
 	{
 		// ローディングが完了した時の処理
 		if( m_pSceneManager->NeedToSwitch() && m_Loading.SessionEnded() ){
+			// 前段階のリソースの解放
+			m_pResourceManager->ReleaseStageResources();
 			m_pSceneManager->AttachSceneResourceMap( m_pResourceManager->GetStageResourceMap() );
 			m_pSceneManager->AttachScriptData( m_pScriptManager->GetScriptData() );
 			m_pSceneManager->SwitchToNextScene();
@@ -207,7 +209,7 @@ namespace GameEngine
 											"archive/resource/se/select.wav", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_BGM,
 											GLOBAL_RESOURCE_BGM_ID_MENU,
-											"archive/resource/bgm/title.wav", true );
+											"archive/resource/bgm/eriKs_title.wav", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_1,
 											"archive/resource/texture/cons_level_recover_part1.png", false );
@@ -391,10 +393,8 @@ namespace GameEngine
 		switch( type ){
 			// ステージ変更要求
 			case EVENT_TYPE_MOVE_TO_STAGE:{
-				// 前段階のリソースの解放
-				m_pResourceManager->ReleaseStageResources();
 				// スクリプトデータの読み込み
-				int stage = *( static_cast < int* > ( pArg ) ) + 1;
+				int stage = *( static_cast < int* > ( pArg ) );
 				m_Loading.CleanupSession();
 				m_Loading.SetupSession( m_pResourceManager, m_pScriptManager );
 				m_Loading.AddStageResourceItem( stage, false );

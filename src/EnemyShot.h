@@ -43,6 +43,7 @@ namespace GameEngine
 		void Draw();										// 描画
 		bool Update();										// 更新
 		void SetPos( float posX, float posY );				// 位置を設定
+		void SetPower( int power );							// 弾の攻撃力を設定
 		void SetAngle( float angle );						// 角度を設定
 		void SetSpeed( float speed );						// 速度を設定
 		void SetImage( int id );							// 画像を設定
@@ -60,6 +61,7 @@ namespace GameEngine
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
 		void GetPos( float* pPosX, float* pPosY );
+		int GetPower() const;								// 弾の攻撃力を取得
 		float GetCollisionRadius();
 		int GetCounter() const;
 		void PostMessage( int msgID );						// メッセージの追加

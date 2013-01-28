@@ -203,6 +203,19 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysSetEnemyShotPower()
+	{
+		Pop();
+		int power = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetPower( power );
+		}
+	}
+
 	void EnemyShotGroupVCPU::SysSetEnemyShotAngle()
 	{
 		Pop();
@@ -345,6 +358,20 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysGetEnemyShotPower()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			Push( m_pEnemyShotGroupData->m_pShots[ id ]->GetPower() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
 	void EnemyShotGroupVCPU::SysGetStageFrame()
 	{
 		Pop();
@@ -457,6 +484,9 @@ namespace GameEngine
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_POS:
 				SysSetEnemyShotPos();
 				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_POWER:
+				SysSetEnemyShotPower();
+				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_ANGLE:
 				SysSetEnemyShotAngle();
 				break;
@@ -484,6 +514,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y:
 				SysGetEnemyShotPosY();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_POWER:
+				SysGetEnemyShotPower();
 				break;
 
 			case VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE:

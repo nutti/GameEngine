@@ -40,6 +40,7 @@ namespace GameEngine
 		int									m_Counter;					// カウンタ
 		int									m_DeadCounter;				// 死亡カウンタ
 		int									m_Attr;						// 属性
+		int									m_Power;					// 攻撃力
 
 		// フラグ管理
 		enum StatusFlag
@@ -62,7 +63,9 @@ namespace GameEngine
 		void Draw();										// 描画
 		bool Update();										// 更新
 		void GetPos( float* pX, float* pY );
+		int GetPower() const;								// 弾の攻撃力を取得
 		void SetPos( float posX, float posY );
+		void SetPower( int power );							// 弾の攻撃力を設定
 		void SetAngle( float angle );						// 角度を設定
 		void SetSpeed( float speed );						// 速度を設定
 		void SetImage( int id );							// 画像を設定
@@ -86,15 +89,13 @@ namespace GameEngine
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
-																			m_ShotID( id )/*,
-																			m_Colided( false )*/
+																			m_ShotID( id )
 	{
 		m_Counter = 0;
 		m_Attr = ENEMY_SHOT_ATTR_NORMAL;
-//		m_IsDead = false;
-	//	m_HasConsAttr = false;
 		m_StatusFlags.reset();
 		MAPIL::ZeroObject( &m_ShotGroupData, sizeof( m_ShotGroupData ) );
+		m_Power = 1;
 	}
 
 	EnemyShot::Impl::~Impl()
@@ -182,10 +183,20 @@ namespace GameEngine
 		*pY = m_PosY;
 	}
 
+	inline int EnemyShot::Impl::GetPower() const
+	{
+		return m_Power;
+	}
+
 	inline void EnemyShot::Impl::SetPos( float posX, float posY )
 	{
 		m_PosX = posX;
 		m_PosY = posY;
+	}
+
+	inline void EnemyShot::Impl::SetPower( int power )
+	{
+		m_Power = power;
 	}
 
 	inline void EnemyShot::Impl::SetAngle( float angle )
@@ -347,6 +358,11 @@ namespace GameEngine
 		m_pImpl->SetPos( posX, posY );
 	}
 
+	void EnemyShot::SetPower( int power )
+	{
+		m_pImpl->SetPower( power );
+	}
+
 	void EnemyShot::SetConsAttr( int attr )
 	{
 		m_pImpl->SetConsAttr( attr );
@@ -381,6 +397,11 @@ namespace GameEngine
 	void EnemyShot::GetPos( float* pPosX, float* pPosY )
 	{
 		m_pImpl->GetPos( pPosX, pPosY );
+	}
+
+	int EnemyShot::GetPower() const
+	{
+		return m_pImpl->GetPower();
 	}
 
 	float EnemyShot::GetCollisionRadius()
@@ -462,4 +483,6 @@ namespace GameEngine
 	{
 		m_pImpl->Resume();
 	}
+
+
 }

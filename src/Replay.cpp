@@ -75,7 +75,7 @@ namespace GameEngine
 		}
 		else if( m_CurSelectState == REPLAY_SELECT_STAGE ){
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress >= m_SelectedStage ){
+				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress >= m_SelectedStage + 1 ){
 					MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
 					return SCENE_TYPE_STAGE;
 				}
@@ -174,7 +174,7 @@ namespace GameEngine
 				if( m_SelectedStage == ( STAGE_ID_STAGE_1 + i ) ){
 					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFAAFFAA, str.c_str() );
 				}
-				else if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress < i ){
+				else if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress < i + 1 ){
 					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFAAAAAA, str.c_str() );
 				}
 				else{

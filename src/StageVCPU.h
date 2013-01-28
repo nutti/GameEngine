@@ -20,6 +20,7 @@ namespace GameEngine
 		void SysProcEnemyPatternFile();
 		void SysStageCreateBoss();
 		void SysSetFrameTotal();
+		void SysStageSwitchToNextStage();
 
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();

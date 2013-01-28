@@ -9,8 +9,9 @@ namespace GameEngine
 	class ResourceManager::Impl
 	{
 	private:
-		ResourceMap			m_ResourceMap;		// リソース対応関係
-		int					m_ArchiveHandle;	// アーカイバのハンドラ
+		ResourceMap			m_ResourceMap;													// リソース対応関係
+		std::shared_ptr < ResourceMap::StageResourceMapElm >	m_pNextLocalResourceMap;	// 次の段階でのリソース対応関係
+		int					m_ArchiveHandle;												// アーカイバのハンドラ
 	public:
 		Impl();
 		~Impl(){}
@@ -58,6 +59,7 @@ namespace GameEngine
 
 
 		m_ResourceMap.m_pStageResourceMap.reset( new ResourceMap::StageResourceMapElm );
+		m_pNextLocalResourceMap.reset( new ResourceMap::StageResourceMapElm );
 
 		const int INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP = 100;				// 初期のテクスチャMAP許容量
 		const int INITIAL_STAGE_SE_MAP_RESERVE_CAP = 50;					// 初期のSEMAP許容量
@@ -69,10 +71,74 @@ namespace GameEngine
 		m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( INITIAL_STAGE_BGM_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( INITIAL_STAGE_MODEL_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP, -1 );
+		m_pNextLocalResourceMap->m_TextureMap.resize( INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP, -1 );
+		m_pNextLocalResourceMap->m_SEMap.resize( INITIAL_STAGE_SE_MAP_RESERVE_CAP, -1 );
+		m_pNextLocalResourceMap->m_BGMMap.resize( INITIAL_STAGE_BGM_MAP_RESERVE_CAP, -1 );
+		m_pNextLocalResourceMap->m_ModelMap.resize( INITIAL_STAGE_MODEL_MAP_RESERVE_CAP, -1 );
+		m_pNextLocalResourceMap->m_EnemyPatternFileMap.resize( INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP, -1 );
+	
 	}
 
 	void ResourceManager::Impl::LoadStageResources( const ScriptData& data )
 	{
+		//// 各種リソースの読み込み
+		//std::shared_ptr < ResourceScriptData > pScriptData = data.m_pResourceScriptData;
+		//// テクスチャの読み込み
+		//typedef std::map < int, std::string > ::iterator	TextureIter;
+		//for(	TextureIter it = pScriptData->m_TextureList.begin();
+		//		it != pScriptData->m_TextureList.end();
+		//		++it ){
+		//	// 許容値を超えたインデックスが必要な場合は、指定されたインデックスの2倍のサイズのresizeする。
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_TextureMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( it->first * 2 );
+		//	}
+		//	m_ResourceMap.m_pStageResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( it->second.c_str() );
+		//}
+		//// SEの読み込み
+		//typedef std::map < int, std::string > ::iterator	SEIter;
+		//for(	SEIter it = pScriptData->m_SEList.begin();
+		//		it != pScriptData->m_SEList.end();
+		//		++it ){
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_SEMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( it->first * 2 );
+		//	}
+		//	int id = MAPIL::CreateStaticBuffer( it->second.c_str() );
+		//	m_ResourceMap.m_pStageResourceMap->m_SEMap[ it->first ] = id;
+		//}
+		//// BGMの読み込み
+		//typedef std::map < int, std::string > ::iterator	BGMIter;
+		//for(	BGMIter it = pScriptData->m_BGMList.begin();
+		//		it != pScriptData->m_BGMList.end();
+		//		++it ){
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_BGMMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( it->first * 2 );
+		//	}
+		//	int id = MAPIL::CreateStreamingBuffer( it->second.c_str() );
+		//	m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
+		//}
+		//// 3Dモデルの読み込み
+		//typedef std::map < int, ResourceScriptData::ModelResourceData > ::iterator	ModelIter;
+		//for(	ModelIter it = pScriptData->m_ModelList.begin();
+		//		it != pScriptData->m_ModelList.end();
+		//		++it ){
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_ModelMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( it->first * 2 );
+		//	}
+		//	int id = MAPIL::CreateModel( it->second.m_ModelFileName.c_str() );
+		//	m_ResourceMap.m_pStageResourceMap->m_ModelMap[ it->first ] = id;
+		//}
+		//// 敵出現パターンの読み込み
+		//typedef std::map < int, std::string > ::iterator	PatternIter;
+		//for(	PatternIter it = pScriptData->m_EnemyPatternList.begin();
+		//		it != pScriptData->m_EnemyPatternList.end();
+		//		++it ){
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
+		//	}
+		//	int id = CreateStageEnemyPattern( it->second );
+		//	m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
+		//}
+
 		// 各種リソースの読み込み
 		std::shared_ptr < ResourceScriptData > pScriptData = data.m_pResourceScriptData;
 		// テクスチャの読み込み
@@ -81,54 +147,54 @@ namespace GameEngine
 				it != pScriptData->m_TextureList.end();
 				++it ){
 			// 許容値を超えたインデックスが必要な場合は、指定されたインデックスの2倍のサイズのresizeする。
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_TextureMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_TextureMap.size() ){
+				m_pNextLocalResourceMap->m_TextureMap.resize( it->first * 2 );
 			}
-			m_ResourceMap.m_pStageResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( it->second.c_str() );
+			m_pNextLocalResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( it->second.c_str() );
 		}
 		// SEの読み込み
 		typedef std::map < int, std::string > ::iterator	SEIter;
 		for(	SEIter it = pScriptData->m_SEList.begin();
 				it != pScriptData->m_SEList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_SEMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_SEMap.size() ){
+				m_pNextLocalResourceMap->m_SEMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateStaticBuffer( it->second.c_str() );
-			m_ResourceMap.m_pStageResourceMap->m_SEMap[ it->first ] = id;
+			m_pNextLocalResourceMap->m_SEMap[ it->first ] = id;
 		}
 		// BGMの読み込み
 		typedef std::map < int, std::string > ::iterator	BGMIter;
 		for(	BGMIter it = pScriptData->m_BGMList.begin();
 				it != pScriptData->m_BGMList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_BGMMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_BGMMap.size() ){
+				m_pNextLocalResourceMap->m_BGMMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateStreamingBuffer( it->second.c_str() );
-			m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
+			m_pNextLocalResourceMap->m_BGMMap[ it->first ] = id;
 		}
 		// 3Dモデルの読み込み
 		typedef std::map < int, ResourceScriptData::ModelResourceData > ::iterator	ModelIter;
 		for(	ModelIter it = pScriptData->m_ModelList.begin();
 				it != pScriptData->m_ModelList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_ModelMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_ModelMap.size() ){
+				m_pNextLocalResourceMap->m_ModelMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateModel( it->second.m_ModelFileName.c_str() );
-			m_ResourceMap.m_pStageResourceMap->m_ModelMap[ it->first ] = id;
+			m_pNextLocalResourceMap->m_ModelMap[ it->first ] = id;
 		}
 		// 敵出現パターンの読み込み
 		typedef std::map < int, std::string > ::iterator	PatternIter;
 		for(	PatternIter it = pScriptData->m_EnemyPatternList.begin();
 				it != pScriptData->m_EnemyPatternList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_EnemyPatternFileMap.size() ){
+				m_pNextLocalResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
 			}
 			int id = CreateStageEnemyPattern( it->second );
-			m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
+			m_pNextLocalResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
 		}
 	}
 
@@ -169,6 +235,20 @@ namespace GameEngine
 				m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ i ] = -1;
 			}
 		}
+
+		m_ResourceMap.m_pStageResourceMap->m_TextureMap.swap( m_pNextLocalResourceMap->m_TextureMap );
+		m_ResourceMap.m_pStageResourceMap->m_SEMap.swap( m_pNextLocalResourceMap->m_SEMap );
+		m_ResourceMap.m_pStageResourceMap->m_BGMMap.swap( m_pNextLocalResourceMap->m_BGMMap );
+		m_ResourceMap.m_pStageResourceMap->m_ModelMap.swap( m_pNextLocalResourceMap->m_ModelMap );
+		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.swap( m_pNextLocalResourceMap->m_EnemyPatternFileMap );
+
+		MAPIL::RefleshResources();
+
+		//m_pNextLocalResourceMap->m_TextureMap.;
+		//m_pNextLocalResourceMap->m_SEMap.clear();
+		//m_pNextLocalResourceMap->m_BGMMap.clear();
+		//m_pNextLocalResourceMap->m_ModelMap.clear();
+		//m_pNextLocalResourceMap->m_EnemyPatternFileMap.clear();
 	}
 
 	ResourceMap ResourceManager::Impl::GetStageResourceMap()
@@ -239,6 +319,64 @@ namespace GameEngine
 			exit( -1 );
 		}
 
+		//// 各種リソースの読み込み
+		//std::shared_ptr < ResourceScriptData > pScriptData = data.m_pResourceScriptData;
+		//// テクスチャの読み込み
+		//typedef std::map < int, std::string > ::iterator	TextureIter;
+		//for(	TextureIter it = pScriptData->m_TextureList.begin();
+		//		it != pScriptData->m_TextureList.end();
+		//		++it ){
+		//	// 許容値を超えたインデックスが必要な場合は、指定されたインデックスの2倍のサイズのresizeする。
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_TextureMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( it->first * 2 );
+		//	}
+		//	m_ResourceMap.m_pStageResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( m_ArchiveHandle, it->second.c_str() );
+		//}
+		//// SEの読み込み
+		//typedef std::map < int, std::string > ::iterator	SEIter;
+		//for(	SEIter it = pScriptData->m_SEList.begin();
+		//		it != pScriptData->m_SEList.end();
+		//		++it ){
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_SEMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( it->first * 2 );
+		//	}
+		//	int id = MAPIL::CreateStaticBuffer( m_ArchiveHandle, it->second.c_str() );
+		//	m_ResourceMap.m_pStageResourceMap->m_SEMap[ it->first ] = id;
+		//}
+		//// BGMの読み込み
+		//typedef std::map < int, std::string > ::iterator	BGMIter;
+		//for(	BGMIter it = pScriptData->m_BGMList.begin();
+		//		it != pScriptData->m_BGMList.end();
+		//		++it ){
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_BGMMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( it->first * 2 );
+		//	}
+		//	int id = MAPIL::CreateStreamingBuffer( m_ArchiveHandle, it->second.c_str() );
+		//	m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
+		//}
+		//// 3Dモデルの読み込み
+		//typedef std::map < int, ResourceScriptData::ModelResourceData > ::iterator	ModelIter;
+		//for(	ModelIter it = pScriptData->m_ModelList.begin();
+		//		it != pScriptData->m_ModelList.end();
+		//		++it ){
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_ModelMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( it->first * 2 );
+		//	}
+		//	int id = MAPIL::CreateModel( m_ArchiveHandle, it->second.m_ModelFileName.c_str(), it->second.m_TextureFileName.c_str() );
+		//	m_ResourceMap.m_pStageResourceMap->m_ModelMap[ it->first ] = id;
+		//}
+		//// 敵出現パターンファイルの読み込み
+		//typedef std::map < int, std::string > ::iterator	EnemyPatternIter;
+		//for(	EnemyPatternIter it = pScriptData->m_EnemyPatternList.begin();
+		//		it != pScriptData->m_EnemyPatternList.end();
+		//		++it ){
+		//	if( it->first > m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.size() ){
+		//		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
+		//	}
+		//	int id = CreateStageEnemyPattern( m_ArchiveHandle, it->second );
+		//	m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
+		//}
+
 		// 各種リソースの読み込み
 		std::shared_ptr < ResourceScriptData > pScriptData = data.m_pResourceScriptData;
 		// テクスチャの読み込み
@@ -247,54 +385,54 @@ namespace GameEngine
 				it != pScriptData->m_TextureList.end();
 				++it ){
 			// 許容値を超えたインデックスが必要な場合は、指定されたインデックスの2倍のサイズのresizeする。
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_TextureMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_TextureMap.size() ){
+				m_pNextLocalResourceMap->m_TextureMap.resize( it->first * 2 );
 			}
-			m_ResourceMap.m_pStageResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( m_ArchiveHandle, it->second.c_str() );
+			m_pNextLocalResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( m_ArchiveHandle, it->second.c_str() );
 		}
 		// SEの読み込み
 		typedef std::map < int, std::string > ::iterator	SEIter;
 		for(	SEIter it = pScriptData->m_SEList.begin();
 				it != pScriptData->m_SEList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_SEMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_SEMap.size() ){
+				m_pNextLocalResourceMap->m_SEMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateStaticBuffer( m_ArchiveHandle, it->second.c_str() );
-			m_ResourceMap.m_pStageResourceMap->m_SEMap[ it->first ] = id;
+			m_pNextLocalResourceMap->m_SEMap[ it->first ] = id;
 		}
 		// BGMの読み込み
 		typedef std::map < int, std::string > ::iterator	BGMIter;
 		for(	BGMIter it = pScriptData->m_BGMList.begin();
 				it != pScriptData->m_BGMList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_BGMMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_BGMMap.size() ){
+				m_pNextLocalResourceMap->m_BGMMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateStreamingBuffer( m_ArchiveHandle, it->second.c_str() );
-			m_ResourceMap.m_pStageResourceMap->m_BGMMap[ it->first ] = id;
+			m_pNextLocalResourceMap->m_BGMMap[ it->first ] = id;
 		}
 		// 3Dモデルの読み込み
 		typedef std::map < int, ResourceScriptData::ModelResourceData > ::iterator	ModelIter;
 		for(	ModelIter it = pScriptData->m_ModelList.begin();
 				it != pScriptData->m_ModelList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_ModelMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_ModelMap.size() ){
+				m_pNextLocalResourceMap->m_ModelMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateModel( m_ArchiveHandle, it->second.m_ModelFileName.c_str(), it->second.m_TextureFileName.c_str() );
-			m_ResourceMap.m_pStageResourceMap->m_ModelMap[ it->first ] = id;
+			m_pNextLocalResourceMap->m_ModelMap[ it->first ] = id;
 		}
 		// 敵出現パターンファイルの読み込み
 		typedef std::map < int, std::string > ::iterator	EnemyPatternIter;
 		for(	EnemyPatternIter it = pScriptData->m_EnemyPatternList.begin();
 				it != pScriptData->m_EnemyPatternList.end();
 				++it ){
-			if( it->first > m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.size() ){
-				m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
+			if( it->first > m_pNextLocalResourceMap->m_EnemyPatternFileMap.size() ){
+				m_pNextLocalResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
 			}
 			int id = CreateStageEnemyPattern( m_ArchiveHandle, it->second );
-			m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
+			m_pNextLocalResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
 		}
 	}
 

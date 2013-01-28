@@ -28,6 +28,7 @@ namespace GameEngine
 		void SysCreateEnemyShot();
 		void SysCreateConsEnemyShot();
 		void SysSetEnemyShotPos();
+		void SysSetEnemyShotPower();
 		void SysSetEnemyShotAngle();
 		void SysSetEnemyShotSpeed();
 		void SysSetEnemyShotImage();
@@ -37,6 +38,7 @@ namespace GameEngine
 		void SysGetEnemyShotCounter();
 		void SysGetEnemyShotPosX();
 		void SysGetEnemyShotPosY();
+		void SysGetEnemyShotPower();
 
 		void SysEnemyShotAddAngle();
 		void SysEnemyShotSetImgScale();

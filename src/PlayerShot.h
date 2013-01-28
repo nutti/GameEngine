@@ -26,6 +26,7 @@ namespace GameEngine
 		void SetAngle( float angle );									// 角度を設定
 		void SetSpeed( float speed );									// 速度を設定
 		void SetShotPower( int power );
+		void SetConsAttr( int attr );
 		void Colided( CollisionObject* pObject );						// 衝突時の処理 ディスパッチャ
 		void ProcessCollision( Player* pPlayer );						// 衝突時の処理（プレイヤー）
 		void ProcessCollision( Enemy* pEnemy );							// 衝突時の処理（敵）
@@ -35,6 +36,7 @@ namespace GameEngine
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
 		int GetShotPower() const;
+		int GetConsAttr() const;
 		void SetPlayer( Player* pPlayer );
 		void SetEnemy( Enemy* pEnemy );
 		void SetStageData( StageData* pData );

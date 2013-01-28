@@ -51,6 +51,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_ANGLE, TYPE_INTEGER, "GetEnemyAngle", "" );				// int GetEnemyAngle();
 	AddFunction( VM::SYS_ENEMY_GET_CONS_GAUGE, TYPE_INTEGER, "GetEnemyConsGauge", "" );		// int GetEnemyConsGauge();
 
+	AddFunction( VM::SYS_ENEMY_SET_NAME, TYPE_VOID, "SetEnemyName", "s" );					// void SetEnemyName( name );
 	AddFunction( VM::SYS_ENEMY_SET_POS, TYPE_VOID, "SetEnemyPos", "ff" );					// void SetEnemyPos( x, y );
 	AddFunction( VM::SYS_ENEMY_SET_ANGLE, TYPE_VOID, "SetEnemyAngle", "i" );				// void SetEnemyAngle( angle );
 	AddFunction( VM::SYS_ENEMY_SET_SPEED, TYPE_VOID, "SetEnemySpeed", "i" );				// void SetEnemySpeed( speed );
@@ -65,7 +66,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_STOP_CONS_SKILL, TYPE_VOID, "EnemyStopConsSkill", "" );				// void EnemyStopConsSkill();
 	AddFunction( VM::SYS_ENEMY_SHIFT_NEXT_MODE, TYPE_VOID, "EnemyShiftNextMode", "" );	// void EnemyShiftNextMode();
 
-	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_1, TYPE_VOID, "CreateEnemyShot1", "fffffi" );	// void CreateEnemyShot1( x, y, speed, angle, radius, texture_id );
+	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_1, TYPE_VOID, "CreateEnemyShot1", "fffffii" );	// void CreateEnemyShot1( x, y, speed, angle, radius, texture_id, power );
 	AddFunction( VM::SYS_ENEMY_CREATE_EFFECT_1, TYPE_VOID, "CreateEffect1", "ffii" );		// void CreateEffect1( x, y, id, subid );
 	AddFunction( VM::SYS_ENEMY_SET_BOSS_FLAG, TYPE_VOID, "SetEnemyBossFlag", "i" );			// void SetEnemyBossFlag( flag );
 	AddFunction( VM::SYS_CREATE_ITEM, TYPE_VOID, "CreateItem", "iiff" );			// void CreateItem( item_id, item_sub_id, x, y );
@@ -76,6 +77,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT, TYPE_INTEGER, "CreateEnemyShot", "" );	// int CreateEnemyShot();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_CONS_SHOT, TYPE_INTEGER, "CreateConsEnemyShot", "i" );	// int CreateConsEnemyShot( shot_attr );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_POS, TYPE_VOID, "SetEnemyShotPos", "iff" );		// void SetEnemyShotPos( shot_id, x, y );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_POWER, TYPE_VOID, "SetEnemyShotPower", "ii" );		// void SetEnemyShotPower( shot_id, power );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_ANGLE, TYPE_VOID, "SetEnemyShotAngle", "if" );		// void SetEnemyShotAngle( shot_id, angle );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_SPEED, TYPE_VOID, "SetEnemyShotSpeed", "if" );		// void SetEnemyShotSpeed( shot_id, speed );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE, TYPE_VOID, "SetEnemyShotImage", "ii" );		// void SetEnemyShotImage( shot_id, texture_id );
@@ -85,6 +87,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_COUNTER, TYPE_INTEGER, "GetEnemyShotCounter", "i" );		// int GetEnemyShotCounter( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X, TYPE_FLOAT, "GetEnemyShotPosX", "i" );				// float GetEnemyShotPosX( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y, TYPE_FLOAT, "GetEnemyShotPosY", "i" );				// float GetEnemyShotPosY( shot_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POWER, TYPE_INTEGER, "GetEnemyShotPower", "i" );			// int GetEnemyShotPower( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_REG, TYPE_INTEGER, "GetEnemyShotGroupReg", "" );			// int GetEnemyShotGroupReg();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE, TYPE_VOID, "EnemyShotAddAngle", "if" );			// void EnemyShotAddAngle( id, angle );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE, TYPE_VOID, "EnemyShotSetImgScale", "if" );	// void EnemyShotSetImgScale( id, scale );
@@ -102,6 +105,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STAGE_GET_BOSS_FLAG, TYPE_INTEGER, "GetStageBossFlag", "" );		// int GetBossFlag();
 	AddFunction( VM::SYS_STAGE_CREATE_BOSS, TYPE_INTEGER, "StageCreateBoss", "iff" );			// void CreateBoss( script_id, x, y );
 	AddFunction( VM::SYS_STAGE_SET_FRAME_TOTAL, TYPE_VOID, "SetFrameTotal", "i" );				// void SetFrameTotal( frame );
+	AddFunction( VM::SYS_STAGE_SWITCH_TO_NEXT_STAGE, TYPE_VOID, "SwitchToNextStage", "i" );		// void SwitchToNextStage( stage_no );
 
 	// System call for stage background.
 	AddFunction( VM::SYS_STAGE_BACKGROUND_GET_COUNTER, TYPE_INTEGER, "StageBackgroundGetCounter", "" );	// int StageBackgroundGetCounter();

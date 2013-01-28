@@ -1,5 +1,7 @@
 #include <MAPIL/MAPIL.h>
 
+#include "Player.h"
+
 #include "Enemy.h"
 #include "ResourceTypes.h"
 #include "ScriptTypes.h"
@@ -248,51 +250,83 @@ namespace GameEngine
 			m_Data.m_pStageData->m_FrameGameData.m_Score += 10;
 			// 無敵状態でない時
 			if( !m_Data.m_IsInvincibleMode ){
-				m_Data.m_HP -= pPlayerShot->GetShotPower();
+
+				int damage = 0;
+				// 属性がある場合(意識技使用時+複合属性ではない場合)
+				if( m_Data.m_IsConsSkillMode && m_Data.m_ConsSkillAttr <= 3 && m_Data.m_ConsSkillAttr > 0 ){
+					// 属性が一致している時
+					if( m_Data.m_ConsSkillAttr == pPlayerShot->GetConsAttr() ){
+						damage = 0;	// ダメージ無効化
+					}
+					// 属性勝ちしている時
+					// (緑->青, 青->赤, 赤->緑)
+					else if(	m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_BLUE ||
+								m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_BLUE && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ||
+								m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ){
+						damage = 0;		// ダメージ無効化
+					}
+					// 属性負けしている時
+					// (青->緑, 赤->青, 緑->赤)
+					else if(	m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_BLUE && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ||
+								m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_BLUE ||
+								m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ){
+						damage = pPlayerShot->GetShotPower() * 2;		// ダメージ2倍
+						
+					}
+				}
+				// 属性が無い場合
+				else{
+					damage = pPlayerShot->GetShotPower();
+				}
+
+				m_Data.m_HP -= damage;
 				if( m_Data.m_IsBoss ){
 					StageMessage msg;
 					msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_DAMAGED;
 					m_Data.m_pStageData->m_MsgQueue.push( msg );
 				}
-				else{
-					if( !m_SentLastDamagedMsg ){
-						if( m_Data.m_HP > 0 ){
-							StageMessage msg;
-							msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
-							StageMessage::StageMessageData data;
-							data.m_pString = new std::string ( m_Data.m_Name );
-							msg.m_MsgDataList.push_back( data );
-							data.m_Integer = m_Data.m_HP;
-							msg.m_MsgDataList.push_back( data );
-							data.m_Integer = m_Data.m_MaxHP;
-							msg.m_MsgDataList.push_back( data );
-							data.m_Integer = m_Data.m_ConsGauge;
-							msg.m_MsgDataList.push_back( data );
-							data.m_Integer = 200;
-							msg.m_MsgDataList.push_back( data );
-							m_Data.m_pStageData->m_MsgQueue.push( msg );
-							m_SentLastDamagedMsg = true;
-						}
-						else{
-							StageMessage msg;
-							msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
-							StageMessage::StageMessageData data;
-							data.m_pString = new std::string ( "" );
-							msg.m_MsgDataList.push_back( data );
-							data.m_Integer = 0;
-							msg.m_MsgDataList.push_back( data );
-							data.m_Integer = 10000;
-							msg.m_MsgDataList.push_back( data );
-							data.m_Integer = 0;
-							msg.m_MsgDataList.push_back( data );
-							data.m_Integer = 10000;
-							msg.m_MsgDataList.push_back( data );
-							m_Data.m_pStageData->m_MsgQueue.push( msg );
-							m_SentLastDamagedMsg = true;
-						}
-					}
+			}
+
+			// 最後のダメージを受けた時に発行
+			if( !m_SentLastDamagedMsg ){
+				if( m_Data.m_HP > 0 ){
+					StageMessage msg;
+					msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
+					StageMessage::StageMessageData data;
+					data.m_pString = new std::string ( m_Data.m_Name );
+					msg.m_MsgDataList.push_back( data );
+					data.m_Integer = m_Data.m_HP;
+					msg.m_MsgDataList.push_back( data );
+					data.m_Integer = m_Data.m_MaxHP;
+					msg.m_MsgDataList.push_back( data );
+					data.m_Integer = m_Data.m_ConsGauge;
+					msg.m_MsgDataList.push_back( data );
+					data.m_Integer = 200;
+					msg.m_MsgDataList.push_back( data );
+					m_Data.m_pStageData->m_MsgQueue.push( msg );
+					m_SentLastDamagedMsg = true;
 				}
 			}
+			if( m_Data.m_HP <= 0 ){
+				StageMessage msg;
+				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
+				StageMessage::StageMessageData data;
+				data.m_pString = new std::string ( "" );
+				msg.m_MsgDataList.push_back( data );
+				data.m_Integer = 0;
+				msg.m_MsgDataList.push_back( data );
+				data.m_Integer = 10000;
+				msg.m_MsgDataList.push_back( data );
+				data.m_Integer = 0;
+				msg.m_MsgDataList.push_back( data );
+				data.m_Integer = 10000;
+				msg.m_MsgDataList.push_back( data );
+				m_Data.m_pStageData->m_MsgQueue.push( msg );
+				m_SentLastDamagedMsg = true;
+			}
+
+
+
 			if( m_Data.m_HP <= 0 ){
 				m_Data.m_HP = 0;
 				m_Data.m_pStageData->m_FrameGameData.m_Score += m_Data.m_Score;

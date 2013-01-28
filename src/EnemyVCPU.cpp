@@ -75,6 +75,13 @@ namespace GameEngine
 		Push( m_pEnemyData->m_ConsGauge );
 	}
 
+	void EnemyVCPU::SysSetEnemyName()
+	{
+		Pop();
+		m_pEnemyData->m_Name = Top().m_pString->m_Str;
+		Pop();
+	}
+
 	void EnemyVCPU::SysSetEnemyPos()
 	{
 		Pop();
@@ -189,6 +196,9 @@ namespace GameEngine
 			msg.m_MsgDataList.push_back( data );
 			// メッセージ送信
 			m_pEnemyData->m_pStageData->m_MsgQueue.push( msg );
+			// 意識技エフェクト開始
+			m_pEnemyData->m_IsConsSkillMode = true;
+			m_pEnemyData->m_ConsSkillName = *pStr;
 		}
 		// 技を使用したのが、通常の敵の場合
 		else{
@@ -226,6 +236,8 @@ namespace GameEngine
 	void EnemyVCPU::SysCreateEnemyShot1()
 	{
 		Pop();
+		int power = Top().m_Integer;
+		Pop();
 		int imgID = Top().m_Integer;
 		Pop();
 		float radius = Top().m_Float;
@@ -243,6 +255,7 @@ namespace GameEngine
 		pNewShot->SetAngle( angle );
 		pNewShot->SetSpeed( speed );
 		pNewShot->SetImage( imgID );
+		pNewShot->SetPower( power );
 		pNewShot->SetCollisionRadius( radius );
 		m_pEnemyData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
 	}
@@ -408,6 +421,9 @@ namespace GameEngine
 				SysGetEnemyConsGauge();
 				break;
 
+			case VM::SYS_ENEMY_SET_NAME:
+				SysSetEnemyName();
+				break;
 			case VM::SYS_ENEMY_SET_POS:
 				SysSetEnemyPos();
 				break;

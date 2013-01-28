@@ -72,9 +72,9 @@ namespace GameEngine
 		int fileID = Top().m_Integer;
 		Pop();
 
-		if( ExistEnemyPattern( fileID, frame ) ){
+		if( ExistEnemyPattern( m_pStageData->m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ fileID ], frame ) ){
 			EnemyPattern pattern;
-			GetEnemyPattern( fileID, frame, &pattern );
+			GetEnemyPattern( m_pStageData->m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap[ fileID ], frame, &pattern );
 			for( int i = 0; i < pattern.m_InfoList.size(); ++i ){
 				Enemy* pNewEnemy = m_pStageData->m_ObjBuilder.CreateEnemy( pattern.m_InfoList[ i ].m_EnemyID );
 				pNewEnemy->Init( pattern.m_InfoList[ i ].m_PosX, pattern.m_InfoList[ i ].m_PosY );
@@ -136,6 +136,21 @@ namespace GameEngine
 		Pop();
 	}
 
+	void StageVCPU::SysStageSwitchToNextStage()
+	{
+		Pop();
+		int stageNo = Top().m_Integer;	// ステージ番号
+		Pop();
+
+		// メッセージ送信
+		StageMessage msg;
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_STAGE_CLEARED;
+		StageMessage::StageMessageData data;
+		data.m_Integer = stageNo;
+		msg.m_MsgDataList.push_back( data );
+		m_pStageData->m_MsgQueue.push( msg );
+	}
+
 	void StageVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -162,6 +177,10 @@ namespace GameEngine
 				break;
 			case VM::SYS_STAGE_SET_FRAME_TOTAL:
 				SysSetFrameTotal();
+				break;
+
+			case VM::SYS_STAGE_SWITCH_TO_NEXT_STAGE:
+				SysStageSwitchToNextStage();
 				break;
 
 			case VM::SYS_PLAY_BGM:

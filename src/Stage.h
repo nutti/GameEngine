@@ -43,6 +43,9 @@ namespace GameEngine
 			STAGE_MESSAGE_ID_ENEMY_INVOKE_CONS_SKILL	= 8,		// 敵（ボス以外）がスキルを使用した
 			STAGE_MESSAGE_ID_PLAYER_BOMBED				= 9,		// プレイヤーがボム発動
 			STAGE_MESSAGE_ID_ENEMY_DAMAGED				= 10,		// 敵（ボス以外）がダメージを受けた
+			STAGE_MESSAGE_ID_STAGE_CLEARED				= 11,		// ステージクリアした
+			STAGE_MESSAGE_ID_GAME_OVERED				= 12,		// ゲームオーバーした
+			STAGE_MESSAGE_ID_GAME_CLEARED				= 13,		// 全クリした
 		};
 		union StageMessageData
 		{
@@ -112,6 +115,7 @@ namespace GameEngine
 		int GetScore() const;
 		int GetKilled() const;
 		int GetCrystal() const;
+		int GetNextStageNo() const;
 		GameDataMsg GetFrameData() const;
 	};
 }

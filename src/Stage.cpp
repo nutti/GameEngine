@@ -26,13 +26,24 @@
 #include "Util.h"
 #include "Profiler.h"
 
+#include <bitset>
+
 namespace GameEngine
 {
 	class Stage::Impl
 	{
 	private:
+		// フラグ管理
+		enum StatusFlag
+		{
+			CLEARED				= 0,		// クリアしたか？
+			STATUS_FLAG_TOTAL,
+		};
+
 		struct PrivateData
 		{
+			
+
 			// 意識技
 			struct ConsSkillModeData
 			{
@@ -67,11 +78,19 @@ namespace GameEngine
 				int				m_ConsGauge;		// 現在の意識ゲージ
 				int				m_MaxConsGauge;		// 最大意識ゲージ
 			};
+			// ステージクリア時の処理に関するデータ
+			struct StageClearModeData
+			{
+				int				m_Counter;			// カウンタ
+				int				m_NextStageNo;		// 次のステージ番号
+			};
 
-			ConsSkillModeData		m_ConsSkillModeData;
-			BossModeData			m_BossModeData;
-			BombModeData			m_BombModeData;
-			LastDamagedEnemyData	m_LastDamagedEnemyData;
+			ConsSkillModeData						m_ConsSkillModeData;
+			BossModeData							m_BossModeData;
+			BombModeData							m_BombModeData;
+			LastDamagedEnemyData					m_LastDamagedEnemyData;
+			StageClearModeData						m_ClearModeData;
+			std::bitset < STATUS_FLAG_TOTAL >		m_StatusFlags;
 		};
 
 
@@ -84,6 +103,7 @@ namespace GameEngine
 		StageBackground				m_Background;		// 背景
 
 		Profiler					m_Profiler;			// プロファイラ
+		bool						m_DispProf;			// プロファイラの結果を表示
 
 		PrivateData					m_PrivData;
 
@@ -93,6 +113,7 @@ namespace GameEngine
 
 		void UpdateConsSkillEffect();		// 意識技エフェクト処理の更新
 		void DrawConsSkillEffect() const;	// 意識技エフェクト処理の描画
+		void LateDrawConsSkillEffect() const;	// 意識技エフェクト処理の描画（後で描画）
 		void UpdateBossModeEffect();		// ボスモード時のエフェクト処理の更新
 		void DrawBossModeEffect() const;	// ボスモード時のエフェクト処理の描画
 		void UpdateBombModeEffect();		// ボムモード時のエフェクト処理の更新
@@ -120,6 +141,7 @@ namespace GameEngine
 		int GetScore() const;
 		int GetKilled() const;
 		int GetCrystal() const;
+		int GetNextStageNo() const;
 		GameDataMsg GetFrameData() const;
 	};
 
@@ -158,8 +180,11 @@ namespace GameEngine
 		m_PrivData.m_LastDamagedEnemyData.m_MaxHP = 10000;
 		m_PrivData.m_LastDamagedEnemyData.m_ConsGauge = 0;
 		m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge = 10000;
+		m_PrivData.m_ClearModeData.m_Counter = 0;
+		m_PrivData.m_ClearModeData.m_NextStageNo = 0;
 
 		m_Profiler.Clear();
+		m_DispProf = true;
 	}
 
 	Stage::Impl::~Impl()
@@ -401,6 +426,11 @@ namespace GameEngine
 					m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge = m_Data.m_MsgQueue.front().m_MsgDataList[ 4 ].m_Integer;
 					MAPIL::SafeDelete( m_Data.m_MsgQueue.front().m_MsgDataList[ 0 ].m_pString );
 					break;
+				case StageMessage::STAGE_MESSAGE_ID_STAGE_CLEARED:
+					m_PrivData.m_StatusFlags.set( CLEARED );
+					m_PrivData.m_ClearModeData.m_Counter = 0;
+					m_PrivData.m_ClearModeData.m_NextStageNo = m_Data.m_MsgQueue.front().m_MsgDataList[ 0 ].m_Integer;
+					break;
 				default:
 					break;
 			}
@@ -466,7 +496,7 @@ namespace GameEngine
 		}
 	}
 
-	void Stage::Impl::DrawConsSkillEffect() const
+	void Stage::Impl::LateDrawConsSkillEffect() const
 	{
 		if( !m_Data.m_pBoss ){
 			return;
@@ -474,19 +504,11 @@ namespace GameEngine
 
 		if( m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode ){
 			if( m_PrivData.m_ConsSkillModeData.m_Counter < 60 ){
-				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-									0.0f, 0.0f,
-									40.0f, 30.0f, false,
-									( ( m_PrivData.m_ConsSkillModeData.m_Counter * 3 ) << 24 ) | 0x333333 );
-				
 				DrawFontString( m_Data.m_ResourceMap, 400.0f - m_PrivData.m_ConsSkillModeData.m_Counter, 30.0f, 0.5f,
 								( ( m_PrivData.m_ConsSkillModeData.m_Counter * 4 ) << 24 ) | 0xFFFFFF,
 								m_PrivData.m_ConsSkillModeData.m_SkillName.c_str() );
 			}
 			else{
-				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-									0.0f, 0.0f,
-									40.0f, 30.0f, false, 180 << 24 | 0x333333 );
 				DrawFontString( m_Data.m_ResourceMap, 340.0f, 30.0f, 0.5f, m_PrivData.m_ConsSkillModeData.m_SkillName.c_str() );
 			}
 
@@ -519,12 +541,37 @@ namespace GameEngine
 		}
 		else{
 			if( m_PrivData.m_ConsSkillModeData.m_PostCounter < 30 ){
+				DrawFontString(	m_Data.m_ResourceMap, 340.0f - m_PrivData.m_ConsSkillModeData.m_PostCounter, 30.0f, 0.5f,
+								( ( ( 30 - m_PrivData.m_ConsSkillModeData.m_PostCounter ) * 8 ) << 24 ) | 0xFFFFFF, m_PrivData.m_ConsSkillModeData.m_SkillName.c_str() );
+			}
+		}
+	}
+
+	void Stage::Impl::DrawConsSkillEffect() const
+	{
+		if( !m_Data.m_pBoss ){
+			return;
+		}
+
+		if( m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode ){
+			if( m_PrivData.m_ConsSkillModeData.m_Counter < 60 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									0.0f, 0.0f,
+									40.0f, 30.0f, false,
+									( ( m_PrivData.m_ConsSkillModeData.m_Counter * 3 ) << 24 ) | 0x333333 );
+			}
+			else{
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									0.0f, 0.0f,
+									40.0f, 30.0f, false, 180 << 24 | 0x333333 );
+			}
+		}
+		else{
+			if( m_PrivData.m_ConsSkillModeData.m_PostCounter < 30 ){
 				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 									0.0f, 0.0f,
 									40.0f, 30.0f, false,
 									( ( ( 30 - m_PrivData.m_ConsSkillModeData.m_PostCounter ) * 6 ) << 24 ) | 0x333333 );
-				DrawFontString(	m_Data.m_ResourceMap, 340.0f - m_PrivData.m_ConsSkillModeData.m_PostCounter, 30.0f, 0.5f,
-								( ( ( 30 - m_PrivData.m_ConsSkillModeData.m_PostCounter ) * 8 ) << 24 ) | 0xFFFFFF, m_PrivData.m_ConsSkillModeData.m_SkillName.c_str() );
 			}
 		}
 	}
@@ -742,6 +789,15 @@ namespace GameEngine
 
 	SceneType Stage::Impl::Update()
 	{
+		static bool prevPushed = false;
+		if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_Q ) ) && !prevPushed ){
+			m_DispProf = !m_DispProf;
+			prevPushed = true;
+		}
+		else if( !MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_Q ) ) ){
+			prevPushed = false;
+		}
+
 		m_Profiler.Begin( "Update" );
 		
 		// 現フレームでのスコアをリセット
@@ -752,9 +808,17 @@ namespace GameEngine
 
 		// ステージ向けのメッセージを処理
 		ProcessMessage();
+		// ゲームオーバー時の処理
 		if( m_Data.m_HasTermSig ){
 			m_Background.Terminate();
 			return SCENE_TYPE_SCORE_ENTRY;
+		}
+		// ステージクリア時の処理
+		if( m_PrivData.m_ClearModeData.m_Counter >= 80 ){
+			return SCENE_TYPE_STAGE;
+		}
+		if( m_PrivData.m_StatusFlags[ CLEARED ] ){
+			++m_PrivData.m_ClearModeData.m_Counter;
 		}
 
 		// 背景の更新
@@ -792,6 +856,7 @@ namespace GameEngine
 			m_Data.m_GameData.m_HIScore = m_Data.m_GameData.m_Score;
 		}
 		m_Data.m_GameData.m_CrystalTotal += m_Data.m_FrameGameData.m_CrystalTotal;
+		m_Data.m_GameData.m_CrystalUsed += m_Data.m_FrameGameData.m_CrystalUsed;
 		m_Data.m_GameData.m_Killed += m_Data.m_FrameGameData.m_Killed;
 
 		// 敵が最後にダメージを受けた時のメッセージを破棄
@@ -818,7 +883,7 @@ namespace GameEngine
 		if( isFirst ){
 			//light = MAPIL::createdirec
 			isFirst = false;
-			int light = MAPIL::CreateDirectionalLight();
+			light = MAPIL::CreateDirectionalLight();
 
 		}
 
@@ -1092,23 +1157,30 @@ namespace GameEngine
 		dispOffsetY += 70.0f;
 		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL ],
 							RIGHT_DISP_OFFSET_X, dispOffsetY, 0.8f, 0.8f, false );
-		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 35.0f, 0.4f, "%d", m_Data.m_GameData.m_CrystalTotal );
+		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 35.0f, 0.4f, "%d/%d", m_Data.m_GameData.m_CrystalTotal - m_Data.m_GameData.m_CrystalUsed, m_Data.m_GameData.m_CrystalTotal );
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 55.0f, 0.4f, 0xFF888888, "%d", m_Data.m_GameData.m_CrystalTotal );
 		// 進行度
-		dispOffsetY += 80.0f;
+		dispOffsetY += 90.0f;
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY, 0.4f, 0xFFAAFFAA, "progress" );
 		if( m_Data.m_Frame < m_Data.m_FrameTotal ){
-			DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 35.0f, 0.4f, "%.2f", m_Data.m_Frame * 100.0f / m_Data.m_FrameTotal );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 20.0f, 6.0f, 0.4f, false, 0xFF222222 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 20.0f, m_Data.m_Frame * 6.0f / m_Data.m_FrameTotal, 0.4f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x2222FF );
+			
 		}
 		else{
-			DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 35.0f, 0.4f, "99.99%%" );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 20.0f, 6.0f, 0.4f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x2222FF );
 		}
 		// 最後に攻撃した敵データ
+		dispOffsetY += 50.0f;
 		if( m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge != 10000 ){
-			dispOffsetY += 60.0f;
 			DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY, 0.4f, 0xFFAAFFAA, "%s", m_PrivData.m_LastDamagedEnemyData.m_EnemyName.c_str() );
-			DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 25.0f, 0.4f, "%d/%d", m_PrivData.m_LastDamagedEnemyData.m_HP, m_PrivData.m_LastDamagedEnemyData.m_MaxHP );
-			DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 45.0f, 0.4f, "%d/%d", m_PrivData.m_LastDamagedEnemyData.m_ConsGauge, m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 10.0f, m_PrivData.m_LastDamagedEnemyData.m_HP * 6.0f / m_PrivData.m_LastDamagedEnemyData.m_MaxHP, 0.5f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF2222 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 20.0f, m_PrivData.m_LastDamagedEnemyData.m_ConsGauge * 6.0f / m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge, 0.5f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x22FF22 );
 		}
 
 		// FPS
@@ -1119,47 +1191,52 @@ namespace GameEngine
 		// ボス戦闘時のエフェクトの描画
 		DrawBossModeEffect();
 
+		LateDrawConsSkillEffect();
+
 		m_Profiler.End( "Draw" );
 
 		m_Profiler.Begin( "Debug Stat" );
 
 		// デバッグ表示
-		MAPIL::DrawTexture( m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-							230.0f, 16.0f, 17.0f, 10.0f, false, 0x66000000 );
-		MAPIL::DrawString( 250.0f, 20.0f, "--Stat--", m_Data.m_Frame );
-		MAPIL::DrawString( 250.0f, 50.0f, "Frame : %d", m_Data.m_Frame );
-		MAPIL::DrawString( 250.0f, 70.0f, "EnemyShot : %d", m_Data.m_EnemyShotList.size() );
-		MAPIL::DrawString( 250.0f, 90.0f, "Item : %d", m_Data.m_ItemList.size() );
-		MAPIL::DrawString( 250.0f, 110.0f, "Effect : %d", m_Data.m_EffectList.size() );
-		MAPIL::DrawString( 250.0f, 130.0f, "PlayerShot : %d", m_Data.m_PlayerShotList.size() );
-		MAPIL::DrawString( 250.0f, 150.0f, "EnemyShotGroup : %d", m_Data.m_EnemyShotGroupList.size() );
+		if( m_DispProf ){
+			MAPIL::DrawTexture( m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								230.0f, 16.0f, 17.0f, 10.0f, false, 0x66000000 );
+			MAPIL::DrawString( 250.0f, 20.0f, "--Stat--", m_Data.m_Frame );
+			MAPIL::DrawString( 250.0f, 50.0f, "Frame : %d", m_Data.m_Frame );
+			MAPIL::DrawString( 250.0f, 70.0f, "EnemyShot : %d", m_Data.m_EnemyShotList.size() );
+			MAPIL::DrawString( 250.0f, 90.0f, "Item : %d", m_Data.m_ItemList.size() );
+			MAPIL::DrawString( 250.0f, 110.0f, "Effect : %d", m_Data.m_EffectList.size() );
+			MAPIL::DrawString( 250.0f, 130.0f, "PlayerShot : %d", m_Data.m_PlayerShotList.size() );
+			MAPIL::DrawString( 250.0f, 150.0f, "EnemyShotGroup : %d", m_Data.m_EnemyShotGroupList.size() );
 		
 		
 		
 
-		static int count = 0;
-		static int time[ 4 ] = { 0, 0, 0, 0 };
-		static float interval = 0;
-		++count;
-		MAPIL::DrawString( 380.0f, 20.0f, "--Profile--", time[ 0 ] / 10.0f );
-		MAPIL::DrawString( 380.0f, 50.0f, "Update : %.1f %%", time[ 0 ] / 10.0f );
-		MAPIL::DrawString( 380.0f, 70.0f, "Draw : %.1f %%", time[ 1 ] / 10.0f );
-		MAPIL::DrawString( 380.0f, 90.0f, "Debug Stat : %.1f %%", time[ 2 ] / 10.0f );
-		MAPIL::DrawString( 380.0f, 110.0f, "Game Stat : %.1f %%", time[ 3 ] / 10.0f );
-		int total = 0;
-		for( int i = 0; i < 3; ++i ){
-			total += time[ i ];
-		}
-		MAPIL::DrawString( 380.0f, 140.0f, "Total : %.2f %%", total / 10.0f );
+			static int count = 0;
+			static int time[ 4 ] = { 0, 0, 0, 0 };
+			static float interval = 0;
+			++count;
+			MAPIL::DrawString( 380.0f, 20.0f, "--Profile--", time[ 0 ] / 10.0f );
+			MAPIL::DrawString( 380.0f, 50.0f, "Update : %.1f %%", time[ 0 ] / 10.0f );
+			MAPIL::DrawString( 380.0f, 70.0f, "Draw : %.1f %%", time[ 1 ] / 10.0f );
+			MAPIL::DrawString( 380.0f, 90.0f, "Debug Stat : %.1f %%", time[ 2 ] / 10.0f );
+			MAPIL::DrawString( 380.0f, 110.0f, "Game Stat : %.1f %%", time[ 3 ] / 10.0f );
+			int total = 0;
+			for( int i = 0; i < 3; ++i ){
+				total += time[ i ];
+			}
+			MAPIL::DrawString( 380.0f, 140.0f, "Total : %.2f %%", total / 10.0f );
 
-		m_Profiler.End( "Debug Stat" );
+			m_Profiler.End( "Debug Stat" );
 
-		if( count % 60 == 0 ){
-			time[ 0 ] = m_Profiler.GetProfile( "Update" );
-			time[ 1 ] = m_Profiler.GetProfile( "Draw" );
-			time[ 2 ] = m_Profiler.GetProfile( "Debug Stat" );
-			time[ 3 ] = m_Profiler.GetProfile( "Game Stat" );
-			m_Profiler.Clear();
+			if( count % 60 == 0 ){
+				time[ 0 ] = m_Profiler.GetProfile( "Update" );
+				time[ 1 ] = m_Profiler.GetProfile( "Draw" );
+				time[ 2 ] = m_Profiler.GetProfile( "Debug Stat" );
+				time[ 3 ] = m_Profiler.GetProfile( "Game Stat" );
+				m_Profiler.Clear();
+			}
+
 		}
 
 		// 2D描画終了
@@ -1207,6 +1284,11 @@ namespace GameEngine
 	int Stage::Impl::GetCrystal() const
 	{
 		return m_Data.m_GameData.m_CrystalTotal;
+	}
+
+	int Stage::Impl::GetNextStageNo() const
+	{
+		return m_PrivData.m_ClearModeData.m_NextStageNo;
 	}
 
 	GameDataMsg Stage::Impl::GetFrameData() const
@@ -1279,6 +1361,11 @@ namespace GameEngine
 	int Stage::GetCrystal() const
 	{
 		return m_pImpl->GetCrystal();
+	}
+
+	int Stage::GetNextStageNo() const
+	{
+		return m_pImpl->GetNextStageNo();
 	}
 
 	GameDataMsg Stage::GetFrameData() const

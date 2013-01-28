@@ -6,6 +6,7 @@
 #include "ResourceTypes.h"
 #include "Util.h"
 #include "Item.h"
+#include "PlayerOption.h"
 
 #include "GameObjectImplBase.h"
 
@@ -25,6 +26,8 @@ namespace GameEngine
 		PlayerData							m_Data;
 		std::shared_ptr < ResourceMap >		m_pResourceMap;
 		StageData*							m_pStageData;
+
+		std::list < PlayerOption* >			m_PlayerOptList;
 		
 		void NormalModeShot();
 		void GreenModeShot();
@@ -34,6 +37,8 @@ namespace GameEngine
 		void GreenModeBomb();
 		void BlueModeBomb();
 		void RedModeBomb();
+
+		void AddOpt();
 		
 		void Move();
 		void ChangeMode();
@@ -44,7 +49,7 @@ namespace GameEngine
 		void AttachButtonState( const ButtonStatusHolder& holder );		// キー入力を設定
 		void Draw();													// 描画
 		bool Update();													// 更新
-		void GetPos( float* pX, float* pY ) const;
+		void GetPos( float* pX, float* pY );
 		void ProcessCollision( Enemy* pEnemy );							// 衝突時の処理（敵）
 		void ProcessCollision( EnemyShot* pEnemyShot );					// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );
@@ -72,11 +77,14 @@ namespace GameEngine
 		m_Data.m_Counter = 0;
 		m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
 		m_Data.m_RestInvincibleTime = 0;
+
+		m_PlayerOptList.clear();
 	}
 
 	Player::Impl::~Impl()
 	{
 		MAPIL::ZeroObject( &m_Data, sizeof( m_Data ) );
+		m_PlayerOptList.clear();
 	}
 
 	void Player::Impl::NormalModeShot()
@@ -128,18 +136,21 @@ namespace GameEngine
 			pNewShot->SetAngle( MAPIL::DegToRad( 90.0f ) );
 			pNewShot->SetSpeed( 15.0f );
 			pNewShot->SetShotPower( 5 );
+			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 			m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 			pNewShot->SetSpeed( 15.0f );
 			pNewShot->SetAngle( MAPIL::DegToRad( 10.0f + 90.0f ) );
 			pNewShot->SetShotPower( 1 );
+			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 			m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 			pNewShot->SetSpeed( 15.0f );
 			pNewShot->SetAngle( MAPIL::DegToRad( -10.0f + 90.0f ) );
 			pNewShot->SetShotPower( 1 );
+			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 			m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			if( m_Data.m_ShotPower >= 10 ){
 				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
@@ -147,12 +158,14 @@ namespace GameEngine
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( 20.0f + 90.0f ) );
 				pNewShot->SetShotPower( 1 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( -20.0f + 90.0f ) );
 				pNewShot->SetShotPower( 1 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
 			if( m_Data.m_ShotPower >= 20 ){
@@ -161,12 +174,14 @@ namespace GameEngine
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( 30.0f + 90.0f ) );
 				pNewShot->SetShotPower( 1 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( -30.0f + 90.0f ) );
 				pNewShot->SetShotPower( 1 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
 			if( m_Data.m_ShotPower >= 30 ){
@@ -175,12 +190,14 @@ namespace GameEngine
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( 40.0f + 90.0f ) );
 				pNewShot->SetShotPower( 1 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( -40.0f + 90.0f ) );
 				pNewShot->SetShotPower( 1 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
@@ -193,11 +210,13 @@ namespace GameEngine
 		pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
 		pNewShot->SetShotPower( 4 + m_Data.m_ShotPower / 10 );
 		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
+		pNewShot->SetConsAttr( PLAYER_CONS_MODE_BLUE );
 		m_pStageData->m_PlayerShotList.push_back( pNewShot );
 		pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
 		pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 8.0f );
 		pNewShot->SetShotPower( 4 + m_Data.m_ShotPower / 10 );
 		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
+		pNewShot->SetConsAttr( PLAYER_CONS_MODE_BLUE );
 		m_pStageData->m_PlayerShotList.push_back( pNewShot );
 		MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 	}
@@ -211,6 +230,7 @@ namespace GameEngine
 				pNewShot->SetAngle( MAPIL::DegToRad( i * 10.0f ) );
 				pNewShot->SetSpeed( 10.0f );
 				pNewShot->SetShotPower( 2 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_RED );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );	
@@ -292,6 +312,32 @@ namespace GameEngine
 		m_pStageData->m_MsgQueue.push( msg );
 	}
 
+	void Player::Impl::AddOpt()
+	{
+		const int ADD_OPT_COST = 15;		// オプション追加のためのコスト
+		const int OPT_TOTAL_MAX = 4;		// オプション最大数
+
+		// クリスタル数が足りない
+		if( m_pStageData->m_GameData.m_CrystalTotal - m_pStageData->m_GameData.m_CrystalUsed < ADD_OPT_COST ){
+			return;
+		}
+		
+		// オプション数が最大値に達している
+		if( m_PlayerOptList.size() >= OPT_TOTAL_MAX ){
+			return;
+		}
+		
+		PlayerOption* pNewOpt = new PlayerOption( m_pResourceMap, m_pStageData, m_PlayerOptList.size() );
+		pNewOpt->ChangeConsMode( m_Data.m_ConsCur );
+		m_PlayerOptList.push_back( pNewOpt );
+		m_pStageData->m_FrameGameData.m_CrystalUsed += ADD_OPT_COST;
+
+		std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
+		for( ; it != m_PlayerOptList.end(); ++it ){
+			( *it )->NotifyOptTotal( m_PlayerOptList.size() );
+		}
+	}
+
 	void Player::Impl::Move()
 	{
 		const float PLAYER_BASE_VELOCITY = 3.2f;
@@ -351,6 +397,13 @@ namespace GameEngine
 			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED + 1 ){
 				m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
 			}
+
+			// オプションへモード変更を通知
+			std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
+			for( ; it != m_PlayerOptList.end(); ++it ){
+				( *it )->ChangeConsMode( m_Data.m_ConsCur );
+			}
+
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE ] );	
 		}
 	}
@@ -368,17 +421,17 @@ namespace GameEngine
 			// 意識ゲージの計算
 			if( m_Data.m_ConsCur == i + 1 ){
 				if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-					m_Data.m_ConsGauge[ i ] -= 2;
+					m_Data.m_ConsGauge[ i ] -= 1;
 				}
-				if( m_Data.m_Counter % 2 ){
+				/*if( m_Data.m_Counter % 2 ){
 					--m_Data.m_ConsGauge[ i ];
-				}
+				}*/
 				if( m_Data.m_ConsGauge[ i ] < 0 ){
 					m_Data.m_ConsGauge[ i ] = 0;
 				}
 			}
 			else{
-				if( ( m_Data.m_Counter % 30 ) == 0 ){
+				if( ( m_Data.m_Counter % 25 ) == 0 ){
 					m_Data.m_ConsGauge[ i ] += m_Data.m_ConsLevel[ i ] / 100;
 					if( m_Data.m_ConsGauge[ i ] > 1000 ){
 						m_Data.m_ConsGauge[ i ] = 1000;
@@ -420,6 +473,12 @@ namespace GameEngine
 								m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] / 300.0f, 0.3f, false,
 								0xAAAAAAAA );
 		}
+
+		// オプションの描画
+		std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
+		for( ; it != m_PlayerOptList.end(); ++it ){
+			( *it )->Draw();
+		}
 	}
 
 	bool Player::Impl::Update()
@@ -445,7 +504,7 @@ namespace GameEngine
 		}
 		
 		// ボム
-		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
+		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
 			if( m_Data.m_RestInvincibleTime <= 0 ){
 				if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
 					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
@@ -462,7 +521,33 @@ namespace GameEngine
 			}
 		}
 
+		// オプション追加
+		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_ADD_OPT ) ){
+			AddOpt();
+		}
+
 		UpdateCons();
+
+		// オプションの更新
+		std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
+		for( ; it != m_PlayerOptList.end(); ){
+			( *it )->SetPos( m_Data.m_PosX, m_Data.m_PosY );
+			( *it )->AttachButtonState( m_ButtonStatus );
+			if( !( *it )->Update() ){
+				delete ( *it );
+				it = m_PlayerOptList.erase( it );
+				// 消えたオプション分だけ、ID割り振り変更
+				int count = 0;
+				std::list < PlayerOption* > ::iterator it2 = m_PlayerOptList.begin();
+				for( ; it2 != m_PlayerOptList.end(); ++it2 ){
+					( *it2 )->ChangeID( count );
+					( *it2 )->NotifyOptTotal( m_PlayerOptList.size() );
+					++count;
+				}
+				continue;
+			}
+			++it;
+		}
 
 		--m_Data.m_RestInvincibleTime;
 		++m_Data.m_Counter;
@@ -470,7 +555,7 @@ namespace GameEngine
 		return true;
 	}
 
-	inline void Player::Impl::GetPos( float* pX, float* pY ) const
+	inline void Player::Impl::GetPos( float* pX, float* pY )
 	{
 		*pX = m_Data.m_PosX;
 		*pY = m_Data.m_PosY;
@@ -491,29 +576,38 @@ namespace GameEngine
 		if( pEnemyShot->IsDead() ){
 			return;
 		}
-			
-		// 属性が一致の時
-		if( pEnemyShot->GetConsAttr() >= ENEMY_SHOT_ATTR_GREEN && pEnemyShot->GetConsAttr() == m_Data.m_ConsCur ){
-			m_Data.m_ConsGauge[ m_Data.m_ConsCur ] += 10;
-		}
-		// 属性が一致しない時
-		else{
-			StageMessage msg;
-			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DAMAGED;
-			StageMessage::StageMessageData data;
-			data.m_Integer = 0;
-			msg.m_MsgDataList.push_back( data );
-			m_pStageData->m_MsgQueue.push( msg );
-			--m_Data.m_HP;
-			if( m_Data.m_HP <= 0 ){
-				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED ] );
-				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED;
-				StageMessage::StageMessageData data;
-				data.m_Integer = 0;
-				msg.m_MsgDataList.push_back( data );
-				m_pStageData->m_MsgQueue.push( msg );
+
+		int damage = 0;
+		bool hasAttr = pEnemyShot->GetConsAttr() >= ENEMY_SHOT_ATTR_GREEN;
+		// 敵弾が属性を持っているとき
+		if( hasAttr ){
+			// 属性が一致している時
+			if( pEnemyShot->GetConsAttr() == m_Data.m_ConsCur ){
+				m_Data.m_ConsGauge[ m_Data.m_ConsCur ] += 10;
+				damage = 0;	// ダメージ無効化
 			}
-		
+			// 属性負けしている時
+			// (緑->青, 青->赤, 赤->緑)
+			else if(	pEnemyShot->GetConsAttr() == ENEMY_SHOT_ATTR_GREEN && m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ||
+						pEnemyShot->GetConsAttr() == ENEMY_SHOT_ATTR_BLUE && m_Data.m_ConsCur == PLAYER_CONS_MODE_RED ||
+						pEnemyShot->GetConsAttr() == ENEMY_SHOT_ATTR_RED && m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
+				damage = pEnemyShot->GetPower() * 2;		// ダメージ2倍
+				m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
+				for( int i = 0; i < 3; ++i ){
+					m_Data.m_ConsGauge[ i ] -= 100;
+				}
+			}
+			// 属性勝ちしている時
+			// (青->緑, 赤->青, 緑->赤)
+			else if(	pEnemyShot->GetConsAttr() == ENEMY_SHOT_ATTR_BLUE && m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ||
+						pEnemyShot->GetConsAttr() == ENEMY_SHOT_ATTR_RED && m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ||
+						pEnemyShot->GetConsAttr() == ENEMY_SHOT_ATTR_GREEN && m_Data.m_ConsCur == PLAYER_CONS_MODE_RED ){
+				damage = 0;		// ダメージ無効化
+			}
+		}
+		// 属性を持たない時
+		else{
+			damage = pEnemyShot->GetPower();
 			if( m_Data.m_ConsCur != PLAYER_CONS_MODE_NORMAL ){
 				m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 200;
 			}
@@ -523,7 +617,28 @@ namespace GameEngine
 					m_Data.m_ConsGauge[ i ] = 0;
 				}
 			}
+		}
 
+		// ダメージが発生した時
+		if( damage > 0 ){
+			// ダメージ時のメッセージ送信
+			StageMessage msg;
+			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DAMAGED;
+			StageMessage::StageMessageData data;
+			data.m_Integer = 0;
+			msg.m_MsgDataList.push_back( data );
+			m_pStageData->m_MsgQueue.push( msg );
+			m_Data.m_HP -= damage;
+			// ゲームオーバー処理
+			if( m_Data.m_HP <= 0 ){
+				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED ] );
+				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED;
+				StageMessage::StageMessageData data;
+				data.m_Integer = 0;
+				msg.m_MsgDataList.push_back( data );
+				m_pStageData->m_MsgQueue.push( msg );
+			}
+			// 無敵時間の調整
 			m_Data.m_RestInvincibleTime = INVINCIBLE_TIME;
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED ] );
 		}

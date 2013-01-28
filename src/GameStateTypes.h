@@ -12,6 +12,7 @@ namespace GameEngine
 		int		m_HIScore;			// ハイスコア
 		int		m_Killed;			// 倒した敵数
 		int		m_CrystalTotal;		// クリスタル数
+		int		m_CrystalUsed;		// 残りのクリスタル数
 	};
 
 	// ステージ進行度

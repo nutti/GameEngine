@@ -34,6 +34,7 @@ namespace GameEngine
 		int									m_ShotPower;
 		bool								m_Colided;			// Õ“Ë‚µ‚½‚©H
 		int									m_Counter;
+		int									m_ConsAttr;
 		Player*								m_pPlayer;
 		Enemy*								m_pEnemy;
 		StageData*							m_pStageData;
@@ -48,9 +49,11 @@ namespace GameEngine
 		void SetAngle( float angle );									// Šp“x‚ðÝ’è
 		void SetSpeed( float speed );
 		void SetShotPower( int power );
+		void SetConsAttr( int attr );
 		void ProcessCollision( Enemy* pEnemy );							// Õ“ËŽž‚Ìˆ—i“Gj
 		float GetCollisionRadius() const;
 		int GetShotPower() const;
+		int GetConsAttr() const;
 		void SetPlayer( Player* pPlayer );
 		void SetEnemy( Enemy* pEnemy );
 		void SetStageData( StageData* pData );
@@ -211,6 +214,11 @@ namespace GameEngine
 		m_ShotPower = power;
 	}
 
+	inline void PlayerShot::Impl::SetConsAttr( int attr )
+	{
+		m_ConsAttr = attr;
+	}
+
 	inline void PlayerShot::Impl::ProcessCollision( Enemy* pEnemy )
 	{
 		m_Colided = true;
@@ -224,6 +232,11 @@ namespace GameEngine
 	inline int PlayerShot::Impl::GetShotPower() const
 	{
 		return m_ShotPower;
+	}
+
+	inline int PlayerShot::Impl::GetConsAttr() const
+	{
+		return m_ConsAttr;
 	}
 
 	inline void PlayerShot::Impl::SetPlayer( Player* pPlayer )
@@ -298,6 +311,11 @@ namespace GameEngine
 		m_pImpl->SetShotPower( power );
 	}
 
+	void PlayerShot::SetConsAttr( int attr )
+	{
+		m_pImpl->SetConsAttr( attr );
+	}
+
 	void PlayerShot::Colided( CollisionObject* pObject )
 	{
 		pObject->ProcessCollision( this );
@@ -337,6 +355,11 @@ namespace GameEngine
 	int PlayerShot::GetShotPower() const
 	{
 		return m_pImpl->GetShotPower();
+	}
+
+	int PlayerShot::GetConsAttr() const
+	{
+		return m_pImpl->GetConsAttr();
 	}
 
 	void PlayerShot::SetPlayer( Player* pPlayer )
