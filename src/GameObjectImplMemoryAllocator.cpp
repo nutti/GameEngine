@@ -21,7 +21,9 @@ namespace GameEngine
 
 	void* GameObjectImplMemoryAllocator::Allocate()
 	{
-		return g_ImplAllocator.Alloc();
+		void* pNewMem = g_ImplAllocator.Alloc();
+		MAPIL::ZeroObject( pNewMem, 8000 );
+		return pNewMem;
 	}
 
 	void GameObjectImplMemoryAllocator::Free( void* p )

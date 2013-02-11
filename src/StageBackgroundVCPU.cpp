@@ -19,7 +19,7 @@ namespace GameEngine
 	void StageBackgroundVCPU::SysStageBackgroundGetCounter()
 	{
 		Pop();
-		Push( m_pStageBGData->m_Counter );
+		Push( m_pStageBGData->m_pStageData->m_Frame );
 	}
 
 	void StageBackgroundVCPU::SysEnableCamera()

@@ -38,6 +38,7 @@ namespace GameEngine
 		bool				m_IsInvincibleMode;	// 無敵状態の場合はtrue
 		bool				m_IsConsSkillMode;	// 意識技を使用している場合はtrue
 		bool				m_Paused;			// 行動停止中の場合true
+		bool				m_Is3D;				// 3D表示か？
 		int					m_ConsSkillAttr;	// 意識技の属性
 		std::string			m_ConsSkillName;	// 意識技名
 		StageData*			m_pStageData;		// ステージデータ

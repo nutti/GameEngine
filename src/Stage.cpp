@@ -789,6 +789,11 @@ namespace GameEngine
 
 	SceneType Stage::Impl::Update()
 	{
+		// リプレイバグ対策（浮動小数点演算器の初期化を行う。）
+		__asm{
+			finit
+		}
+
 		static bool prevPushed = false;
 		if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_Q ) ) && !prevPushed ){
 			m_DispProf = !m_DispProf;

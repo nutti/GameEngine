@@ -123,6 +123,17 @@ namespace GameEngine
 		Pop();
 
 		m_pEnemyData->m_ImgID = id;
+		m_pEnemyData->m_Is3D = false;
+	}
+
+	void EnemyVCPU::SysSetEnemyModelID()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		m_pEnemyData->m_ImgID = id;
+		m_pEnemyData->m_Is3D = true;
 	}
 
 	void EnemyVCPU::SysSetEnemyCollisionRadius()
@@ -441,6 +452,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SET_IMAGE:
 				SysSetEnemyImgID();
+				break;
+			case VM::SYS_ENEMY_SET_MODEL:
+				SysSetEnemyModelID();
 				break;
 			case VM::SYS_ENEMY_SET_COLLISION_RADIUS:
 				SysSetEnemyCollisionRadius();

@@ -1,6 +1,7 @@
 #ifndef INCLUDED_GAMEENGINE_RANDOMGENERATOR_H
 #define INCLUDED_GAMEENGINE_RANDOMGENERATOR_H
 
+#include <MAPIL/MAPIL.h>
 
 namespace GameEngine
 {
@@ -16,10 +17,12 @@ namespace GameEngine
 	class RandomGenerator
 	{
 	private:
-		int			m_RandSeed;
-		const int	RAND_MAXIMUM;
-		int			m_RandCount;
-		RandData	m_RandData;
+		int					m_RandSeed;
+		const int			RAND_MAXIMUM;
+		int					m_RandCount;
+		RandData			m_RandData;
+		MAPIL::Logger		m_Logger;
+
 		int GetRand( int posX, int posY, int score, int frame );
 	public:
 		RandomGenerator();

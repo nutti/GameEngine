@@ -62,36 +62,55 @@ namespace GameEngine
 
 	void EventMediator::Impl::FrameUpdate()
 	{
-		// ローディングが完了した時の処理
-		if( m_pSceneManager->NeedToSwitch() && m_Loading.SessionEnded() ){
-			// 前段階のリソースの解放
-			m_pResourceManager->ReleaseStageResources();
-			m_pSceneManager->AttachSceneResourceMap( m_pResourceManager->GetStageResourceMap() );
-			m_pSceneManager->AttachScriptData( m_pScriptManager->GetScriptData() );
-			m_pSceneManager->SwitchToNextScene();
-		}
-
-		// ロード時は、リプレイデータを読み込まないようにするため、入力は不可能とする。
-		if( m_pSceneManager->GetCurSceneType() != SCENE_TYPE_LOADING ){
-			// ボタンの取得
-			ButtonStatusHolder holder;
-			m_pButtonManager->Update();
-			m_pButtonManager->GetButtonStatus( &holder );
-			m_pSceneManager->AttachButtonState( &holder );
-			if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
-				// リプレイ用に記録
-				m_pGameStateManager->RecordButtonState( m_pButtonManager->GetRawButtonStatus() );
-			}
+		// 2倍速モード
+		static bool isHighSpeedMode = false;
+		if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_SPACE ) ) ){
+			isHighSpeedMode = true;
 		}
 		else{
-			// ボタン無効化
-			ButtonStatusHolder holder;
-			MAPIL::ZeroObject( &holder, sizeof( holder ) );
-			m_pSceneManager->AttachButtonState( &holder );
+			isHighSpeedMode = false;
 		}
 
-		// 画面の更新
-		m_pSceneManager->Update();
+		int iter = 1;
+		if( isHighSpeedMode ){
+			iter = 3;
+		}
+
+		for( int i = 0; i < iter; ++i ){
+
+			// ローディングが完了した時の処理
+			if( m_pSceneManager->NeedToSwitch() && m_Loading.SessionEnded() ){
+				// 前段階のリソースの解放
+				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->AttachSceneResourceMap( m_pResourceManager->GetStageResourceMap() );
+				m_pSceneManager->AttachScriptData( m_pScriptManager->GetScriptData() );
+				m_pSceneManager->SwitchToNextScene();
+			}
+
+			// ロード時は、リプレイデータを読み込まないようにするため、入力は不可能とする。
+			if( m_pSceneManager->GetCurSceneType() != SCENE_TYPE_LOADING ){
+				// ボタンの取得
+				ButtonStatusHolder holder;
+				m_pButtonManager->Update();
+				m_pButtonManager->GetButtonStatus( &holder );
+				m_pSceneManager->AttachButtonState( &holder );
+				if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
+					// リプレイ用に記録
+					m_pGameStateManager->RecordButtonState( m_pButtonManager->GetRawButtonStatus() );
+				}
+			}
+			else{
+				// ボタン無効化
+				ButtonStatusHolder holder;
+				MAPIL::ZeroObject( &holder, sizeof( holder ) );
+				m_pSceneManager->AttachButtonState( &holder );
+			}
+
+			// 画面の更新
+			m_pSceneManager->Update();
+
+		}
+
 		m_pSceneManager->Draw();
 		
 
@@ -212,46 +231,46 @@ namespace GameEngine
 											"archive/resource/bgm/eriKs_title.wav", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_1,
-											"archive/resource/texture/cons_level_recover_part1.png", false );
+											"archive/resource/texture/cons_level_recover_part1.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_2,
-											"archive/resource/texture/cons_level_recover_part2.png", false );
+											"archive/resource/texture/cons_level_recover_part2.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_3,
-											"archive/resource/texture/cons_level_recover_part3.png", false );
+											"archive/resource/texture/cons_level_recover_part3.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_4,
-											"archive/resource/texture/cons_level_recover_part4.png", false );
+											"archive/resource/texture/cons_level_recover_part4.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_CONS_LEVEL_RECOVER_5,
-											"archive/resource/texture/cons_level_recover_part5.png", false );
+											"archive/resource/texture/cons_level_recover_part5.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_RECOVER_1,
-											"archive/resource/texture/recover_1.png", false );
+											"archive/resource/texture/recover_1.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_ITEM_RECOVER_2,
-											"archive/resource/texture/recover_2.png", false );
+											"archive/resource/texture/recover_2.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1,
-											"archive/resource/texture/cons_skill_effect_6.png", false );
+											"archive/resource/texture/cons_skill_effect_6.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2,
-											"archive/resource/texture/cons_skill_effect_2.png", false );
+											"archive/resource/texture/cons_skill_effect_2.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_3,
-											"archive/resource/texture/cons_skill_effect_5.png", false );
+											"archive/resource/texture/cons_skill_effect_5.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
 											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_1,
-											"archive/resource/se/cons_skill_effect_1.wav", false );
+											"archive/resource/se/cons_skill_effect_1.wav", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
 											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_2,
-											"archive/resource/se/cons_skill_effect_4.wav", false );
+											"archive/resource/se/cons_skill_effect_4.wav", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
 											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_3,
-											"archive/resource/se/cons_skill_effect_3.wav", false );
+											"archive/resource/se/cons_skill_effect_3.wav", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
 											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_4,
-											"archive/resource/se/cons_skill_effect_5.wav", false );
+											"archive/resource/se/cons_skill_effect_5.wav", true );
 		m_Loading.Start();
 	}
 

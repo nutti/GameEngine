@@ -132,7 +132,7 @@ namespace GameEngine
 
 		// 入力ボタンのロード
 		int frame = GetInt( &p );
-		m_ButtonList.resize( frame, 0 );
+		m_ButtonList.resize( frame + 50, 0 );
 		for( unsigned int i = 0; i < m_ButtonList.size(); ++i ){
 			m_ButtonList[ i ] = *p++;
 		}
