@@ -27,7 +27,10 @@ namespace GameEngine
 
 		void SysSetEnemyName();
 		void SysSetEnemyPos();
+		void SysSetEnemyPos3D();
 		void SysSetEnemyAngle();
+		void SysSetEnemyAngle3D();
+		void SysSetEnemyScale3D();
 		void SysSetEnemySpeed();
 		void SysSetEnemyHP();
 		void SysSetEnemyImgID();
@@ -38,6 +41,8 @@ namespace GameEngine
 		void SysSetEnemyConsGauge();
 		void SysEnemyEnableInvincible();
 		void SysEnemyDisableInvincible();
+		void SysEnemyEnableNonCollisionMode();
+		void SysEnemyDisableNonCollisionMode();
 		void SysEnemyInvokeConsSkill();
 		void SysEnemyStopConsSkill();
 

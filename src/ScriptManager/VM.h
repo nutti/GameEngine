@@ -58,7 +58,10 @@ namespace VM
 		SYS_ENEMY_GET_CONS_GAUGE,	// Get conscious gauge.
 		SYS_ENEMY_SET_NAME,			// Set name.
 		SYS_ENEMY_SET_POS,			// Set position.
+		SYS_ENEMY_SET_POS_3D,		// Set position. (3D coordinate)
 		SYS_ENEMY_SET_ANGLE,		// Set angle.
+		SYS_ENEMY_SET_ANGLE_3D,		// Set angle. (3D)
+		SYS_ENEMY_SET_SCALE_3D,		// Set scaling. (3D)
 		SYS_ENEMY_SET_SPEED,		// Set speed.
 		SYS_ENEMY_SET_HP,			// Set HP.
 		SYS_ENEMY_SET_IMAGE,		// Set image.
@@ -68,7 +71,9 @@ namespace VM
 		SYS_ENEMY_SET_BOSS_FLAG,			// Set boss flag.
 		SYS_ENEMY_SET_CONS_GAUGE,			// Set conscious gauge.
 		SYS_ENEMY_ENABLE_INVINCIBLE,		// Enable invincible mode.
-		SYS_ENEMY_DISABLE_INVINCIBLE,		// Disable invincible mode.
+		SYS_ENEMY_DISABLE_INVINCIBLE,			// Disable invincible mode.
+		SYS_ENEMY_ENABLE_NON_COLLISION_MODE,	// Enable non collision mode.
+		SYS_ENEMY_DISABLE_NON_COLLISION_MODE,	// Disable non collision mode.
 		SYS_ENEMY_INVOKE_CONS_SKILL,		// Invoke skill.
 		SYS_ENEMY_STOP_CONS_SKILL,			// Stop skill.
 		SYS_ENEMY_SHIFT_NEXT_MODE,			// Sfhit next mode.

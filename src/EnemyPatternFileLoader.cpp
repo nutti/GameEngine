@@ -54,22 +54,28 @@ namespace GameEngine
 				char s[ 1024 ];
 				DeleteChar( s, sizeof( s ), pToken, ' ' );
 				switch( count ){
+					// フレーム
 					case 0:
 						frame = ::atoi( s );
 						if( frame <= 0 ){
 							frame = -100;
 						}
 						break;
+					// 敵ID
 					case 1:
 						info.m_EnemyID = ::atoi( s );
 						break;
+					// X座標
 					case 2:
 						info.m_PosX = static_cast < float > ( ::atof( s ) );
 						break;
+					// Y座標
 					case 3:
 						info.m_PosY = static_cast < float > ( ::atof( s ) );
 						break;
+					// レジスタ
 					default:
+						info.m_Regs.push_back( ::atoi( s ) );
 						break;
 				}
 				++count;

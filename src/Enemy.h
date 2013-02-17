@@ -24,6 +24,13 @@ namespace GameEngine
 		std::string			m_Name;				// 敵の名前
 		float				m_PosX;				// 位置（X座標）
 		float				m_PosY;				// 位置（Y座標）
+		float				m_PosZ;				// 位置（Z座標）
+		float				m_ScaleX;			// 拡大率（X）
+		float				m_ScaleY;			// 拡大率（Y）
+		float				m_ScaleZ;			// 拡大率（Z）
+		float				m_RotX;				// 回転角度（X軸中心）
+		float				m_RotY;				// 回転角度（Y軸中心）
+		float				m_RotZ;				// 回転角度（Z軸中心）
 		int					m_ImgID;			// 敵画像
 		int					m_HP;				// HP
 		int					m_MaxHP;			// MaxHP
@@ -36,6 +43,7 @@ namespace GameEngine
 		int					m_IsBoss;			// ボスなら1
 		bool				m_Destroyed;		// 倒された場合はtrue
 		bool				m_IsInvincibleMode;	// 無敵状態の場合はtrue
+		bool				m_IsNonCollisionMode;	// 衝突しない時の場合はtrue
 		bool				m_IsConsSkillMode;	// 意識技を使用している場合はtrue
 		bool				m_Paused;			// 行動停止中の場合true
 		bool				m_Is3D;				// 3D表示か？
@@ -45,6 +53,7 @@ namespace GameEngine
 		ItemDrop			m_ItemDrop[ 6 ];	// 落とすアイテムの状態
 		std::shared_ptr < ResourceMap >		m_pResouceMap;
 		std::vector < EnemyShotGroup* >		m_ShotGroupList;		// 現在保持しているショットグループ
+		std::vector < int >					m_Regs;			// 汎用レジスタ
 	};
 
 	// 速度向上のため、pimplイディオムは使用しない。
@@ -91,6 +100,7 @@ namespace GameEngine
 		void Pause();										// 一時停止に設定
 		void Resume();										// 一時停止から再開
 		static void ClearLastDamagedMsg();
+		bool IsNonCollisionMode() const;
 	};
 
 	

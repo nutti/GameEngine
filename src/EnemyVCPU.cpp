@@ -93,11 +93,53 @@ namespace GameEngine
 		m_pEnemyData->m_PosY = y;
 	}
 
+	void EnemyVCPU::SysSetEnemyPos3D()
+	{
+		Pop();
+		float z = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		m_pEnemyData->m_PosX = x;
+		m_pEnemyData->m_PosY = y;
+		m_pEnemyData->m_PosZ = z;
+	}
+
 	void EnemyVCPU::SysSetEnemyAngle()
 	{
 		Pop();
 		int angle = Top().m_Integer;
 		Pop();
+	}
+
+	void EnemyVCPU::SysSetEnemyAngle3D()
+	{
+		Pop();
+		float rz = Top().m_Float;
+		Pop();
+		float ry = Top().m_Float;
+		Pop();
+		float rx = Top().m_Float;
+		Pop();
+		m_pEnemyData->m_RotX = rx;
+		m_pEnemyData->m_RotY = ry;
+		m_pEnemyData->m_RotZ = rz;
+	}
+
+	void EnemyVCPU::SysSetEnemyScale3D()
+	{
+		Pop();
+		float sz = Top().m_Float;
+		Pop();
+		float sy = Top().m_Float;
+		Pop();
+		float sx = Top().m_Float;
+		Pop();
+		m_pEnemyData->m_ScaleX = sx;
+		m_pEnemyData->m_ScaleY = sy;
+		m_pEnemyData->m_ScaleZ = sz;
 	}
 
 	void EnemyVCPU::SysSetEnemySpeed()
@@ -178,6 +220,18 @@ namespace GameEngine
 	{
 		Pop();
 		m_pEnemyData->m_IsInvincibleMode = false;
+	}
+
+	void EnemyVCPU::SysEnemyEnableNonCollisionMode()
+	{
+		Pop();
+		m_pEnemyData->m_IsNonCollisionMode = true;
+	}
+
+	void EnemyVCPU::SysEnemyDisableNonCollisionMode()
+	{
+		Pop();
+		m_pEnemyData->m_IsNonCollisionMode = false;
 	}
 
 	void EnemyVCPU::SysEnemyInvokeConsSkill()
@@ -438,8 +492,14 @@ namespace GameEngine
 			case VM::SYS_ENEMY_SET_POS:
 				SysSetEnemyPos();
 				break;
+			case VM::SYS_ENEMY_SET_ANGLE_3D:
+				SysSetEnemyAngle3D();
+				break;
 			case VM::SYS_ENEMY_SET_ANGLE:
 				SysSetEnemyAngle();
+				break;
+			case VM::SYS_ENEMY_SET_SCALE_3D:
+				SysSetEnemyScale3D();
 				break;
 			case VM::SYS_ENEMY_SET_SPEED:
 				SysSetEnemySpeed();
@@ -473,6 +533,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_DISABLE_INVINCIBLE:
 				SysEnemyDisableInvincible();
+				break;
+			case VM::SYS_ENEMY_ENABLE_NON_COLLISION_MODE:
+				SysEnemyEnableNonCollisionMode();
+				break;
+			case VM::SYS_ENEMY_DISABLE_NON_COLLISION_MODE:
+				SysEnemyDisableNonCollisionMode();
 				break;
 			case VM::SYS_ENEMY_INVOKE_CONS_SKILL:
 				SysEnemyInvokeConsSkill();

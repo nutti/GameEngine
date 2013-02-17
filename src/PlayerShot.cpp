@@ -221,7 +221,9 @@ namespace GameEngine
 
 	inline void PlayerShot::Impl::ProcessCollision( Enemy* pEnemy )
 	{
-		m_Colided = true;
+		if( !pEnemy->IsNonCollisionMode() ){
+			m_Colided = true;
+		}
 	}
 
 	inline float PlayerShot::Impl::GetCollisionRadius() const

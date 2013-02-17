@@ -28,6 +28,13 @@ namespace GameEngine
 		m_Data.m_ColRadius = 0.0f;
 		m_Data.m_PosX = 0.0f;
 		m_Data.m_PosY = 0.0f;
+		m_Data.m_PosZ = 0.5f;
+		m_Data.m_ScaleX = 1.0f;
+		m_Data.m_ScaleY = 1.0f;
+		m_Data.m_ScaleZ = 1.0f;
+		m_Data.m_RotX = 0.0f;
+		m_Data.m_RotY = 0.0f;
+		m_Data.m_RotZ = 0.0f;
 		m_Data.m_ImgID = -1;
 		m_Data.m_Score = 0;
 		m_Data.m_HP = 2000;
@@ -37,6 +44,7 @@ namespace GameEngine
 		m_Data.m_MaxConsGauge = 200;
 		m_Data.m_IsBoss = false;
 		m_Data.m_IsInvincibleMode = false;
+		m_Data.m_IsNonCollisionMode = false;
 		m_Data.m_IsConsSkillMode = false;
 		m_Data.m_Paused = false;
 		m_Data.m_Is3D = false;
@@ -200,24 +208,10 @@ namespace GameEngine
 			}
 			else{
 				MAPIL::EndRendering2DGraphics();
-				MAPIL::DisableLighting();
-				MAPIL::SetAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
-				MAPIL::Matrix4x4 < float > mat;
-				MAPIL::Matrix4x4 < float > scalingMat;
-				MAPIL::Matrix4x4 < float > invProjMat;
-				MAPIL::Matrix4x4 < float > invViewMat;
-				invProjMat = MAPIL::GetCameraInvProjTransMat();
-				invViewMat = MAPIL::GetCameraInvViewTransMat();
-
-				float x = m_Data.m_PosX / 320.0f - 1.0f;
-				float y = -m_Data.m_PosY / 240.0f + 1.0f;
-
-				MAPIL::CreateTranslationMat( &mat, x, y, 0.5f );
-				MAPIL::CreateScalingMat( &scalingMat, 0.1f, 0.1f, 0.1f );
-				mat = scalingMat * mat * invProjMat * invViewMat;
-				MAPIL::DrawModel( m_Data.m_pResouceMap->m_pStageResourceMap->m_ModelMap[ m_Data.m_ImgID ], mat );
-				MAPIL::SetAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
-				MAPIL::EnableLighting();
+				MAPIL::AddModelOn2DBatchWork(	m_Data.m_pResouceMap->m_pStageResourceMap->m_ModelMap[ m_Data.m_ImgID ],
+												m_Data.m_PosX, m_Data.m_PosY, m_Data.m_PosZ,
+												m_Data.m_ScaleX, m_Data.m_ScaleY, m_Data.m_ScaleZ,
+												m_Data.m_RotX, m_Data.m_RotY, m_Data.m_RotZ );
 				MAPIL::BeginRendering2DGraphics();
 			}
 		}
@@ -271,6 +265,10 @@ namespace GameEngine
 
 	void Enemy::ProcessCollision( PlayerShot* pPlayerShot )
 	{
+		if( m_Data.m_IsNonCollisionMode ){
+			return;
+		}
+
 		if( !m_Data.m_Destroyed ){
 			m_Data.m_pStageData->m_FrameGameData.m_Score += 10;
 			// ñ≥ìGèÛë‘Ç≈Ç»Ç¢éû
@@ -430,6 +428,11 @@ namespace GameEngine
 	void Enemy::ClearLastDamagedMsg()
 	{
 		m_SentLastDamagedMsg = false;
+	}
+
+	bool Enemy::IsNonCollisionMode() const
+	{
+		return m_Data.m_IsNonCollisionMode;
 	}
 
 	bool Enemy::m_SentLastDamagedMsg = false;

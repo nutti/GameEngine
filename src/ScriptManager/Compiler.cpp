@@ -53,8 +53,11 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 
 	AddFunction( VM::SYS_ENEMY_SET_NAME, TYPE_VOID, "SetEnemyName", "s" );					// void SetEnemyName( name );
 	AddFunction( VM::SYS_ENEMY_SET_POS, TYPE_VOID, "SetEnemyPos", "ff" );					// void SetEnemyPos( x, y );
-	AddFunction( VM::SYS_ENEMY_SET_ANGLE, TYPE_VOID, "SetEnemyAngle", "i" );				// void SetEnemyAngle( angle );
-	AddFunction( VM::SYS_ENEMY_SET_SPEED, TYPE_VOID, "SetEnemySpeed", "i" );				// void SetEnemySpeed( speed );
+	AddFunction( VM::SYS_ENEMY_SET_POS_3D, TYPE_VOID, "SetEnemyPos3D", "fff" );				// void SetEnemyPos3D( x, y, z );
+	AddFunction( VM::SYS_ENEMY_SET_ANGLE, TYPE_VOID, "SetEnemyAngle", "i" );	//integerバグ		// void SetEnemyAngle( angle );
+	AddFunction( VM::SYS_ENEMY_SET_ANGLE_3D, TYPE_VOID, "SetEnemyAngle3D", "fff" );			// void SetEnemyAngle3D( rx, ry, rz );
+	AddFunction( VM::SYS_ENEMY_SET_SCALE_3D, TYPE_VOID, "SetEnemyScale3D", "fff" );			// void SetEnemyScale3D( sx, sy, sz );
+	AddFunction( VM::SYS_ENEMY_SET_SPEED, TYPE_VOID, "SetEnemySpeed", "i" );	//integerバグ			// void SetEnemySpeed( speed );
 	AddFunction( VM::SYS_ENEMY_SET_HP, TYPE_VOID, "SetEnemyHP", "i" );						// void SetEnemyHP( hp );
 	AddFunction( VM::SYS_ENEMY_SET_IMAGE, TYPE_VOID, "SetEnemyImgID", "i" );				// void SetEnemyImage( texture_id );
 	AddFunction( VM::SYS_ENEMY_SET_MODEL, TYPE_VOID, "SetEnemyModelID", "i" );				// void SetEnemyModel( model_id );
@@ -63,6 +66,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_CONS_GAUGE, TYPE_VOID, "SetEnemyConsGauge", "i" );					// void SetEnemyConsGauge( gauge );
 	AddFunction( VM::SYS_ENEMY_ENABLE_INVINCIBLE, TYPE_VOID, "EnemyEnableInvincible", "" );				// void EnemyEnableInvincible();
 	AddFunction( VM::SYS_ENEMY_DISABLE_INVINCIBLE, TYPE_VOID, "EnemyDisableInvincible", "" );			// void EnemyDisableInvincible();
+	AddFunction( VM::SYS_ENEMY_ENABLE_NON_COLLISION_MODE, TYPE_VOID, "EnemyEnableNonCollisionMode", "" );	// void EnemyEnableNonCollisionMode();
+	AddFunction( VM::SYS_ENEMY_DISABLE_NON_COLLISION_MODE, TYPE_VOID, "EnemyDisableNonCollisionMode", "" );	// void EnemyDisableNonCollisionMode();
 	AddFunction( VM::SYS_ENEMY_INVOKE_CONS_SKILL, TYPE_VOID, "EnemyInvokeConsSkill", "sii" );			// void EnemyInvokeConsSkill( skill_name, dec_gauge, attribute );
 	AddFunction( VM::SYS_ENEMY_STOP_CONS_SKILL, TYPE_VOID, "EnemyStopConsSkill", "" );				// void EnemyStopConsSkill();
 	AddFunction( VM::SYS_ENEMY_SHIFT_NEXT_MODE, TYPE_VOID, "EnemyShiftNextMode", "" );	// void EnemyShiftNextMode();

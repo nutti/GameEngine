@@ -8,9 +8,10 @@ namespace GameEngine
 {
 	struct EnemyPatternInfo
 	{
-		float	m_PosX;
-		float	m_PosY;
-		int		m_EnemyID;
+		float					m_PosX;			// 敵の位置（X座標）
+		float					m_PosY;			// 敵の位置（Y座標）
+		int						m_EnemyID;		// 敵ID
+		std::vector < int >		m_Regs;			// レジスタ
 	};
 
 	struct EnemyPattern

@@ -943,6 +943,13 @@ namespace GameEngine
 		if( m_Data.m_pBoss ){
 			m_Data.m_pBoss->Draw();
 		}
+
+		MAPIL::EndRendering2DGraphics();
+		MAPIL::DisableLighting();
+		MAPIL::DoAllModelOn2DBatchWorks();
+		MAPIL::EnableLighting();
+		MAPIL::BeginRendering2DGraphics();
+
 		// プレイヤーショットの描画
 		for( PlayerShotList::iterator it = m_Data.m_PlayerShotList.begin(); it != m_Data.m_PlayerShotList.end(); ++it ){
 			( *it )->Draw();
