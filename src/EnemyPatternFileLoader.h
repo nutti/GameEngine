@@ -6,12 +6,14 @@
 
 namespace GameEngine
 {
+	const int		MAX_ENEMY_REGS	= 10;
+
 	struct EnemyPatternInfo
 	{
-		float					m_PosX;			// 敵の位置（X座標）
-		float					m_PosY;			// 敵の位置（Y座標）
-		int						m_EnemyID;		// 敵ID
-		std::vector < int >		m_Regs;			// レジスタ
+		float					m_PosX;						// 敵の位置（X座標）
+		float					m_PosY;						// 敵の位置（Y座標）
+		int						m_EnemyID;					// 敵ID
+		int						m_Regs[ MAX_ENEMY_REGS ];	// レジスタ
 	};
 
 	struct EnemyPattern

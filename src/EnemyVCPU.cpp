@@ -75,6 +75,19 @@ namespace GameEngine
 		Push( m_pEnemyData->m_ConsGauge );
 	}
 
+	void EnemyVCPU::SysGetEnemyReg()
+	{
+		Pop();
+		int idx = Top().m_Integer;
+		Pop();
+		if( idx < MAX_ENEMY_REGS ){
+			Push( m_pEnemyData->m_Regs[ idx ] );
+		}
+		else{
+			::exit( 1 );
+		}
+	}
+
 	void EnemyVCPU::SysSetEnemyName()
 	{
 		Pop();
@@ -484,6 +497,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_GET_CONS_GAUGE:
 				SysGetEnemyConsGauge();
+				break;
+			case VM::SYS_ENEMY_GET_REG:
+				SysGetEnemyReg();
 				break;
 
 			case VM::SYS_ENEMY_SET_NAME:

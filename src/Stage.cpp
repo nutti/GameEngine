@@ -916,20 +916,6 @@ namespace GameEngine
 		if( m_PrivData.m_BombModeData.m_IsBombMode ){
 			DrawBombModeEffect();
 		}
-
-		if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x5544FF44 );
-		}
-		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_BLUE ){
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x554444FF );
-		}
-		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_RED ){
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x55FF4444 );
-		}
-
 		
 
 		// プレイヤーの描画
@@ -969,6 +955,19 @@ namespace GameEngine
 		// エフェクトの描画
 		for( EffectList::iterator it = m_Data.m_EffectList.begin(); it != m_Data.m_EffectList.end(); ++it ){
 			( *it )->Draw();
+		}
+
+		if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x5544FF44 );
+		}
+		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_BLUE ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x554444FF );
+		}
+		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_RED ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x55FF4444 );
 		}
 
 		// 状態画面の描画

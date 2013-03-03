@@ -2,6 +2,7 @@
 #define INCLUDED_GAMEENGINE_ITEM_H
 
 #include <memory>
+#include <bitset>
 
 #include "CollisionObject.h"
 
@@ -22,6 +23,13 @@ namespace GameEngine
 		ITEM_SUB_ID_GREEN			= 0,		// 緑ゲージ
 	};
 
+	// フラグ管理
+	enum StatusFlag
+	{
+		STATUS_FLAG_GET				= 0,	// 取得後
+		STATUS_FLAG_TOTAL,
+	};
+
 	struct ItemData
 	{
 		int			m_ItemID;		// アイテム識別子
@@ -34,6 +42,7 @@ namespace GameEngine
 		bool		m_Colided;		// 衝突したらtrue
 		bool		m_Near;			// プレイヤーが近くにいる場合true
 		int			m_Counter;		// カウンタ
+		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
 	};
 
 

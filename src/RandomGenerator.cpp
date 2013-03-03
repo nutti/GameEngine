@@ -21,12 +21,17 @@ namespace GameEngine
 	int RandomGenerator::GetRand( int posX, int posY, int score, int frame )
 	{
 		++m_RandCount;
-		std::basic_ostringstream < TCHAR > oss;
-		std::basic_ostringstream < TCHAR > oss2;
-		oss << m_RandCount;
-		oss2 << TSTR( "RandCount" ) << m_RandData.m_Frame;
-		m_Logger.Write( oss2.str(), oss.str() );
-		return ( ( posX + score + frame + m_RandCount * m_RandSeed ) * ( frame + m_RandCount + score + posY ) ) % RAND_MAXIMUM;
+		//std::basic_ostringstream < TCHAR > oss;
+		//std::basic_ostringstream < TCHAR > oss2;
+		//oss << m_RandCount;
+		//oss2 << TSTR( "RandCount" ) << m_RandData.m_Frame;
+		//m_Logger.Write( oss2.str(), oss.str() );
+		int rand = ( posX + score + frame + m_RandCount * m_RandSeed ) * ( frame + m_RandCount + score + posY );
+		// Overflow!!
+		if( rand < 0 ){
+			rand &= 0x7FFFFFFF;
+		}
+		return rand % RAND_MAXIMUM;
 	}
 
 	void RandomGenerator::Reset()

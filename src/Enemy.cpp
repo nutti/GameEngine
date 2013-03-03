@@ -52,6 +52,7 @@ namespace GameEngine
 		m_Data.m_ConsType = 0;
 		m_Data.m_ShotGroupList.clear();
 		m_Data.m_Name = "No Name";
+		MAPIL::ZeroObject( &m_Data.m_Regs, sizeof( m_Data.m_Regs ) );
 
 		m_PrivateData.m_PrevConsGauge = 200;
 		m_PrivateData.m_ConsSkillEffectCounter = 0;
@@ -187,7 +188,8 @@ namespace GameEngine
 			}
 		}
 
-		if( !m_Data.m_IsBoss ){
+		// HP/ˆÓŽ¯—Ê‚Ì•\Ž¦
+		if( !m_Data.m_IsNonCollisionMode && !m_Data.m_IsBoss ){
 			MAPIL::DrawTexture(	m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
 								m_Data.m_PosX + 5.0f, m_Data.m_PosY - 5.0f,
 								m_Data.m_ConsGauge / 150.0f, 0.3f, false, 0xAAFFFFFF );
@@ -433,6 +435,13 @@ namespace GameEngine
 	bool Enemy::IsNonCollisionMode() const
 	{
 		return m_Data.m_IsNonCollisionMode;
+	}
+
+	void Enemy::SetReg( int regNo, int val )
+	{
+		if( regNo < MAX_ENEMY_REGS && regNo >= 0 ){
+			m_Data.m_Regs[ regNo ] = val;
+		}
 	}
 
 	bool Enemy::m_SentLastDamagedMsg = false;

@@ -14,10 +14,13 @@ namespace GameEngine
 		m_EffectData.m_pResourceMap = pMap;
 		m_EffectData.m_PosX = 0.0f;
 		m_EffectData.m_PosY = 0.0f;
+		m_EffectData.m_PointSprite = MAPIL::CreatePointSprite( 100,
+			m_EffectData.m_pResourceMap->m_pStageResourceMap->m_TextureMap[ subID ] );
 	}
 
 	Effect::~Effect()
 	{
+		MAPIL::DeletePointSprite( m_EffectData.m_PointSprite );
 	}
 
 	void Effect::Init( float posX, float posY )
@@ -69,6 +72,16 @@ namespace GameEngine
 				}
 			}
 		}
+		else if( m_EffectData.m_EffectID == EFFECT_ID_SPRAY ){
+			MAPIL::EndRendering2DGraphics();
+			MAPIL::DisableZBuffering();
+			MAPIL::DisableFog();
+			MAPIL::DrawPointSprite( m_EffectData.m_PointSprite );
+			MAPIL::EnableFog();
+			MAPIL::EnableZBuffering();
+			MAPIL::BeginRendering2DGraphics();
+		}
+
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 	}
 
@@ -95,6 +108,16 @@ namespace GameEngine
 				if( m_EffectData.m_Counter >= 60 ){
 					return false;
 				}
+			}
+		}
+		else if( m_EffectData.m_EffectID == EFFECT_ID_SPRAY ){
+			for( int i = 0; i < 100; ++i ){
+				MAPIL::UpdatePointSprite(	m_EffectData.m_PointSprite, i,
+					MAPIL::Vector3 < float > ( 2.0f, 2.0f, 0.001f * m_EffectData.m_Counter ),
+					6.0f, 0xFFFFFFFF );
+			}
+			if( m_EffectData.m_Counter >= 120 ){
+				return false;
 			}
 		}
 

@@ -5,6 +5,7 @@
 
 #include "CollisionObject.h"
 #include "EnemyVCPU.h"
+#include "EnemyPatternFileLoader.h"
 
 namespace GameEngine
 {
@@ -53,7 +54,7 @@ namespace GameEngine
 		ItemDrop			m_ItemDrop[ 6 ];	// 落とすアイテムの状態
 		std::shared_ptr < ResourceMap >		m_pResouceMap;
 		std::vector < EnemyShotGroup* >		m_ShotGroupList;		// 現在保持しているショットグループ
-		std::vector < int >					m_Regs;			// 汎用レジスタ
+		int					m_Regs[ MAX_ENEMY_REGS ];			// 汎用レジスタ
 	};
 
 	// 速度向上のため、pimplイディオムは使用しない。
@@ -101,6 +102,7 @@ namespace GameEngine
 		void Resume();										// 一時停止から再開
 		static void ClearLastDamagedMsg();
 		bool IsNonCollisionMode() const;
+		void SetReg( int regNo, int val );					// レジスタに値をセット
 	};
 
 	

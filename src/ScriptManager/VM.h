@@ -76,7 +76,8 @@ namespace VM
 		SYS_ENEMY_DISABLE_NON_COLLISION_MODE,	// Disable non collision mode.
 		SYS_ENEMY_INVOKE_CONS_SKILL,		// Invoke skill.
 		SYS_ENEMY_STOP_CONS_SKILL,			// Stop skill.
-		SYS_ENEMY_SHIFT_NEXT_MODE,			// Sfhit next mode.
+		SYS_ENEMY_SHIFT_NEXT_MODE,			// Shift next mode.
+		SYS_ENEMY_GET_REG,					// Get registers.
 
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)

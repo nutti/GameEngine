@@ -24,6 +24,7 @@ namespace GameEngine
 		void SysGetEnemyCounterF();
 		void SysGetEnemyAngle();
 		void SysGetEnemyConsGauge();
+		void SysGetEnemyReg();
 
 		void SysSetEnemyName();
 		void SysSetEnemyPos();

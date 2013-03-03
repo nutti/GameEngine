@@ -50,6 +50,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_GET_COUNTER_F, TYPE_FLOAT, "GetEnemyCounterF", "" );			// float GetEnemyCounterF();
 	AddFunction( VM::SYS_ENEMY_SET_ANGLE, TYPE_INTEGER, "GetEnemyAngle", "" );				// int GetEnemyAngle();
 	AddFunction( VM::SYS_ENEMY_GET_CONS_GAUGE, TYPE_INTEGER, "GetEnemyConsGauge", "" );		// int GetEnemyConsGauge();
+	AddFunction( VM::SYS_ENEMY_GET_REG, TYPE_INTEGER, "GetEnemyReg", "i" );					// int GetEnemyReg( reg_no );
 
 	AddFunction( VM::SYS_ENEMY_SET_NAME, TYPE_VOID, "SetEnemyName", "s" );					// void SetEnemyName( name );
 	AddFunction( VM::SYS_ENEMY_SET_POS, TYPE_VOID, "SetEnemyPos", "ff" );					// void SetEnemyPos( x, y );

@@ -21,6 +21,7 @@ namespace GameEngine
 		m_ItemData.m_Angle = 0.0f;
 		m_ItemData.m_Counter = 0;
 		m_pPlayer = NULL;
+		m_ItemData.m_StatusFlags.reset();
 	}
 
 	Item::~Item()
@@ -58,11 +59,11 @@ namespace GameEngine
 			}
 		}
 		else if( m_ItemData.m_ItemID == ITEM_ID_CRYSTAL ){
-			float scaleX = 0.3f;
-			float scaleY = 0.3f;
+			float scaleX = m_ItemData.m_ItemSubID * 0.025f;
+			float scaleY = m_ItemData.m_ItemSubID * 0.025f;
 			if( m_ItemData.m_Counter <= 10 ){
-				scaleY = 0.3f * m_ItemData.m_Counter / 10.0f;
-				scaleX = 0.3f + ( 10 - m_ItemData.m_Counter ) * 0.1f;
+				scaleY += 0.3f * m_ItemData.m_Counter / 10.0f;
+				scaleX += 0.3f + ( 10 - m_ItemData.m_Counter ) * 0.1f;
 			}
 			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
 								m_ItemData.m_PosX,
@@ -70,7 +71,7 @@ namespace GameEngine
 								scaleX, scaleY );
 		}
 		else if( m_ItemData.m_ItemID == ITEM_ID_RECOVER ){
-			float scaleX = 0.8f;
+				float scaleX = 0.8f;
 				float scaleY = 0.8f;
 				if( m_ItemData.m_Counter <= 10 ){
 					scaleY = 0.8f * m_ItemData.m_Counter / 10.0f;

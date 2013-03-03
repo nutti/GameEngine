@@ -78,6 +78,9 @@ namespace GameEngine
 			for( int i = 0; i < pattern.m_InfoList.size(); ++i ){
 				Enemy* pNewEnemy = m_pStageData->m_ObjBuilder.CreateEnemy( pattern.m_InfoList[ i ].m_EnemyID );
 				pNewEnemy->Init( pattern.m_InfoList[ i ].m_PosX, pattern.m_InfoList[ i ].m_PosY );
+				for( int j = 0; j < MAX_ENEMY_REGS; ++j ){
+					pNewEnemy->SetReg( j, pattern.m_InfoList[ i ].m_Regs[ j ] );
+				}
 				m_pStageData->m_EnemyList.push_back( pNewEnemy );
 			}
 		}

@@ -75,7 +75,9 @@ namespace GameEngine
 						break;
 					// ƒŒƒWƒXƒ^
 					default:
-						info.m_Regs.push_back( ::atoi( s ) );
+						if( count < MAX_ENEMY_REGS + 3 ){
+							info.m_Regs[ count - 4 ] = ::atoi( s );
+						}
 						break;
 				}
 				++count;

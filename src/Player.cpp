@@ -586,6 +586,13 @@ namespace GameEngine
 				m_Data.m_ConsGauge[ m_Data.m_ConsCur ] += 10;
 				damage = 0;	// ƒ_ƒ[ƒW–³Œø‰»
 			}
+			// ‘®«‚ª–³‚¢Žž
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL ){
+				damage = pEnemyShot->GetPower();
+				for( int i = 0; i < 3; ++i ){
+					m_Data.m_ConsGauge[ i ] -= 100;
+				}
+			}
 			// ‘®«•‰‚¯‚µ‚Ä‚¢‚éŽž
 			// (—Î->Â, Â->Ô, Ô->—Î)
 			else if(	pEnemyShot->GetConsAttr() == ENEMY_SHOT_ATTR_GREEN && m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ||
@@ -647,8 +654,8 @@ namespace GameEngine
 	void Player::Impl::ProcessCollision( Item* pItem )
 	{
 		if( pItem->GetItemID() == ITEM_ID_CRYSTAL ){
-			m_pStageData->m_FrameGameData.m_Score += 100;
-			++m_pStageData->m_FrameGameData.m_CrystalTotal;
+			m_pStageData->m_FrameGameData.m_Score += 100 * pItem->GetItemSubID();
+			m_pStageData->m_FrameGameData.m_CrystalTotal += pItem->GetItemSubID();
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_1_SE ] );
 		}
 		else if( pItem->GetItemID() == ITEM_ID_POWER_UP ){

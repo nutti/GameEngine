@@ -17,12 +17,14 @@ namespace GameEngine
 		float		m_PosX;
 		float		m_PosY;
 		std::shared_ptr < ResourceMap >		m_pResourceMap;
+		int			m_PointSprite;
 	};
 
 	enum EffectID
 	{
 		EFFECT_ID_PLAYER_SHOT_COLLIDED	= 0,
 		EFFECT_ID_ENEMY_DESTORYED		= 1,
+		EFFECT_ID_SPRAY					= 2,
 		EFFECT_ID_SCRIPT_EFFECT			= 100,
 	};
 
