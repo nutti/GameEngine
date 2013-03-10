@@ -2,6 +2,7 @@
 
 #include "Item.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "ResourceTypes.h"
 #include "ResourceID.h"
 
@@ -20,6 +21,7 @@ namespace GameEngine
 		m_ItemData.m_Vel = -2.0f;
 		m_ItemData.m_Angle = 0.0f;
 		m_ItemData.m_Counter = 0;
+		m_ItemData.m_ConsumedCounter = 0;
 		m_pPlayer = NULL;
 		m_ItemData.m_StatusFlags.reset();
 	}
@@ -147,6 +149,20 @@ namespace GameEngine
 
 	void Item::ProcessCollision( Enemy* pEnemy )
 	{
+		if( pEnemy->IsNonCollisionMode() ){
+			return;
+		}
+
+		if( m_ItemData.m_ConsumedCounter < 20 ){
+			++m_ItemData.m_ConsumedCounter;
+			return;
+		}
+		
+		if( !m_ItemData.m_StatusFlags[ STATUS_FLAG_CONSUMED ] ){
+			return;
+		}
+		
+		m_ItemData.m_Colided = true;
 	}
 
 	void Item::ProcessCollision( EnemyShot* pEnemyShot )
@@ -186,5 +202,19 @@ namespace GameEngine
 	{
 		m_pPlayer = pPlayer;
 		m_ItemData.m_Near = true;
+	}
+
+	bool Item::CanBeConsumed() const
+	{
+		if( m_ItemData.m_ConsumedCounter < 20 ){
+			return false;
+		}
+
+		return true;
+	}
+
+	void Item::Consume()
+	{
+		m_ItemData.m_StatusFlags.set( STATUS_FLAG_CONSUMED );
 	}
 }

@@ -450,8 +450,14 @@ namespace GameEngine
 	{
 		if( m_Data.m_RestInvincibleTime <= 0 || ( m_Data.m_Counter % 3 ) == 0 ){
 			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL ){
-				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
-									m_Data.m_PosX, m_Data.m_PosY );
+			//	MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+				//					m_Data.m_PosX, m_Data.m_PosY );
+				MAPIL::AddModelOn2DBatchWork(	m_pResourceMap->m_pGlobalResourceMap->m_ModelMap[ GLOBAL_RESOURCE_MODEL_ID_PLAYER ],
+												m_Data.m_PosX, m_Data.m_PosY, 0.5f,
+												0.05f, 0.05f, 0.05f,
+												MAPIL::DegToRad( 1.0f * ( m_Data.m_Counter % 360 ) ),
+												MAPIL::DegToRad( 1.3f * ( m_Data.m_Counter % 200 ) ),
+												MAPIL::DegToRad( 1.5f * ( m_Data.m_Counter % 540 ) ) );
 			}
 			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
 				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
@@ -472,6 +478,7 @@ namespace GameEngine
 								m_Data.m_PosX + 15, m_Data.m_PosY + 20,
 								m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] / 300.0f, 0.3f, false,
 								0xAAAAAAAA );
+			
 		}
 
 		// オプションの描画
@@ -563,7 +570,36 @@ namespace GameEngine
 
 	inline void Player::Impl::ProcessCollision( Enemy* pEnemy )
 	{
-		--m_Data.m_HP;
+		// 無敵時間中
+		if( m_Data.m_RestInvincibleTime > 0 ){
+			return;
+		}
+
+		int damage = 3;
+
+		// ダメージが発生した時
+		if( damage > 0 ){
+			// ダメージ時のメッセージ送信
+			StageMessage msg;
+			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DAMAGED;
+			StageMessage::StageMessageData data;
+			data.m_Integer = 0;
+			msg.m_MsgDataList.push_back( data );
+			m_pStageData->m_MsgQueue.push( msg );
+			m_Data.m_HP -= damage;
+			// ゲームオーバー処理
+			if( m_Data.m_HP <= 0 ){
+				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED ] );
+				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED;
+				StageMessage::StageMessageData data;
+				data.m_Integer = 0;
+				msg.m_MsgDataList.push_back( data );
+				m_pStageData->m_MsgQueue.push( msg );
+			}
+			// 無敵時間の調整
+			m_Data.m_RestInvincibleTime = INVINCIBLE_TIME;
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED ] );
+		}
 	}
 
 	void Player::Impl::ProcessCollision( EnemyShot* pEnemyShot )

@@ -3,6 +3,8 @@
 #include "Player.h"
 
 #include "Enemy.h"
+#include "Item.h"
+
 #include "ResourceTypes.h"
 #include "ScriptTypes.h"
 #include "Stage.h"
@@ -379,6 +381,23 @@ namespace GameEngine
 
 	void Enemy::ProcessCollision( Item* pItem )
 	{
+		if( m_Data.m_IsNonCollisionMode ){
+			return;
+		}
+		
+		if( !pItem->CanBeConsumed() ){
+			return;
+		}
+
+		int id = pItem->GetItemID();
+		int subID = pItem->GetItemSubID();
+
+		if( id == ITEM_ID_CRYSTAL ){
+			m_Data.m_ConsGauge += subID * 5;
+			m_Data.m_ConsGauge %= 200;
+		}
+
+		pItem->Consume();
 	}
 
 	void Enemy::Damage( int val )

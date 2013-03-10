@@ -27,6 +27,7 @@ namespace GameEngine
 	enum StatusFlag
 	{
 		STATUS_FLAG_GET				= 0,	// 取得後
+		STATUS_FLAG_CONSUMED		= 1,	// 消費された
 		STATUS_FLAG_TOTAL,
 	};
 
@@ -42,6 +43,7 @@ namespace GameEngine
 		bool		m_Colided;		// 衝突したらtrue
 		bool		m_Near;			// プレイヤーが近くにいる場合true
 		int			m_Counter;		// カウンタ
+		int			m_ConsumedCounter;	// 敵消化カウンタ
 		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
 	};
 
@@ -71,6 +73,8 @@ namespace GameEngine
 		int GetItemID() const;
 		int GetItemSubID() const;
 		void PlayerIsNear( Player* pPlayer );
+		bool CanBeConsumed() const;
+		void Consume();
 	};
 }
 

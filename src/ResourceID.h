@@ -63,6 +63,11 @@ namespace GameEngine
 	{
 		GLOBAL_RESOURCE_BGM_ID_MENU						= 0,		// メニュー画面
 	};
+
+	enum GlobalResourceModelID
+	{
+		GLOBAL_RESOURCE_MODEL_ID_PLAYER					= 0,		// プレイヤー
+	};
 }
 
 #endif

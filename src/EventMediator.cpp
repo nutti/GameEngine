@@ -271,6 +271,9 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_SE,
 											GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_4,
 											"archive/resource/se/cons_skill_effect_5.wav", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_MODEL,
+											GLOBAL_RESOURCE_MODEL_ID_PLAYER,
+											"archive/resource/model/player.x", false );
 		m_Loading.Start();
 	}
 

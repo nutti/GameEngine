@@ -207,6 +207,7 @@ namespace GameEngine
 	{
 		// 衝突判定
 		// 敵-プレイヤーショット
+		// 敵-アイテム
 		for( PlayerShotList::iterator itShot = m_Data.m_PlayerShotList.begin(); itShot != m_Data.m_PlayerShotList.end(); ++itShot ){
 			float psX;
 			float psY;
@@ -219,6 +220,8 @@ namespace GameEngine
 				float eRad;
 				( *itEnemy )->GetPos( &eX, &eY );
 				eRad = ( *itEnemy )->GetCollisionRadius();
+				
+				// 敵 - プレイヤー
 				float distance = ( eX - psX ) * ( eX - psX ) + ( eY - psY ) * ( eY - psY );
 				float radius = ( psRad + eRad ) * ( psRad + eRad );
 				if( distance < radius ){
@@ -227,6 +230,7 @@ namespace GameEngine
 				}
 			}
 		}
+
 		// ボス-プレイヤーショット
 		if( m_Data.m_pBoss ){
 			float eX;
@@ -294,6 +298,40 @@ namespace GameEngine
 				}
 			}
 		}
+
+		// プレイヤー-敵
+		// 敵-アイテム
+		for( EnemyList::iterator itEnemy = m_Data.m_EnemyList.begin(); itEnemy != m_Data.m_EnemyList.end(); ++itEnemy ){
+			float eX;
+			float eY;
+			float eRad;
+			( *itEnemy )->GetPos( &eX, &eY );
+			eRad = ( *itEnemy )->GetCollisionRadius();
+				
+			// 敵-プレイヤー
+			float distance = ( eX - pX ) * ( eX - pX ) + ( eY - pY ) * ( eY - pY );
+			float radius = ( pRad + eRad ) * ( pRad + eRad );
+			if( distance < radius ){
+				m_Data.m_pPlayer->Colided( *itEnemy );
+				( *itEnemy )->Colided( m_Data.m_pPlayer );
+			}
+			// 敵-アイテム
+			for( ItemList::iterator itItem = m_Data.m_ItemList.begin(); itItem != m_Data.m_ItemList.end(); ++itItem ){
+				float iX;
+				float iY;
+				float iRad;
+				( *itItem )->GetPos( &iX, &iY );
+				iRad = ( *itItem )->GetCollisionRadius();
+				float distance = ( iX - eX ) * ( iX - eX ) + ( iY - eY ) * ( iY - eY );
+				float radius = ( iRad + eRad ) * ( iRad + eRad );
+				if( distance < radius ){
+					( *itEnemy )->Colided( *itItem );
+					( *itItem )->Colided( *itEnemy );
+				}
+			}
+		}
+
+				
 	}
 
 	void Stage::Impl::UpdateGameObjects()
