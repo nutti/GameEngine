@@ -3,17 +3,18 @@
 #include "Item.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "Stage.h"
+#include "Effect.h"
 #include "ResourceTypes.h"
 #include "ResourceID.h"
 
 namespace GameEngine
 {
-	Item::Item( std::shared_ptr < ResourceMap > pMap, int id, int subID ) :	CollisionObject(),
-																			m_pResourceMap( pMap )
+	Item::Item( std::shared_ptr < ResourceMap > pMap, StageData* pStageData, int id, int subID ) :	CollisionObject(),
+																									m_pResourceMap( pMap )
 	{
 		m_ItemData.m_ItemID = id;
 		m_ItemData.m_ItemSubID = subID;
-		m_ItemData.m_Colided = false;
 		m_ItemData.m_ColRadius = 3.0f;
 		m_ItemData.m_PosX = 0.0f;
 		m_ItemData.m_PosY = 0.0f;
@@ -24,6 +25,7 @@ namespace GameEngine
 		m_ItemData.m_ConsumedCounter = 0;
 		m_pPlayer = NULL;
 		m_ItemData.m_StatusFlags.reset();
+		m_ItemData.m_pStageData = pStageData;
 	}
 
 	Item::~Item()
@@ -121,7 +123,13 @@ namespace GameEngine
 			return false;
 		}
 
-		if( m_ItemData.m_Colided ){
+		if(	m_ItemData.m_StatusFlags[ STATUS_FLAG_CONSUMED ] ||
+			m_ItemData.m_StatusFlags[ STATUS_FLAG_OBTAINED ] ){
+			if( m_ItemData.m_StatusFlags[ STATUS_FLAG_OBTAINED ] ){
+				Effect* pNewEffect = m_ItemData.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_OBTAIN_ITEM_CRYSTAL, m_ItemData.m_ItemSubID );
+				pNewEffect->SetPos( m_ItemData.m_PosX, m_ItemData.m_PosY );
+				m_ItemData.m_pStageData->m_EffectList.push_back( pNewEffect );
+			}
 			return false;
 		}
 
@@ -144,7 +152,7 @@ namespace GameEngine
 
 	void Item::ProcessCollision( Player* pPlayer )
 	{
-		m_ItemData.m_Colided = true;
+		m_ItemData.m_StatusFlags.set( STATUS_FLAG_OBTAINED );
 	}
 
 	void Item::ProcessCollision( Enemy* pEnemy )
@@ -153,7 +161,7 @@ namespace GameEngine
 			return;
 		}
 
-		if( m_ItemData.m_ConsumedCounter < 20 ){
+		if( m_ItemData.m_ConsumedCounter < 15 ){
 			++m_ItemData.m_ConsumedCounter;
 			return;
 		}
@@ -161,8 +169,6 @@ namespace GameEngine
 		if( !m_ItemData.m_StatusFlags[ STATUS_FLAG_CONSUMED ] ){
 			return;
 		}
-		
-		m_ItemData.m_Colided = true;
 	}
 
 	void Item::ProcessCollision( EnemyShot* pEnemyShot )
@@ -206,7 +212,7 @@ namespace GameEngine
 
 	bool Item::CanBeConsumed() const
 	{
-		if( m_ItemData.m_ConsumedCounter < 20 ){
+		if( m_ItemData.m_ConsumedCounter < 15 ){
 			return false;
 		}
 

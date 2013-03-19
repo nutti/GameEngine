@@ -25,6 +25,14 @@ namespace GameEngine
 	{
 	private:
 
+		enum ImgRotMode
+		{
+			IMG_ROT_MODE_SYNC	= 0,			// 進行方向と同期
+			IMG_ROT_MODE_AUTO	= 1,			// 毎フレーム指定した角度分だけ増加
+			IMG_ROT_MODE_MANUAL	= 2,			// 自分で全て指定
+			IMG_ROT_MODE_TOTAL,
+		};
+
 		std::shared_ptr < ResourceMap >		m_pResourceMap;		// リソース管理データ
 		ShotGroupData						m_ShotGroupData;	// ショットグループデータ
 
@@ -41,6 +49,10 @@ namespace GameEngine
 		int									m_DeadCounter;				// 死亡カウンタ
 		int									m_Attr;						// 属性
 		int									m_Power;					// 攻撃力
+		int									m_ImgRotMode;				// 画像回転モード
+		int									m_AlphaBlendingMode;		// αブレンディングモード
+		float								m_ImgRotAnglePerFrame;		// 毎フレーム増加する回転角度
+		float								m_ImgRotAngle;				// 画像の向き
 
 		// フラグ管理
 		enum StatusFlag
@@ -86,6 +98,9 @@ namespace GameEngine
 		int GetConsAttr() const;
 		void Pause();										// 一時停止
 		void Resume();										// 一時停止から再開
+		void SetImgRotMode( int mode );						// 敵弾の画像回転モードを設定
+		void SetImgRotAnglePerFrame( float angle );			// 毎フレーム増加する回転角度を設定
+		void SetAlphaBlendingMode( int mode );				// αブレンディングの方法を設定
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -96,6 +111,11 @@ namespace GameEngine
 		m_StatusFlags.reset();
 		MAPIL::ZeroObject( &m_ShotGroupData, sizeof( m_ShotGroupData ) );
 		m_Power = 1;
+		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
+		m_ImgRotAnglePerFrame = 0.0f;
+		m_ImgRotMode = IMG_ROT_MODE_SYNC;
+		m_ImgRotAngle = 0.0f;
+		m_ImgRotAnglePerFrame = 0.0f;
 	}
 
 	EnemyShot::Impl::~Impl()
@@ -112,7 +132,7 @@ namespace GameEngine
 			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 								m_PosX, m_PosY,
 								m_DeadCounter * 0.05f + 1.0f, m_DeadCounter * 0.05f + 1.0f,
-								m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ),
+								m_ImgRotAngle,
 								true, ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
 		}
 		else{
@@ -120,25 +140,30 @@ namespace GameEngine
 				if( m_StatusFlags[ HAS_CONS_ATTR ] ){
 					AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
 										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
-					if( ( m_Counter / 4 ) % 2 == 0  ){
+										m_PosX, m_PosY, m_ImgRotAngle );
+					if( ( m_Counter / 4 ) % 2 == 0 ){
 						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
 										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+										m_PosX, m_PosY, m_ImgRotAngle );
 					}
+				}
+				else if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
+					AddToSpriteBatch(	m_AlphaBlendingMode,
+										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+										m_PosX, m_PosY, m_ImgRotAngle );
 				}
 				else{
 					MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-									m_PosX, m_PosY, m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ) );
+										m_PosX, m_PosY, m_ImgRotAngle );
 				}
 			}
-			else{
+			/*else{
 				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 									m_PosX, m_PosY,
 									( 30 - m_Counter ) * 0.1f, ( 30 - m_Counter ) * 0.1f,
-									m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) ),
+									m_ImgRotAngle,
 									true, ( m_Counter * 10 + 100 ) << 24 | 0xFFFFFF );
-			}
+			}*/
 		}
 	}
 
@@ -159,9 +184,9 @@ namespace GameEngine
 			}
 		}
 		else{
-			if( m_Counter < 20 ){
-				m_Speed -= 0.1f;
-			}
+		//	if( m_Counter < 20 ){
+		//		m_Speed -= 0.1f;
+		//	}
 
 			m_PosX += m_Speed * ::cos( m_Angle );
 			m_PosY -= m_Speed * ::sin( m_Angle );
@@ -170,6 +195,13 @@ namespace GameEngine
 			if( m_PosX < 0.0f || m_PosX > 640.0f || m_PosY < -30.0f || m_PosY > 500.0f ){
 				return false;
 			}
+		}
+
+		if( m_ImgRotMode == IMG_ROT_MODE_SYNC ){
+			m_ImgRotAngle = m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) );
+		}
+		else if( m_ImgRotMode == IMG_ROT_MODE_AUTO ){
+			m_ImgRotAngle += m_ImgRotAnglePerFrame;
 		}
 
 		++m_Counter;
@@ -206,12 +238,12 @@ namespace GameEngine
 
 	inline void EnemyShot::Impl::SetSpeed( float speed )
 	{
-		if( m_Counter < 20 ){
-			m_Speed = speed + 2.0f - m_Counter * 0.1f;
-		}
-		else{
+		//if( m_Counter < 20 ){
+		//	m_Speed = speed + 2.0f - m_Counter * 0.1f;
+		//}
+		//else{
 			m_Speed = speed;
-		}
+		//}
 	}
 
 	inline void EnemyShot::Impl::SetImage( int id )
@@ -324,6 +356,21 @@ namespace GameEngine
 	inline void EnemyShot::Impl::Resume()
 	{
 		m_StatusFlags.reset( PAUSED );
+	}
+
+	inline void EnemyShot::Impl::SetImgRotMode( int mode )
+	{
+		m_ImgRotMode = mode;
+	}
+
+	inline void EnemyShot::Impl::SetImgRotAnglePerFrame( float angle )
+	{
+		m_ImgRotAnglePerFrame = angle;
+	}
+
+	inline void EnemyShot::Impl::SetAlphaBlendingMode( int mode )
+	{
+		m_AlphaBlendingMode = mode;
 	}
 
 	// ----------------------------------
@@ -484,5 +531,19 @@ namespace GameEngine
 		m_pImpl->Resume();
 	}
 
+	void EnemyShot::SetImgRotMode( int mode )
+	{
+		m_pImpl->SetImgRotMode( mode );
+	}
+
+	void EnemyShot::SetImgRotAnglePerFrame( float angle )
+	{
+		m_pImpl->SetImgRotAnglePerFrame( angle );
+	}
+	
+	void EnemyShot::SetAlphaBlendingMode( int mode )
+	{
+		m_pImpl->SetAlphaBlendingMode( mode );
+	}
 
 }

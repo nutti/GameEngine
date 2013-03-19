@@ -927,7 +927,7 @@ namespace GameEngine
 			//light = MAPIL::createdirec
 			isFirst = false;
 			light = MAPIL::CreateDirectionalLight();
-
+			light = MAPIL::CreatePointLight();
 		}
 
 		MAPIL::SetCullingMode( MAPIL::CULL_MODE_COUNTERCLOCKWISE );
@@ -937,25 +937,24 @@ namespace GameEngine
 
 		// 背景の描画
 		m_Background.Draw();
+
+
 		
 		MAPIL::EnableBlending();
+
+		
 
 		// 2D画像描画開始
 		MAPIL::BeginRendering2DGraphics();
 
-		// スキル使用時のエフェクトを描画
-		DrawConsSkillEffect();
+
 
 		
 
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 
-		// ボム使用時のエフェクトを描画
-		if( m_PrivData.m_BombModeData.m_IsBombMode ){
-			DrawBombModeEffect();
-		}
 		
-
+		
 		// プレイヤーの描画
 		m_Data.m_pPlayer->Draw();
 
@@ -973,6 +972,9 @@ namespace GameEngine
 		MAPIL::DoAllModelOn2DBatchWorks();
 		MAPIL::EnableLighting();
 		MAPIL::BeginRendering2DGraphics();
+
+		// スキル使用時のエフェクトを描画
+		DrawConsSkillEffect();
 
 		// プレイヤーショットの描画
 		for( PlayerShotList::iterator it = m_Data.m_PlayerShotList.begin(); it != m_Data.m_PlayerShotList.end(); ++it ){
@@ -995,6 +997,13 @@ namespace GameEngine
 			( *it )->Draw();
 		}
 
+		// ボス戦闘時のエフェクトの描画
+		DrawBossModeEffect();
+
+		LateDrawConsSkillEffect();
+
+		
+
 		if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x5544FF44 );
@@ -1007,6 +1016,15 @@ namespace GameEngine
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x55FF4444 );
 		}
+
+		
+
+		// ボム使用時のエフェクトを描画
+		if( m_PrivData.m_BombModeData.m_IsBombMode ){
+			DrawBombModeEffect();
+		}
+
+		
 
 		// 状態画面の描画
 		m_Profiler.Begin( "Game Stat" );
@@ -1237,10 +1255,7 @@ namespace GameEngine
 		
 		m_Profiler.End( "Game Stat" );
 
-		// ボス戦闘時のエフェクトの描画
-		DrawBossModeEffect();
-
-		LateDrawConsSkillEffect();
+		
 
 		m_Profiler.End( "Draw" );
 

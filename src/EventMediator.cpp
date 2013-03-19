@@ -273,7 +273,7 @@ namespace GameEngine
 											"archive/resource/se/cons_skill_effect_5.wav", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_MODEL,
 											GLOBAL_RESOURCE_MODEL_ID_PLAYER,
-											"archive/resource/model/player.x", false );
+											"archive/resource/model/player.x", true );
 		m_Loading.Start();
 	}
 

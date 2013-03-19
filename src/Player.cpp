@@ -76,7 +76,11 @@ namespace GameEngine
 		m_Data.m_ColRadius = 2.0f;
 		m_Data.m_Counter = 0;
 		m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
+#if defined ( MAKE_MODE_RELEASE )
 		m_Data.m_RestInvincibleTime = 0;
+#else
+		m_Data.m_RestInvincibleTime = 10000;
+#endif
 
 		m_PlayerOptList.clear();
 	}
@@ -619,7 +623,10 @@ namespace GameEngine
 		if( hasAttr ){
 			// ‘®«‚ªˆê’v‚µ‚Ä‚¢‚é
 			if( pEnemyShot->GetConsAttr() == m_Data.m_ConsCur ){
-				m_Data.m_ConsGauge[ m_Data.m_ConsCur ] += 10;
+				m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] += 10;
+				if( m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] > 1000 ){
+					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] = 1000;
+				}
 				damage = 0;	// ƒ_ƒ[ƒW–³Œø‰»
 			}
 			// ‘®«‚ª–³‚¢

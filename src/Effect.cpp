@@ -14,13 +14,13 @@ namespace GameEngine
 		m_EffectData.m_pResourceMap = pMap;
 		m_EffectData.m_PosX = 0.0f;
 		m_EffectData.m_PosY = 0.0f;
-		m_EffectData.m_PointSprite = MAPIL::CreatePointSprite( 100,
-			m_EffectData.m_pResourceMap->m_pStageResourceMap->m_TextureMap[ subID ] );
+		//m_EffectData.m_PointSprite = MAPIL::CreatePointSprite( 100,
+		//m_EffectData.m_pResourceMap->m_pStageResourceMap->m_TextureMap[ subID ] );
 	}
 
 	Effect::~Effect()
 	{
-		MAPIL::DeletePointSprite( m_EffectData.m_PointSprite );
+		//MAPIL::DeletePointSprite( m_EffectData.m_PointSprite );
 	}
 
 	void Effect::Init( float posX, float posY )
@@ -81,6 +81,10 @@ namespace GameEngine
 			MAPIL::EnableZBuffering();
 			MAPIL::BeginRendering2DGraphics();
 		}
+		else if( m_EffectData.m_EffectID == EFFECT_ID_OBTAIN_ITEM_CRYSTAL ){
+			MAPIL::DrawString(	m_EffectData.m_PosX, m_EffectData.m_PosY, ( ( m_EffectData.m_Counter - 30 ) * 7 ) << 24 | 0xFFFFFF,
+								"%d", m_EffectData.m_EffectSubID );
+		}
 
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 	}
@@ -112,11 +116,17 @@ namespace GameEngine
 		}
 		else if( m_EffectData.m_EffectID == EFFECT_ID_SPRAY ){
 			for( int i = 0; i < 100; ++i ){
-				MAPIL::UpdatePointSprite(	m_EffectData.m_PointSprite, i,
+				/*MAPIL::UpdatePointSprite(	m_EffectData.m_PointSprite, i,
 					MAPIL::Vector3 < float > ( 2.0f, 2.0f, 0.001f * m_EffectData.m_Counter ),
-					6.0f, 0xFFFFFFFF );
+					6.0f, 0xFFFFFFFF );*/
 			}
 			if( m_EffectData.m_Counter >= 120 ){
+				return false;
+			}
+		}
+		else if( m_EffectData.m_EffectID == EFFECT_ID_OBTAIN_ITEM_CRYSTAL ){
+			m_EffectData.m_PosY -= 2.0f;
+			if( m_EffectData.m_Counter >= 30 ){
 				return false;
 			}
 		}

@@ -32,6 +32,17 @@ namespace GameEngine
 		RESOURCE_TYPE_TEXTURE			= 2,
 		RESOURCE_TYPE_MULTI_TEXTURE		= 3,
 		RESOURCE_TYPE_MODEL				= 4,
+		RESOURCE_TYPE_LIGHT				= 5,
+		RESOURCE_TYPE_POINT_SPRITE		= 6,
+	};
+
+	// ライトのタイプ
+	enum LightType
+	{
+		LIGHT_TYPE_DIRECTIONAL		= 0,
+		LIGHT_TYPE_POINT			= 1,
+		LIGHT_TYPE_SPOT				= 2,
+		LIGHT_TYPE_NONE				= 3,
 	};
 
 	// リソース対応関係
@@ -45,6 +56,8 @@ namespace GameEngine
 			std::vector < int >		m_TextureMap;			// テクスチャ
 			std::vector < int >		m_ModelMap;				// 3Dモデル
 			std::vector < int >		m_EnemyPatternFileMap;	// 敵出現パターンファイル
+			int						m_LightTypeMap[ 8 ];	// ライト(上位16バイトがライトタイプ、下位16バイトがハンドル)
+			std::vector < int >		m_PointSpriteMap;		// ポイントスプライト
 		};
 		// グローバルリソース
 		struct GlobalResourceMapElm

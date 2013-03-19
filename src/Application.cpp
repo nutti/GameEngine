@@ -19,6 +19,8 @@
 
 #include "Util.h"
 
+#include "Profiler.h"
+
 namespace GameEngine
 {
 	class Application::Impl
@@ -30,6 +32,8 @@ namespace GameEngine
 		std::shared_ptr < GameStateManager >		m_pGameStateManager;	// ゲームの状態管理クラス
 		std::shared_ptr < ResourceManager >			m_pResourceManager;		// リソース管理クラス
 		std::shared_ptr < ScriptManager >			m_pScriptManager;		// スクリプト管理クラス
+
+		Profiler					m_Profiler;
 	public:
 		Impl();
 		~Impl(){}
@@ -73,6 +77,8 @@ namespace GameEngine
 		if( !wndMode ){
 			MAPIL::ChangeWindowMode( 1 );
 		}
+
+		m_Profiler.Clear();
 	}
 
 	// アプリケーション実行
@@ -96,6 +102,7 @@ namespace GameEngine
 			if( m_FPSManager.DoesElapseNextTime() ){
 				// 描画設定
 
+				
 				
 				MAPIL::BeginRendering();
 				MAPIL::EnableBlending();
@@ -123,12 +130,31 @@ namespace GameEngine
 				if( ( i % 60 ) == 0 ){ 
 					fps = m_FPSManager.GetNowFPS();
 				}
+
+				static int time = 0;
+
 				MAPIL::BeginRendering2DGraphics();
 				MAPIL::DrawString( 20.0f, 460.0f, "FPS : %f", fps );
+				MAPIL::DrawString( 500.0f, 10.0f, "Rendering : %.1f %%", time / 10.0f );
 				MAPIL::EndRendering2DGraphics();
+
+				
+
+				
+				m_Profiler.Begin( "Rendering" );
+				
 
 				// 描画終了
 				MAPIL::EndRendering();
+
+				m_Profiler.End( "Rendering" );
+
+				
+
+				if( i % 60 == 0 ){
+					time = m_Profiler.GetProfile( "Rendering" );
+					m_Profiler.Clear();
+				}
 			}
 			else{
 				Sleep( 1 );

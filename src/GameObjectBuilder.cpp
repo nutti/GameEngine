@@ -100,7 +100,7 @@ namespace GameEngine
 
 	inline Item* GameObjectBuilder::Impl::CreateItem( int id, int subID )
 	{
-		return new Item( m_pResourceMap, id, subID );
+		return new Item( m_pResourceMap, m_pStageData, id, subID );
 	}
 
 	inline EnemyShotGroup* GameObjectBuilder::Impl::CreateEnemyShotGroup( int id, EnemyData* pData )

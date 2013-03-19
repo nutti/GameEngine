@@ -34,6 +34,8 @@ namespace VM
 		SYS_SIN,					// Call math library sin().
 		SYS_COS,					// Call math library cos().
 		SYS_ATAN2,					// Call math library atan2().
+		SYS_ABS,					// Call math library std::abs( int ).
+		SYS_FABS,					// Call math library std::fabs( float ).
 
 		SYS_DEG_TO_RAD,				// Convert degree to radius.
 
@@ -105,6 +107,9 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE,
 		SYS_ENEMY_SHOT_GROUP_ADD_POS,
 		SYS_ENEMY_SHOT_GROUP_ADD_SPEED,
+		SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_MODE,
+		SYS_ENEMY_SHOT_GROUP_SET_ALPHA_BLENDING_MODE,
+		SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_ANGLE_PER_FRAME,
 
 		// For stage script.
 		SYS_STAGE_ADD_ENEMY,				// Add enemy.
@@ -599,6 +604,8 @@ namespace VM
 		void SysSin();
 		void SysCos();
 		void SysAtan2();
+		void SysAbs();
+		void SysFabs();
 		void SysDegToRad();
 
 		void SysPlaySE();

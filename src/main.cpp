@@ -59,6 +59,21 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd 
 		}
 #else
 		app.Init( true );
+
+		/*int wndMode = SelectWindowMode();
+
+		if( wndMode == -1 ){
+			return -1;
+		}
+
+		// ウィンドウモードで起動
+		if( wndMode == 0 ){
+			app.Init( true );
+		}
+		// フルスクリーンモードで起動
+		else if( wndMode == 1 ){
+			app.Init( false );
+		}*/
 #endif
 		app.Run();
 	}

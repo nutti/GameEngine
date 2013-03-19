@@ -29,6 +29,8 @@ namespace GameEngine
 		int		m_MsgID;
 	};
 
+	
+
 	struct ResourceMap;
 	class EnemyShotGroup;
 	class EnemyShot : public CollisionObject
@@ -69,6 +71,9 @@ namespace GameEngine
 		int GetConsAttr() const;
 		void Pause();										// 一時停止
 		void Resume();										// 一時停止から再開
+		void SetImgRotMode( int mode );						// 敵弾の画像回転モードを設定
+		void SetImgRotAnglePerFrame( float angle );			// 毎フレーム増加する回転角度を設定
+		void SetAlphaBlendingMode( int mode );				// αブレンディングの方法を設定
 	};
 }
 

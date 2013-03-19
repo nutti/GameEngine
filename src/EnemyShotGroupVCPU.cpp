@@ -434,6 +434,42 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysSetEnemyShotImgRotMode()
+	{
+		Pop();
+		int mode = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetImgRotMode( mode );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotImgRotAnglePerFrame()
+	{
+		Pop();
+		float angle = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetImgRotAnglePerFrame( angle );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotAlphaBlendingMode()
+	{
+		Pop();
+		int mode = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetAlphaBlendingMode( mode );
+		}
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -505,6 +541,16 @@ namespace GameEngine
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT:
 				SysSetEnemyShotMovement();
 				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_ALPHA_BLENDING_MODE:
+				SysSetEnemyShotAlphaBlendingMode();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_ANGLE_PER_FRAME:
+				SysSetEnemyShotImgRotAnglePerFrame();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_MODE:
+				SysSetEnemyShotImgRotMode();
+				break;
+
 			
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_COUNTER:
 				SysGetEnemyShotCounter();

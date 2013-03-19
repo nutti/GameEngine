@@ -26,10 +26,12 @@ namespace GameEngine
 	// フラグ管理
 	enum StatusFlag
 	{
-		STATUS_FLAG_GET				= 0,	// 取得後
+		STATUS_FLAG_OBTAINED		= 0,	// 取得された
 		STATUS_FLAG_CONSUMED		= 1,	// 消費された
 		STATUS_FLAG_TOTAL,
 	};
+
+	struct StageData;
 
 	struct ItemData
 	{
@@ -40,10 +42,10 @@ namespace GameEngine
 		float		m_Vel;			// 速度
 		float		m_Angle;		// 角度
 		float		m_ColRadius;	// 衝突判定の半径
-		bool		m_Colided;		// 衝突したらtrue
 		bool		m_Near;			// プレイヤーが近くにいる場合true
 		int			m_Counter;		// カウンタ
 		int			m_ConsumedCounter;	// 敵消化カウンタ
+		StageData*	m_pStageData;
 		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
 	};
 
@@ -56,7 +58,7 @@ namespace GameEngine
 		ItemData							m_ItemData;
 		Player*								m_pPlayer;
 	public:
-		Item( std::shared_ptr < ResourceMap > pMap, int id, int subID );
+		Item( std::shared_ptr < ResourceMap > pMap, StageData* pStageData, int id, int subID );
 		~Item();
 		void Init( float posX, float posY );				// 初期化
 		void Draw();										// 描画

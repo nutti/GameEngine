@@ -26,6 +26,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_SIN, TYPE_FLOAT, "sin", "f" );					// float sin( rad );
 	AddFunction( VM::SYS_COS, TYPE_FLOAT, "cos", "f" );					// float cos( rad );
 	AddFunction( VM::SYS_ATAN2, TYPE_FLOAT, "atan2", "ff" );			// float atan2( y, x );
+	AddFunction( VM::SYS_ABS, TYPE_INTEGER, "abs", "i" );				// int abs( val );
+	AddFunction( VM::SYS_FABS, TYPE_FLOAT, "fabs", "f" );				// float fabs( val );
 
 	AddFunction( VM::SYS_DEG_TO_RAD, TYPE_FLOAT, "DegToRad", "f" );		// float DegToRad();
 
@@ -38,6 +40,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STOP_SE, TYPE_VOID, "StopSE", "i" );			// void StopSE( id );
 	AddFunction( VM::SYS_PLAY_BGM, TYPE_VOID, "PlayBGM", "i" );	// void PlayBGM( id );
 	AddFunction( VM::SYS_STOP_BGM, TYPE_VOID, "StopBGM", "i" );	// void StopBGM( id );
+
+	
 
 	// System calll for MAPIL function call.
 
@@ -72,6 +76,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_INVOKE_CONS_SKILL, TYPE_VOID, "EnemyInvokeConsSkill", "sii" );			// void EnemyInvokeConsSkill( skill_name, dec_gauge, attribute );
 	AddFunction( VM::SYS_ENEMY_STOP_CONS_SKILL, TYPE_VOID, "EnemyStopConsSkill", "" );				// void EnemyStopConsSkill();
 	AddFunction( VM::SYS_ENEMY_SHIFT_NEXT_MODE, TYPE_VOID, "EnemyShiftNextMode", "" );	// void EnemyShiftNextMode();
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_MODE, TYPE_VOID, "SetEnemyShotImgRotMode", "ii" );		// void SetImgRotMode( shot_id, mode );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_ANGLE_PER_FRAME, TYPE_VOID, "SetEnemyShotImgRotAnglePerFrame", "if" );		// void SetImgAnglePerFrame( shot_id, angle );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_ALPHA_BLENDING_MODE, TYPE_VOID, "SetEnemyShotAlphaBlendingMode", "ii" );		// void SetImgAlphaBlendingMode( shot_id, mode );
 
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_1, TYPE_VOID, "CreateEnemyShot1", "fffffii" );	// void CreateEnemyShot1( x, y, speed, angle, radius, texture_id, power );
 	AddFunction( VM::SYS_ENEMY_CREATE_EFFECT_1, TYPE_VOID, "CreateEffect1", "ffii" );		// void CreateEffect1( x, y, id, subid );

@@ -26,6 +26,7 @@ namespace GameEngine
 		EFFECT_ID_ENEMY_DESTORYED		= 1,
 		EFFECT_ID_SPRAY					= 2,
 		EFFECT_ID_SCRIPT_EFFECT			= 100,
+		EFFECT_ID_OBTAIN_ITEM_CRYSTAL	= 200,
 	};
 
 	class Effect : public NonCollisionObject
