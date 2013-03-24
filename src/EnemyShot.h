@@ -62,6 +62,7 @@ namespace GameEngine
 		void ProcessCollision( PlayerShot* pPlayerShot );	// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
+		//void ProcessCollision( std::shared_ptr < Item > pItem );				// 衝突時の処理（アイテム）
 		void GetPos( float* pPosX, float* pPosY );
 		int GetPower() const;								// 弾の攻撃力を取得
 		float GetCollisionRadius();

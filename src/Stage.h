@@ -24,7 +24,8 @@ namespace GameEngine
 	typedef std::list < Enemy* >			EnemyList;
 	typedef std::list < PlayerShot*	>		PlayerShotList;
 	typedef std::list < EnemyShot* >		EnemyShotList;
-	typedef std::list < Item* >				ItemList;
+	//typedef std::list < Item* >				ItemList;
+	typedef std::list < std::shared_ptr < Item > >		ItemList;
 	typedef std::list < Effect* >			EffectList;
 	typedef std::list < EnemyShotGroup* >	EnemyShotGroupList;
 
@@ -46,6 +47,8 @@ namespace GameEngine
 			STAGE_MESSAGE_ID_STAGE_CLEARED				= 11,		// ステージクリアした
 			STAGE_MESSAGE_ID_GAME_OVERED				= 12,		// ゲームオーバーした
 			STAGE_MESSAGE_ID_GAME_CLEARED				= 13,		// 全クリした
+			STAGE_MESSAGE_ID_ITEM_OBTAINED				= 14,		// アイテムを取得した
+			STAGE_MESSAGE_ID_TOTAL,
 		};
 		union StageMessageData
 		{

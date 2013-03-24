@@ -16,6 +16,7 @@ namespace GameEngine
 		ITEM_ID_CONS_ENHANCE		= 3,		// 意識増幅
 		ITEM_ID_RECOVER				= 4,		// HP回復
 		ITEM_ID_POWER_UP			= 5,		// 意識消滅弾強化
+		ITEM_ID_TOTAL,
 	};
 
 	enum ItemConsLevelRecoverSubID
@@ -70,6 +71,7 @@ namespace GameEngine
 		void ProcessCollision( PlayerShot* pPlayerShot );	// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
+		//void ProcessCollision( std::shared_ptr < Item > pItem );				// 衝突時の処理（アイテム）
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
 		int GetItemID() const;

@@ -25,6 +25,7 @@ namespace GameEngine
 		bool								m_IsNew;			// 新しいか？
 		bool								m_EnemyControlled;	// 敵の管理下にあるか？
 		int									m_Reg;				// レジスタ
+		float								m_FReg;				// 浮動小数点レジスタ
 	};
 	
 	class EnemyShotGroup
@@ -43,7 +44,9 @@ namespace GameEngine
 		int CreateShot();
 		void DeleteShot( int id );
 		void SetReg( int reg );
+		void SetFReg( float reg );
 		int GetReg() const;
+		float GetFReg() const;
 		void SetShotPos( int id, float x, float y );
 		void SetShotAngle( int id, float angle );
 		void SetShotSpeed( int id, float speed );

@@ -394,7 +394,9 @@ namespace GameEngine
 
 		if( id == ITEM_ID_CRYSTAL ){
 			m_Data.m_ConsGauge += subID * 5;
-			m_Data.m_ConsGauge %= 200;
+			if( m_Data.m_ConsGauge > 200 ){
+				m_Data.m_ConsGauge = 200;
+			}
 		}
 
 		pItem->Consume();

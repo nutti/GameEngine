@@ -55,6 +55,7 @@ namespace GameEngine
 		std::shared_ptr < ResourceMap >		m_pResouceMap;
 		std::vector < EnemyShotGroup* >		m_ShotGroupList;		// 現在保持しているショットグループ
 		int					m_Regs[ MAX_ENEMY_REGS ];			// 汎用レジスタ
+		std::weak_ptr < Item >		m_RefItem;			// 現在参照しているアイテム
 	};
 
 	// 速度向上のため、pimplイディオムは使用しない。
@@ -91,6 +92,7 @@ namespace GameEngine
 		void ProcessCollision( PlayerShot* pPlayerShot );	// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
+		//void ProcessCollision( std::shared_ptr < Item > pItem );				// 衝突時の処理（アイテム）
 		void Damage( int val );								// ダメージを与える
 		void GetPos( float* pPosX, float* pPosY );
 		int GetHP() const;									// HPを取得

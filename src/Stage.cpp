@@ -84,12 +84,18 @@ namespace GameEngine
 				int				m_Counter;			// カウンタ
 				int				m_NextStageNo;		// 次のステージ番号
 			};
+			// アイテム取得時の処理に関するデータ
+			struct ItemObtainedData
+			{
+				int				m_Counter[ ITEM_ID_TOTAL ];		// アイテムごとにエフェクトカウンタ
+			};
 
 			ConsSkillModeData						m_ConsSkillModeData;
 			BossModeData							m_BossModeData;
 			BombModeData							m_BombModeData;
 			LastDamagedEnemyData					m_LastDamagedEnemyData;
 			StageClearModeData						m_ClearModeData;
+			ItemObtainedData						m_ItemObtainedData;
 			std::bitset < STATUS_FLAG_TOTAL >		m_StatusFlags;
 		};
 
@@ -182,6 +188,7 @@ namespace GameEngine
 		m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge = 10000;
 		m_PrivData.m_ClearModeData.m_Counter = 0;
 		m_PrivData.m_ClearModeData.m_NextStageNo = 0;
+		MAPIL::ZeroObject( m_PrivData.m_ItemObtainedData.m_Counter, sizeof( m_PrivData.m_ItemObtainedData.m_Counter ) );
 
 		m_Profiler.Clear();
 		m_DispProf = true;
@@ -207,7 +214,7 @@ namespace GameEngine
 	{
 		// 衝突判定
 		// 敵-プレイヤーショット
-		// 敵-アイテム
+		// 敵-プレイヤー
 		for( PlayerShotList::iterator itShot = m_Data.m_PlayerShotList.begin(); itShot != m_Data.m_PlayerShotList.end(); ++itShot ){
 			float psX;
 			float psY;
@@ -281,6 +288,7 @@ namespace GameEngine
 			float iX;
 			float iY;
 			float iRad;
+			
 			( *it )->GetPos( &iX, &iY );
 			iRad = ( *it )->GetCollisionRadius();
 			float distance = ( iX - pX ) * ( iX - pX ) + ( iY - pY ) * ( iY - pY );
@@ -290,7 +298,8 @@ namespace GameEngine
 				// 衝突時
 				if( distance < colRadius ){
 					( *it )->Colided( m_Data.m_pPlayer );
-					m_Data.m_pPlayer->Colided( *it );
+					m_Data.m_pPlayer->Colided( ( *it ).get() );
+					//m_Data.m_pPlayer->Colided( ( *it ) );
 				}
 				// 近くにいる時
 				else{
@@ -325,7 +334,8 @@ namespace GameEngine
 				float distance = ( iX - eX ) * ( iX - eX ) + ( iY - eY ) * ( iY - eY );
 				float radius = ( iRad + eRad ) * ( iRad + eRad );
 				if( distance < radius ){
-					( *itEnemy )->Colided( *itItem );
+					( *itEnemy )->Colided( ( *itItem ).get() );
+				//	( *itEnemy )->Colided( ( *itItem ) );
 					( *itItem )->Colided( *itEnemy );
 				}
 			}
@@ -387,7 +397,7 @@ namespace GameEngine
 		// アイテムの更新
 		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ){
 			if( !( *it )->Update() ){
-				delete ( *it );
+				//delete ( *it );
 				it = m_Data.m_ItemList.erase( it );
 				continue;
 			}
@@ -469,6 +479,12 @@ namespace GameEngine
 					m_PrivData.m_ClearModeData.m_Counter = 0;
 					m_PrivData.m_ClearModeData.m_NextStageNo = m_Data.m_MsgQueue.front().m_MsgDataList[ 0 ].m_Integer;
 					break;
+				case StageMessage::STAGE_MESSAGE_ID_ITEM_OBTAINED:{
+					int itemID = m_Data.m_MsgQueue.front().m_MsgDataList[ 0 ].m_Integer;
+					const int counts[ ITEM_ID_TOTAL ] = { 60, 60, 60, 60, 60, 60 };
+					m_PrivData.m_ItemObtainedData.m_Counter[ itemID ] = counts[ itemID ];
+					break;
+				}
 				default:
 					break;
 			}
@@ -516,7 +532,7 @@ namespace GameEngine
 	void Stage::Impl::DeleteAllItems()
 	{
 		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){
-			delete ( *it );
+			//delete ( *it );
 		}
 		m_Data.m_ItemList.clear();
 	}
@@ -907,6 +923,10 @@ namespace GameEngine
 
 		++m_Data.m_Frame;
 
+		for( int i = 0; i < sizeof( m_PrivData.m_ItemObtainedData.m_Counter ) / sizeof( m_PrivData.m_ItemObtainedData.m_Counter[ 0 ] ); ++i ){
+			--m_PrivData.m_ItemObtainedData.m_Counter[ i ];
+		}
+
 		m_Profiler.End( "Update" );
 
 		return SCENE_TYPE_NOT_CHANGE;
@@ -952,11 +972,17 @@ namespace GameEngine
 		
 
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
-
+		
 		
 		
 		// プレイヤーの描画
 		m_Data.m_pPlayer->Draw();
+
+			MAPIL::EndRendering2DGraphics();
+		MAPIL::DisableLighting();
+		MAPIL::DoAllModelOn2DBatchWorks();
+		MAPIL::EnableLighting();
+		MAPIL::BeginRendering2DGraphics();
 
 		// 敵の描画
 		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){
@@ -975,6 +1001,11 @@ namespace GameEngine
 
 		// スキル使用時のエフェクトを描画
 		DrawConsSkillEffect();
+
+		// ボム使用時のエフェクトを描画
+		if( m_PrivData.m_BombModeData.m_IsBombMode ){
+			DrawBombModeEffect();
+		}
 
 		// プレイヤーショットの描画
 		for( PlayerShotList::iterator it = m_Data.m_PlayerShotList.begin(); it != m_Data.m_PlayerShotList.end(); ++it ){
@@ -997,6 +1028,8 @@ namespace GameEngine
 			( *it )->Draw();
 		}
 
+		
+
 		// ボス戦闘時のエフェクトの描画
 		DrawBossModeEffect();
 
@@ -1004,7 +1037,8 @@ namespace GameEngine
 
 		
 
-		if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
+
+		/*if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x5544FF44 );
 		}
@@ -1015,14 +1049,11 @@ namespace GameEngine
 		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_RED ){
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 								0.0f, 0.0f, 40.0f, 30.0f, 0.0f, false, 0x55FF4444 );
-		}
+		}*/
 
 		
 
-		// ボム使用時のエフェクトを描画
-		if( m_PrivData.m_BombModeData.m_IsBombMode ){
-			DrawBombModeEffect();
-		}
+		
 
 		
 
@@ -1224,7 +1255,19 @@ namespace GameEngine
 		dispOffsetY += 70.0f;
 		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL ],
 							RIGHT_DISP_OFFSET_X, dispOffsetY, 0.8f, 0.8f, false );
+		
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 35.0f, 0.4f, "%d/%d", m_Data.m_GameData.m_CrystalTotal - m_Data.m_GameData.m_CrystalUsed, m_Data.m_GameData.m_CrystalTotal );
+		if( m_PrivData.m_ItemObtainedData.m_Counter[ ITEM_ID_CRYSTAL ] > 0 ){
+			MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
+			DrawFontString(	m_Data.m_ResourceMap,
+							RIGHT_DISP_OFFSET_X + 5.0f,
+							dispOffsetY + 35.0f,
+							0.4f + m_PrivData.m_ItemObtainedData.m_Counter[ ITEM_ID_CRYSTAL ] * 0.002f, 0xAAFFFF33,
+							"%d/%d",
+							m_Data.m_GameData.m_CrystalTotal - m_Data.m_GameData.m_CrystalUsed,
+							m_Data.m_GameData.m_CrystalTotal );
+			MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
+		}
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 55.0f, 0.4f, 0xFF888888, "%d", m_Data.m_GameData.m_CrystalTotal );
 		// 進行度
 		dispOffsetY += 90.0f;

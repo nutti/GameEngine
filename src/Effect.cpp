@@ -4,6 +4,8 @@
 
 #include "ResourceTypes.h"
 
+#include "Util.h"
+
 namespace GameEngine
 {
 	Effect::Effect( std::shared_ptr < ResourceMap > pMap, int id, int subID )
@@ -82,8 +84,14 @@ namespace GameEngine
 			MAPIL::BeginRendering2DGraphics();
 		}
 		else if( m_EffectData.m_EffectID == EFFECT_ID_OBTAIN_ITEM_CRYSTAL ){
-			MAPIL::DrawString(	m_EffectData.m_PosX, m_EffectData.m_PosY, ( ( m_EffectData.m_Counter - 30 ) * 7 ) << 24 | 0xFFFFFF,
-								"%d", m_EffectData.m_EffectSubID );
+			DrawFontString(	*m_EffectData.m_pResourceMap,
+							m_EffectData.m_PosX, m_EffectData.m_PosY, 0.25f,
+							( ( 30 - m_EffectData.m_Counter ) * 8 ) << 24 | 0x3333FF,
+							"Crystal %d", m_EffectData.m_EffectSubID );
+			DrawFontString(	*m_EffectData.m_pResourceMap,
+							m_EffectData.m_PosX, m_EffectData.m_PosY + 7.0f, 0.25f,
+							( ( 30 - m_EffectData.m_Counter ) * 8 ) << 24 | 0xFFFF33,
+							"Score %d", m_EffectData.m_EffectSubID * 100 );
 		}
 
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
@@ -125,7 +133,7 @@ namespace GameEngine
 			}
 		}
 		else if( m_EffectData.m_EffectID == EFFECT_ID_OBTAIN_ITEM_CRYSTAL ){
-			m_EffectData.m_PosY -= 2.0f;
+			m_EffectData.m_PosY -= 2.5f;
 			if( m_EffectData.m_Counter >= 30 ){
 				return false;
 			}

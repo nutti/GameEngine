@@ -126,9 +126,18 @@ namespace GameEngine
 		if(	m_ItemData.m_StatusFlags[ STATUS_FLAG_CONSUMED ] ||
 			m_ItemData.m_StatusFlags[ STATUS_FLAG_OBTAINED ] ){
 			if( m_ItemData.m_StatusFlags[ STATUS_FLAG_OBTAINED ] ){
-				Effect* pNewEffect = m_ItemData.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_OBTAIN_ITEM_CRYSTAL, m_ItemData.m_ItemSubID );
-				pNewEffect->SetPos( m_ItemData.m_PosX, m_ItemData.m_PosY );
-				m_ItemData.m_pStageData->m_EffectList.push_back( pNewEffect );
+				if( m_ItemData.m_ItemID == ITEM_ID_CRYSTAL ){
+					Effect* pNewEffect = m_ItemData.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_OBTAIN_ITEM_CRYSTAL, m_ItemData.m_ItemSubID );
+					pNewEffect->SetPos( m_ItemData.m_PosX, m_ItemData.m_PosY );
+					m_ItemData.m_pStageData->m_EffectList.push_back( pNewEffect );
+					// ステージにメッセージ送信
+					StageMessage msg;
+					msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ITEM_OBTAINED;
+					StageMessage::StageMessageData data;
+					data.m_Integer = ITEM_ID_CRYSTAL;
+					msg.m_MsgDataList.push_back( data );
+					m_ItemData.m_pStageData->m_MsgQueue.push( msg );
+				}
 			}
 			return false;
 		}

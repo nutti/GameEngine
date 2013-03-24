@@ -50,6 +50,7 @@ namespace GameEngine
 
 		void SysGetStageFrame();
 		void SysGetEnemyShotGroupReg();
+		void SysGetEnemyShotGroupFReg();
 
 		void SysPlaySE();
 		void SysStopSE();

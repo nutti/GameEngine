@@ -28,6 +28,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ATAN2, TYPE_FLOAT, "atan2", "ff" );			// float atan2( y, x );
 	AddFunction( VM::SYS_ABS, TYPE_INTEGER, "abs", "i" );				// int abs( val );
 	AddFunction( VM::SYS_FABS, TYPE_FLOAT, "fabs", "f" );				// float fabs( val );
+	AddFunction( VM::SYS_SQRT, TYPE_FLOAT, "sqrt", "f" );				// float sqrt( val );
 
 	AddFunction( VM::SYS_DEG_TO_RAD, TYPE_FLOAT, "DegToRad", "f" );		// float DegToRad();
 
@@ -86,6 +87,10 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_CREATE_ITEM, TYPE_VOID, "CreateItem", "iiff" );			// void CreateItem( item_id, item_sub_id, x, y );
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP, TYPE_VOID, "CreateEnemyShotGroup", "i" );			// void CreateShotGroup( script_id );
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP_REG, TYPE_VOID, "CreateEnemyShotGroupReg", "ii" );	// void CreateShotGroupReg( script_id, reg1 );
+	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP_FREG, TYPE_VOID, "CreateEnemyShotGroupFReg", "if" );	// void CreateShotGroupReg( script_id, reg1 );
+	AddFunction( VM::SYS_ENEMY_SEARCH_ITEM, TYPE_VOID, "SearchItem", "" );			// void SearchItem();
+	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_X, TYPE_FLOAT, "GetItemPosX", "" );		// float GetItemPosX();
+	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_Y, TYPE_FLOAT, "GetItemPosY", "" );		// float GetItemPosY();
 
 	// System call for enemy shot group.
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT, TYPE_INTEGER, "CreateEnemyShot", "" );	// int CreateEnemyShot();
@@ -103,10 +108,12 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y, TYPE_FLOAT, "GetEnemyShotPosY", "i" );				// float GetEnemyShotPosY( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POWER, TYPE_INTEGER, "GetEnemyShotPower", "i" );			// int GetEnemyShotPower( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_REG, TYPE_INTEGER, "GetEnemyShotGroupReg", "" );			// int GetEnemyShotGroupReg();
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_FREG, TYPE_FLOAT, "GetEnemyShotGroupFReg", "" );			// float GetEnemyShotGroupFReg();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE, TYPE_VOID, "EnemyShotAddAngle", "if" );			// void EnemyShotAddAngle( id, angle );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE, TYPE_VOID, "EnemyShotSetImgScale", "if" );	// void EnemyShotSetImgScale( id, scale );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_POS, TYPE_VOID, "EnemyShotAddPos", "iff" );				// void EnemyShotAddPos( id, x, y );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED, TYPE_VOID, "EnemyShotAddSpeed", "if" );			// void EnemyShotAddSpeed( id, speed );
+	
 
 	// System call for stage.
 	AddFunction( VM::SYS_STAGE_ADD_ENEMY, TYPE_VOID, "AddEnemy", "i" );					// void AddEnemy( script_id );

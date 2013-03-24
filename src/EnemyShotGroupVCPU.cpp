@@ -384,6 +384,12 @@ namespace GameEngine
 		Push( m_pEnemyShotGroupData->m_Reg );
 	}
 
+	void EnemyShotGroupVCPU::SysGetEnemyShotGroupFReg()
+	{
+		Pop();
+		Push( m_pEnemyShotGroupData->m_FReg );
+	}
+
 	void EnemyShotGroupVCPU::SysEnemyShotAddAngle()
 	{
 		Pop();
@@ -583,6 +589,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_REG:
 				SysGetEnemyShotGroupReg();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_FREG:
+				SysGetEnemyShotGroupFReg();
 				break;
 
 			default:

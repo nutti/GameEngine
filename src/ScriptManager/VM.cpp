@@ -96,6 +96,9 @@ void VM::VCPU::OpSysCall( int val )
 		case SYS_FABS:
 			SysFabs();
 			break;
+		case SYS_SQRT:
+			SysSqrt();
+			break;
 		case SYS_DEG_TO_RAD:
 			SysDegToRad();
 			break;
@@ -157,6 +160,13 @@ void VM::VCPU::SysAtan2()
 	float y = Top().m_Float;
 	Pop();
 	Push( ::atan2( y, x ) );
+}
+
+void VM::VCPU::SysSqrt()
+{
+	float val = Top().m_Float;
+	Pop();
+	Push( std::sqrtf( val ) );
 }
 
 void VM::VCPU::SysAbs()

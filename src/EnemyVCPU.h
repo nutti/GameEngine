@@ -25,6 +25,9 @@ namespace GameEngine
 		void SysGetEnemyAngle();
 		void SysGetEnemyConsGauge();
 		void SysGetEnemyReg();
+		void SysSearchItem();
+		void SysGetItemPosX();
+		void SysGetItemPosY();
 
 		void SysSetEnemyName();
 		void SysSetEnemyPos();
@@ -51,6 +54,7 @@ namespace GameEngine
 		void SysCreateEffect1();
 		void SysCreateEnemyShotGroup();
 		void SysCreateEnemyShotGroupReg();
+		void SysCreateEnemyShotGroupFReg();
 
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();

@@ -397,7 +397,9 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		Item* pNewItem = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateItem( id, subID );
+		std::shared_ptr < Item > pNewItem;
+		pNewItem.reset( m_pEnemyData->m_pStageData->m_ObjBuilder.CreateItem( id, subID ) );
+		//Item* pNewItem = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateItem( id, subID );
 		pNewItem->SetPos( x, y );
 		m_pEnemyData->m_pStageData->m_ItemList.push_back( pNewItem );
 	}
@@ -465,6 +467,67 @@ namespace GameEngine
 		m_pEnemyData->m_pStageData->m_MsgQueue.push( msg );
 	}
 
+	void EnemyVCPU::SysSearchItem()
+	{
+		Pop();
+		std::shared_ptr < Item > raw = m_pEnemyData->m_RefItem.lock();
+		if( !raw ){
+			if( m_pEnemyData->m_pStageData->m_ItemList.size() > 0 ){
+				ItemList::iterator it = m_pEnemyData->m_pStageData->m_ItemList.begin();
+				int random = m_pEnemyData->m_pStageData->m_RandGen.GetRand() * 10 / m_pEnemyData->m_pStageData->m_RandGen.GetRandMax();
+				int offset = random % m_pEnemyData->m_pStageData->m_ItemList.size();
+				for( int i = 0; i < offset; ++i ){
+					++it;
+				}
+				m_pEnemyData->m_RefItem = ( *it );
+			}
+		}
+	}
+
+	void EnemyVCPU::SysGetItemPosX()
+	{
+		Pop();
+		std::shared_ptr < Item > raw = m_pEnemyData->m_RefItem.lock();
+		if( raw ){
+			float x;
+			float y;
+			raw->GetPos( &x, &y );
+			Push( x );
+		}
+		else{
+			Push( -1000.0f );
+		}
+	}
+
+	void EnemyVCPU::SysGetItemPosY()
+	{
+		Pop();
+		std::shared_ptr < Item > raw = m_pEnemyData->m_RefItem.lock();
+		if( raw ){
+			float x;
+			float y;
+			raw->GetPos( &x, &y );
+			Push( y );
+		}
+		else{
+			Push( -1000.0f );
+		}
+	}
+
+	void EnemyVCPU::SysCreateEnemyShotGroupFReg()
+	{
+		Pop();
+		float reg = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
+		pNewGroup->Init();
+		pNewGroup->SetFReg( reg );
+		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -500,6 +563,15 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_GET_REG:
 				SysGetEnemyReg();
+				break;
+			case VM::SYS_ENEMY_SEARCH_ITEM:
+				SysSearchItem();
+				break;
+			case VM::SYS_ENEMY_GET_ITEM_POS_X:
+				SysGetItemPosX();
+				break;
+			case VM::SYS_ENEMY_GET_ITEM_POS_Y:
+				SysGetItemPosY();
 				break;
 
 			case VM::SYS_ENEMY_SET_NAME:
@@ -574,6 +646,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_REG:
 				SysCreateEnemyShotGroupReg();
+				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_FREG:
+				SysCreateEnemyShotGroupFReg();
 				break;
 			case VM::SYS_ENEMY_SHIFT_NEXT_MODE:
 				SysEnemyShiftNextMode();

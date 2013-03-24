@@ -36,6 +36,7 @@ namespace VM
 		SYS_ATAN2,					// Call math library atan2().
 		SYS_ABS,					// Call math library std::abs( int ).
 		SYS_FABS,					// Call math library std::fabs( float ).
+		SYS_SQRT,					// Call math library std::sqrt( float ).
 
 		SYS_DEG_TO_RAD,				// Convert degree to radius.
 
@@ -80,11 +81,16 @@ namespace VM
 		SYS_ENEMY_STOP_CONS_SKILL,			// Stop skill.
 		SYS_ENEMY_SHIFT_NEXT_MODE,			// Shift next mode.
 		SYS_ENEMY_GET_REG,					// Get registers.
+		SYS_ENEMY_GET_FREG,					// Get float register.
+		SYS_ENEMY_SEARCH_ITEM,				// Search item.
+		SYS_ENEMY_GET_ITEM_POS_X,			// Get item position x.
+		SYS_ENEMY_GET_ITEM_POS_Y,			// Get item position y.
 
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)
 		SYS_ENEMY_CREATE_SHOT_GROUP,		// Create shot group.
 		SYS_ENEMY_CREATE_SHOT_GROUP_REG,	// Create shot group. (1 Register)
+		SYS_ENEMY_CREATE_SHOT_GROUP_FREG,	// Create shot group. (1 Floating-point register)
 		SYS_CREATE_ITEM,		// Create item.
 
 		// For enemy shot group.
@@ -103,6 +109,7 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_GET_POS_Y,
 		SYS_ENEMY_SHOT_GROUP_GET_POWER,
 		SYS_ENEMY_SHOT_GROUP_GET_REG,
+		SYS_ENEMY_SHOT_GROUP_GET_FREG,
 		SYS_ENEMY_SHOT_GROUP_ADD_ANGLE,
 		SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE,
 		SYS_ENEMY_SHOT_GROUP_ADD_POS,
@@ -607,6 +614,7 @@ namespace VM
 		void SysAbs();
 		void SysFabs();
 		void SysDegToRad();
+		void SysSqrt();
 
 		void SysPlaySE();
 		void SysStopSE();

@@ -7,6 +7,7 @@
 namespace GameEngine
 {
 	const int		MAX_ENEMY_REGS	= 10;
+	const float		MAX_ENEMY_FREGS	= 10;
 
 	struct EnemyPatternInfo
 	{

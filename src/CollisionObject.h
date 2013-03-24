@@ -3,6 +3,8 @@
 
 #include "GameObject.h"
 
+#include <memory>
+
 namespace GameEngine
 {
 	class Player;
@@ -21,7 +23,8 @@ namespace GameEngine
 		virtual void ProcessCollision( Enemy* pEnemy ) = 0;				// 衝突時の処理（敵）
 		virtual void ProcessCollision( PlayerShot* pPlayerShot ) = 0;	// 衝突時の処理（プレイヤーショット）
 		virtual void ProcessCollision( EnemyShot* pEnemyShot )= 0;		// 衝突時の処理（敵弾）
-		virtual void ProcessCollision( Item* pItem ) = 0;				// 衝突時の処理（アイテム）
+		//virtual void ProcessCollision( std::shared_ptr < Item > pItem ) = 0;				// 衝突時の処理（アイテム）
+		virtual void ProcessCollision( Item* pItem ) = 0;
 		virtual void Draw() = 0;										// 描画
 		virtual bool Update() = 0;										// 更新
 		virtual void GetPos( float* pX, float* pY ) = 0;				// 位置を取得
