@@ -87,11 +87,11 @@ namespace GameEngine
 			DrawFontString(	*m_EffectData.m_pResourceMap,
 							m_EffectData.m_PosX, m_EffectData.m_PosY, 0.25f,
 							( ( 30 - m_EffectData.m_Counter ) * 8 ) << 24 | 0x3333FF,
-							"Crystal %d", m_EffectData.m_EffectSubID );
+							"%d", m_EffectData.m_EffectSubID );
 			DrawFontString(	*m_EffectData.m_pResourceMap,
 							m_EffectData.m_PosX, m_EffectData.m_PosY + 7.0f, 0.25f,
 							( ( 30 - m_EffectData.m_Counter ) * 8 ) << 24 | 0xFFFF33,
-							"Score %d", m_EffectData.m_EffectSubID * 100 );
+							"%d", m_EffectData.m_EffectSubID * 100 );
 		}
 
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );

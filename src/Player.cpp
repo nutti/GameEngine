@@ -79,8 +79,8 @@ namespace GameEngine
 #if defined ( MAKE_MODE_RELEASE )
 		m_Data.m_RestInvincibleTime = 0;
 #else
-		m_Data.m_RestInvincibleTime = 10000;
-		//m_Data.m_RestInvincibleTime = 0;
+		//m_Data.m_RestInvincibleTime = 10000;
+		m_Data.m_RestInvincibleTime = 0;
 #endif
 
 		m_PlayerOptList.clear();

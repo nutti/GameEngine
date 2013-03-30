@@ -476,6 +476,39 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysEnemyShotSetShape()
+	{
+		Pop();
+		int shape = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetShape( shape );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotSetLineStatus()
+	{
+		Pop();
+		float thickness = Top().m_Float;
+		Pop();
+		float y2 = Top().m_Float;
+		Pop();
+		float x2 = Top().m_Float;
+		Pop();
+		float y1 = Top().m_Float;
+		Pop();
+		float x1 = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetLinePos( x1, y1, x2, y2, thickness );
+		}
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -582,6 +615,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED:
 				SysEnemyShotAddSpeed();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_SHAPE:
+				SysEnemyShotSetShape();
+				break;
+			case VM::SYS_ENEMY_SHOT_SET_LINE_SHOT_STATUS:
+				SysEnemyShotSetLineStatus();
 				break;
 
 			case VM::SYS_STAGE_GET_FRAME:

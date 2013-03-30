@@ -33,6 +33,187 @@ namespace GameEngine
 			IMG_ROT_MODE_TOTAL,
 		};
 
+
+		// 衝突判定
+		enum ShotShape
+		{
+			SHOT_SHAPE_CIRCLE	= 0,		// 円
+			SHOT_SHAPE_LINE		= 1,		// 直線
+			SHOT_SHAPE_TOTAL,
+		};
+
+		class Circle;
+		class Line;
+		class Shape
+		{
+		public:
+			Shape(){}
+			virtual ~Shape(){}
+			virtual bool Colided( Shape* pObject ) = 0;				 // 衝突判定の処理 ディスパッチャ
+			virtual bool JudgeCollision( Circle* pCircle ) = 0;		// 衝突判定の処理（円）
+			virtual bool JudgeCollision( Line* pLine ) = 0;			// 衝突判定の処理（線）
+		};
+
+		class Circle : public Shape
+		{
+		private:
+			float		m_CenterX;
+			float		m_CenterY;
+			float		m_Radius;
+		public:
+			Circle() : Shape(){}
+			~Circle(){}
+			bool Colided( Shape* pObject )
+			{
+				return pObject->JudgeCollision( this );
+			}
+			bool JudgeCollision( Circle* pCircle )
+			{
+				float x = pCircle->GetCenterX();
+				float y = pCircle->GetCenterY();
+				float radius = pCircle->GetRadius();
+
+				float distance = ( x - m_CenterX ) * ( x - m_CenterX ) + ( y - m_CenterY ) * ( y - m_CenterY );
+				float colRadius = ( radius + m_Radius ) * ( radius + m_Radius );
+				if( distance < colRadius ){
+					return true;
+				}
+				
+				return false;
+			}
+			bool JudgeCollision( Line* pLine )
+			{
+				MAPIL::Vector2 < float > v1( m_CenterX - pLine->GetStartX(), m_CenterY - pLine->GetStartY() );
+				MAPIL::Vector2 < float > v2( m_CenterX - pLine->GetEndX(), m_CenterY - pLine->GetEndY() );
+				MAPIL::Vector2 < float > vL = v1 - v2;
+
+				// 円と直線の距離
+				float d = std::abs( vL.GetOuterProduct( v1 ) ) / vL.GetNorm();
+				if( d <= m_Radius + pLine->GetThickness() ){
+					// 衝突
+					if( v1.GetInnerProduct( vL ) * v2.GetInnerProduct( vL ) <= 0 ){
+						return true;
+					}
+					else{
+						// 特殊な場合の衝突
+						if( m_Radius > v1.GetNorm() || m_Radius > v2.GetNorm() ){
+							return true;
+						}
+					}
+				}
+
+				return false;
+			}
+			inline float GetCenterX() const
+			{
+				return m_CenterX;
+			}
+			inline float GetCenterY() const
+			{
+				return m_CenterY;
+			}
+			inline float GetRadius() const
+			{
+				return m_Radius;
+			}
+			inline void SetCenterX( float x )
+			{
+				m_CenterX = x;
+			}
+			inline void SetCenterY( float y )
+			{
+				m_CenterY = y;
+			}
+			inline void SetRadius( float radius )
+			{
+				m_Radius = radius;
+			}
+		};
+
+		class Line : public Shape
+		{
+		private:
+			float		m_StartX;
+			float		m_StartY;
+			float		m_EndX;
+			float		m_EndY;
+			float		m_Thickness;
+		public:
+			Line() : Shape(){}
+			~Line(){}
+			bool Colided( Shape* pObject )
+			{
+				return pObject->JudgeCollision( this );
+			}
+			bool JudgeCollision( Circle* pCircle )
+			{
+				MAPIL::Vector2 < float > v1( pCircle->GetCenterX() - m_StartX, pCircle->GetCenterY() - m_StartY );
+				MAPIL::Vector2 < float > v2( pCircle->GetCenterX() - m_EndX, pCircle->GetCenterY() -  m_EndY );
+				MAPIL::Vector2 < float > vL = v1 - v2;
+
+				// 円と直線の距離
+				float d = std::abs( vL.GetOuterProduct( v1 ) ) / vL.GetNorm();
+				if( d <= pCircle->GetRadius() ){
+					// 衝突
+					if( v1.GetInnerProduct( vL ) * v2.GetInnerProduct( vL ) <= 0 ){
+						return true;
+					}
+					else{
+						// 特殊な場合の衝突
+						if( pCircle->GetRadius() > v1.GetNorm() || pCircle->GetRadius() > v2.GetNorm() ){
+							return true;
+						}
+					}
+				}
+
+				return false;
+			}
+			bool JudgeCollision( Line* pLine )
+			{
+				return false;
+			}
+			inline float GetStartX() const
+			{
+				return m_StartX;
+			}
+			inline float GetStartY() const
+			{
+				return m_StartY;
+			}
+			inline float GetEndX() const
+			{
+				return m_EndX;
+			}
+			inline float GetEndY() const
+			{
+				return m_EndY;
+			}
+			inline float GetThickness() const
+			{
+				return m_Thickness;
+			}
+			inline void SetStartX( float x )
+			{
+				m_StartX = x;
+			}
+			inline void SetStartY( float y )
+			{
+				m_StartY = y;
+			}
+			inline void SetEndX( float x )
+			{
+				m_EndX = x;
+			}
+			inline void SetEndY( float y )
+			{
+				m_EndY = y;
+			}
+			inline void SetThickness( float thickness )
+			{
+				m_Thickness = thickness;
+			}
+		};
+
 		std::shared_ptr < ResourceMap >		m_pResourceMap;		// リソース管理データ
 		ShotGroupData						m_ShotGroupData;	// ショットグループデータ
 
@@ -53,6 +234,10 @@ namespace GameEngine
 		int									m_AlphaBlendingMode;		// αブレンディングモード
 		float								m_ImgRotAnglePerFrame;		// 毎フレーム増加する回転角度
 		float								m_ImgRotAngle;				// 画像の向き
+
+		int				m_ShotShape;	// ショットの形
+		Circle			m_Circle;
+		Line			m_Line;
 
 		// フラグ管理
 		enum StatusFlag
@@ -101,10 +286,17 @@ namespace GameEngine
 		void SetImgRotMode( int mode );						// 敵弾の画像回転モードを設定
 		void SetImgRotAnglePerFrame( float angle );			// 毎フレーム増加する回転角度を設定
 		void SetAlphaBlendingMode( int mode );				// αブレンディングの方法を設定
+		bool DoesColideWithPlayer( float x, float y, float radius );	// プレイヤーとの衝突判定
+		void SetShape( int shape );							// 衝突判定の形を設定
+		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
-																			m_ShotID( id )
+																			m_ShotID( id ),
+
+																			m_ShotShape( SHOT_SHAPE_CIRCLE ),
+																			m_Circle(),
+																			m_Line()
 	{
 		m_Counter = 0;
 		m_Attr = ENEMY_SHOT_ATTR_NORMAL;
@@ -136,7 +328,8 @@ namespace GameEngine
 								true, ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
 		}
 		else{
-			if( m_Counter >= 6 ){
+			//if( m_Counter >= 6 ){
+			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
 				if( m_StatusFlags[ HAS_CONS_ATTR ] ){
 					AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
 										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
@@ -157,6 +350,22 @@ namespace GameEngine
 										m_PosX, m_PosY, m_ImgRotAngle );
 				}
 			}
+			else if( m_ShotShape == SHOT_SHAPE_LINE ){
+				float angle = ::atan2( m_Line.GetEndY() - m_Line.GetStartY(), -m_Line.GetEndX() + m_Line.GetStartX() ) - MAPIL::DegToRad( 90.0f );
+				float length = std::sqrt(	( m_Line.GetEndX() - m_Line.GetStartX() ) * ( m_Line.GetEndX() - m_Line.GetStartX() ) + 
+											( m_Line.GetEndY() - m_Line.GetStartY() ) * ( m_Line.GetEndY() - m_Line.GetStartY() ) );
+				unsigned int texSizeX;
+				unsigned int texSizeY;
+				MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
+				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+									m_Line.GetStartX() - texSizeX / 2,
+									m_Line.GetStartY(),
+									1.0f,
+									length / texSizeY,
+									angle,
+									false );
+			}
+			//}
 			/*else{
 				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 									m_PosX, m_PosY,
@@ -188,8 +397,16 @@ namespace GameEngine
 		//		m_Speed -= 0.1f;
 		//	}
 
-			m_PosX += m_Speed * ::cos( m_Angle );
-			m_PosY -= m_Speed * ::sin( m_Angle );
+			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
+				m_PosX += m_Speed * ::cos( m_Angle );
+				m_PosY -= m_Speed * ::sin( m_Angle );
+				m_Circle.SetCenterX( m_PosX );
+				m_Circle.SetCenterY( m_PosY );
+			}
+			else if( m_ShotShape == SHOT_SHAPE_LINE ){
+				m_PosX = m_Line.GetStartX();
+				m_PosY = m_Line.GetStartY();
+			}
 
 
 			if( m_PosX < 0.0f || m_PosX > 640.0f || m_PosY < -30.0f || m_PosY > 500.0f ){
@@ -259,6 +476,9 @@ namespace GameEngine
 	inline void EnemyShot::Impl::SetCollisionRadius( float radius )
 	{
 		m_ColRadius = radius;
+		if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
+			m_Circle.SetRadius( radius );
+		}
 	}
 
 	inline void EnemyShot::Impl::SetConsAttr( int attr )
@@ -371,6 +591,37 @@ namespace GameEngine
 	inline void EnemyShot::Impl::SetAlphaBlendingMode( int mode )
 	{
 		m_AlphaBlendingMode = mode;
+	}
+
+	inline bool EnemyShot::Impl::DoesColideWithPlayer( float x, float y, float radius )
+	{
+		Circle c;
+		c.SetCenterX( x );
+		c.SetCenterY( y );
+		c.SetRadius( radius );
+
+		if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
+			return m_Circle.Colided( &c );
+		}
+		else if( m_ShotShape == SHOT_SHAPE_LINE ){
+			return m_Line.Colided( &c );
+		}
+
+		return false;
+	}
+
+	void EnemyShot::Impl::SetShape( int shape )
+	{
+		m_ShotShape = shape;
+	}
+
+	void EnemyShot::Impl::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
+	{
+		m_Line.SetStartX( x1 );
+		m_Line.SetStartY( y1 );
+		m_Line.SetEndX( x2 );
+		m_Line.SetEndY( y2 );
+		m_Line.SetThickness( thickness );
 	}
 
 	// ----------------------------------
@@ -546,4 +797,18 @@ namespace GameEngine
 		m_pImpl->SetAlphaBlendingMode( mode );
 	}
 
+	bool EnemyShot::DoesColideWithPlayer( float x, float y, float radius )
+	{
+		return m_pImpl->DoesColideWithPlayer( x, y, radius );
+	}
+
+	void EnemyShot::SetShape( int shape )
+	{
+		m_pImpl->SetShape( shape );
+	}
+
+	void EnemyShot::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
+	{
+		m_pImpl->SetLinePos( x1, y1, x2, y2, thickness );
+	}
 }

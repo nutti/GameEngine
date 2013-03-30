@@ -113,6 +113,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE, TYPE_VOID, "EnemyShotSetImgScale", "if" );	// void EnemyShotSetImgScale( id, scale );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_POS, TYPE_VOID, "EnemyShotAddPos", "iff" );				// void EnemyShotAddPos( id, x, y );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED, TYPE_VOID, "EnemyShotAddSpeed", "if" );			// void EnemyShotAddSpeed( id, speed );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_SHAPE, TYPE_VOID, "EnemyShotSetShape", "ii" );			// void EnemyShotAddSpeed( id, shape );
+	AddFunction( VM::SYS_ENEMY_SHOT_SET_LINE_SHOT_STATUS, TYPE_VOID, "EnemyShotSetLineShotStatus", "ifffff" );			// void EnemyShotSetLineShotStatus( id, x1, y1, x2, y2, thickness );
 	
 
 	// System call for stage.

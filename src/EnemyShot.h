@@ -75,6 +75,9 @@ namespace GameEngine
 		void SetImgRotMode( int mode );						// 敵弾の画像回転モードを設定
 		void SetImgRotAnglePerFrame( float angle );			// 毎フレーム増加する回転角度を設定
 		void SetAlphaBlendingMode( int mode );				// αブレンディングの方法を設定
+		bool DoesColideWithPlayer( float x, float y, float radius );	// プレイヤーとの衝突判定
+		void SetShape( int shape );							// 衝突判定の形を設定
+		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
 	};
 }
 

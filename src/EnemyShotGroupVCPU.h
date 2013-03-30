@@ -47,6 +47,8 @@ namespace GameEngine
 		void SysEnemyShotSetImgScale();
 		void SysEnemyShotAddPos();
 		void SysEnemyShotAddSpeed();
+		void SysEnemyShotSetShape();
+		void SysEnemyShotSetLineStatus();
 
 		void SysGetStageFrame();
 		void SysGetEnemyShotGroupReg();
