@@ -247,6 +247,8 @@ namespace GameEngine
 			HAS_CONS_ATTR				= 2,	// 意識技用の弾の場合true
 			HAS_BLENDING_MODE_CHAGE		= 3,	// アルファブレンドの変化がある場合、true
 			PAUSED						= 4,	// 一時停止中の場合true
+			INVISIBLE					= 5,	// ボムやプレイヤーダメージで消えない場合、true
+			IMG_SCALE_CHANGED			= 6,	// 画像の拡大率を変更した場合、true
 			STATUS_FLAG_TOTAL,
 		};
 		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
@@ -289,6 +291,8 @@ namespace GameEngine
 		bool DoesColideWithPlayer( float x, float y, float radius );	// プレイヤーとの衝突判定
 		void SetShape( int shape );							// 衝突判定の形を設定
 		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
+		void EnableInvisibleMode();				// 消えないモードへ移行
+		void DisableInvisibleMode();			// 消えるモードへ移行
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -308,6 +312,7 @@ namespace GameEngine
 		m_ImgRotMode = IMG_ROT_MODE_SYNC;
 		m_ImgRotAngle = 0.0f;
 		m_ImgRotAnglePerFrame = 0.0f;
+		m_ImgScale = 1.0f;
 	}
 
 	EnemyShot::Impl::~Impl()
@@ -323,7 +328,7 @@ namespace GameEngine
 		if( m_StatusFlags[ DEAD ] ){
 			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 								m_PosX, m_PosY,
-								m_DeadCounter * 0.05f + 1.0f, m_DeadCounter * 0.05f + 1.0f,
+								m_DeadCounter * 0.05f + m_ImgScale, m_DeadCounter * 0.05f + m_ImgScale,
 								m_ImgRotAngle,
 								true, ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
 		}
@@ -341,13 +346,26 @@ namespace GameEngine
 					}
 				}
 				else if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
-					AddToSpriteBatch(	m_AlphaBlendingMode,
-										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										m_PosX, m_PosY, m_ImgRotAngle );
+					if( m_StatusFlags[ IMG_SCALE_CHANGED ] ){
+						AddToSpriteBatch(	m_AlphaBlendingMode,
+											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+											m_PosX, m_PosY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
+					}
+					else{
+						AddToSpriteBatch(	m_AlphaBlendingMode,
+											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+											m_PosX, m_PosY, m_ImgRotAngle );
+					}
 				}
 				else{
-					MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										m_PosX, m_PosY, m_ImgRotAngle );
+					if( m_StatusFlags[ IMG_SCALE_CHANGED ] ){
+						MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+											m_PosX, m_PosY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
+					}
+					else{
+						MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+											m_PosX, m_PosY, m_ImgRotAngle );
+					}
 				}
 			}
 			else if( m_ShotShape == SHOT_SHAPE_LINE ){
@@ -365,14 +383,6 @@ namespace GameEngine
 									angle,
 									false );
 			}
-			//}
-			/*else{
-				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-									m_PosX, m_PosY,
-									( 30 - m_Counter ) * 0.1f, ( 30 - m_Counter ) * 0.1f,
-									m_ImgRotAngle,
-									true, ( m_Counter * 10 + 100 ) << 24 | 0xFFFFFF );
-			}*/
 		}
 	}
 
@@ -393,9 +403,6 @@ namespace GameEngine
 			}
 		}
 		else{
-		//	if( m_Counter < 20 ){
-		//		m_Speed -= 0.1f;
-		//	}
 
 			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
 				m_PosX += m_Speed * ::cos( m_Angle );
@@ -455,12 +462,7 @@ namespace GameEngine
 
 	inline void EnemyShot::Impl::SetSpeed( float speed )
 	{
-		//if( m_Counter < 20 ){
-		//	m_Speed = speed + 2.0f - m_Counter * 0.1f;
-		//}
-		//else{
-			m_Speed = speed;
-		//}
+		m_Speed = speed;
 	}
 
 	inline void EnemyShot::Impl::SetImage( int id )
@@ -471,6 +473,7 @@ namespace GameEngine
 	inline void EnemyShot::Impl::SetImageScale( float scale )
 	{
 		m_ImgScale = scale;
+		m_StatusFlags.set( IMG_SCALE_CHANGED );
 	}
 
 	inline void EnemyShot::Impl::SetCollisionRadius( float radius )
@@ -622,6 +625,17 @@ namespace GameEngine
 		m_Line.SetEndX( x2 );
 		m_Line.SetEndY( y2 );
 		m_Line.SetThickness( thickness );
+	}
+
+	inline void EnemyShot::Impl::EnableInvisibleMode()
+	{
+		m_StatusFlags.set( INVISIBLE );
+	}
+
+	inline void EnemyShot::Impl::DisableInvisibleMode()
+	{
+
+		m_StatusFlags.reset( INVISIBLE );
 	}
 
 	// ----------------------------------
@@ -810,5 +824,15 @@ namespace GameEngine
 	void EnemyShot::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
 	{
 		m_pImpl->SetLinePos( x1, y1, x2, y2, thickness );
+	}
+
+	void EnemyShot::EnableInvisibleMode()
+	{
+		m_pImpl->EnableInvisibleMode();
+	}
+
+	void EnemyShot::DisableInvisibleMode()
+	{
+		m_pImpl->DisableInvisibleMode();
 	}
 }

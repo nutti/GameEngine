@@ -101,7 +101,7 @@ namespace GameEngine
 		}
 		else if( m_ShotID == PLAYER_SHOT_ID_BLUE_MAIN ){
 			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_PLAYER_SHOT_BLUE_MAIN ],
-								m_PosX, m_PosY, 1.0f + ( m_ShotPower - 4 ) * 0.3f, 1.0f, true, 0x55FFFFFF );
+								m_PosX, m_PosY, 1.0f + ( m_ShotPower - 1 ) * 0.3f, 1.0f, true, 0x55FFFFFF );
 		}
 		else if( m_ShotID == PLAYER_SHOT_ID_GREEN_BOMB ){
 			AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT, m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_3 ],

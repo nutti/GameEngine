@@ -266,17 +266,6 @@ namespace GameEngine
 		m_Data.m_pPlayer->GetPos( &pX, &pY );
 		pRad = m_Data.m_pPlayer->GetCollisionRadius();
 		for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
-			/*float eX;
-			float eY;
-			float eRad;
-			( *it )->GetPos( &eX, &eY );
-			eRad = ( *it )->GetCollisionRadius();
-			float distance = ( eX - pX ) * ( eX - pX ) + ( eY - pY ) * ( eY - pY );
-			float radius = ( pRad + eRad ) * ( pRad + eRad );
-			if( distance < radius ){
-				( *it )->Colided( m_Data.m_pPlayer );
-				m_Data.m_pPlayer->Colided( *it );
-			}*/
 			if( ( *it )->DoesColideWithPlayer( pX, pY, pRad ) ){
 				( *it )->Colided( m_Data.m_pPlayer );
 				m_Data.m_pPlayer->Colided( *it );

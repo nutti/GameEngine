@@ -78,6 +78,8 @@ namespace GameEngine
 		bool DoesColideWithPlayer( float x, float y, float radius );	// プレイヤーとの衝突判定
 		void SetShape( int shape );							// 衝突判定の形を設定
 		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
+		void EnableInvisibleMode();				// 消えないモードへ移行
+		void DisableInvisibleMode();			// 消えるモードへ移行
 	};
 }
 

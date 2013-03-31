@@ -7,6 +7,9 @@ namespace GameEngine
 	void AddToSpriteBatch(	int blendingMode, int texID, float posX, float posY, float angle,
 							bool centerized = true, int color = 0xFFFFFFFF );
 
+	void AddToSpriteBatch(	int blendingMode, int texID, float posX, float posY, float scaleX, float scaleY, float angle,
+							bool centerized = true, int color = 0xFFFFFFFF );
+
 	void ProcAllBatchWorks();
 }
 

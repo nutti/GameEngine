@@ -157,17 +157,19 @@ namespace GameEngine
 		// 意識技後エフェクト
 		else{
 			if( m_PrivateData.m_ConsSkillEffectPostCounter <= 20 ){
-				DrawFontString(	*m_Data.m_pResouceMap.get(),
-								m_Data.m_PosX + m_PrivateData.m_ConsSkillEffectPostCounter * 6.0f,
-								m_Data.m_PosY - 20.0f,
-								0.4f,
-								( 240 - m_PrivateData.m_ConsSkillEffectPostCounter * 7 ) << 24 | 0xFF55FF, m_Data.m_ConsSkillName.c_str() );
-				DrawFontString(	*m_Data.m_pResouceMap.get(),
-								m_Data.m_PosX + ( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 6.0f,
-								m_Data.m_PosY - 20.0f,
-								0.4f,
-								( 240 - m_PrivateData.m_ConsSkillEffectPostCounter * 7 ) << 24 | 0xFF55FF, m_Data.m_ConsSkillName.c_str() );
-					
+				// 技名表示
+				if( !m_Data.m_IsBoss ){
+					DrawFontString(	*m_Data.m_pResouceMap.get(),
+									m_Data.m_PosX + m_PrivateData.m_ConsSkillEffectPostCounter * 6.0f,
+									m_Data.m_PosY - 20.0f,
+									0.4f,
+									( 240 - m_PrivateData.m_ConsSkillEffectPostCounter * 7 ) << 24 | 0xFF55FF, m_Data.m_ConsSkillName.c_str() );
+					DrawFontString(	*m_Data.m_pResouceMap.get(),
+									m_Data.m_PosX + ( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 6.0f,
+									m_Data.m_PosY - 20.0f,
+									0.4f,
+									( 240 - m_PrivateData.m_ConsSkillEffectPostCounter * 7 ) << 24 | 0xFF55FF, m_Data.m_ConsSkillName.c_str() );
+				}
 
 				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2 ],
 									m_Data.m_PosX, m_Data.m_PosY, 

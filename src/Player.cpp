@@ -79,8 +79,8 @@ namespace GameEngine
 #if defined ( MAKE_MODE_RELEASE )
 		m_Data.m_RestInvincibleTime = 0;
 #else
-		//m_Data.m_RestInvincibleTime = 10000;
-		m_Data.m_RestInvincibleTime = 0;
+		m_Data.m_RestInvincibleTime = 10000;
+		//m_Data.m_RestInvincibleTime = 0;
 #endif
 
 		m_PlayerOptList.clear();
@@ -97,11 +97,11 @@ namespace GameEngine
 		if( ( m_Data.m_Counter % 3 ) == 0 ){
 			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
 			pNewShot->SetPos( m_Data.m_PosX - 7.0f, m_Data.m_PosY + 5.0f );
-			pNewShot->SetShotPower( 5 );
+			pNewShot->SetShotPower( 3 );
 			m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
 			pNewShot->SetPos( m_Data.m_PosX + 7.0f, m_Data.m_PosY + 5.0f );
-			pNewShot->SetShotPower( 5 );
+			pNewShot->SetShotPower( 3 );
 			m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			if( m_Data.m_ShotPower >= 10 ){
 				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
@@ -147,14 +147,14 @@ namespace GameEngine
 			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 			pNewShot->SetSpeed( 15.0f );
 			pNewShot->SetAngle( MAPIL::DegToRad( 10.0f + 90.0f ) );
-			pNewShot->SetShotPower( 1 );
+			pNewShot->SetShotPower( 5 );
 			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 			m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 			pNewShot->SetSpeed( 15.0f );
 			pNewShot->SetAngle( MAPIL::DegToRad( -10.0f + 90.0f ) );
-			pNewShot->SetShotPower( 1 );
+			pNewShot->SetShotPower( 5 );
 			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 			m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			if( m_Data.m_ShotPower >= 10 ){
@@ -162,14 +162,14 @@ namespace GameEngine
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( 20.0f + 90.0f ) );
-				pNewShot->SetShotPower( 1 );
+				pNewShot->SetShotPower( 5 );
 				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( -20.0f + 90.0f ) );
-				pNewShot->SetShotPower( 1 );
+				pNewShot->SetShotPower( 5 );
 				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
@@ -178,14 +178,14 @@ namespace GameEngine
 				pNewShot->SetPos( m_Data.m_PosX , m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( 30.0f + 90.0f ) );
-				pNewShot->SetShotPower( 1 );
+				pNewShot->SetShotPower( 5 );
 				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( -30.0f + 90.0f ) );
-				pNewShot->SetShotPower( 1 );
+				pNewShot->SetShotPower( 5 );
 				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
@@ -194,14 +194,14 @@ namespace GameEngine
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( 40.0f + 90.0f ) );
-				pNewShot->SetShotPower( 1 );
+				pNewShot->SetShotPower( 5 );
 				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
 				pNewShot->SetSpeed( 15.0f );
 				pNewShot->SetAngle( MAPIL::DegToRad( -40.0f + 90.0f ) );
-				pNewShot->SetShotPower( 1 );
+				pNewShot->SetShotPower( 5 );
 				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
@@ -213,13 +213,13 @@ namespace GameEngine
 	{
 		PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
 		pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
-		pNewShot->SetShotPower( 4 + m_Data.m_ShotPower / 10 );
+		pNewShot->SetShotPower( 2 + m_Data.m_ShotPower / 10 );
 		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
 		pNewShot->SetConsAttr( PLAYER_CONS_MODE_BLUE );
 		m_pStageData->m_PlayerShotList.push_back( pNewShot );
 		pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
 		pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 8.0f );
-		pNewShot->SetShotPower( 4 + m_Data.m_ShotPower / 10 );
+		pNewShot->SetShotPower( 2 + m_Data.m_ShotPower / 10 );
 		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
 		pNewShot->SetConsAttr( PLAYER_CONS_MODE_BLUE );
 		m_pStageData->m_PlayerShotList.push_back( pNewShot );
@@ -234,7 +234,7 @@ namespace GameEngine
 				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
 				pNewShot->SetAngle( MAPIL::DegToRad( i * 10.0f ) );
 				pNewShot->SetSpeed( 10.0f );
-				pNewShot->SetShotPower( 2 );
+				pNewShot->SetShotPower( 10 );
 				pNewShot->SetConsAttr( PLAYER_CONS_MODE_RED );
 				m_pStageData->m_PlayerShotList.push_back( pNewShot );
 			}
