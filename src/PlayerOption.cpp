@@ -21,6 +21,16 @@ namespace GameEngine
 
 		struct PrivateData
 		{
+			struct GameUnitData
+			{
+				GameUnit		m_BasePosX;
+				GameUnit		m_BasePosY;
+				GameUnit		m_PosX;
+				GameUnit		m_PosY;
+			};
+
+			GameUnitData	m_GUData;
+
 			float			m_BasePosX;
 			float			m_BasePosY;
 			float			m_PosX;

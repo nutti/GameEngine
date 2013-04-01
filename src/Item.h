@@ -6,6 +6,8 @@
 
 #include "CollisionObject.h"
 
+#include "Math.hpp"
+
 namespace GameEngine
 {
 	enum ItemID
@@ -36,6 +38,17 @@ namespace GameEngine
 
 	struct ItemData
 	{
+		struct GameUnitData
+		{
+			GameUnit		m_PosX;			// 位置（X座標）
+			GameUnit		m_PosY;			// 位置（Y座標）
+			GameUnit		m_Vel;			// 速度
+			GameUnit		m_Angle;		// 角度
+			GameUnit		m_ColRadius;	// 衝突判定の半径
+		};
+
+		GameUnitData	m_GUData;
+
 		int			m_ItemID;		// アイテム識別子
 		int			m_ItemSubID;	// アイテムサブ識別子
 		float		m_PosX;			// 位置（X座標）

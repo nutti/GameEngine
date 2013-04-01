@@ -3,7 +3,7 @@
 
 #include <memory>
 
-
+#include "Math.hpp"
 
 namespace GameEngine
 {
@@ -16,6 +16,13 @@ namespace GameEngine
 
 	struct EnemyShotGroupData
 	{
+		struct GameUnitData
+		{
+			GameUnit		m_Reg;
+		};
+
+		GameUnitData		m_GUData;
+
 		EnemyShot*							m_pShots[ 1000 ];	// ショット
 		int									m_ShotTotal;		// ショット数
 		int									m_Counter;			// カウンタ

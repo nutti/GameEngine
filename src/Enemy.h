@@ -7,6 +7,8 @@
 #include "EnemyVCPU.h"
 #include "EnemyPatternFileLoader.h"
 
+#include "Math.hpp"
+
 namespace GameEngine
 {
 
@@ -21,6 +23,16 @@ namespace GameEngine
 			int		m_ItemSubID;	// アイテムのサブID
 			int		m_Total;		// 個数
 		};
+
+		struct GameUnitData
+		{
+			GameUnit	m_PosX;			// 位置（X座標）
+			GameUnit	m_PosY;			// 位置（Y座標）
+			GameUnit	m_PosZ;			// 位置（Z座標）
+			GameUnit	m_ColRadius;	// 衝突半径
+		};
+
+		GameUnitData		m_GUData;
 
 		std::string			m_Name;				// 敵の名前
 		float				m_PosX;				// 位置（X座標）

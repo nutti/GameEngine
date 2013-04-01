@@ -6,6 +6,8 @@
 #include "CollisionObject.h"
 #include "InputTypes.h"
 
+#include "Math.hpp"
+
 namespace GameEngine
 {
 
@@ -19,6 +21,12 @@ namespace GameEngine
 
 	struct PlayerData
 	{
+		struct GameUnitData
+		{
+			GameUnit		m_PosX;
+			GameUnit		m_PosY;
+			GameUnit		m_ColRadius;
+		};
 		float		m_PosX;					// 位置（X座標）
 		float		m_PosY;					// 位置（Y座標）
 		int			m_HP;					// HP

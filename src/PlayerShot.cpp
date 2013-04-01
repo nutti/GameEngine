@@ -24,6 +24,17 @@ namespace GameEngine
 	class PlayerShot::Impl : public GameObjectImplBase
 	{
 	private:
+		struct GameUnitData
+		{
+			GameUnit		m_PosX;
+			GameUnit		m_PosY;
+			GameUnit		m_Angle;
+			GameUnit		m_Speed;
+			GameUnit		m_ColRadius;
+		};
+
+		GameUnitData		m_GUData;
+
 		std::shared_ptr < ResourceMap >		m_pResourceMap;
 		int									m_ShotID;
 		float								m_PosX;
