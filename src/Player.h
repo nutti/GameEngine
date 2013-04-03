@@ -21,20 +21,25 @@ namespace GameEngine
 
 	struct PlayerData
 	{
+#if defined ( USE_FLOATING_POINT )
+		float		m_PosX;					// 位置（X座標）
+		float		m_PosY;					// 位置（Y座標）
+		float		m_ColRadius;			// 衝突半径
+#elif defined ( USE_GAME_UNIT )
 		struct GameUnitData
 		{
 			GameUnit		m_PosX;
 			GameUnit		m_PosY;
 			GameUnit		m_ColRadius;
 		};
-		float		m_PosX;					// 位置（X座標）
-		float		m_PosY;					// 位置（Y座標）
+		GameUnitData	m_GUData;
+#endif
+		
 		int			m_HP;					// HP
 		int			m_ConsCur;				// 現在の意識状態
 		int			m_ConsGauge[ 3 ];		// 意識ゲージ
 		int			m_ConsLevel[ 3 ];		// 意識レベル
 		int			m_ShotPower;			// ショットのパワー
-		float		m_ColRadius;			// 衝突半径
 		int			m_Counter;				// カウンタ
 		int			m_RestInvincibleTime;	// 残りの無敵時間
 	};
@@ -50,7 +55,7 @@ namespace GameEngine
 		Player( std::shared_ptr < ResourceMap > pMap, StageData* pStageData );
 		~Player();
 		void AttachButtonState( const ButtonStatusHolder& holder );		// キー入力を設定
-		void Init( float posX, float posY );							// 初期化
+		
 		void Draw();													// 描画
 		bool Update();													// 更新
 		void Colided( CollisionObject* pObject );						// 衝突時の処理 ディスパッチャ
@@ -59,9 +64,15 @@ namespace GameEngine
 		void ProcessCollision( PlayerShot* pPlayerShot );				// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );					// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );							// 衝突時の処理（アイテム）
-		//void ProcessCollision( std::shared_ptr < Item > pItem );				// 衝突時の処理（アイテム）
-		void GetPos( float* pPosX, float* pPosY );					// 位置を取得
+#if defined ( USE_FLOATING_POINT )
+		void Init( float posX, float posY );							// 初期化
+		void GetPos( float* pPosX, float* pPosY );						// 位置を取得
 		float GetCollisionRadius();										// 衝突半径を取得
+#elif defined ( USE_GAME_UNIT )
+		void Init( const GameUnit& posX, const GameUnit& posY );							// 初期化
+		void GetPos( GameUnit* pPosX, GameUnit* pPosY );						// 位置を取得
+		GameUnit GetCollisionRadius();										// 衝突半径を取得
+#endif
 		int GetHP() const;												// HPを取得
 		int GetShotPower() const;										// ショットの威力を取得
 		int GetConsGauge( int cons ) const;								// 意識ゲージの取得

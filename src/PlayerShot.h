@@ -18,13 +18,11 @@ namespace GameEngine
 	public:
 		PlayerShot( std::shared_ptr < ResourceMap > pMap, int id );
 		~PlayerShot();
-		void Init( float posX, float posY );							// 初期化
+		
 		void Draw();													// 描画
 		bool Update();													// 更新
 		void SetPos( const Player& player );							// 位置を設定
-		void SetPos( float posX, float posY );							// 位置を設定
-		void SetAngle( float angle );									// 角度を設定
-		void SetSpeed( float speed );									// 速度を設定
+		
 		void SetShotPower( int power );
 		void SetConsAttr( int attr );
 		void Colided( CollisionObject* pObject );						// 衝突時の処理 ディスパッチャ
@@ -33,9 +31,22 @@ namespace GameEngine
 		void ProcessCollision( PlayerShot* pPlayerShot );				// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
-		//void ProcessCollision( std::shared_ptr < Item > pItem );				// 衝突時の処理（アイテム）
+		
+#if defined ( USE_FLOATING_POINT )
+		void Init( float posX, float posY );							// 初期化
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
+		void SetPos( float posX, float posY );							// 位置を設定
+		void SetAngle( float angle );									// 角度を設定
+		void SetSpeed( float speed );									// 速度を設定
+#elif defined ( USE_GAME_UNIT )
+		void Init( const GameUnit& posX, const GameUnit& posY );				// 初期化
+		void GetPos( GameUnit* pPosX, GameUnit* pPosY );
+		GameUnit GetCollisionRadius();
+		void SetPos( const GameUnit& posX, const GameUnit& posY );
+		void SetAngle( const GameUnit& angle );
+		void SetSpeed( const GameUnit& speed );
+#endif
 		int GetShotPower() const;
 		int GetConsAttr() const;
 		void SetPlayer( Player* pPlayer );

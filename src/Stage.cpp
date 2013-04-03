@@ -210,6 +210,7 @@ namespace GameEngine
 		MAPIL::SafeDelete( m_Data.m_pPlayer );
 	}
 
+#if defined ( USE_FLOATING_POINT )
 	void Stage::Impl::ProcessCollision()
 	{
 		// 衝突判定
@@ -332,10 +333,135 @@ namespace GameEngine
 					( *itItem )->Colided( *itEnemy );
 				}
 			}
+		}			
+	}
+#elif defined ( USE_GAME_UNIT )
+	void Stage::Impl::ProcessCollision()
+	{
+		// 衝突判定
+		// 敵-プレイヤーショット
+		// 敵-プレイヤー
+		for( PlayerShotList::iterator itShot = m_Data.m_PlayerShotList.begin(); itShot != m_Data.m_PlayerShotList.end(); ++itShot ){
+			GameUnit psX;
+			GameUnit psY;
+			GameUnit psRad;
+			( *itShot )->GetPos( &psX, &psY );
+			psRad = ( *itShot )->GetCollisionRadius();
+			for( EnemyList::iterator itEnemy = m_Data.m_EnemyList.begin(); itEnemy != m_Data.m_EnemyList.end(); ++itEnemy ){
+				GameUnit eX;
+				GameUnit eY;
+				GameUnit eRad;
+				( *itEnemy )->GetPos( &eX, &eY );
+				eRad = ( *itEnemy )->GetCollisionRadius();
+				
+				// 敵 - プレイヤー
+				GameUnit distance = ( eX - psX ) * ( eX - psX ) + ( eY - psY ) * ( eY - psY );
+				GameUnit radius = ( psRad + eRad ) * ( psRad + eRad );
+				if( distance < radius ){
+					( *itShot )->Colided( *itEnemy );
+					( *itEnemy )->Colided( *itShot );
+				}
+			}
 		}
 
+		// ボス-プレイヤーショット
+		if( m_Data.m_pBoss ){
+			GameUnit eX;
+			GameUnit eY;
+			GameUnit eRad;
+			m_Data.m_pBoss->GetPos( &eX, &eY );
+			eRad = m_Data.m_pBoss->GetCollisionRadius();
+			for( PlayerShotList::iterator itShot = m_Data.m_PlayerShotList.begin(); itShot != m_Data.m_PlayerShotList.end(); ++itShot ){
+				GameUnit psX;
+				GameUnit psY;
+				GameUnit psRad;
+				( *itShot )->GetPos( &psX, &psY );
+				psRad = ( *itShot )->GetCollisionRadius();
+				GameUnit distance = ( eX - psX ) * ( eX - psX ) + ( eY - psY ) * ( eY - psY );
+				GameUnit radius = ( psRad + eRad ) * ( psRad + eRad );
+				if( distance < radius ){
+					( *itShot )->Colided( m_Data.m_pBoss );
+					m_Data.m_pBoss->Colided( *itShot );
+				}
+			}
+		}
+		// プレイヤー-敵ショット
+		GameUnit pX;
+		GameUnit pY;
+		GameUnit pRad;
+		m_Data.m_pPlayer->GetPos( &pX, &pY );
+		pRad = m_Data.m_pPlayer->GetCollisionRadius();
+		for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
+			if( ( *it )->DoesColideWithPlayer( pX, pY, pRad ) ){
+				( *it )->Colided( m_Data.m_pPlayer );
+				m_Data.m_pPlayer->Colided( *it );
+			}
+		}
+		// プレイヤー-アイテム
+		GameUnit extraRadius = GameUnit( 50 );
+		if(	m_Data.m_pPlayer->GetCurCons() != PLAYER_CONS_MODE_NORMAL &&
+			m_Data.m_pPlayer->GetConsGauge( m_Data.m_pPlayer->GetCurCons() - 1 ) > 0 ){
+			extraRadius = GameUnit( 600 );
+		}
+		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){
+			GameUnit iX;
+			GameUnit iY;
+			GameUnit iRad;
+			
+			( *it )->GetPos( &iX, &iY );
+			iRad = ( *it )->GetCollisionRadius();
+			GameUnit distance = ( iX - pX ) * ( iX - pX ) + ( iY - pY ) * ( iY - pY );
+			GameUnit nearRadius = ( pRad + iRad + extraRadius ) * ( pRad + iRad + extraRadius );
+			GameUnit colRadius = ( pRad + iRad ) * ( pRad + iRad );
+			if( distance < nearRadius ){
+				// 衝突時
+				if( distance < colRadius ){
+					( *it )->Colided( m_Data.m_pPlayer );
+					m_Data.m_pPlayer->Colided( ( *it ).get() );
+					//m_Data.m_pPlayer->Colided( ( *it ) );
+				}
+				// 近くにいる時
+				else{
+					( *it )->PlayerIsNear( m_Data.m_pPlayer );
+				}
+			}
+		}
+
+		// プレイヤー-敵
+		// 敵-アイテム
+		for( EnemyList::iterator itEnemy = m_Data.m_EnemyList.begin(); itEnemy != m_Data.m_EnemyList.end(); ++itEnemy ){
+			GameUnit eX;
+			GameUnit eY;
+			GameUnit eRad;
+			( *itEnemy )->GetPos( &eX, &eY );
+			eRad = ( *itEnemy )->GetCollisionRadius();
 				
+			// 敵-プレイヤー
+			GameUnit distance = ( eX - pX ) * ( eX - pX ) + ( eY - pY ) * ( eY - pY );
+			GameUnit radius = ( pRad + eRad ) * ( pRad + eRad );
+			if( distance < radius ){
+				m_Data.m_pPlayer->Colided( *itEnemy );
+				( *itEnemy )->Colided( m_Data.m_pPlayer );
+			}
+			// 敵-アイテム
+			for( ItemList::iterator itItem = m_Data.m_ItemList.begin(); itItem != m_Data.m_ItemList.end(); ++itItem ){
+				GameUnit iX;
+				GameUnit iY;
+				GameUnit iRad;
+				( *itItem )->GetPos( &iX, &iY );
+				iRad = ( *itItem )->GetCollisionRadius();
+				GameUnit distance = ( iX - eX ) * ( iX - eX ) + ( iY - eY ) * ( iY - eY );
+				GameUnit radius = ( iRad + eRad ) * ( iRad + eRad );
+				if( distance < radius ){
+					( *itEnemy )->Colided( ( *itItem ).get() );
+				//	( *itEnemy )->Colided( ( *itItem ) );
+					( *itItem )->Colided( *itEnemy );
+				}
+			}
+		}			
 	}
+#endif
+
 
 	void Stage::Impl::UpdateGameObjects()
 	{
@@ -659,6 +785,7 @@ namespace GameEngine
 		}
 	}
 
+#if defined ( USE_FLOATING_POINT )
 	void Stage::Impl::UpdateBombModeEffect()
 	{
 		if( m_PrivData.m_BombModeData.m_BombedCounter < m_PrivData.m_BombModeData.m_DurationTime ){
@@ -790,6 +917,139 @@ namespace GameEngine
 			m_PrivData.m_BombModeData.m_IsBombMode = false;
 		}
 	}
+#elif defined ( USE_GAME_UNIT )
+	void Stage::Impl::UpdateBombModeEffect()
+	{
+		if( m_PrivData.m_BombModeData.m_BombedCounter < m_PrivData.m_BombModeData.m_DurationTime ){
+			if( m_PrivData.m_BombModeData.m_ConsAttr == PLAYER_CONS_MODE_RED ){
+				GameUnit iX = m_PrivData.m_BombModeData.m_IniPosX;
+				GameUnit iY = m_PrivData.m_BombModeData.m_IniPosY;
+				
+				GameUnit colFirst = GameUnit( m_PrivData.m_BombModeData.m_BombedCounter ) * GameUnit( 7 ) - GameUnit( 130 );
+				if( colFirst >= GameUnit( 0 ) ){
+					colFirst *= colFirst;
+				}
+				else{
+					colFirst = GameUnit( 0 );
+				}
+
+				GameUnit colLast = ( GameUnit( m_PrivData.m_BombModeData.m_BombedCounter ) * GameUnit( 7 ) ) * ( GameUnit( m_PrivData.m_BombModeData.m_BombedCounter ) * GameUnit( 7 ) );
+			
+				// 敵とボムの衝突判定
+				for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ){
+					GameUnit eX;
+					GameUnit eY;
+					( *it )->GetPos( &eX, &eY );
+					GameUnit radius = ( eX - iX ) * ( eX - iX ) + ( eY - iY ) * ( eY - iY );
+					if( radius > colFirst && radius < colLast ){
+						( *it )->Damage( 15 );
+					}
+					++it;
+				}
+				// ボスとボムの衝突判定
+				if( m_Data.m_pBoss ){
+					GameUnit eX;
+					GameUnit eY;
+					m_Data.m_pBoss->GetPos( &eX, &eY );
+					GameUnit radius = ( eX - iX ) * ( eX - iX ) + ( eY - iY ) * ( eY - iY );
+					if( radius > colFirst && radius < colLast ){
+						m_Data.m_pBoss->Damage( 15 );
+					}
+				}
+				// 敵ショットの更新
+				for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ){
+					GameUnit eX;
+					GameUnit eY;
+					( *it )->GetPos( &eX, &eY );
+					GameUnit radius = ( eX - iX ) * ( eX - iX ) + ( eY - iY ) * ( eY - iY );
+					if( radius > colFirst && radius < colLast ){
+						( *it )->PostMessage( EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_BOMBED );
+					}
+					++it;
+				}
+			}
+			else if( m_PrivData.m_BombModeData.m_ConsAttr == PLAYER_CONS_MODE_BLUE ){
+				if( m_PrivData.m_BombModeData.m_BombedCounter % 30 == 0 ){
+					// 敵の行動停止
+					for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ){
+						( *it )->Pause();
+						++it;
+					}
+					// ボスの行動停止
+					if( m_Data.m_pBoss ){
+						m_Data.m_pBoss->Pause();
+					}
+					// 敵ショットの行動停止
+					for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ){
+						( *it )->Pause();
+						++it;
+					}
+				}
+				else if( m_PrivData.m_BombModeData.m_BombedCounter == m_PrivData.m_BombModeData.m_DurationTime - 1 ){
+					// 敵の行動再開
+					for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ){
+						( *it )->Resume();
+						++it;
+					}
+					// ボスの行動再開
+					if( m_Data.m_pBoss ){
+						m_Data.m_pBoss->Resume();
+					}
+					// 敵ショットの削除
+					for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ){
+						( *it )->Resume();
+						( *it )->PostMessage( EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_BOMBED );
+						++it;
+					}
+				}
+			}
+			else if( m_PrivData.m_BombModeData.m_ConsAttr == PLAYER_CONS_MODE_GREEN ){
+				if( m_PrivData.m_BombModeData.m_BombedCounter % 2 == 0 ){
+					PlayerShot* pNewShot = m_Data.m_ObjBuilder.CreatePlayerShot( 4 );
+					GameUnit pX;
+					GameUnit pY;
+					m_Data.m_pPlayer->GetPos( &pX, &pY );
+					GameUnit random1 = GameUnit( -15 ) + ( ( GameUnit( m_Data.m_RandGen.GetRand() ) * GameUnit( 30 ) ) / m_Data.m_RandGen.GetRandMax() );
+					GameUnit random2 = GameUnit( -15 ) + ( ( GameUnit( m_Data.m_RandGen.GetRand() ) * GameUnit( 30 ) ) / m_Data.m_RandGen.GetRandMax() );
+					GameUnit random3 = GameUnit( 45 ) - ( ( GameUnit( m_Data.m_RandGen.GetRand() ) * GameUnit( 90 ) ) / m_Data.m_RandGen.GetRandMax() );
+					pNewShot->SetPos( pX + random1, pY + random2 );
+					pNewShot->SetSpeed( GameUnit( 2 ) );
+					pNewShot->SetShotPower( 20 );
+					pNewShot->SetAngle( random3 );
+					pNewShot->SetStageData( &m_Data );
+					m_Data.m_PlayerShotList.push_back( pNewShot );
+				}
+				// 敵ショットの削除
+				if( m_PrivData.m_BombModeData.m_BombedCounter % 20 == 0 ){
+					for( PlayerShotList::iterator itP = m_Data.m_PlayerShotList.begin(); itP != m_Data.m_PlayerShotList.end(); ++itP ){
+						if( ( *itP )->GetID() != 4 ){
+							continue;
+						}
+						GameUnit iX;
+						GameUnit iY;
+						GameUnit iR = ( *itP )->GetCollisionRadius();
+						( *itP )->GetPos( &iX, &iY );
+						for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ){
+							GameUnit eX;
+							GameUnit eY;
+							GameUnit eR = ( *it )->GetCollisionRadius();
+							( *it )->GetPos( &eX, &eY );
+							GameUnit range = ( eX - iX ) * ( eX - iX ) + ( eY - iY ) * ( eY - iY ) + GameUnit( 20 * 20 );
+							if( range < ( iR + eR ) * ( iR + eR ) ){
+								( *it )->PostMessage( EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_BOMBED );
+							}
+							++it;
+						}
+					}
+				}
+			}
+			++m_PrivData.m_BombModeData.m_BombedCounter;
+		}
+		else{
+			m_PrivData.m_BombModeData.m_IsBombMode = false;
+		}
+	}
+#endif
 
 	void Stage::Impl::DrawBombModeEffect() const
 	{

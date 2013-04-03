@@ -1,5 +1,7 @@
 #include "Math.hpp"
 
+#include <MAPIL/MAPIL.h>
+
 namespace GameEngine
 {
 	// int -> GameUnit
@@ -17,7 +19,7 @@ namespace GameEngine
 	// GameUnit -> int
 	int GUToInt( GameUnit val )
 	{
-		return val;
+		return val.GetInt();
 	}
 
 	// sin
@@ -72,7 +74,7 @@ namespace GameEngine
 			-138, -121, -104, -86, -69, -51, -34, -16
 		};
 
-		int value = deg;
+		int value = deg.GetInt();
 		value = std::abs( value );
 
 		int ratio = deg.GetRawValue() % deg.GetUnit();					// üŒ`•âŠ®—¦
@@ -136,7 +138,7 @@ namespace GameEngine
 			990, 993, 995, 996, 998, 999, 999, 1000
 		};
 
-		int value = deg;
+		int value = deg.GetInt();
 		value = std::abs( value );
 
 		int ratio = deg.GetRawValue() % deg.GetUnit();					// üŒ`•âŠ®—¦
@@ -200,7 +202,7 @@ namespace GameEngine
 			-140, -122, -104, -86, -69, -51, -34, -16
 		};
 
-		int value = deg;
+		int value = deg.GetInt();
 		value = std::abs( value );
 
 		int ratio = deg.GetRawValue() % deg.GetUnit();					// üŒ`•âŠ®—¦
@@ -215,7 +217,7 @@ namespace GameEngine
 	// atan2
 	GameUnit Atan2GU( GameUnit y, GameUnit x )
 	{
-		return GameUnit( std::atan2( (float)y.GetRawValue(), (float)x.GetRawValue() ) );
+		return GameUnit( (float)MAPIL::RadToDeg( std::atan2( (float)y.GetRawValue(), (float)x.GetRawValue() ) ) );
 	}
 
 	// abs

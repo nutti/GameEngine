@@ -7,7 +7,6 @@
 #include "EnemyVCPU.h"
 #include "EnemyPatternFileLoader.h"
 
-#include "Math.hpp"
 
 namespace GameEngine
 {
@@ -24,6 +23,12 @@ namespace GameEngine
 			int		m_Total;		// 個数
 		};
 
+#if defined ( USE_FLOATING_POINT )
+		float				m_PosX;				// 位置（X座標）
+		float				m_PosY;				// 位置（Y座標）
+		float				m_PosZ;				// 位置（Z座標）
+		float				m_ColRadius;		// 衝突半径
+#elif defined ( USE_GAME_UNIT )
 		struct GameUnitData
 		{
 			GameUnit	m_PosX;			// 位置（X座標）
@@ -31,13 +36,11 @@ namespace GameEngine
 			GameUnit	m_PosZ;			// 位置（Z座標）
 			GameUnit	m_ColRadius;	// 衝突半径
 		};
-
 		GameUnitData		m_GUData;
+#endif
 
 		std::string			m_Name;				// 敵の名前
-		float				m_PosX;				// 位置（X座標）
-		float				m_PosY;				// 位置（Y座標）
-		float				m_PosZ;				// 位置（Z座標）
+		
 		float				m_ScaleX;			// 拡大率（X）
 		float				m_ScaleY;			// 拡大率（Y）
 		float				m_ScaleZ;			// 拡大率（Z）
@@ -51,7 +54,6 @@ namespace GameEngine
 		int					m_MaxConsGauge;		// Max意識ゲージ
 		int					m_ConsType;			// 意識タイプ
 		int					m_Counter;			// カウンタ
-		float				m_ColRadius;		// 衝突半径
 		int					m_Score;			// スコア
 		int					m_IsBoss;			// ボスなら1
 		bool				m_Destroyed;		// 倒された場合はtrue
@@ -95,7 +97,6 @@ namespace GameEngine
 				int id,
 				StageData* pStageData );
 		~Enemy();
-		void Init( float posX, float posY );				// 初期化
 		void Draw();										// 描画
 		bool Update();										// 更新
 		void Colided( CollisionObject* pObject );			// 衝突時の処理 ディスパッチャ
@@ -106,12 +107,20 @@ namespace GameEngine
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
 		//void ProcessCollision( std::shared_ptr < Item > pItem );				// 衝突時の処理（アイテム）
 		void Damage( int val );								// ダメージを与える
+#if defined ( USE_FLOATING_POINT )
+		void Init( float posX, float posY );				// 初期化
 		void GetPos( float* pPosX, float* pPosY );
+		float GetCollisionRadius();
+#elif defined ( USE_GAME_UNIT )
+		void Init( const GameUnit& posX, const GameUnit& posY );				// 初期化
+		void GetPos( GameUnit* pPosX, GameUnit* pPosY );
+		GameUnit GetCollisionRadius();
+#endif
 		int GetHP() const;									// HPを取得
 		int GetMaxHP() const;								// 最大HPを取得
 		int GetConsGauge() const;							// 意識ゲージの取得
 		int GetMaxConsGauge() const;						// 最大意識ゲージの取得
-		float GetCollisionRadius();
+		
 		void Pause();										// 一時停止に設定
 		void Resume();										// 一時停止から再開
 		static void ClearLastDamagedMsg();

@@ -30,13 +30,21 @@ namespace GameEngine
 	void EnemyVCPU::SysGetEnemyPosX()
 	{
 		Pop();
+#if defined ( USE_FLOATING_POINT )
 		Push( m_pEnemyData->m_PosX );
+#elif defined ( USE_GAME_UNIT )
+		Push( m_pEnemyData->m_GUData.m_PosX.GetFloat() );
+#endif
 	}
 
 	void EnemyVCPU::SysGetEnemyPosY()
 	{
 		Pop();
+#if defined ( USE_FLOATING_POINT )
 		Push( m_pEnemyData->m_PosY );
+#elif defined ( USE_GAME_UNIT )
+		Push( m_pEnemyData->m_GUData.m_PosY.GetFloat() );
+#endif
 	}
 
 	void EnemyVCPU::SysGetEnemyHP()
@@ -102,8 +110,13 @@ namespace GameEngine
 		Pop();
 		float x = Top().m_Float;
 		Pop();
+#if defined ( USE_FLOATING_POINT )
 		m_pEnemyData->m_PosX = x;
 		m_pEnemyData->m_PosY = y;
+#elif defined ( USE_GAME_UNIT )
+		m_pEnemyData->m_GUData.m_PosX = x;
+		m_pEnemyData->m_GUData.m_PosY = y;
+#endif
 	}
 
 	void EnemyVCPU::SysSetEnemyPos3D()
@@ -115,9 +128,15 @@ namespace GameEngine
 		Pop();
 		float x = Top().m_Float;
 		Pop();
+#if defined ( USE_FLOATING_POINT )
 		m_pEnemyData->m_PosX = x;
 		m_pEnemyData->m_PosY = y;
 		m_pEnemyData->m_PosZ = z;
+#elif defined ( USE_GAME_UNIT )
+		m_pEnemyData->m_GUData.m_PosX = x;
+		m_pEnemyData->m_GUData.m_PosY = y;
+		m_pEnemyData->m_GUData.m_PosZ = z;
+#endif
 	}
 
 	void EnemyVCPU::SysSetEnemyAngle()
@@ -196,7 +215,11 @@ namespace GameEngine
 		Pop();
 		float radius = Top().m_Float;
 		Pop();
+#if defined ( USE_FLOATING_POINT )
 		m_pEnemyData->m_ColRadius = radius;
+#elif defined ( USE_GAME_UNIT )
+		m_pEnemyData->m_GUData.m_ColRadius = radius;
+#endif
 	}
 
 	void EnemyVCPU::SysSetEnemyScore()
@@ -342,22 +365,33 @@ namespace GameEngine
 	{
 		Pop();
 
+#if defined ( USE_FLOATING_POINT )
 		float x;
 		float y;
 		m_pEnemyData->m_pStageData->m_pPlayer->GetPos( &x, &y );
-
 		Push( x );
+#elif defined ( USE_GAME_UNIT )
+		GameUnit x;
+		GameUnit y;
+		m_pEnemyData->m_pStageData->m_pPlayer->GetPos( &x, &y );
+		Push( x.GetFloat() );
+#endif
 	}
 
 	void EnemyVCPU::SysGetPlayerPosY()
 	{
 		Pop();
-
+#if defined ( USE_FLOATING_POINT )
 		float x;
 		float y;
 		m_pEnemyData->m_pStageData->m_pPlayer->GetPos( &x, &y );
-
 		Push( y );
+#elif defined ( USE_GAME_UNIT )
+		GameUnit x;
+		GameUnit y;
+		m_pEnemyData->m_pStageData->m_pPlayer->GetPos( &x, &y );
+		Push( y.GetFloat() );
+#endif
 	}
 
 	void EnemyVCPU::SysGetRandF()
@@ -489,10 +523,17 @@ namespace GameEngine
 		Pop();
 		std::shared_ptr < Item > raw = m_pEnemyData->m_RefItem.lock();
 		if( raw ){
+#if defined ( USE_FLOATING_POINT )
 			float x;
 			float y;
 			raw->GetPos( &x, &y );
 			Push( x );
+#elif defined ( USE_GAME_UNIT )
+			GameUnit x;
+			GameUnit y;
+			raw->GetPos( &x, &y );
+			Push( x.GetFloat() );
+#endif
 		}
 		else{
 			Push( -1000.0f );
@@ -504,10 +545,17 @@ namespace GameEngine
 		Pop();
 		std::shared_ptr < Item > raw = m_pEnemyData->m_RefItem.lock();
 		if( raw ){
+#if defined ( USE_FLOATING_POINT )
 			float x;
 			float y;
 			raw->GetPos( &x, &y );
 			Push( y );
+#elif defined ( USE_GAME_UNIT )
+			GameUnit x;
+			GameUnit y;
+			raw->GetPos( &x, &y );
+			Push( y.GetFloat() );
+#endif
 		}
 		else{
 			Push( -1000.0f );

@@ -49,11 +49,16 @@ namespace GameEngine
 		void AttachButtonState( const ButtonStatusHolder& holder );		// キー入力を設定
 		void Draw();													// 描画
 		bool Update();													// 更新
-		void GetPos( float* pX, float* pY );
 		void ProcessCollision( Enemy* pEnemy );							// 衝突時の処理（敵）
 		void ProcessCollision( EnemyShot* pEnemyShot );					// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );
+#if defined ( USE_FLOATING_POINT )
+		void GetPos( float* pX, float* pY );
 		float GetCollisionRadius() const;
+#elif defined ( USE_GAME_UNIT )
+		void GetPos( GameUnit* pPosX, GameUnit* pPosY );						// 位置を取得
+		GameUnit GetCollisionRadius();										// 衝突半径を取得
+#endif
 		int GetHP() const;												// HPを取得
 		int GetConsGauge( int cons ) const;								// 意識ゲージの取得
 		int GetConsLevel( int cons ) const;								// 意識レベルの取得
@@ -67,13 +72,21 @@ namespace GameEngine
 																						INVINCIBLE_TIME( 240 )
 	{
 		MAPIL::ZeroObject( &m_Data, sizeof( m_Data ) );
+
+#if defined ( USE_FLOATING_POINT )
+		m_Data.m_PosX = 300.0f;
+		m_Data.m_PosY = 400.0f;
+		m_Data.m_ColRadius = 2.0f;
+#elif defined ( USE_GAME_UNIT )
+		m_Data.m_GUData.m_PosX = 300;
+		m_Data.m_GUData.m_PosY = 400;
+		m_Data.m_GUData.m_ColRadius = 2;
+#endif
+		
 		m_Data.m_HP = 10;
 		m_Data.m_ConsGauge[ 0 ] = m_Data.m_ConsGauge[ 1 ] = m_Data.m_ConsGauge[ 2 ] = 1000;
 		m_Data.m_ConsLevel[ 0 ] = m_Data.m_ConsLevel[ 1 ] = m_Data.m_ConsLevel[ 2 ] = 1000;
-		m_Data.m_PosX = 300.0f;
-		m_Data.m_PosY = 400.0f;
 		m_Data.m_ShotPower = 0;
-		m_Data.m_ColRadius = 2.0f;
 		m_Data.m_Counter = 0;
 		m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
 #if defined ( MAKE_MODE_RELEASE )
@@ -92,6 +105,7 @@ namespace GameEngine
 		m_PlayerOptList.clear();
 	}
 
+#if defined ( USE_FLOATING_POINT )
 	void Player::Impl::NormalModeShot()
 	{
 		if( ( m_Data.m_Counter % 3 ) == 0 ){
@@ -132,6 +146,50 @@ namespace GameEngine
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 		}
 	}
+#elif defined ( USE_GAME_UNIT )
+	void Player::Impl::NormalModeShot()
+	{
+		if( ( m_Data.m_Counter % 3 ) == 0 ){
+			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+			pNewShot->SetPos( m_Data.m_GUData.m_PosX - GameUnit( 7 ), m_Data.m_GUData.m_PosY + GameUnit( 5 ) );
+			pNewShot->SetShotPower( 3 );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+			pNewShot->SetPos( m_Data.m_GUData.m_PosX + GameUnit( 7 ), m_Data.m_GUData.m_PosY + GameUnit( 5 ) );
+			pNewShot->SetShotPower( 3 );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			if( m_Data.m_ShotPower >= 10 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			if( m_Data.m_ShotPower >= 20 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX - GameUnit( 14 ), m_Data.m_GUData.m_PosY + GameUnit( 2 ) );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX + GameUnit( 14 ), m_Data.m_GUData.m_PosY + GameUnit( 2 ) );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			if( m_Data.m_ShotPower >= 30 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX - GameUnit( 21 ), m_Data.m_GUData.m_PosY + GameUnit( 1 ) );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX + GameUnit( 21 ), m_Data.m_GUData.m_PosY + GameUnit( 1 ) );
+				pNewShot->SetShotPower( 2 );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
+		}
+	}
+#endif
+
+#if defined ( USE_FLOATING_POINT )
 
 	void Player::Impl::GreenModeShot()
 	{
@@ -209,6 +267,87 @@ namespace GameEngine
 		}
 	}
 
+#elif defined ( USE_GAME_UNIT )
+
+	void Player::Impl::GreenModeShot()
+	{
+		if( ( m_Data.m_Counter % 3 ) == 0 ){
+			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+			pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+			pNewShot->SetAngle( GameUnit( 90 ) );
+			pNewShot->SetSpeed( GameUnit( 15 ) );
+			pNewShot->SetShotPower( 5 );
+			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+			pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+			pNewShot->SetSpeed( GameUnit( 15 ) );
+			pNewShot->SetAngle( GameUnit( 90 + 10 ) );
+			pNewShot->SetShotPower( 5 );
+			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+			pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+			pNewShot->SetSpeed( GameUnit( 15 ) );
+			pNewShot->SetAngle( GameUnit( 90 - 10 ) );
+			pNewShot->SetShotPower( 5 );
+			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+			m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			if( m_Data.m_ShotPower >= 10 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+				pNewShot->SetSpeed( GameUnit( 15 ) );
+				pNewShot->SetAngle( GameUnit( 90 + 20 ) );
+				pNewShot->SetShotPower( 5 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+				pNewShot->SetSpeed( GameUnit( 15 ) );
+				pNewShot->SetAngle( GameUnit( 90 - 20 ) );
+				pNewShot->SetShotPower( 5 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			if( m_Data.m_ShotPower >= 20 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX , m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+				pNewShot->SetSpeed( GameUnit( 15 ) );
+				pNewShot->SetAngle( GameUnit( 90 + 30 ) );
+				pNewShot->SetShotPower( 5 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+				pNewShot->SetSpeed( GameUnit( 15 ) );
+				pNewShot->SetAngle( GameUnit( 90 - 30 ) );
+				pNewShot->SetShotPower( 5 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			if( m_Data.m_ShotPower >= 30 ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+				pNewShot->SetSpeed( GameUnit( 15 ) );
+				pNewShot->SetAngle( GameUnit( 90 + 40 ) );
+				pNewShot->SetShotPower( 5 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + GameUnit( 3 ) );
+				pNewShot->SetSpeed( GameUnit( 15 ) );
+				pNewShot->SetAngle( GameUnit( 90 - 40 ) );
+				pNewShot->SetShotPower( 5 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
+		}
+	}
+
+#endif
+
+#if defined ( USE_FLOATING_POINT )
 	void Player::Impl::BlueModeShot()
 	{
 		PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
@@ -225,7 +364,26 @@ namespace GameEngine
 		m_pStageData->m_PlayerShotList.push_back( pNewShot );
 		MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 	}
+#elif defined ( USE_GAME_UNIT )
+	void Player::Impl::BlueModeShot()
+	{
+		PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
+		pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY );
+		pNewShot->SetShotPower( 2 + m_Data.m_ShotPower / 10 );
+		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
+		pNewShot->SetConsAttr( PLAYER_CONS_MODE_BLUE );
+		m_pStageData->m_PlayerShotList.push_back( pNewShot );
+		pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
+		pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY + 8.0f );
+		pNewShot->SetShotPower( 2 + m_Data.m_ShotPower / 10 );
+		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
+		pNewShot->SetConsAttr( PLAYER_CONS_MODE_BLUE );
+		m_pStageData->m_PlayerShotList.push_back( pNewShot );
+		MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
+	}
+#endif
 
+#if defined ( USE_FLOATING_POINT )
 	void Player::Impl::RedModeShot()
 	{
 		if( ( m_Data.m_Counter % ( 12 - 2 * ( m_Data.m_ShotPower / 10 ) ) ) == 0 ){
@@ -241,7 +399,25 @@ namespace GameEngine
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );	
 		}
 	}
+#elif defined ( USE_GAME_UNIT )
+	void Player::Impl::RedModeShot()
+	{
+		if( ( m_Data.m_Counter % ( 12 - 2 * ( m_Data.m_ShotPower / 10 ) ) ) == 0 ){
+			for( int i = 0; i < 36; ++i ){
+				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 3 );
+				pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY );
+				pNewShot->SetAngle( GameUnit( i * 10 ) );
+				pNewShot->SetSpeed( GameUnit( 10 ) );
+				pNewShot->SetShotPower( 10 );
+				pNewShot->SetConsAttr( PLAYER_CONS_MODE_RED );
+				m_pStageData->m_PlayerShotList.push_back( pNewShot );
+			}
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );	
+		}
+	}
+#endif
 
+#if defined ( USE_FLOATING_POINT )
 	void Player::Impl::GreenModeBomb()
 	{
 		// 無敵時間の設定
@@ -266,7 +442,34 @@ namespace GameEngine
 		// メッセージ送信
 		m_pStageData->m_MsgQueue.push( msg );
 	}
+#elif defined ( USE_GAME_UNIT )
+	void Player::Impl::GreenModeBomb()
+	{
+		// 無敵時間の設定
+		m_Data.m_RestInvincibleTime = 180;
 
+		// メッセージ構築
+		StageMessage msg;
+		// ボム発動メッセージ
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
+		// ボムの属性
+		StageMessage::StageMessageData data;
+		data.m_Integer = PLAYER_CONS_MODE_GREEN;
+		msg.m_MsgDataList.push_back( data );
+		// プレイヤーの位置
+		data.m_Float = m_Data.m_GUData.m_PosX.GetFloat();
+		msg.m_MsgDataList.push_back( data );
+		data.m_Float = m_Data.m_GUData.m_PosY.GetFloat();
+		msg.m_MsgDataList.push_back( data );
+		// ボムの持続時間
+		data.m_Integer = m_Data.m_RestInvincibleTime;
+		msg.m_MsgDataList.push_back( data );
+		// メッセージ送信
+		m_pStageData->m_MsgQueue.push( msg );
+	}
+#endif
+
+#if defined ( USE_FLOATING_POINT )
 	void Player::Impl::BlueModeBomb()
 	{
 		// 無敵時間の設定
@@ -291,7 +494,34 @@ namespace GameEngine
 		// メッセージ送信
 		m_pStageData->m_MsgQueue.push( msg );
 	}
+#elif defined ( USE_GAME_UNIT )
+	void Player::Impl::BlueModeBomb()
+	{
+		// 無敵時間の設定
+		m_Data.m_RestInvincibleTime = 120;
 
+		// メッセージ構築
+		StageMessage msg;
+		// ボム発動メッセージ
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
+		// ボムの属性
+		StageMessage::StageMessageData data;
+		data.m_Integer = PLAYER_CONS_MODE_BLUE;
+		msg.m_MsgDataList.push_back( data );
+		// プレイヤーの位置
+		data.m_Float = m_Data.m_GUData.m_PosX.GetFloat();
+		msg.m_MsgDataList.push_back( data );
+		data.m_Float = m_Data.m_GUData.m_PosY.GetFloat();
+		msg.m_MsgDataList.push_back( data );
+		// ボムの持続時間
+		data.m_Integer = m_Data.m_RestInvincibleTime;
+		msg.m_MsgDataList.push_back( data );
+		// メッセージ送信
+		m_pStageData->m_MsgQueue.push( msg );
+	}
+#endif
+
+#if defined ( USE_FLOATING_POINT )
 	void Player::Impl::RedModeBomb()
 	{
 		// 無敵時間の設定
@@ -316,6 +546,32 @@ namespace GameEngine
 		// メッセージ送信
 		m_pStageData->m_MsgQueue.push( msg );
 	}
+#elif defined ( USE_GAME_UNIT )
+	void Player::Impl::RedModeBomb()
+	{
+		// 無敵時間の設定
+		m_Data.m_RestInvincibleTime = 150;
+
+		// メッセージ構築
+		StageMessage msg;
+		// ボム発動メッセージ
+		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
+		// ボムの属性
+		StageMessage::StageMessageData data;
+		data.m_Integer = PLAYER_CONS_MODE_RED;
+		msg.m_MsgDataList.push_back( data );
+		// プレイヤーの位置
+		data.m_Float = m_Data.m_GUData.m_PosX.GetFloat();
+		msg.m_MsgDataList.push_back( data );
+		data.m_Float = m_Data.m_GUData.m_PosY.GetFloat();
+		msg.m_MsgDataList.push_back( data );
+		// ボムの持続時間
+		data.m_Integer = m_Data.m_RestInvincibleTime;
+		msg.m_MsgDataList.push_back( data );
+		// メッセージ送信
+		m_pStageData->m_MsgQueue.push( msg );
+	}
+#endif
 
 	void Player::Impl::AddOpt()
 	{
@@ -343,6 +599,7 @@ namespace GameEngine
 		}
 	}
 
+#if defined ( USE_FLOATING_POINT )
 	void Player::Impl::Move()
 	{
 		const float PLAYER_BASE_VELOCITY = 3.2f;
@@ -394,6 +651,67 @@ namespace GameEngine
 			m_Data.m_PosY = 0.0f;
 		}
 	}
+#elif defined ( USE_GAME_UNIT )
+	void Player::Impl::Move()
+	{
+		const GameUnit PLAYER_BASE_VELOCITY = 3.2f;
+
+		// 移動
+		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_RIGHT ) ){
+			if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
+				GameUnit v = PLAYER_BASE_VELOCITY;
+				v /= GameUnit( 1.414f );
+				m_Data.m_GUData.m_PosX += v;
+				m_Data.m_GUData.m_PosY -= v;
+			}
+			else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
+				GameUnit v = PLAYER_BASE_VELOCITY;
+				v /= GameUnit( 1.414f );
+				m_Data.m_GUData.m_PosX += v;
+				m_Data.m_GUData.m_PosY += v;
+			}
+			else{
+				m_Data.m_GUData.m_PosX += PLAYER_BASE_VELOCITY;
+			}
+		}
+		else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_LEFT ) ){
+			if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
+				GameUnit v = PLAYER_BASE_VELOCITY;
+				v /= GameUnit( 1.414f );
+				m_Data.m_GUData.m_PosX -= v;
+				m_Data.m_GUData.m_PosY -= v;
+			}
+			else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
+				GameUnit v = PLAYER_BASE_VELOCITY;
+				v /= GameUnit( 1.414f );
+				m_Data.m_GUData.m_PosX -= v;
+				m_Data.m_GUData.m_PosY += v;
+			}
+			else{
+				m_Data.m_GUData.m_PosX -= PLAYER_BASE_VELOCITY;
+			}
+		}
+		else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
+			m_Data.m_GUData.m_PosY -= PLAYER_BASE_VELOCITY;
+		}
+		else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
+			m_Data.m_GUData.m_PosY += PLAYER_BASE_VELOCITY;
+		}
+
+		if( m_Data.m_GUData.m_PosX > GameUnit( 512 ) - m_Data.m_GUData.m_ColRadius ){
+			m_Data.m_GUData.m_PosX = GameUnit( 512 ) - m_Data.m_GUData.m_ColRadius;
+		}
+		else if( m_Data.m_GUData.m_PosX < GameUnit( 128 ) + m_Data.m_GUData.m_ColRadius ){
+			m_Data.m_GUData.m_PosX = GameUnit( 128 ) + m_Data.m_GUData.m_ColRadius;
+		}
+		if( m_Data.m_GUData.m_PosY > GameUnit( 470 ) ){
+			m_Data.m_GUData.m_PosY = GameUnit( 470 );
+		}
+		else if( m_Data.m_GUData.m_PosY < GameUnit( 0 ) ){
+			m_Data.m_GUData.m_PosY = GameUnit( 0 );
+		}
+	}
+#endif
 
 	void Player::Impl::ChangeMode()
 	{
@@ -451,6 +769,8 @@ namespace GameEngine
 		m_ButtonStatus = holder;
 	}
 
+#if defined ( USE_FLOATING_POINT )
+
 	void Player::Impl::Draw()
 	{
 		if( m_Data.m_RestInvincibleTime <= 0 || ( m_Data.m_Counter % 3 ) == 0 ){
@@ -493,6 +813,55 @@ namespace GameEngine
 		}
 	}
 
+#elif defined ( USE_GAME_UNIT )
+
+	void Player::Impl::Draw()
+	{
+		float posX = m_Data.m_GUData.m_PosX.GetFloat();
+		float posY = m_Data.m_GUData.m_PosY.GetFloat();
+
+		if( m_Data.m_RestInvincibleTime <= 0 || ( m_Data.m_Counter % 3 ) == 0 ){
+			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL ){
+			//	MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+				//					posX, posY );
+				MAPIL::AddModelOn2DBatchWork(	m_pResourceMap->m_pGlobalResourceMap->m_ModelMap[ GLOBAL_RESOURCE_MODEL_ID_PLAYER ],
+												posX, posY, 0.5f,
+												0.05f, 0.05f, 0.05f,
+												MAPIL::DegToRad( 1.0f * ( m_Data.m_Counter % 360 ) ),
+												MAPIL::DegToRad( 1.3f * ( m_Data.m_Counter % 200 ) ),
+												MAPIL::DegToRad( 1.5f * ( m_Data.m_Counter % 540 ) ) );
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+									posX, posY, true, 0xFF55FF55 );
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+									posX, posY, true, 0xFF5555FF );
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
+									posX, posY, true, 0xFFFF5555 );
+			}
+		}
+
+		if( m_Data.m_ConsCur != PLAYER_CONS_MODE_NORMAL ){
+			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								posX + 15, posY + 20,
+								m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] / 300.0f, 0.3f, false,
+								0xAAAAAAAA );
+			
+		}
+
+		// オプションの描画
+		std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
+		for( ; it != m_PlayerOptList.end(); ++it ){
+			( *it )->Draw();
+		}
+	}
+#endif
+
+#if defined ( USE_FLOATING_POINT )
 	bool Player::Impl::Update()
 	{
 		ChangeMode();
@@ -566,12 +935,82 @@ namespace GameEngine
 		
 		return true;
 	}
-
-	inline void Player::Impl::GetPos( float* pX, float* pY )
+#elif defined ( USE_GAME_UNIT )
+	bool Player::Impl::Update()
 	{
-		*pX = m_Data.m_PosX;
-		*pY = m_Data.m_PosY;
+		ChangeMode();
+		Move();
+
+		// ショット
+		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
+			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL || m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] <= 0 ){
+				NormalModeShot();
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
+				GreenModeShot();
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
+				BlueModeShot();
+			}
+			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED )
+			{
+				RedModeShot();
+			}
+		}
+		
+		// ボム
+		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
+			if( m_Data.m_RestInvincibleTime <= 0 ){
+				if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
+					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
+					GreenModeBomb();
+				}
+				else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
+					BlueModeBomb();
+					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
+				}
+				else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
+					RedModeBomb();
+					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
+				}
+			}
+		}
+
+		// オプション追加
+		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_ADD_OPT ) ){
+			AddOpt();
+		}
+
+		UpdateCons();
+
+		// オプションの更新
+		std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
+		for( ; it != m_PlayerOptList.end(); ){
+			( *it )->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY );
+			( *it )->AttachButtonState( m_ButtonStatus );
+			if( !( *it )->Update() ){
+				delete ( *it );
+				it = m_PlayerOptList.erase( it );
+				// 消えたオプション分だけ、ID割り振り変更
+				int count = 0;
+				std::list < PlayerOption* > ::iterator it2 = m_PlayerOptList.begin();
+				for( ; it2 != m_PlayerOptList.end(); ++it2 ){
+					( *it2 )->ChangeID( count );
+					( *it2 )->NotifyOptTotal( m_PlayerOptList.size() );
+					++count;
+				}
+				continue;
+			}
+			++it;
+		}
+
+		--m_Data.m_RestInvincibleTime;
+		++m_Data.m_Counter;
+		
+		return true;
 	}
+#endif
+	
 
 	inline void Player::Impl::ProcessCollision( Enemy* pEnemy )
 	{
@@ -726,10 +1165,33 @@ namespace GameEngine
 		}
 	}
 
+#if defined ( USE_FLOATING_POINT )
+
+	inline void Player::Impl::GetPos( float* pX, float* pY )
+	{
+		*pX = m_Data.m_PosX;
+		*pY = m_Data.m_PosY;
+	}
+
 	inline float Player::Impl::GetCollisionRadius() const
 	{
 		return m_Data.m_ColRadius;
 	}
+
+#elif defined ( USE_GAME_UNIT )
+
+	void Player::Impl::GetPos( GameUnit* pPosX, GameUnit* pPosY )
+	{
+		*pPosX = m_Data.m_GUData.m_PosX;
+		*pPosY = m_Data.m_GUData.m_PosY;
+	}
+
+	GameUnit Player::Impl::GetCollisionRadius()
+	{
+		return m_Data.m_GUData.m_ColRadius;
+	}
+
+#endif
 
 	inline int Player::Impl::GetHP() const
 	{
@@ -774,10 +1236,6 @@ namespace GameEngine
 		m_pImpl->AttachButtonState( holder );
 	}
 
-	void Player::Init( float posX, float posY )
-	{
-	}
-
 	void Player::Draw()
 	{
 		m_pImpl->Draw();
@@ -816,6 +1274,12 @@ namespace GameEngine
 		m_pImpl->ProcessCollision( pItem );
 	}
 
+#if defined ( USE_FLOATING_POINT )
+
+	void Player::Init( float posX, float posY )
+	{
+	}
+
 	void Player::GetPos( float* pPosX, float* pPosY )
 	{
 		m_pImpl->GetPos( pPosX, pPosY );
@@ -825,6 +1289,24 @@ namespace GameEngine
 	{
 		return m_pImpl->GetCollisionRadius();
 	}
+
+#elif defined ( USE_GAME_UNIT )
+
+	void Player::Init( const GameUnit& posX, const GameUnit& posY )
+	{
+	}
+
+	void Player::GetPos( GameUnit* pPosX, GameUnit* pPosY )
+	{
+		m_pImpl->GetPos( pPosX, pPosY );
+	}
+
+	GameUnit Player::GetCollisionRadius()
+	{
+		return m_pImpl->GetCollisionRadius();
+	}
+
+#endif
 
 	int Player::GetHP() const
 	{

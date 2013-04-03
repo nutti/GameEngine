@@ -44,6 +44,7 @@ namespace GameEngine
 		m_RandSeed = seed;
 	}
 
+#if defined ( USE_FLOATING_POINT )
 	void RandomGenerator::Update( const StageData& data )
 	{
 		float x;
@@ -61,6 +62,25 @@ namespace GameEngine
 		oss2 << TSTR( "Frame: " ) << m_RandData.m_Frame;
 		m_Logger.Write( oss2.str(), oss.str() );
 	}
+#elif defined ( USE_GAME_UNIT )
+	void RandomGenerator::Update( const StageData& data )
+	{
+		GameUnit x;
+		GameUnit y;
+		data.m_pPlayer->GetPos( &x, &y );
+		m_RandData.m_PosX = x.GetInt();
+		m_RandData.m_PosY = y.GetInt();
+		m_RandData.m_Score = data.m_GameData.m_Score;
+		m_RandData.m_Frame = data.m_Frame;
+
+		std::basic_ostringstream < TCHAR > oss;
+		std::basic_ostringstream < TCHAR > oss2;
+		oss << TSTR( "Player: " ) << m_RandData.m_PosX << TSTR( "," ) << m_RandData.m_PosY
+			<< TSTR( " Score: " ) << m_RandData.m_Score;
+		oss2 << TSTR( "Frame: " ) << m_RandData.m_Frame;
+		m_Logger.Write( oss2.str(), oss.str() );
+	}
+#endif
 
 	int RandomGenerator::GetRand()
 	{

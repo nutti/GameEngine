@@ -35,10 +35,21 @@ namespace GameEngine
 		GameUnit& operator/=( const GameUnit& u );
 		GameUnit& operator>>=( int shift );
 		GameUnit& operator<<=( int shift );
-		operator int() const;
-		operator float() const;
+		bool operator<( const GameUnit& u );
+		bool operator>( const GameUnit& u );
+		bool operator<=( const GameUnit& u );
+		bool operator>=( const GameUnit& u );
+		bool operator==( const GameUnit& u );
+		bool operator!=( const GameUnit& u );
+
+		//friend GameUnit operator*( int i, const GameUnit& u );
+
+		//operator int() const;
+		//operator float() const;
 		int GetRawValue() const;
 		int GetUnit() const;
+		int GetInt() const;
+		float GetFloat() const;
 	};
 
 	inline GameUnit::GameUnit() : m_Value( 0 )
@@ -95,6 +106,12 @@ namespace GameEngine
 		return tmp;
 	}
 
+	/*inline GameUnit operator*( int i, const GameUnit& u )
+	{
+		GameUnit tmp( i );
+		return i * u;
+	}*/
+
 	inline GameUnit GameUnit::operator/( const GameUnit& u )
 	{
 		GameUnit tmp( *this );
@@ -131,7 +148,7 @@ namespace GameEngine
 
 	inline GameUnit& GameUnit::operator*=( const GameUnit& u )
 	{
-		m_Value = ( m_Value / ( UNIT / 100 ) ) * ( u.m_Value / ( UNIT / 10 ) );
+		m_Value = ( static_cast < long long > ( m_Value ) * u.m_Value ) / UNIT;
 		return *this;
 	}
 
@@ -153,7 +170,38 @@ namespace GameEngine
 		return *this;
 	}
 
-	inline GameUnit::operator int() const
+
+	inline bool GameUnit::operator<( const GameUnit& u )
+	{
+		return m_Value < u.m_Value;
+	}
+
+	inline bool GameUnit::operator>( const GameUnit& u )
+	{
+		return m_Value > u.m_Value;
+	}
+
+	inline bool GameUnit::operator<=( const GameUnit& u )
+	{
+		return m_Value <= u.m_Value;
+	}
+
+	inline bool GameUnit::operator>=( const GameUnit& u )
+	{
+		return m_Value >= u.m_Value;
+	}
+
+	inline bool GameUnit::operator==( const GameUnit& u )
+	{
+		return m_Value == u.m_Value;
+	}
+
+	inline bool GameUnit::operator!=( const GameUnit& u )
+	{
+		return m_Value != u.m_Value;
+	}
+
+	/*inline GameUnit::operator int() const
 	{
 		return m_Value / UNIT;
 	}
@@ -161,7 +209,7 @@ namespace GameEngine
 	inline GameUnit::operator float() const
 	{
 		return m_Value * 1.0f / UNIT;
-	}
+	}*/
 
 	inline int GameUnit::GetRawValue() const
 	{
@@ -171,6 +219,16 @@ namespace GameEngine
 	inline int GameUnit::GetUnit() const
 	{
 		return UNIT;
+	}
+
+	inline int GameUnit::GetInt() const
+	{
+		return m_Value / UNIT;
+	}
+
+	inline float GameUnit::GetFloat() const
+	{
+		return m_Value * 1.0f / UNIT;
 	}
 
 

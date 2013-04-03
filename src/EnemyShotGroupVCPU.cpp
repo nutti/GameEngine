@@ -29,7 +29,11 @@ namespace GameEngine
 	{
 		Pop();
 		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+#if defined ( USE_FLOATING_POINT )
 			Push( m_pEnemyShotGroupData->m_pEnemyData->m_PosX );
+#elif defined ( USE_GAME_UNIT )
+			Push( m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosX.GetFloat() );
+#endif
 		}
 		else{
 			Push( 0.0f );
@@ -40,7 +44,11 @@ namespace GameEngine
 	{
 		Pop();
 		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+#if defined ( USE_FLOATING_POINT )
 			Push( m_pEnemyShotGroupData->m_pEnemyData->m_PosY );
+#elif defined ( USE_GAME_UNIT )
+			Push( m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosY.GetFloat() );
+#endif
 		}
 		else{
 			Push( 0.0f );
@@ -116,23 +124,34 @@ namespace GameEngine
 	void EnemyShotGroupVCPU::SysGetPlayerPosX()
 	{
 		Pop();
-
+#if defined ( USE_FLOATING_POINT )
 		float x;
 		float y;
 		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
-
 		Push( x );
+#elif defined ( USE_GAME_UNIT )
+		GameUnit x;
+		GameUnit y;
+		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
+		Push( x.GetFloat() );
+#endif
 	}
 
 	void EnemyShotGroupVCPU::SysGetPlayerPosY()
 	{
 		Pop();
 
+#if defined ( USE_FLOATING_POINT )
 		float x;
 		float y;
 		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
-
 		Push( y );
+#elif defined ( USE_GAME_UNIT )
+		GameUnit x;
+		GameUnit y;
+		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
+		Push( y.GetFloat() );
+#endif
 	}
 
 	void EnemyShotGroupVCPU::SysGetRandF()
@@ -331,10 +350,17 @@ namespace GameEngine
 		Pop();
 		
 		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+#if defined ( USE_FLOATING_POINT )
 			float x;
 			float y;
 			m_pEnemyShotGroupData->m_pShots[ id ]->GetPos( &x, &y );
 			Push( x );
+#elif defined ( USE_GAME_UNIT )
+			GameUnit x;
+			GameUnit y;
+			m_pEnemyShotGroupData->m_pShots[ id ]->GetPos( &x, &y );
+			Push( x.GetFloat() );
+#endif
 		}
 		else{
 			Push( 0 );
@@ -348,10 +374,17 @@ namespace GameEngine
 		Pop();
 		
 		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+#if defined ( USE_FLOATING_POINT )
 			float x;
 			float y;
 			m_pEnemyShotGroupData->m_pShots[ id ]->GetPos( &x, &y );
 			Push( y );
+#elif defined ( USE_GAME_UNIT )
+			GameUnit x;
+			GameUnit y;
+			m_pEnemyShotGroupData->m_pShots[ id ]->GetPos( &x, &y );
+			Push( y.GetFloat() );
+#endif
 		}
 		else{
 			Push( 0 );

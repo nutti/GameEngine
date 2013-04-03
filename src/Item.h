@@ -38,6 +38,13 @@ namespace GameEngine
 
 	struct ItemData
 	{
+#if defined ( USE_FLOATING_POINT )
+		float		m_PosX;			// 位置（X座標）
+		float		m_PosY;			// 位置（Y座標）
+		float		m_Vel;			// 速度
+		float		m_Angle;		// 角度
+		float		m_ColRadius;	// 衝突判定の半径
+#elif defined ( USE_GAME_UNIT )
 		struct GameUnitData
 		{
 			GameUnit		m_PosX;			// 位置（X座標）
@@ -46,16 +53,11 @@ namespace GameEngine
 			GameUnit		m_Angle;		// 角度
 			GameUnit		m_ColRadius;	// 衝突判定の半径
 		};
-
 		GameUnitData	m_GUData;
+#endif
 
 		int			m_ItemID;		// アイテム識別子
 		int			m_ItemSubID;	// アイテムサブ識別子
-		float		m_PosX;			// 位置（X座標）
-		float		m_PosY;			// 位置（Y座標）
-		float		m_Vel;			// 速度
-		float		m_Angle;		// 角度
-		float		m_ColRadius;	// 衝突判定の半径
 		bool		m_Near;			// プレイヤーが近くにいる場合true
 		int			m_Counter;		// カウンタ
 		int			m_ConsumedCounter;	// 敵消化カウンタ
@@ -74,19 +76,25 @@ namespace GameEngine
 	public:
 		Item( std::shared_ptr < ResourceMap > pMap, StageData* pStageData, int id, int subID );
 		~Item();
-		void Init( float posX, float posY );				// 初期化
 		void Draw();										// 描画
 		bool Update();										// 更新
-		void SetPos( float posX, float posY );				// 位置を設定
 		void Colided( CollisionObject* pObject );			// 衝突時の処理 ディスパッチャ
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 		void ProcessCollision( Enemy* pEnemy );				// 衝突時の処理（敵）
 		void ProcessCollision( PlayerShot* pPlayerShot );	// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
-		//void ProcessCollision( std::shared_ptr < Item > pItem );				// 衝突時の処理（アイテム）
+#if defined ( USE_FLOATING_POINT )
+		void Init( float posX, float posY );				// 初期化
+		void SetPos( float posX, float posY );				// 位置を設定
 		void GetPos( float* pPosX, float* pPosY );
 		float GetCollisionRadius();
+#elif defined ( USE_GAME_UNIT )
+		void Init( const GameUnit& posX, const GameUnit& posY );				// 初期化
+		void SetPos( const GameUnit& posX, const GameUnit& posY );				// 位置を設定
+		void GetPos( GameUnit* pPosX, GameUnit* pPosY );
+		GameUnit GetCollisionRadius();
+#endif
 		int GetItemID() const;
 		int GetItemSubID() const;
 		void PlayerIsNear( Player* pPlayer );

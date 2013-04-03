@@ -124,7 +124,8 @@ namespace GameEngine
 			}
 		}
 		if( cur == m_StageFileList.size() ){
-			exit( 1 );	// 指定されたステージのファイル構成スクリプトは存在しない
+			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Stage File List not found." ), -1  );
+			//exit( 1 );	// 指定されたステージのファイル構成スクリプトは存在しない
 		}
 
 		if( m_ScriptFileType == SCRIPT_FILE_TYPE_SOURCE_CODE ){

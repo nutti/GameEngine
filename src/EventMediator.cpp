@@ -15,6 +15,8 @@
 
 #include "ScriptManager.h"
 
+#include "GlobalDefinitions.h"
+
 namespace GameEngine
 {
 	// EventMediator実装クラス
@@ -419,7 +421,13 @@ namespace GameEngine
 				int stage = *( static_cast < int* > ( pArg ) );
 				m_Loading.CleanupSession();
 				m_Loading.SetupSession( m_pResourceManager, m_pScriptManager );
+#if defined ( USE_FLOATING_POINT )
 				m_Loading.AddStageResourceItem( stage, false );
+				//m_Loading.AddStageResourceItem( 2, false );
+#elif defined ( USE_GAME_UNIT )
+				m_Loading.AddStageResourceItem( stage, false );
+				//m_Loading.AddStageResourceItem( 2, false );
+#endif
 				m_Loading.Start();
 				// ゲームデータの初期化（※2面以降が問題？）
 				m_pSceneManager->ClearGameData();
