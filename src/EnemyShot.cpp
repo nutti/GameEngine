@@ -553,8 +553,9 @@ namespace GameEngine
 		else{
 
 			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
+				GameUnit r = CosGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
 				m_GUData.m_PosX += m_GUData.m_Speed * CosGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
-				m_GUData.m_PosY += m_GUData.m_Speed * SinGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
+				m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
 				m_Circle.SetCenterX( m_GUData.m_PosX.GetFloat() );
 				m_Circle.SetCenterY( m_GUData.m_PosY.GetFloat() );
 			}
