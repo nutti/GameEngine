@@ -47,6 +47,12 @@ namespace GameEngine
 #endif
 	}
 
+	void EnemyVCPU::SysGetPlayerHP()
+	{
+		Pop();
+		Push( m_pEnemyData->m_pStageData->m_pPlayer->GetHP() );
+	}
+
 	void EnemyVCPU::SysGetEnemyHP()
 	{
 		Pop();
@@ -587,6 +593,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_GET_PLAYER_POSY:
 				SysGetPlayerPosY();
+				break;
+			case VM::SYS_GET_PLAYER_HP:
+				SysGetPlayerHP();
 				break;
 			case VM::SYS_ENEMY_GET_POSX:
 				SysGetEnemyPosX();

@@ -79,6 +79,7 @@ namespace GameEngine
 		void SetCollisionRadius( const GameUnit& radius );			// 衝突判定の半径を設定
 		bool DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius );	// プレイヤーとの衝突判定
 		GameUnit GetCollisionRadius();
+		GameUnit GetAngle() const;
 #endif
 		int GetCounter() const;
 		void PostMessage( int msgID );						// メッセージの追加
@@ -91,8 +92,10 @@ namespace GameEngine
 		void SetAlphaBlendingMode( int mode );				// αブレンディングの方法を設定
 		void SetShape( int shape );							// 衝突判定の形を設定
 		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
-		void EnableInvisibleMode();				// 消えないモードへ移行
-		void DisableInvisibleMode();			// 消えるモードへ移行
+		void EnableInvincibleMode();				// 消えないモードへ移行
+		void DisableInvincibleMode();			// 消えるモードへ移行
+		void EnableInvisibleMode();				// 見えないモードへ移行
+		void DisableInvisibleMode();			// 見えるモードへ移行
 	};
 }
 

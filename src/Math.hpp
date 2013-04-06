@@ -5,6 +5,14 @@
 
 namespace GameEngine
 {
+	//typedef int		ScriptGU;
+
+	struct ScriptGU
+	{
+		int		m_Value;
+
+	};
+	
 	/*
 	class GameUnit
 	{
@@ -217,11 +225,12 @@ namespace GameEngine
 
 	class GameUnit
 	{
-	private:
+	public:
 		enum
 		{
 			SHIFT		= 10,
 		};
+	private:
 		union
 		{
 			struct Bits

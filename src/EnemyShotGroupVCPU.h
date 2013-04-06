@@ -39,6 +39,7 @@ namespace GameEngine
 		void SysGetEnemyShotPosX();
 		void SysGetEnemyShotPosY();
 		void SysGetEnemyShotPower();
+		void SysGetEnemyShotAngle();
 		void SysSetEnemyShotImgRotMode();
 		void SysSetEnemyShotImgRotAnglePerFrame();
 		void SysSetEnemyShotAlphaBlendingMode();
@@ -49,6 +50,10 @@ namespace GameEngine
 		void SysEnemyShotAddSpeed();
 		void SysEnemyShotSetShape();
 		void SysEnemyShotSetLineStatus();
+		void SysEnableEnemyShotInvisibleMode();
+		void SysDisableEnemyShotInvisibleMode();
+		void SysEnableEnemyShotInvincibleMode();
+		void SysDisableEnemyShotInvincibleMode();
 
 		void SysGetStageFrame();
 		void SysGetEnemyShotGroupReg();

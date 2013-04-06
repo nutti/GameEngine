@@ -34,6 +34,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 
 	AddFunction( VM::SYS_GET_PLAYER_POSX, TYPE_FLOAT, "GetPlayerPosX", "" );				// float GetPlayerPosX();
 	AddFunction( VM::SYS_GET_PLAYER_POSY, TYPE_FLOAT, "GetPlayerPosY", "" );				// float GetPlayerPosY();
+	AddFunction( VM::SYS_GET_PLAYER_HP, TYPE_INTEGER, "GetPlayerHP", "" );					// int GetPlayerHP();
 	AddFunction( VM::SYS_GET_RANDOM_F, TYPE_FLOAT, "GetRandF", "" );							// float GatRand();
 	AddFunction( VM::SYS_ADD_SCORE, TYPE_VOID, "AddScore", "i" );							// void AddScore( score );
 
@@ -107,6 +108,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X, TYPE_FLOAT, "GetEnemyShotPosX", "i" );				// float GetEnemyShotPosX( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y, TYPE_FLOAT, "GetEnemyShotPosY", "i" );				// float GetEnemyShotPosY( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POWER, TYPE_INTEGER, "GetEnemyShotPower", "i" );			// int GetEnemyShotPower( shot_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_ANGLE, TYPE_FLOAT, "GetEnemyShotAngle", "i" );			// int GetEnemyShotAngle( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_REG, TYPE_INTEGER, "GetEnemyShotGroupReg", "" );			// int GetEnemyShotGroupReg();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_FREG, TYPE_FLOAT, "GetEnemyShotGroupFReg", "" );			// float GetEnemyShotGroupFReg();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE, TYPE_VOID, "EnemyShotAddAngle", "if" );			// void EnemyShotAddAngle( id, angle );
@@ -115,6 +117,10 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED, TYPE_VOID, "EnemyShotAddSpeed", "if" );			// void EnemyShotAddSpeed( id, speed );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_SHAPE, TYPE_VOID, "EnemyShotSetShape", "ii" );			// void EnemyShotAddSpeed( id, shape );
 	AddFunction( VM::SYS_ENEMY_SHOT_SET_LINE_SHOT_STATUS, TYPE_VOID, "EnemyShotSetLineShotStatus", "ifffff" );			// void EnemyShotSetLineShotStatus( id, x1, y1, x2, y2, thickness );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ENABLE_INVISIBLE_MODE, TYPE_VOID, "EnableEnemyShotInvisibleMode", "i" );			// void EnableEnemyShotInvisibleMode( id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_DISABLE_INVISIBLE_MODE, TYPE_VOID, "DisableEnemyShotInvisibleMode", "i" );			// void DisableEnemyShotInvisibleMode( id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ENABLE_INVINCIBLE_MODE, TYPE_VOID, "EnableEnemyShotInvincibleMode", "i" );			// void EnableEnemyShotInvincibleMode( id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_DISABLE_INVINCIBLE_MODE, TYPE_VOID, "DisableEnemyShotInvincibleMode", "i" );			// void DisableEnemyShotInvincibleMode( id );
 	
 
 	// System call for stage.

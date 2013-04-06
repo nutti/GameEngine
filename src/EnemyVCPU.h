@@ -13,6 +13,7 @@ namespace GameEngine
 
 		void SysGetPlayerPosX();
 		void SysGetPlayerPosY();
+		void SysGetPlayerHP();
 		
 		void SysGetRandF();
 

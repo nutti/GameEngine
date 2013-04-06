@@ -262,8 +262,9 @@ namespace GameEngine
 			HAS_CONS_ATTR				= 2,	// 意識技用の弾の場合true
 			HAS_BLENDING_MODE_CHAGE		= 3,	// アルファブレンドの変化がある場合、true
 			PAUSED						= 4,	// 一時停止中の場合true
-			INVISIBLE					= 5,	// ボムやプレイヤーダメージで消えない場合、true
+			INVINCIBLE					= 5,	// ボムやプレイヤーダメージで消えない場合、true
 			IMG_SCALE_CHANGED			= 6,	// 画像の拡大率を変更した場合、true
+			INVISIBLE					= 7,	// 見えるモードの場合、true
 			STATUS_FLAG_TOTAL,
 		};
 		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
@@ -305,6 +306,7 @@ namespace GameEngine
 		void AddSpeed( const GameUnit& speed );						// 速度を加算
 		bool DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius );
 		GameUnit GetCollisionRadius() const;
+		GameUnit GetAngle() const;
 #endif
 		int GetCounter() const;
 		void ProcessMessages();								// 溜まっていたメッセージの処理
@@ -320,8 +322,10 @@ namespace GameEngine
 		bool DoesColideWithPlayer( float x, float y, float radius );	// プレイヤーとの衝突判定
 		void SetShape( int shape );							// 衝突判定の形を設定
 		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
-		void EnableInvisibleMode();				// 消えないモードへ移行
-		void DisableInvisibleMode();			// 消えるモードへ移行
+		void EnableInvincibleMode();				// 消えないモードへ移行
+		void DisableInvincibleMode();			// 消えるモードへ移行
+		void EnableInvisibleMode();				// 見えないモードへ移行
+		void DisableInvisibleMode();			// 見えるモードへ移行
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -356,6 +360,10 @@ namespace GameEngine
 
 	void EnemyShot::Impl::Draw()
 	{
+		if( m_StatusFlags[ INVISIBLE ] ){
+			return;
+		}
+
 		if( m_StatusFlags[ DEAD ] ){
 			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 								m_PosX, m_PosY,
@@ -420,6 +428,10 @@ namespace GameEngine
 #elif defined ( USE_GAME_UNIT )
 	void EnemyShot::Impl::Draw()
 	{
+		if( m_StatusFlags[ INVISIBLE ] ){
+			return;
+		}
+
 		float posX = m_GUData.m_PosX.GetFloat();
 		float posY = m_GUData.m_PosY.GetFloat();
 
@@ -574,7 +586,7 @@ namespace GameEngine
 		}
 
 		if( m_ImgRotMode == IMG_ROT_MODE_SYNC ){
-			m_ImgRotAngle = MAPIL::DegToRad( m_GUData.m_Angle.GetFloat() );
+			m_ImgRotAngle = m_GUData.m_Angle.GetFloat() + MAPIL::DegToRad( 90.0f );
 		}
 		else if( m_ImgRotMode == IMG_ROT_MODE_AUTO ){
 			m_ImgRotAngle += m_ImgRotAnglePerFrame;
@@ -713,6 +725,11 @@ namespace GameEngine
 	{
 		*pX = m_GUData.m_PosX;
 		*pY = m_GUData.m_PosY;
+	}
+
+	inline GameUnit EnemyShot::Impl::GetAngle() const
+	{
+		return m_GUData.m_Angle;
 	}
 
 	inline void EnemyShot::Impl::SetPos( const GameUnit& posX, const GameUnit& posY )
@@ -861,6 +878,17 @@ namespace GameEngine
 		m_Line.SetThickness( thickness );
 	}
 
+	inline void EnemyShot::Impl::EnableInvincibleMode()
+	{
+		m_StatusFlags.set( INVINCIBLE );
+	}
+
+	inline void EnemyShot::Impl::DisableInvincibleMode()
+	{
+
+		m_StatusFlags.reset( INVINCIBLE );
+	}
+
 	inline void EnemyShot::Impl::EnableInvisibleMode()
 	{
 		m_StatusFlags.set( INVISIBLE );
@@ -868,7 +896,6 @@ namespace GameEngine
 
 	inline void EnemyShot::Impl::DisableInvisibleMode()
 	{
-
 		m_StatusFlags.reset( INVISIBLE );
 	}
 
@@ -1111,13 +1138,19 @@ namespace GameEngine
 
 	void EnemyShot::AddSpeed( const GameUnit& speed )
 	{
-		m_pImpl->SetSpeed( speed );
+		m_pImpl->AddSpeed( speed );
 	}
 
 	bool EnemyShot::DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius )
 	{
 		return m_pImpl->DoesColideWithPlayer( x, y, radius );
 	}
+	
+	GameUnit EnemyShot::GetAngle() const
+	{
+		return m_pImpl->GetAngle();
+	}
+
 #endif
 
 	void EnemyShot::SetShape( int shape )
@@ -1128,6 +1161,16 @@ namespace GameEngine
 	void EnemyShot::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
 	{
 		m_pImpl->SetLinePos( x1, y1, x2, y2, thickness );
+	}
+
+	void EnemyShot::EnableInvincibleMode()
+	{
+		m_pImpl->EnableInvincibleMode();
+	}
+
+	void EnemyShot::DisableInvincibleMode()
+	{
+		m_pImpl->DisableInvincibleMode();
 	}
 
 	void EnemyShot::EnableInvisibleMode()

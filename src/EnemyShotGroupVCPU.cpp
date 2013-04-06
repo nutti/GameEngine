@@ -405,6 +405,20 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysGetEnemyShotAngle()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			Push( m_pEnemyShotGroupData->m_pShots[ id ]->GetAngle().GetFloat() );
+		}
+		else{
+			Push( 0.0f );
+		}
+	}
+
 	void EnemyShotGroupVCPU::SysGetStageFrame()
 	{
 		Pop();
@@ -542,6 +556,50 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysEnableEnemyShotInvisibleMode()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->EnableInvisibleMode();
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysDisableEnemyShotInvisibleMode()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->DisableInvisibleMode();
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnableEnemyShotInvincibleMode()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->EnableInvincibleMode();
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysDisableEnemyShotInvincibleMode()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->DisableInvincibleMode();
+		}
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -636,6 +694,9 @@ namespace GameEngine
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_POWER:
 				SysGetEnemyShotPower();
 				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_ANGLE:
+				SysGetEnemyShotAngle();
+				break;
 
 			case VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE:
 				SysEnemyShotAddAngle();
@@ -654,6 +715,18 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_SET_LINE_SHOT_STATUS:
 				SysEnemyShotSetLineStatus();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_ENABLE_INVISIBLE_MODE:
+				SysEnableEnemyShotInvisibleMode();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_DISABLE_INVISIBLE_MODE:
+				SysDisableEnemyShotInvisibleMode();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_ENABLE_INVINCIBLE_MODE:
+				SysEnableEnemyShotInvincibleMode();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_DISABLE_INVINCIBLE_MODE:
+				SysDisableEnemyShotInvincibleMode();
 				break;
 
 			case VM::SYS_STAGE_GET_FRAME:
