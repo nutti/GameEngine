@@ -8,6 +8,8 @@
 #include "location.hh"
 //#include "vm.h"
 
+#include "../Math.hpp"
+
 class Compiler;
 class Node;
 class ValueNode;
@@ -85,7 +87,8 @@ enum
 	TYPE_INTEGER_REF = 2,	// Reference to integer
 	TYPE_STRING_REF = 3,	// Reference to string
 	TYPE_FLOAT = 4,			// Float.
-	TYPE_VOID = 5,		// Void
+	TYPE_GU		= 5,		// Game Unit.
+	TYPE_VOID = 6,		// Void
 };
 
 // Change to reference.
@@ -119,6 +122,7 @@ enum
 	OP_CONST,
 	OP_FLOAT_CONST,
 	OP_INT_CONST,
+	OP_GU_CONST,
 	OP_STRING,
 	OP_FUNCTION,
 };
@@ -132,6 +136,8 @@ protected:
 	union{
 		int			m_Value;
 		float		m_FValue;
+		GameEngine::ScriptGU	m_GUValue;
+		
 	};
 	std::string*		m_pString;
 	Node*			m_pLeft;
@@ -167,6 +173,12 @@ public:
 																					m_OP( op ),
 																					m_Value( 0 ), m_pString( pStr ),
 																					m_pLeft( pNode ), m_pRight( 0 )
+	{
+	}
+	Node( const yy::location& location, int op, GameEngine::GameUnit* pGU ) :	m_Location( location ),
+																					m_OP( op ),
+																					m_Value( 0 ), m_pString( NULL ),
+																					m_pLeft( 0 ), m_pRight( 0 )
 	{
 	}
 	virtual ~Node()

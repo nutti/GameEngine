@@ -69,6 +69,9 @@ void VM::VCPU::OpSysCall( int val )
 		case SYS_TOSTR:
 			SysToStr();
 			break;
+		case SYS_PRINT_GU:
+			SysPrintGU();
+			break;
 		case SYS_UPDATE:
 			SysUpdate();
 			break;
@@ -115,6 +118,21 @@ void VM::VCPU::OpSysCall( int val )
 			SysStopBGM();
 			break;
 	}
+}
+
+void VM::VCPU::SysPrintGU()
+{
+	int gu = Top().m_Integer;
+	Pop();
+
+	int value = 0;
+
+	for( int i = 0; i < GameEngine::SCRIPT_GU_DECIMAL_SHIFT; ++i ){
+		value |= ( 1 << i );
+	}
+
+	//printf( "%d.%d", gu >> GameEngine::SCRIPT_GU_DECIMAL_SHIFT, gu & ( value ) );
+	printf( "%f", gu / 1024.0f );
 }
 
 void VM::VCPU::SysFloatToInt()
@@ -320,4 +338,99 @@ void VM::VCPU::OpFDiv()
 	float lhs = Top().m_Float;
 	Pop();
 	Push( lhs / rhs );
+}
+
+void VM::VCPU::OpGUNeg()
+{
+	Top().m_Integer = -GameEngine::GUNeg( Top().m_Integer );
+}
+
+void VM::VCPU::OpGUEq()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GUEq( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGUNe()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GUNe( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGUGt()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GUGt( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGUGe()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GUGe( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGULt()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GULt( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGULe()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GULe( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGUSub()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GUSub( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGUAdd()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GUAdd( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGUMul()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GUMul( lhs, rhs ) );
+}
+
+void VM::VCPU::OpGUDiv()
+{
+	GameEngine::ScriptGU rhs = Top().m_Integer;
+	Pop();
+	GameEngine::ScriptGU lhs = Top().m_Integer;
+	Pop();
+	Push( GameEngine::GUDiv( lhs, rhs ) );
 }

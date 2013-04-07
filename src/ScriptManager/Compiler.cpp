@@ -19,6 +19,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	// System call
 	AddFunction( VM::SYS_PRINT, TYPE_VOID, "print", "s" );
 	AddFunction( VM::SYS_TOSTR, TYPE_STRING, "str", "i" );
+	AddFunction( VM::SYS_PRINT_GU, TYPE_VOID, "printGU", "g" );
 
 	AddFunction( VM::SYS_FLOAT_TO_INT, TYPE_INTEGER, "FtoI", "f" );		// int FtoI( float );
 	AddFunction( VM::SYS_INT_TO_FLOAT, TYPE_FLOAT, "ItoF", "i" );		// float ItoF( int );
@@ -375,6 +376,11 @@ void Compiler::PushString( const std::string& str )
 	PushString( (int)m_TextTable.size() );
 	m_TextTable.insert( m_TextTable.end(), str.begin(), str.end() );
 	m_TextTable.push_back( '\0' );
+}
+
+void Compiler::PushGU( const GameEngine::GameUnit& gu )
+{
+	PushString( (int) gu.GetRawValue() );
 }
 
 bool Compiler::JmpBreakLabel()

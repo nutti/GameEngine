@@ -6,6 +6,8 @@
 #include <Windows.h>
 #include "VMValue.h"
 
+#include "../Math.hpp"
+
 #ifdef _MSC_VER
 #pragma warning( disable: 4996 )
 #endif
@@ -25,6 +27,7 @@ namespace VM
 	{
 		SYS_PRINT,
 		SYS_TOSTR,
+		SYS_PRINT_GU,
 
 		SYS_UPDATE,					// Force updating.
 
@@ -641,6 +644,18 @@ namespace VM
 		void OpFMul();
 		void OpFDiv();
 
+		void OpGUNeg();
+		void OpGUEq();
+		void OpGUNe();
+		void OpGUGt();
+		void OpGUGe();
+		void OpGULt();
+		void OpGULe();
+		void OpGUSub();
+		void OpGUAdd();
+		void OpGUMul();
+		void OpGUDiv();
+
 		
 
 		virtual void OpSysCall( int val );
@@ -658,6 +673,8 @@ namespace VM
 			sprintf( str, "%d", v );
 			Push( std::string( str ) );
 		}
+
+		void SysPrintGU();
 	protected:
 		int Value()
 		{

@@ -5,6 +5,8 @@
 #include "Compiler.h"
 #include "Parser.hh"
 
+#include "../Math.hpp"
+
 // Logical optimization.
 Node* Node::MakeNode( Compiler& compiler, const yy::location& location, int op, Node* pLeft, Node* pRight )
 {
@@ -18,6 +20,10 @@ Node* Node::MakeNode( Compiler& compiler, const yy::location& location, int op, 
 				}
 				else if( pLeft->m_OP == OP_FLOAT_CONST ){
 					pLeft->m_FValue = -pLeft->m_FValue;
+					return pLeft;
+				}
+				else if( pLeft->m_OP == OP_GU_CONST ){
+					pLeft->m_GUValue = GameEngine::GUNeg( pLeft->m_GUValue );
 					return pLeft;
 				}
 				break;
@@ -156,6 +162,66 @@ Node* Node::MakeNode( Compiler& compiler, const yy::location& location, int op, 
 		}
 	}
 
+	// GUValue - GUValue
+	if( pLeft->m_OP == OP_GU_CONST && pRight->m_OP == OP_GU_CONST ){
+		bool changeAble = false;
+		int value = 0;
+		switch( op ){
+			case OP_EQ:
+				value = GameEngine::GUEq( pLeft->m_GUValue, pRight->m_GUValue );
+				changeAble = true;
+				break;
+			case OP_NE:
+				value = GameEngine::GUNe( pLeft->m_GUValue, pRight->m_GUValue );
+				changeAble = true;
+				break;
+			case OP_GT:
+				value = GameEngine::GUGt( pLeft->m_GUValue, pRight->m_GUValue );
+				changeAble = true;
+				break;
+			case OP_GE:
+				value = GameEngine::GUGe( pLeft->m_GUValue, pRight->m_GUValue );
+				changeAble = true;
+				break;
+			case OP_LT:
+				value = GameEngine::GULt( pLeft->m_GUValue, pRight->m_GUValue );
+				changeAble = true;
+				break;
+			case OP_LE:
+				value = GameEngine::GULe( pLeft->m_GUValue, pRight->m_GUValue );
+				changeAble = true;
+				break;
+			case OP_MINUS:
+				pLeft->m_GUValue = GameEngine::GUSub( pLeft->m_GUValue, pRight->m_GUValue );
+				break;
+			case OP_PLUS:
+				pLeft->m_GUValue = GameEngine::GUAdd( pLeft->m_GUValue, pRight->m_GUValue );
+				break;
+			case OP_TIMES:
+				pLeft->m_GUValue = GameEngine::GUMul( pLeft->m_GUValue, pRight->m_GUValue );
+				break;
+			case OP_DIVIDE:
+				if( pRight->m_GUValue == 0 ){
+					compiler.error( location, "Error : 0 division." );
+				}
+				else{
+					pLeft->m_GUValue = GameEngine::GUDiv( pLeft->m_GUValue, pRight->m_GUValue );
+				}
+				break;
+			default:
+				compiler.error( location, "Invalid operations" );
+				break;
+		}
+		delete pRight;
+		if( changeAble ){
+			delete pLeft;
+			return new Node( location, OP_INT_CONST, value );
+		}
+		else{
+			return pLeft;
+		}
+	}
+
 	// String - String
 	if( pLeft->m_OP == OP_STRING && pRight->m_OP == OP_STRING ){
 		if( op == OP_PLUS ){
@@ -219,6 +285,10 @@ int Node::Push( Compiler* pCompiler ) const
 				pCompiler->OpFNeg();
 				return TYPE_FLOAT;
 			}
+			if( ret == TYPE_GU ){
+				pCompiler->OpGUNeg();
+				return TYPE_GU;
+			}
 			else{
 				pCompiler->OpNeg();
 				return TYPE_INTEGER;
@@ -230,6 +300,9 @@ int Node::Push( Compiler* pCompiler ) const
 		case OP_FLOAT_CONST:
 			pCompiler->PushConst( m_FValue );
 			return TYPE_FLOAT;
+		case OP_GU_CONST:
+			pCompiler->PushConst( m_GUValue );
+			return TYPE_GU;
 		case OP_STRING:
 			pCompiler->PushString( *m_pString );
 			return TYPE_STRING;
@@ -354,6 +427,57 @@ int Node::Push( Compiler* pCompiler ) const
 		return type;
 	}
 
+	// Float operation.
+	if( leftType == TYPE_GU ){
+		int type;
+		switch( m_OP ){
+			case OP_EQ:
+				pCompiler->OpGUEq();
+				type = TYPE_INTEGER;
+				break;
+			case OP_NE:
+				pCompiler->OpGUNe();
+				type = TYPE_INTEGER;
+				break;
+			case OP_GT:
+				pCompiler->OpGUGt();
+				type = TYPE_INTEGER;
+				break;
+			case OP_GE:
+				pCompiler->OpGUGe();
+				type = TYPE_INTEGER;
+				break;
+			case OP_LT:
+				pCompiler->OpGULt();
+				type = TYPE_INTEGER;
+				break;
+			case OP_LE:
+				pCompiler->OpGULe();
+				type = TYPE_INTEGER;
+				break;
+			case OP_MINUS:
+				pCompiler->OpGUSub();
+				type = TYPE_GU;
+				break;
+			case OP_PLUS:
+				pCompiler->OpGUAdd();
+				type = TYPE_GU;
+				break;
+			case OP_TIMES:
+				pCompiler->OpGUMul();
+				type = TYPE_GU;
+				break;
+			case OP_DIVIDE:
+				pCompiler->OpGUDiv();
+				type = TYPE_GU;
+				break;
+			default:
+				pCompiler->error( m_Location, "Invalid operation." );
+				break;
+		}
+		return type;
+	}
+
 	// String operations.
 	switch( m_OP ){
 		case OP_EQ:
@@ -402,7 +526,7 @@ int ValueNode::Push( Compiler* pCompiler ) const
 		}
 		else{
 			// Array or reference.
-			if( pTag->m_Type >= TYPE_INTEGER_REF && pTag->m_Type != TYPE_FLOAT ){
+			if( pTag->m_Type >= TYPE_INTEGER_REF && pTag->m_Type != TYPE_FLOAT && pTag->m_Type != TYPE_GU ){
 				// Array.
 				if( m_pLeft ){
 					m_pLeft->Push( pCompiler );
@@ -451,7 +575,7 @@ int ValueNode::Pop( Compiler* pCompiler ) const
 			pCompiler->error( m_Location, "Variable : " + *m_pString + " is not decleared." );
 		}
 		else{
-			if( pTag->m_Type >= TYPE_INTEGER_REF && pTag->m_Type != TYPE_FLOAT ){
+			if( pTag->m_Type >= TYPE_INTEGER_REF && pTag->m_Type != TYPE_FLOAT && pTag->m_Type != TYPE_GU ){
 				// Array or reference.
 				if( m_pLeft ){
 					m_pLeft->Push( pCompiler );
@@ -501,7 +625,7 @@ struct SetArg
 	void operator()( Node* pNode ) const
 	{
 		int type = m_pFunc->GetArg( m_Index++ );
-		if( type >= TYPE_INTEGER_REF && type != TYPE_FLOAT ){
+		if( type >= TYPE_INTEGER_REF && type != TYPE_FLOAT && type != TYPE_GU ){
 			if( pNode->GetOP() != OP_VALUE ){
 				m_pCompiler->error( pNode->GetLocation(), "Value is not registered." );
 			}
@@ -511,7 +635,7 @@ struct SetArg
 					m_pCompiler->error( pNode->GetLocation(), "Variable : " + pNode->GetString() + " is not registered." );
 				}
 				// Reference
-				else if( pTag->m_Type >= TYPE_INTEGER_REF && pTag->m_Type != TYPE_FLOAT ){
+				else if( pTag->m_Type >= TYPE_INTEGER_REF && pTag->m_Type != TYPE_FLOAT && pTag->m_Type != TYPE_GU ){
 					if( pNode->GetLeft() ){
 						pNode->GetLeft()->Push( m_pCompiler );
 						m_pCompiler->PushLocal( pTag->m_Addr );
@@ -666,6 +790,31 @@ void Assign::Analyze( Compiler* pCompiler )
 		if( m_pValue->Pop( pCompiler ) == TYPE_STRING ){
 			pCompiler->error( m_Location, "Assign the string to integer." );
 		}
+		return;
+	}
+
+	if( ret == TYPE_GU ){
+		switch( m_OP ){
+			case '+':
+				pCompiler->OpGUAdd();
+				break;
+			case '-':
+				pCompiler->OpGUSub();
+				break;
+			case '*':
+				pCompiler->OpGUMul();
+				break;
+			case '/':
+				pCompiler->OpGUDiv();
+				break;
+			case '%':
+				pCompiler->error( m_Location, "Operation is invalid" );
+				break;
+		}
+		if( m_pValue->Pop( pCompiler ) == TYPE_STRING ){
+			pCompiler->error( m_Location, "Assign the string to integer." );
+		}
+		printf( "test" );
 		return;
 	}
 

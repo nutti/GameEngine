@@ -207,6 +207,10 @@ public:
 					case 'f':
 						m_Args.push_back( TYPE_FLOAT );
 						break;
+					case 'G':
+					case 'g':
+						m_Args.push_back( TYPE_GU );
+						break;
 					default:
 						return false;
 				}
@@ -384,6 +388,7 @@ public:
 	void AddValue( const yy::location& location, int type, const std::string& name, const Node* pNode );
 	void SetLabel( int label );
 	void PushString( const std::string& name );
+	void PushGU( const GameEngine::GameUnit& gu );
 	int GetFunctionType() const
 	{
 		return m_CurFunctionType;

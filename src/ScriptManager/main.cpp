@@ -1,11 +1,37 @@
 #include "Compiler.h"
-
+#include "VM.h"
 
 #include <MAPIL/MAPIL.h>
 
+/*int main( int argc, char** argv )
+{
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+
+	Compiler compiler;
+	VM::Data data;
+	compiler.Compile( argv[ 1 ], data );
+	compiler.DebugDump();
+	VM::VCPU vcpu;
+	vcpu.Init( &data );
+	vcpu.Run();
+
+	return 0;
+}*/
+
+/*int main()
+{
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+
+	Compiler compiler;
+	VM::Data data;
+	compiler.Compile( "test.sc", data );
+
+	return 0;
+}*/
+
+
 int main( int argc, char** argv )
 {
-	//for( int i = 1; i < argc; ++i ){
 	if( argc != 3 ){
 		std::cout << "Usage : ScriptCompiler.exe source_file out_file" << std::endl;
 		return -1;
@@ -27,7 +53,6 @@ int main( int argc, char** argv )
 	MAPIL::TransformInt32IntoChar( data.m_ValueSize, s, MAPIL::BYTE_ORDER_LITTLE );
 	fOut.write( s, sizeof( s ) );
 	fOut.close();
-	//}
 
 	return 0;
 }

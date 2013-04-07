@@ -5,13 +5,78 @@
 
 namespace GameEngine
 {
-	//typedef int		ScriptGU;
+	typedef int		ScriptGU;
+	const int SCRIPT_GU_DECIMAL_SHIFT	= 10;
 
-	struct ScriptGU
+	inline ScriptGU MakeGU( int i, int d )
+	{
+		return ( i << SCRIPT_GU_DECIMAL_SHIFT ) + d;
+	}
+
+	inline ScriptGU GUAdd( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		return lhs + rhs;
+	}
+
+	inline ScriptGU GUSub( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		return lhs - rhs;
+	}
+
+	inline ScriptGU GUMul( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		long long value = ( static_cast < long long > ( lhs ) * rhs );
+		return value >> SCRIPT_GU_DECIMAL_SHIFT;
+	}
+
+	inline ScriptGU GUDiv( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		ScriptGU value = ( static_cast < long long > ( lhs << SCRIPT_GU_DECIMAL_SHIFT ) / rhs );
+		return value;
+	}
+
+	inline ScriptGU GUNeg( const ScriptGU& gu )
+	{
+		return -gu;
+	}
+
+	inline ScriptGU GUEq( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		return lhs == rhs;
+	}
+
+	inline ScriptGU GUNe( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		return lhs != rhs;
+	}
+
+	inline ScriptGU GUGt( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		return lhs > rhs;
+	}
+
+	inline ScriptGU GUGe( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		return lhs >= rhs;
+	}
+
+	inline ScriptGU GULt( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		return lhs < rhs;
+	}
+
+	inline ScriptGU GULe( const ScriptGU& lhs, const ScriptGU& rhs )
+	{
+		return lhs <= rhs;
+	}
+
+
+
+	/*struct ScriptGU
 	{
 		int		m_Value;
 
-	};
+	};*/
 	
 	/*
 	class GameUnit
@@ -228,7 +293,7 @@ namespace GameEngine
 	public:
 		enum
 		{
-			SHIFT		= 10,
+			SHIFT		= SCRIPT_GU_DECIMAL_SHIFT,
 		};
 	private:
 		union
