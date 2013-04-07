@@ -17,9 +17,6 @@ namespace GameEngine
 		~GameDataHolder();
 		void StartRecording();
 		void EndRecording();
-		//void Update();
-		//GameDataMsg GetScoreData() const;
-		//void Add( const GameDataMsg& data );
 		void Flush();
 		int GetPlayTime() const;
 		void UpdatePlayTime();
@@ -30,6 +27,7 @@ namespace GameEngine
 		int GetPlayTime( int difficulty ) const;
 		void SetRecord( int difficulty, const SaveDataRecord& record );
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
+		int GetHIScore( int difficulty ) const;
 	};
 }
 

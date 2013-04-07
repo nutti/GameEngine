@@ -34,6 +34,7 @@ namespace GameEngine
 		int GetPlayTime( int difficulty ) const;
 		void SetRecord( int difficulty, const SaveDataRecord& record );
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
+		int GetHIScore( int difficulty ) const;
 		DisplayedReplayInfo GetDisplayedReplayInfo() const;
 	};
 
@@ -139,6 +140,11 @@ namespace GameEngine
 	int GameStateManager::Impl::GetRank( int difficulty, const SaveDataRecord& record ) const
 	{
 		return m_GameDataHolder.GetRank( difficulty, record );
+	}
+
+	int GameStateManager::Impl::GetHIScore( int difficulty ) const
+	{
+		return m_GameDataHolder.GetHIScore( difficulty );
 	}
 
 	DisplayedReplayInfo GameStateManager::Impl::GetDisplayedReplayInfo() const
@@ -248,6 +254,11 @@ namespace GameEngine
 	int GameStateManager::GetRank( int difficulty, const SaveDataRecord& record ) const
 	{
 		return m_pImpl->GetRank( difficulty, record );
+	}
+
+	int GameStateManager::GetHIScore( int difficulty ) const
+	{
+		return m_pImpl->GetHIScore( difficulty );
 	}
 
 	DisplayedReplayInfo GameStateManager::GetDisplayedReplayInfo() const

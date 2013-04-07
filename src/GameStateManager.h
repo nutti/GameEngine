@@ -33,6 +33,7 @@ namespace GameEngine
 		int GetPlayTime( int difficulty ) const;
 		void SetRecord( int difficulty, const SaveDataRecord& record );
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
+		int GetHIScore( int difficulty ) const;
 		DisplayedReplayInfo GetDisplayedReplayInfo() const;
 	};
 }

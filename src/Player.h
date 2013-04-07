@@ -78,6 +78,13 @@ namespace GameEngine
 		int GetConsGauge( int cons ) const;								// 意識ゲージの取得
 		int GetConsLevel( int cons ) const;								// 意識レベルの取得
 		int GetCurCons() const;											// 現在の意識状態を取得
+
+		void SetPos( const GameUnit& posX, const GameUnit& posY );		// 位置を設定
+		void SetHP( int hp );											// HPを設定
+		void SetShotPower( int power );									// ショットの威力を設定
+		void SetConsGauge( int cons, int val );							// 意識ゲージを設定
+		void SetConsLevel( int cons, int level );						// 意識レベルを設定
+		void SetCons( int cons );										// 現在の意識状態を設定
 	};
 }
 

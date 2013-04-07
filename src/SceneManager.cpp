@@ -44,8 +44,13 @@ namespace GameEngine
 
 		int										m_Counter;				// カウンタ
 
-		void PrepareScoreEntry();			// スコアエントリ状態遷移のための準備
-		void DrawLoading();					// ローディング状態の描画
+		InitialGameData							m_IniGameData;			// 初期のゲームデータ
+		int										m_HIScore;				// ハイスコア
+
+		void SaveStageScoreData( int stage );	// ステージのスコアを保存
+		void PrepareScoreEntry();				// スコアエントリ状態遷移のための準備
+		void DrawLoading();						// ローディング状態の描画
+		void InitializeIniGameData();			// 初期ゲームデータを初期化
 	public:
 		Impl( std::shared_ptr < EventMediator > pEventMediator );
 		~Impl(){}
@@ -61,6 +66,7 @@ namespace GameEngine
 		SceneType GetCurSceneType() const;
 		void SetGameDifficulty( int difficulty );
 		void SetRecordRank( int rank );
+		void SetHIScore( int score );
 		const SaveDataRecord& GetRecord() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();
@@ -92,18 +98,9 @@ namespace GameEngine
 			// ゲーム到達度の保存
 			m_SaveDataRecord.m_Progress = m_CurStage;
 			// 最後のステージの記録
-			Stage* pp = dynamic_cast < Stage* > ( m_pCurScene.get() );
-			if( pp ){
-				m_SaveDataRecord.m_StageData[ m_CurStage ].m_Crystal = pp->GetCrystal();
-				m_SaveDataRecord.m_StageData[ m_CurStage ].m_Killed = pp->GetKilled();
-				m_SaveDataRecord.m_StageData[ m_CurStage ].m_Score = pp->GetScore();
-				m_SaveDataRecord.m_StageData[ m_CurStage ].m_Progress = pp->GetProgress();
-			}
-			else{
-				exit( 1 );
-			}
+			SaveStageScoreData( m_CurStage );
 			// 最終的なスコアを算出
-			for( int i = 0; i < m_CurStage + 1; ++i ){
+			for( int i = 0; i < m_CurStage; ++i ){
 				m_SaveDataRecord.m_Crystal += m_SaveDataRecord.m_StageData[ i ].m_Crystal;
 				m_SaveDataRecord.m_Killed += m_SaveDataRecord.m_StageData[ i ].m_Killed;
 				m_SaveDataRecord.m_Score += m_SaveDataRecord.m_StageData[ i ].m_Score;
@@ -118,6 +115,34 @@ namespace GameEngine
 				m_SaveDataRecord.m_Date.m_Sec = time->tm_sec;
 			}
 		}
+	}
+
+	void SceneManager::Impl::SaveStageScoreData( int stage )
+	{
+		Stage* pp = dynamic_cast < Stage* > ( m_pCurScene.get() );
+		if( pp ){
+			m_SaveDataRecord.m_StageData[ stage - 1 ].m_Crystal = pp->GetCrystal();
+			m_SaveDataRecord.m_StageData[ stage - 1 ].m_Killed = pp->GetKilled();
+			m_SaveDataRecord.m_StageData[ stage - 1 ].m_Score = pp->GetScore();
+			m_SaveDataRecord.m_StageData[ stage - 1 ].m_Progress = pp->GetProgress();
+		}
+		else{
+			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+		}
+	}
+
+	void SceneManager::Impl::InitializeIniGameData()
+	{
+		MAPIL::ZeroObject( &m_IniGameData, sizeof( m_IniGameData ) );
+		m_IniGameData.m_PosX = 300;
+		m_IniGameData.m_PosY = 400;
+		m_IniGameData.m_HP = 10;
+		for( int i = 0; i < 3; ++i ){
+			m_IniGameData.m_ConsGauge[ i ] = 1000;
+			m_IniGameData.m_ConsLevel[ i ] = 1000;
+		};
+		m_IniGameData.m_ShotPower = 0;
+		m_IniGameData.m_Cons = 0;			// PLAYER_CONS_NORMAL
 	}
 
 	void SceneManager::Impl::DrawLoading()
@@ -185,6 +210,9 @@ namespace GameEngine
 						Replay* pp = dynamic_cast < Replay* > ( m_pCurScene.get() );
 						if( pp ){
 							m_CurStage = pp->GetReplayStage() + 1;
+							// 初期データの設定
+							InitializeIniGameData();
+							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 						}
 						else{
 							exit( -1 );
@@ -192,20 +220,42 @@ namespace GameEngine
 					}
 					else{
 						m_GameMode = GAME_MODE_NORMAL;
-					}
-					if( m_CurSceneType == SCENE_TYPE_MENU ){
-						m_CurStage = 1/*STAGE_ID_STAGE_1*/;
-					}
-					else if( m_CurSceneType == SCENE_TYPE_STAGE ){
-						Stage* pp = dynamic_cast < Stage* > ( m_pCurScene.get() );
-						if( pp ){
-							m_CurStage = pp->GetNextStageNo();
+						if( m_CurSceneType == SCENE_TYPE_MENU ){
+							m_CurStage = 1;
+							// 初期データの設定
+							InitializeIniGameData();
+							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 						}
-						else{
-							exit( -1 );
+						else if( m_CurSceneType == SCENE_TYPE_STAGE ){
+							Stage* pStage = dynamic_cast < Stage* > ( m_pCurScene.get() );
+							if( pStage ){
+								// 次のステージのために初期データを取得
+								m_IniGameData.m_Score = pStage->GetScore();
+								m_IniGameData.m_Killed = pStage->GetKilled();
+								m_IniGameData.m_Crystal = pStage->GetCrystal();
+								m_IniGameData.m_CrystalUsed = pStage->GetCrystalUsed();
+								for( int i = 0; i < m_CurStage - 1; ++i ){
+									m_IniGameData.m_Score += m_SaveDataRecord.m_StageData[ i ].m_Score;
+									m_IniGameData.m_Killed += m_SaveDataRecord.m_StageData[ i ].m_Killed;
+									m_IniGameData.m_Crystal += m_SaveDataRecord.m_StageData[ i ].m_Crystal;
+									m_IniGameData.m_CrystalUsed += m_SaveDataRecord.m_StageData[ i ].m_CrystalUsed;
+								}
+								pStage->GetPlayerPos( &m_IniGameData.m_PosX, &m_IniGameData.m_PosY );
+								m_IniGameData.m_HP = pStage->GetPlayerHP();
+								m_IniGameData.m_ShotPower = pStage->GetPlayerShotPower();
+								m_IniGameData.m_Cons = pStage->GetPlayerCons();
+								pStage->GetPlayerConsGauge( m_IniGameData.m_ConsGauge );
+								pStage->GetPlayerConsLevel( m_IniGameData.m_ConsLevel );
+								// ステージ別のスコア情報を保存
+								SaveStageScoreData( m_CurStage );
+								m_CurStage = pStage->GetNextStageNo();
+								p->SendEvent( EVENT_TYPE_MOVE_TO_NEXT_STAGE, &m_CurStage );
+							}
+							else{
+								throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+							}
 						}
 					}
-					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 				}
 				else if( next == SCENE_TYPE_SCORE ){
 					p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE );
@@ -311,6 +361,11 @@ namespace GameEngine
 		m_RecordRank = rank;
 	}
 
+	void SceneManager::Impl::SetHIScore( int score )
+	{
+		m_IniGameData.m_HIScore = score;
+	}
+
 	const SaveDataRecord& SceneManager::Impl::GetRecord() const
 	{
 		return m_SaveDataRecord;
@@ -362,6 +417,7 @@ namespace GameEngine
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( Stage ) ){
 			( (Stage*) m_pCurScene.get() )->AttachScriptData( m_ScriptData );
+			( (Stage*) m_pCurScene.get() )->SetInitialData( m_IniGameData );
 			m_CurSceneType = SCENE_TYPE_STAGE;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){
@@ -464,6 +520,11 @@ namespace GameEngine
 	void SceneManager::SetRecordRank( int rank )
 	{
 		m_pImpl->SetRecordRank( rank );
+	}
+
+	void SceneManager::SetHIScore( int score )
+	{
+		m_pImpl->SetHIScore( score );
 	}
 
 	const SaveDataRecord& SceneManager::GetRecord() const

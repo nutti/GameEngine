@@ -9,7 +9,7 @@ namespace GameEngine
 	struct GameDataMsg
 	{
 		int		m_Score;			// スコア
-		int		m_HIScore;			// ハイスコア
+		//int		m_HIScore;			// ハイスコア
 		int		m_Killed;			// 倒した敵数
 		int		m_CrystalTotal;		// クリスタル数
 		int		m_CrystalUsed;		// 残りのクリスタル数
@@ -45,6 +45,7 @@ namespace GameEngine
 			int		m_Score;			// スコア
 			int		m_Killed;			// 撃破数
 			int		m_Crystal;			// 取得クリスタル数
+			int		m_CrystalUsed;		// 使用したクリスタルの総数
 			int		m_Progress;			// ステージ進行度
 		};
 
@@ -55,6 +56,7 @@ namespace GameEngine
 		int			m_Progress;				// 進行状況
 		int			m_Killed;				// 撃破数
 		int			m_Crystal;				// クリスタル数
+		int			m_CrystalUsed;			// 使用したクリスタルの総数
 	};
 
 	// スコア表示用セーブデータ

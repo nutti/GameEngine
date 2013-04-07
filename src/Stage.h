@@ -98,6 +98,23 @@ namespace GameEngine
 		int					m_ConsLevel;			// 意識レベルのベースレベル
 	};
 
+	// 初期ゲームデータ
+	struct InitialGameData
+	{
+		int		m_HIScore;				// ハイスコア
+		int		m_Score;				// 前回のステージをクリアした時のスコア
+		int		m_Crystal;				// 前回のステージまでで取得クリスタルの総数
+		int		m_CrystalUsed;			// 前回のステージまでで使用したクリスタル総数
+		int		m_Killed;				// 前回のステージまでで倒した敵の数
+		int		m_PosX;					// 前回のステージをクリアした時の最後にいた場所（X座標）
+		int		m_PosY;					// 前回のステージをクリアした時の最後にいた場所（Y座標）
+		int		m_HP;					// 前回のステージをクリアした時の残りHP
+		int		m_ShotPower;			// 前回のステージをクリアした時のショットパワー
+		int		m_Cons;					// 初期の意識状態
+		int		m_ConsGauge[ 3 ];		// 初期の意識ゲージ
+		int		m_ConsLevel[ 3 ];		// 初期の意識レベル
+	};
+
 	struct ScriptData;
 	class Stage : public Scene
 	{
@@ -114,10 +131,24 @@ namespace GameEngine
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachGameData( const GameDataMsg& msg );
+		
 		int GetProgress() const;
 		int GetScore() const;
 		int GetKilled() const;
 		int GetCrystal() const;
+		int GetCrystalUsed() const;
+
+		void GetPlayerPos( int* pPosX, int* pPosY ) const;
+		int GetPlayerHP() const;
+		int GetPlayerShotPower() const;
+		int GetPlayerCons() const;
+		void GetPlayerConsGauge( int* pGauge ) const;
+		void GetPlayerConsLevel( int* pLevel ) const;
+
+
+
+		void SetInitialData( const InitialGameData& data );
+
 		int GetNextStageNo() const;
 		GameDataMsg GetFrameData() const;
 	};

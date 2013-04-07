@@ -47,6 +47,7 @@ namespace GameEngine
 		int GetPlayTime( int difficulty ) const;
 		void SetRecord( int difficulty, const SaveDataRecord& record );
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
+		int GetHIScore( int difficulty ) const;
 	};
 
 	GameDataHolder::Impl::Impl() : m_SaveDataFileName()
@@ -260,6 +261,11 @@ namespace GameEngine
 		return -1;		// ランク外
 	}
 
+	int GameDataHolder::Impl::GetHIScore( int difficulty ) const
+	{
+		return m_GameFileData.m_Difficulty[ difficulty ].m_Record[ 0 ].m_Score;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -330,5 +336,10 @@ namespace GameEngine
 	int GameDataHolder::GetRank( int difficulty, const SaveDataRecord& record ) const
 	{
 		return m_pImpl->GetRank( difficulty, record );
+	}
+
+	int GameDataHolder::GetHIScore( int difficulty ) const
+	{
+		return m_pImpl->GetHIScore( difficulty );
 	}
 }

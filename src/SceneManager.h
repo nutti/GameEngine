@@ -32,6 +32,7 @@ namespace GameEngine
 		SceneType GetCurSceneType() const;
 		void SetGameDifficulty( int difficulty );
 		void SetRecordRank( int rank );
+		void SetHIScore( int score );
 		const SaveDataRecord& GetRecord() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();

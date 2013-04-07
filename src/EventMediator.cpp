@@ -433,8 +433,37 @@ namespace GameEngine
 				m_pSceneManager->ClearGameData();
 				// 難易度の設定（※複数の難易度で問題化？）
 				m_pSceneManager->SetGameDifficulty( GAME_DIFFICULTY_EASY );
+				// ハイスコアの設定
+				m_pSceneManager->SetHIScore( m_pGameStateManager->GetHIScore( GAME_DIFFICULTY_EASY ) );
 				// リプレイ記録開始
 				m_pGameStateManager->StartReplayRecording();
+				// 入力デバイス変更
+				if( m_pSceneManager->GetGameMode() == GAME_MODE_NORMAL ){
+					m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				}
+				else if( m_pSceneManager->GetGameMode() == GAME_MODE_REPLAY ){
+					m_pButtonManager->ChangeDevice( INPUT_DEVICE_FILE );
+					m_pButtonManager->SetReplayNo( m_pSceneManager->GetReplayNo() );
+				}
+				// シーン変更
+				m_pSceneManager->ChangeScene( SCENE_TYPE_STAGE );
+				break;
+			}
+			// 次のステージへ移行
+			case EVENT_TYPE_MOVE_TO_NEXT_STAGE:{
+				// スクリプトデータの読み込み
+				int stage = *( static_cast < int* > ( pArg ) );
+				m_Loading.CleanupSession();
+				m_Loading.SetupSession( m_pResourceManager, m_pScriptManager );
+#if defined ( USE_FLOATING_POINT )
+				m_Loading.AddStageResourceItem( stage, false );
+				//m_Loading.AddStageResourceItem( 2, false );
+#elif defined ( USE_GAME_UNIT )
+				m_Loading.AddStageResourceItem( stage, false );
+				//m_Loading.AddStageResourceItem( 2, false );
+#endif
+				m_Loading.Start();
+
 				// 入力デバイス変更
 				if( m_pSceneManager->GetGameMode() == GAME_MODE_NORMAL ){
 					m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );

@@ -16,6 +16,7 @@ namespace GameEngine
 		EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF				= 7,	// リプレイエントリ画面へ移動（リプレイエントリ画面から移動）
 		EVENT_TYPE_MOVE_TO_REPLAY								= 8,	// リプレイ画面へ移動
 		EVENT_TYPE_MOVE_TO_MENU_FROM_INITIALIZE					= 9,	// 初期化状態からメニュー画面移行要求
+		EVENT_TYPE_MOVE_TO_NEXT_STAGE							= 10,	// 次のステージへ移行要求
 		EVENT_TYPE_FRAME_UPDATE									= 100,	// フレーム更新要求
 		EVENT_TYPE_GAME_TERM									= 101,	// ゲーム終了要求
 		EVENT_TYPE_UNKNOWN										= 200,

@@ -64,6 +64,13 @@ namespace GameEngine
 		int GetConsLevel( int cons ) const;								// 意識レベルの取得
 		int GetShotPower() const;
 		int GetCurCons() const;
+
+		void SetPos( const GameUnit& posX, const GameUnit& posY );		// 位置を設定
+		void SetHP( int hp );											// HPを設定
+		void SetShotPower( int power );									// ショットの威力を設定
+		void SetConsGauge( int cons, int val );							// 意識ゲージを設定
+		void SetConsLevel( int cons, int level );						// 意識レベルを設定
+		void SetCons( int cons );										// 現在の意識状態を設定
 	};
 
 	Player::Impl::Impl( std::shared_ptr < ResourceMap > pMap, StageData* pStageData ) :	GameObjectImplBase(),
@@ -1218,6 +1225,37 @@ namespace GameEngine
 		return m_Data.m_ConsCur;
 	}
 
+	inline void Player::Impl::SetPos( const GameUnit& posX, const GameUnit& posY )
+	{
+		m_Data.m_GUData.m_PosX = posX;
+		m_Data.m_GUData.m_PosY = posY;
+	}
+
+	inline void Player::Impl::SetHP( int hp )
+	{
+		m_Data.m_HP = hp;
+	}
+
+	inline void Player::Impl::SetShotPower( int power )
+	{
+		m_Data.m_ShotPower = power;
+	}
+
+	inline void Player::Impl::SetConsGauge( int cons, int val )
+	{
+		m_Data.m_ConsGauge[ cons ] = val;
+	}
+
+	inline void Player::Impl::SetConsLevel( int cons, int level )
+	{
+		m_Data.m_ConsLevel[ cons ] = level;
+	}
+
+	inline void Player::Impl::SetCons( int cons )
+	{
+		m_Data.m_ConsCur = cons;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -1331,5 +1369,35 @@ namespace GameEngine
 	int Player::GetCurCons() const
 	{
 		return m_pImpl->GetCurCons();
+	}
+
+	void Player::SetPos( const GameUnit& posX, const GameUnit& posY )
+	{
+		m_pImpl->SetPos( posX, posY );
+	}
+
+	void Player::SetHP( int hp )
+	{
+		m_pImpl->SetHP( hp );
+	}
+
+	void Player::SetShotPower( int power )
+	{
+		m_pImpl->SetShotPower( power );
+	}
+
+	void Player::SetConsGauge( int cons, int val )
+	{
+		m_pImpl->SetConsGauge( cons, val );
+	}
+
+	void Player::SetConsLevel( int cons, int level )
+	{
+		m_pImpl->SetConsLevel( cons, level );
+	}
+
+	void Player::SetCons( int cons )
+	{
+		m_pImpl->SetCons( cons );
 	}
 }
