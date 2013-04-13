@@ -35,8 +35,9 @@ namespace GameEngine
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
 		int GetHIScore( int difficulty ) const;
 		DisplayedReplayInfo GetDisplayedReplayInfo() const;
-		void SaveReplay( int entryNo, const ReplayDataRecord& record );
+		void SaveReplay( const ReplayDataRecord& record );
 		void LoadGameData();
+		InitialGameData GetReplayIniData( int replayNo, int stageNo );
 	};
 }
 

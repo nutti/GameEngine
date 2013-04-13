@@ -26,6 +26,7 @@ namespace GameEngine
 		void AttachScriptData( const ScriptData& data );
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
+		void AttachInitialGameData( const InitialGameData& data );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
 		//GameDataMsg GetFrameScoreData() const;
 		void ChangeScene( SceneType scene );

@@ -8,6 +8,10 @@
 
 namespace GameEngine
 {
+	const int MAX_REPLAY_ENTRY		= 15;		// 最大リプレイエントリ数
+	const int MAX_SCORE_ENTRY		= 15;		// 最大スコアエントリ数
+	const int STAGE_TOTAL			= 5;		// ステージ総数
+
 	// メッセージ交換用ゲームデータ
 	struct GameDataMsg
 	{
@@ -21,11 +25,12 @@ namespace GameEngine
 	// 難易度
 	enum GameDifficulty
 	{
-		GAME_DIFFICULTY_UNKNOWN		= -1,
-		GAME_DIFFICULTY_EASY		= 0,
-		GAME_DIFFICULTY_NORMAL		= 1,
-		GAME_DIFFICULTY_HARD		= 2,
-		GAME_DIFFICULTY_HAZARD		= 3,
+		GAME_DIFFICULTY_CALM		= 0,
+		GAME_DIFFICULTY_EASY		= 1,
+		GAME_DIFFICULTY_NORMAL		= 2,
+		GAME_DIFFICULTY_HARD		= 3,
+		GAME_DIFFICULTY_HAZARD		= 4,
+		GAME_DIFFICULTY_TOTAL,
 	};
 
 	// セーブデータ用レコード
@@ -42,7 +47,7 @@ namespace GameEngine
 
 		char		m_Name[ 10 ];			// エントリ名
 		Date		m_Date;					// 登録日時
-		StageData	m_StageData[ 5 ];		// ステージデータ
+		StageData	m_StageData[ STAGE_TOTAL ];		// ステージデータ
 		int			m_Score;				// スコア
 		int			m_Progress;				// 進行状況
 		int			m_Killed;				// 撃破数
@@ -55,12 +60,12 @@ namespace GameEngine
 	{
 		struct Difficulty
 		{
-			SaveDataRecord		m_Record[ 25 ];			// 25エントリまでスコアの記録が可能
-			int					m_AllClear;				// 全クリ回数
-			int					m_PlayTime;				// プレイ時間
+			SaveDataRecord		m_Record[ MAX_SCORE_ENTRY ];	// 15エントリまでスコアの記録が可能
+			int					m_AllClear;						// 全クリ回数
+			int					m_PlayTime;						// プレイ時間
 		};
 		int			m_PlayTime;
-		Difficulty	m_Difficulty[ 4 ];				// 難易度別ゲーム状態
+		Difficulty	m_Difficulty[ GAME_DIFFICULTY_TOTAL ];				// 難易度別ゲーム状態
 	};
 
 	// 表示用リプレイ情報
@@ -78,7 +83,7 @@ namespace GameEngine
 			int						m_Difficulty;			// 難易度
 			Date					m_Date;					// 作成日時
 		};
-		Entry		m_Entries[ 25 ];
+		Entry		m_Entries[ MAX_REPLAY_ENTRY ];
 	};
 
 	// リプレイデータ
@@ -112,8 +117,28 @@ namespace GameEngine
 		int						m_Difficulty;			// 難易度
 		Date					m_Date;					// 作成日時
 
-		StageDataInfo			m_StageDataInfo[ 5 ];		// 初期ステージデータ
-		StageKeyStates			m_StageKeyStatusList[ 5 ];	// ステージのキーリスト
+		int						m_EntryNo;				// エントリ番号
+
+		StageDataInfo			m_StageDataInfo[ STAGE_TOTAL ];		// 初期ステージデータ
+		StageKeyStates			m_StageKeyStatusList[ STAGE_TOTAL ];	// ステージのキーリスト
+	};
+
+	// 初期ゲームデータ
+	struct InitialGameData
+	{
+		int		m_HIScore;				// ハイスコア
+		int		m_Score;				// 前回のステージをクリアした時のスコア
+		int		m_Crystal;				// 前回のステージまでで取得クリスタルの総数
+		int		m_CrystalUsed;			// 前回のステージまでで使用したクリスタル総数
+		int		m_Killed;				// 前回のステージまでで倒した敵の数
+		int		m_PosX;					// 前回のステージをクリアした時の最後にいた場所（X座標）
+		int		m_PosY;					// 前回のステージをクリアした時の最後にいた場所（Y座標）
+		int		m_HP;					// 前回のステージをクリアした時の残りHP
+		int		m_ShotPower;			// 前回のステージをクリアした時のショットパワー
+		int		m_Cons;					// 初期の意識状態
+		int		m_ConsGauge[ 3 ];		// 初期の意識ゲージ
+		int		m_ConsLevel[ 3 ];		// 初期の意識レベル
+		int		m_Progress;				// ステージ進行度
 	};
 }
 

@@ -21,7 +21,8 @@ namespace GameEngine
 		ResourceMap					m_ResourceMap;
 		int							m_Counter;
 		DisplayedReplayInfo			m_DispReplayInfo;
-		DisplayedReplayInfo::Entry	m_ReplayInfo;
+		//DisplayedReplayInfo::Entry	m_ReplayInfo;
+		ReplayDataRecord			m_ReplayDataRecord;
 		int							m_CurSelectState;		// 現在の選択状態
 		int							m_NameInputPos;			// 名前入力の場所
 		int							m_NameSelectPos;		// 名前選択の場所
@@ -34,8 +35,10 @@ namespace GameEngine
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
-		void AttachReplayInfo( const DisplayedReplayInfo::Entry& info );
-		const DisplayedReplayInfo::Entry& GetReplayInfo() const;
+		//void AttachReplayInfo( const DisplayedReplayInfo::Entry& info );
+		//const DisplayedReplayInfo::Entry& GetReplayInfo() const;
+		void AttachReplayDataRecord( const ReplayDataRecord& record );
+		const ReplayDataRecord& GetReplayDataRecord() const;
 	};
 
 	ReplayEntry::Impl::Impl()
@@ -60,15 +63,15 @@ namespace GameEngine
 				m_CurSelectState = REPLAY_ENTRY_SELECT_STATE_NAME;
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
-				++m_ReplayInfo.m_EntryNo;
-				if( m_ReplayInfo.m_EntryNo >= 15 ){
-					m_ReplayInfo.m_EntryNo = 0;
+				++m_ReplayDataRecord.m_EntryNo;
+				if( m_ReplayDataRecord.m_EntryNo > MAX_REPLAY_ENTRY - 1 ){
+					m_ReplayDataRecord.m_EntryNo = 0;
 				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
-				--m_ReplayInfo.m_EntryNo;
-				if( m_ReplayInfo.m_EntryNo < 0 ){
-					m_ReplayInfo.m_EntryNo = 14;
+				--m_ReplayDataRecord.m_EntryNo;
+				if( m_ReplayDataRecord.m_EntryNo < 0 ){
+					m_ReplayDataRecord.m_EntryNo = MAX_REPLAY_ENTRY - 1;
 				}
 			}
 		}
@@ -84,7 +87,7 @@ namespace GameEngine
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
 				m_EntryName[ m_NameInputPos ] = '\0';
-				::memcpy( m_ReplayInfo.m_Name, m_EntryName, sizeof( m_EntryName ) );
+				::memcpy( m_ReplayDataRecord.m_Name, m_EntryName, sizeof( m_EntryName ) );
 				return SCENE_TYPE_REPLAY_ENTRY;
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
@@ -133,13 +136,13 @@ namespace GameEngine
 
 		if( m_CurSelectState == REPLAY_ENTRY_SELECT_STATE_NO ){
 			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 99.0f + m_ReplayInfo.m_EntryNo * 17.0f, 50.0f, 1.0f, false, 0xDD5577FF );
+								0.0f, 99.0f + m_ReplayDataRecord.m_EntryNo * 17.0f, 50.0f, 1.0f, false, 0xDD5577FF );
 			DrawFontString( m_ResourceMap, 30.0f, 85.0f, 0.5f, 0xFFAAFFAA, "rank" );
 			DrawFontString( m_ResourceMap, 100.0f, 85.0f, 0.5f, 0xFFAAFFAA, "name" );
 			DrawFontString( m_ResourceMap, 200.0f, 85.0f, 0.5f, 0xFFAAFFAA, "progress" );
 			DrawFontString( m_ResourceMap, 350.0f, 85.0f, 0.5f, 0xFFAAFFAA, "score" );
 			DrawFontString( m_ResourceMap, 500.0f, 85.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < 15; ++i ){
+			for( int i = 0; i < MAX_REPLAY_ENTRY; ++i ){
 				DrawFontString( m_ResourceMap, 30.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
 				if( m_DispReplayInfo.m_Entries[ i ].m_Date.m_Year != 0 ){
 					DrawFontString( m_ResourceMap, 100.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DispReplayInfo.m_Entries[ i ].m_Name );
@@ -160,17 +163,17 @@ namespace GameEngine
 			DrawFontString( m_ResourceMap, 200.0f, 85.0f, 0.5f, 0xFFAAFFAA, "progress" );
 			DrawFontString( m_ResourceMap, 350.0f, 85.0f, 0.5f, 0xFFAAFFAA, "score" );
 			DrawFontString( m_ResourceMap, 500.0f, 85.0f, 0.5f, 0xFFAAFFAA, "date" );
-			DrawFontString( m_ResourceMap, 30.0f, 107.0f, 0.45f, "%d", m_ReplayInfo.m_EntryNo + 1 );
+			DrawFontString( m_ResourceMap, 30.0f, 107.0f, 0.45f, "%d", m_ReplayDataRecord.m_EntryNo + 1 );
 
 			DrawFontString( m_ResourceMap, 100.0f, 107.0f, 0.45f, m_EntryName );
-			DrawFontString( m_ResourceMap, 200.0f, 107.0f, 0.45f, progStr[ m_ReplayInfo.m_Progress ] );
-			DrawFontString( m_ResourceMap, 350.0f, 107.0f, 0.45f, "%d", m_ReplayInfo.m_Score );
+			DrawFontString( m_ResourceMap, 200.0f, 107.0f, 0.45f, progStr[ m_ReplayDataRecord.m_Progress ] );
+			DrawFontString( m_ResourceMap, 350.0f, 107.0f, 0.45f, "%d", m_ReplayDataRecord.m_Score );
 			DrawFontString( m_ResourceMap, 500.0f, 107.0f, 0.45f, "%04d%02d%02d%02d%02d",
-							m_ReplayInfo.m_Date.m_Year,
-							m_ReplayInfo.m_Date.m_Month,
-							m_ReplayInfo.m_Date.m_Day,
-							m_ReplayInfo.m_Date.m_Hour,
-							m_ReplayInfo.m_Date.m_Min );
+							m_ReplayDataRecord.m_Date.m_Year,
+							m_ReplayDataRecord.m_Date.m_Month,
+							m_ReplayDataRecord.m_Date.m_Day,
+							m_ReplayDataRecord.m_Date.m_Hour,
+							m_ReplayDataRecord.m_Date.m_Min );
 		}
 
 		MAPIL::EndRendering2DGraphics();
@@ -191,7 +194,17 @@ namespace GameEngine
 		m_DispReplayInfo = info;
 	}
 
-	void ReplayEntry::Impl::AttachReplayInfo( const DisplayedReplayInfo::Entry& info )
+	void ReplayEntry::Impl::AttachReplayDataRecord( const ReplayDataRecord& record )
+	{
+		m_ReplayDataRecord = record;
+	}
+
+	const ReplayDataRecord& ReplayEntry::Impl::GetReplayDataRecord() const
+	{
+		return m_ReplayDataRecord;
+	}
+
+	/*void ReplayEntry::Impl::AttachReplayInfo( const DisplayedReplayInfo::Entry& info )
 	{
 		m_ReplayInfo = info;
 	}
@@ -200,6 +213,8 @@ namespace GameEngine
 	{
 		return m_ReplayInfo;
 	}
+	*/
+
 
 	// ----------------------------------
 	// 実装クラスの呼び出し
@@ -242,13 +257,24 @@ namespace GameEngine
 		m_pImpl->AttachDisplayedReplayInfo( info );
 	}
 
-	void ReplayEntry::AttachReplayInfo( const DisplayedReplayInfo::Entry& info )
+	//void ReplayEntry::AttachReplayInfo( const DisplayedReplayInfo::Entry& info )
+	//{
+	//	m_pImpl->AttachReplayInfo( info );
+	//}
+
+	//const DisplayedReplayInfo::Entry& ReplayEntry::GetReplayInfo() const
+	//{
+	//	return m_pImpl->GetReplayInfo();
+	//}
+
+	void ReplayEntry::AttachReplayDataRecord( const ReplayDataRecord& record )
 	{
-		m_pImpl->AttachReplayInfo( info );
+		m_pImpl->AttachReplayDataRecord( record );
 	}
 
-	const DisplayedReplayInfo::Entry& ReplayEntry::GetReplayInfo() const
+	const ReplayDataRecord& ReplayEntry::GetReplayDataRecord() const
 	{
-		return m_pImpl->GetReplayInfo();
+		return m_pImpl->GetReplayDataRecord();
 	}
+
 }

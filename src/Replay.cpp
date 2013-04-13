@@ -62,14 +62,14 @@ namespace GameEngine
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
 				++m_SelectedReplayNo;
-				if( m_SelectedReplayNo > 14 ){
+				if( m_SelectedReplayNo > MAX_REPLAY_ENTRY - 1 ){
 					m_SelectedReplayNo = 0;
 				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
 				--m_SelectedReplayNo;
 				if( m_SelectedReplayNo < 0 ){
-					m_SelectedReplayNo = 14;
+					m_SelectedReplayNo = MAX_REPLAY_ENTRY - 1;
 				}
 			}
 		}
@@ -121,7 +121,7 @@ namespace GameEngine
 			DrawFontString( m_ResourceMap, 200.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "progress" );
 			DrawFontString( m_ResourceMap, 350.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "score" );
 			DrawFontString( m_ResourceMap, 500.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < 15; ++i ){
+			for( int i = 0; i < MAX_REPLAY_ENTRY; ++i ){
 				if( m_DisplayedReplayInfo.m_Entries[ i ].m_Progress != -1 ){
 					DrawFontString( m_ResourceMap, 30.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
 					DrawFontString( m_ResourceMap, 100.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedReplayInfo.m_Entries[ i ].m_Name );
@@ -145,7 +145,7 @@ namespace GameEngine
 			DrawFontString( m_ResourceMap, 200.0f, 85.0f, 0.5f, 0xFFAAFFAA, "progress" );
 			DrawFontString( m_ResourceMap, 350.0f, 85.0f, 0.5f, 0xFFAAFFAA, "score" );
 			DrawFontString( m_ResourceMap, 500.0f, 85.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < 15; ++i ){
+			for( int i = 0; i < MAX_REPLAY_ENTRY; ++i ){
 				if( m_DisplayedReplayInfo.m_Entries[ i ].m_Progress != -1 ){
 					DrawFontString( m_ResourceMap, 30.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
 					DrawFontString( m_ResourceMap, 100.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedReplayInfo.m_Entries[ i ].m_Name );
@@ -168,7 +168,7 @@ namespace GameEngine
 		}
 
 		if( m_CurSelectState == REPLAY_SELECT_STAGE ){
-			for( int i = 0; i < 5; ++i ){
+			for( int i = 0; i < STAGE_TOTAL; ++i ){
 				std::string str = "stage";
 				str += i + '1';
 				if( m_SelectedStage == ( STAGE_ID_STAGE_1 + i ) ){

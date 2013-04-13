@@ -56,28 +56,28 @@ namespace GameEngine
 			m_PrevDifficulty = m_Difficulty++;
 			m_MovementCounter = 0;
 			m_ScrollDirection = 1;		// 左側にスクロール
-			if( m_Difficulty > 3 ){
-				m_Difficulty = 0;
+			if( m_Difficulty > GAME_DIFFICULTY_TOTAL - 1 ){
+				m_Difficulty = GAME_DIFFICULTY_CALM;
 			}
 		}
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_LEFT ) ){
 			m_PrevDifficulty = m_Difficulty--;
 			m_MovementCounter = 0;
 			m_ScrollDirection = 2;		// 右側にスクロール
-			if( m_Difficulty < 0 ){
-				m_Difficulty = 3;
+			if( m_Difficulty < GAME_DIFFICULTY_CALM ){
+				m_Difficulty = GAME_DIFFICULTY_TOTAL - 1;
 			}
 		}
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
 			++m_SelectedRecord;
-			if( m_SelectedRecord > 14 ){
+			if( m_SelectedRecord > MAX_SCORE_ENTRY - 1 ){
 				m_SelectedRecord = 0;
 			}
 		}
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
 			--m_SelectedRecord;
 			if( m_SelectedRecord < 0 ){
-				m_SelectedRecord = 14;
+				m_SelectedRecord = MAX_SCORE_ENTRY - 1;
 			}
 		}
 
@@ -94,7 +94,7 @@ namespace GameEngine
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 							0.0f, 0.0f, 640.0f, 480.0f, 0.0f, false, 0xFF999999 );
 
-		char* difStr[] = { "easy", "normal", "hard", "hazard" };
+		char* difStr[] = { "calm", "easy", "normal", "hard", "hazard" };
 		char* progStr[] = { "", "stage 1", "stage 2", "stage 3", "stage 4", "stage 5", "all clear" };
 
 		DrawFontString( m_ResourceMap, 200.0f, 30.0f, 1.0f, 0xFFFFFF00, difStr[ m_Difficulty ] );
@@ -108,7 +108,7 @@ namespace GameEngine
 			DrawFontString( m_ResourceMap, 200.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "progress" );
 			DrawFontString( m_ResourceMap, 350.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "score" );
 			DrawFontString( m_ResourceMap, 500.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < 15; ++i ){
+			for( int i = 0; i < MAX_SCORE_ENTRY; ++i ){
 				DrawFontString( m_ResourceMap, 30.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
 				DrawFontString( m_ResourceMap, 100.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Name );
 				DrawFontString( m_ResourceMap, 200.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Progress ] );
@@ -143,7 +143,7 @@ namespace GameEngine
 			DrawFontString( m_ResourceMap, 350.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 85.0f, 0.5f, 0xFFAAFFAA, "score" );
 			DrawFontString( m_ResourceMap, 500.0f - 640.0f * dir + dir * m_MovementCounter * 21.0f, 85.0f, 0.5f, 0xFFAAFFAA, "date" );
 
-			for( int i = 0; i < 15; ++i ){
+			for( int i = 0; i < MAX_SCORE_ENTRY; ++i ){
 				if( m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Date.m_Year != 0 ){
 					DrawFontString( m_ResourceMap, 30.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
 					DrawFontString( m_ResourceMap, 100.0f + dir * m_MovementCounter * 21.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_PrevDifficulty ].m_Record[ i ].m_Name );
@@ -179,7 +179,7 @@ namespace GameEngine
 			DrawFontString( m_ResourceMap, 200.0f, 85.0f, 0.5f, 0xFFAAFFAA, "progress" );
 			DrawFontString( m_ResourceMap, 350.0f, 85.0f, 0.5f, 0xFFAAFFAA, "score" );
 			DrawFontString( m_ResourceMap, 500.0f, 85.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < 15; ++i ){
+			for( int i = 0; i < MAX_SCORE_ENTRY; ++i ){
 				if( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year != 0 ){
 					DrawFontString( m_ResourceMap, 30.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
 					DrawFontString( m_ResourceMap, 100.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Name );
@@ -199,8 +199,8 @@ namespace GameEngine
 							"%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ m_SelectedRecord ].m_Killed );
 			DrawFontString( m_ResourceMap, 160.0f, 400.0f, 0.45f,
 							"%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ m_SelectedRecord ].m_Crystal );
-			for( int i = 0; i < m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ m_SelectedRecord ].m_Progress + 5; ++i ){
-				if( i != 6 ){
+			for( int i = 0; i < m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ m_SelectedRecord ].m_Progress + STAGE_TOTAL; ++i ){
+				if( i != STAGE_TOTAL + 1 ){
 					DrawFontString( m_ResourceMap, 280.0f, 380.0f + i * 20.0f, 0.5f, 0xFFAAFFAA, "%d", i + 1 );
 					DrawFontString( m_ResourceMap, 320.0f, 380.0f + i * 20.0f, 0.5f, "%d",
 									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ m_SelectedRecord ].m_StageData[ i ].m_Score );

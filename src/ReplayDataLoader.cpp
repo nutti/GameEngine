@@ -63,6 +63,7 @@ namespace GameEngine
 		void Cleanup();
 		DisplayedReplayInfo::Entry GetDisplayedInfo( const std::string& fileName ) const;
 		const ReplayDataRecord& GetReplayDataRecord() const;
+		InitialGameData GetIniGameData( int stageNo ) const;
 	};
 
 	ReplayDataLoader::Impl::Impl()
@@ -153,7 +154,7 @@ namespace GameEngine
 		MAPIL::ZeroObject( m_ReplayDataRecord.m_Name, sizeof( m_ReplayDataRecord.m_Name ) );
 		m_ReplayDataRecord.m_Progress = 0;
 		m_ReplayDataRecord.m_Score = 0;
-		for( int i = 0; i < 5; ++i ){
+		for( int i = 0; i < STAGE_TOTAL; ++i ){
 			m_ReplayDataRecord.m_StageKeyStatusList[ i ].m_StatusList.clear();
 		}
 	}
@@ -250,7 +251,7 @@ namespace GameEngine
 		m_ReplayDataRecord.m_Date.m_Min = *p++;
 		m_ReplayDataRecord.m_Date.m_Sec = *p++;
 		// 各ステージデータ開始時のデータを取得
-		for( int i = 0; i < 5; ++i ){
+		for( int i = 0; i < STAGE_TOTAL; ++i ){
 			ReplayDataRecord::StageDataInfo stage;
 			stage.m_IniPosX = GetInt( &p );
 			stage.m_IniPosY = GetInt( &p );
@@ -285,6 +286,30 @@ namespace GameEngine
 	const ReplayDataRecord& ReplayDataLoader::Impl::GetReplayDataRecord() const
 	{
 		return m_ReplayDataRecord;
+	}
+
+	InitialGameData ReplayDataLoader::Impl::GetIniGameData( int stageNo ) const
+	{
+		InitialGameData data;
+
+		MAPIL::ZeroObject( &data, sizeof( data ) );
+
+		// 進行度よりもステージ番号が小さい時に、リプレイ可能
+		if( m_ReplayDataRecord.m_Progress >= stageNo ){
+			data.m_Cons = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniCons;
+			::memcpy( data.m_ConsGauge, m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniConsGauge, sizeof( data.m_ConsGauge ) );
+			::memcpy( data.m_ConsLevel, m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniConsLevel, sizeof( data.m_ConsLevel ) );
+			data.m_Crystal = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniCrystal;
+			data.m_CrystalUsed = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniCrystalUsed;
+			data.m_HP = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniHP;
+			data.m_Killed = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniKilled;
+			data.m_PosX = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniPosX;
+			data.m_PosY = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniPosY;
+			data.m_Score = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniScore;
+			data.m_ShotPower = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniShotPower;
+		}
+
+		return data;
 	}
 
 	// ----------------------------------
@@ -322,5 +347,10 @@ namespace GameEngine
 	const ReplayDataRecord& ReplayDataLoader::GetReplayDataRecord() const
 	{
 		return m_pImpl->GetReplayDataRecord();
+	}
+
+	InitialGameData ReplayDataLoader::GetIniGameData( int stageNo ) const
+	{
+		return m_pImpl->GetIniGameData( stageNo );
 	}
 }

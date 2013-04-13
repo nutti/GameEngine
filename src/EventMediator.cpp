@@ -67,7 +67,7 @@ namespace GameEngine
 		// 3倍速モード
 		static bool isHighSpeedMode = false;
 		// リプレイモード時のみ、高速モード
-		if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_SPACE ) ) && m_pSceneManager->GetCurSceneType() == SCENE_TYPE_REPLAY ){
+		if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_SPACE ) ) && m_pSceneManager->GetGameMode() == GAME_MODE_REPLAY ){
 			isHighSpeedMode = true;
 		}
 		else{
@@ -293,8 +293,8 @@ namespace GameEngine
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				m_pScriptManager->BuildFileStructure( m_pResourceManager->GetArchiveHandle(), "archive/script/build.isc", SCRIPT_FILE_TYPE_BINARY );
 				DisplayedSaveData data;
-				for( int i = 0; i < 4; ++i ){
-					for( int j = 0; j < 25; ++j ){
+				for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
+					for( int j = 0; j < MAX_SCORE_ENTRY; ++j ){
 						data.m_Difficulty[ i ].m_Record[ j ] = m_pGameStateManager->GetRecord( i, j );
 					}
 					data.m_Difficulty[ i ].m_PlayTime = m_pGameStateManager->GetPlayTime( i );
@@ -324,8 +324,8 @@ namespace GameEngine
 				m_pResourceManager->ReleaseStageResources();
 				// 履歴表示
 				DisplayedSaveData data;
-				for( int i = 0; i < 4; ++i ){
-					for( int j = 0; j < 25; ++j ){
+				for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
+					for( int j = 0; j < MAX_SCORE_ENTRY; ++j ){
 						data.m_Difficulty[ i ].m_Record[ j ] = m_pGameStateManager->GetRecord( i, j );
 					}
 					data.m_Difficulty[ i ].m_PlayTime = m_pGameStateManager->GetPlayTime( i );
@@ -355,8 +355,8 @@ namespace GameEngine
 				m_pSceneManager->SetRecordRank( difficulty );
 				// 履歴表示
 				DisplayedSaveData data;
-				for( int i = 0; i < 4; ++i ){
-					for( int j = 0; j < 25; ++j ){
+				for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
+					for( int j = 0; j < MAX_SCORE_ENTRY; ++j ){
 						data.m_Difficulty[ i ].m_Record[ j ] = m_pGameStateManager->GetRecord( i, j );
 					}
 					data.m_Difficulty[ i ].m_PlayTime = m_pGameStateManager->GetPlayTime( i );
@@ -392,7 +392,7 @@ namespace GameEngine
 				m_pResourceManager->ReleaseStageResources();
 				// リプレイの保存
 				//m_pGameStateManager->SaveReplayFile( m_pSceneManager->GetReplayInfo() );
-				m_pGameStateManager->SaveReplay( m_pSceneManager->GetReplayInfo().m_EntryNo, m_pSceneManager->GetReplayDataRecord() );
+				m_pGameStateManager->SaveReplay( m_pSceneManager->GetReplayDataRecord() );
 				// リプレイ一覧を取得
 				DisplayedReplayInfo info = m_pGameStateManager->GetDisplayedReplayInfo();
 				m_pSceneManager->AttachDisplayedReplayInfo( info );
@@ -447,6 +447,10 @@ namespace GameEngine
 				else if( m_pSceneManager->GetGameMode() == GAME_MODE_REPLAY ){
 					m_pButtonManager->ChangeDevice( INPUT_DEVICE_FILE );
 					m_pButtonManager->SetReplayNo( m_pSceneManager->GetReplayNo() );
+					// リプレイ用初期データ取得
+					InitialGameData iniGameData = m_pGameStateManager->GetReplayIniData( m_pSceneManager->GetReplayNo(), stage );
+					// 初期データ設定
+					m_pSceneManager->AttachInitialGameData( iniGameData );
 					m_pButtonManager->SetStageNo( stage );
 				}
 				// シーン変更
@@ -475,6 +479,10 @@ namespace GameEngine
 				else if( m_pSceneManager->GetGameMode() == GAME_MODE_REPLAY ){
 					m_pButtonManager->ChangeDevice( INPUT_DEVICE_FILE );
 					m_pButtonManager->SetReplayNo( m_pSceneManager->GetReplayNo() );
+					// リプレイ用初期データ取得
+					InitialGameData iniGameData = m_pGameStateManager->GetReplayIniData( m_pSceneManager->GetReplayNo(), stage );
+					// 初期データ設定
+					m_pSceneManager->AttachInitialGameData( iniGameData );
 					m_pButtonManager->SetStageNo( stage );
 				}
 				// シーン変更

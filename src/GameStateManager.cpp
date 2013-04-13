@@ -36,8 +36,9 @@ namespace GameEngine
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
 		int GetHIScore( int difficulty ) const;
 		DisplayedReplayInfo GetDisplayedReplayInfo() const;
-		void SaveReplay( int entryNo, const ReplayDataRecord& record );
+		void SaveReplay( const ReplayDataRecord& record );
 		void LoadGameData();
+		InitialGameData GetReplayIniData( int replayNo, int stageNo );
 	};
 
 	GameStateManager::Impl::Impl() :	m_ReplayBuilder(),
@@ -153,7 +154,7 @@ namespace GameEngine
 	{
 		DisplayedReplayInfo info;
 
-		for( int i = 0; i < 25; ++i ){
+		for( int i = 0; i < MAX_REPLAY_ENTRY; ++i ){
 			std::string fileName = REPLAY_FILE_DIR;
 			fileName += '/';
 			fileName += REPLAY_FILE_NAME_PREFIX;
@@ -166,7 +167,7 @@ namespace GameEngine
 		return info;
 	}
 
-	void GameStateManager::Impl::SaveReplay( int entryNo, const ReplayDataRecord& record )
+	void GameStateManager::Impl::SaveReplay( const ReplayDataRecord& record )
 	{
 		if( !FileExist( REPLAY_FILE_DIR ) ){
 			CreateDirectory( REPLAY_FILE_DIR );
@@ -175,8 +176,8 @@ namespace GameEngine
 		std::string fileName = REPLAY_FILE_DIR;
 		fileName += '/';
 		fileName += REPLAY_FILE_NAME_PREFIX;
-		fileName += ( entryNo / 10 ) + '0';
-		fileName += ( entryNo % 10 ) + '0';
+		fileName += ( record.m_EntryNo / 10 ) + '0';
+		fileName += ( record.m_EntryNo % 10 ) + '0';
 		fileName += REPLAY_FILE_NAME_SUFFIX;
 
 		m_ReplayBuilder.Save( fileName, record );
@@ -185,6 +186,24 @@ namespace GameEngine
 	void GameStateManager::Impl::LoadGameData()
 	{
 		m_GameDataHolder.Load( "save/save.dat" );
+	}
+
+	InitialGameData GameStateManager::Impl::GetReplayIniData( int replayNo, int stageNo )
+	{
+		std::string fileName = REPLAY_FILE_DIR;
+		fileName += '/';
+		fileName += REPLAY_FILE_NAME_PREFIX;
+		fileName += ( replayNo / 10 ) + '0';
+		fileName += ( replayNo % 10 ) + '0';
+		fileName += REPLAY_FILE_NAME_SUFFIX;
+
+		ReplayDataLoader loader;
+		InitialGameData iniData;
+		MAPIL::ZeroObject( &iniData, sizeof( iniData ) );
+		loader.Load( fileName );
+		iniData = loader.GetIniGameData( stageNo );
+
+		return iniData;
 	}
 
 	// ----------------------------------
@@ -289,13 +308,18 @@ namespace GameEngine
 		return m_pImpl->GetDisplayedReplayInfo();
 	}
 
-	void GameStateManager::SaveReplay( int entryNo, const ReplayDataRecord& record )
+	void GameStateManager::SaveReplay(  const ReplayDataRecord& record )
 	{
-		m_pImpl->SaveReplay( entryNo, record );
+		m_pImpl->SaveReplay( record );
 	}
 
 	void GameStateManager::LoadGameData()
 	{
 		m_pImpl->LoadGameData();
+	}
+
+	InitialGameData GameStateManager::GetReplayIniData( int replayNo, int stageNo )
+	{
+		return m_pImpl->GetReplayIniData( replayNo, stageNo );
 	}
 }

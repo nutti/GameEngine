@@ -47,14 +47,16 @@ namespace GameEngine
 		int										m_CurStage;				// 現在のステージ
 		int										m_RecordRank;			// スコアのランク
 		int										m_GameMode;				// ゲームモード
+		int										m_ReplayNo;				// リプレイエントリ番号
 
 		int										m_Counter;				// カウンタ
 
 		InitialGameData							m_IniGameData;			// 初期のゲームデータ
 		int										m_HIScore;				// ハイスコア
 
-		void SaveStageScoreData( int stage, const InitialGameData& data );	// ステージのスコアを保存
-		void SaveStageReplayData( int stage, const InitialGameData& data );	// ステージのリプレイ情報を保存
+		void SaveStageScoreData( int stageNo, const Stage& stage );	// ステージのスコアを保存
+		void SaveStageReplayData( int stageNo, const Stage& stage );	// ステージのリプレイ情報を保存
+		void SaveStageReplayData( int stageNo, const InitialGameData& data );
 		void SetupInitialData( const Stage& stage );
 		void PrepareScoreEntry();											// スコアエントリ状態遷移のための準備
 		void PrepareReplayEntry();											// リプレイエントリ状態遷移のための準備
@@ -70,6 +72,7 @@ namespace GameEngine
 		void AttachScriptData( const ScriptData& data );
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
+		void AttachInitialGameData( const InitialGameData& data );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
 		void ChangeScene( SceneType scene );
 		SceneType GetCurSceneType() const;
@@ -98,7 +101,7 @@ namespace GameEngine
 		MAPIL::ZeroObject( &m_SaveDataRecord, sizeof( m_SaveDataRecord ) );
 
 		MAPIL::ZeroObject( &m_ReplayDataRecord.m_StageDataInfo, sizeof( m_ReplayDataRecord.m_StageDataInfo ) );
-		for( int i = 0; i < 5; ++i ){
+		for( int i = 0; i < STAGE_TOTAL; ++i ){
 			m_ReplayDataRecord.m_StageKeyStatusList[ i ].m_StatusList.clear();
 		}
 		m_ReplayDataRecord.m_Crystal = 0;
@@ -108,11 +111,13 @@ namespace GameEngine
 		MAPIL::ZeroObject( &m_ReplayDataRecord.m_Name, sizeof( m_ReplayDataRecord.m_Name ) );
 		m_ReplayDataRecord.m_Progress = 0;
 		m_ReplayDataRecord.m_Score = 0;
+		m_ReplayDataRecord.m_EntryNo = 0;
 		
 		MAPIL::ZeroObject( &m_DisplayedReplayInfo, sizeof( m_DisplayedReplayInfo ) );
 		MAPIL::ZeroObject( &m_ReplayInfo, sizeof( m_ReplayInfo ) );
 		m_GameMode = GAME_MODE_NORMAL;
 		m_Counter = 0;
+		m_ReplayNo = 0;
 	}
 
 	void SceneManager::Impl::PrepareScoreEntry()
@@ -174,41 +179,52 @@ namespace GameEngine
 		m_ReplayDataRecord.m_Score = m_SaveDataRecord.m_Score;
 	}
 
-	void SceneManager::Impl::SaveStageScoreData( int stage, const InitialGameData& data )
+	void SceneManager::Impl::SaveStageScoreData( int stageNo, const Stage& stage )
 	{
-		Stage* pp = dynamic_cast < Stage* > ( m_pCurScene.get() );
-		if( pp ){
-			m_SaveDataRecord.m_StageData[ stage - 1 ].m_Crystal = data.m_Crystal;
-			m_SaveDataRecord.m_StageData[ stage - 1 ].m_CrystalUsed = data.m_CrystalUsed;
-			m_SaveDataRecord.m_StageData[ stage - 1 ].m_Killed = data.m_Killed;
-			m_SaveDataRecord.m_StageData[ stage - 1 ].m_Score = data.m_Score;
-			m_SaveDataRecord.m_StageData[ stage - 1 ].m_Progress = data.m_Progress;
-		}
-		else{
-			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
-		}
+		m_SaveDataRecord.m_StageData[ stageNo - 1 ].m_Crystal = stage.GetCrystal();
+		m_SaveDataRecord.m_StageData[ stageNo - 1 ].m_CrystalUsed = stage.GetCrystalUsed();
+		m_SaveDataRecord.m_StageData[ stageNo - 1 ].m_Killed = stage.GetKilled();
+		m_SaveDataRecord.m_StageData[ stageNo - 1 ].m_Score = stage.GetScore();
+		m_SaveDataRecord.m_StageData[ stageNo - 1 ].m_Progress = stage.GetProgress();
 	}
 
-	void SceneManager::Impl::SaveStageReplayData( int stage, const InitialGameData& data )
+	void SceneManager::Impl::SaveStageReplayData( int stageNo, const Stage& stage )
 	{
-		Stage* pp = dynamic_cast < Stage* > ( m_pCurScene.get() );
-		if( pp ){
-			m_ReplayDataRecord.m_StageKeyStatusList[ stage - 1 ] = pp->GetKeyStates();
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniCons = data.m_Cons;
-			::memcpy( &m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniConsGauge, &data.m_ConsGauge, sizeof( data.m_ConsGauge ) );
-			::memcpy( &m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniConsLevel, &data.m_ConsLevel, sizeof( data.m_ConsLevel ) );
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniCrystal = data.m_Crystal;
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniCrystalUsed = data.m_CrystalUsed;
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniHP = data.m_HP;
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniKilled = data.m_Killed;
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniPosX = data.m_PosX;
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniPosY = data.m_PosY;
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniScore = data.m_Score;
-			m_ReplayDataRecord.m_StageDataInfo[ stage - 1 ].m_IniShotPower = data.m_ShotPower;
+		// キーの状態のみ、ステージ番号-1に設定。
+		m_ReplayDataRecord.m_StageKeyStatusList[ stageNo - 1 ] = stage.GetKeyStates();
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCons = stage.GetPlayerCons();
+		stage.GetPlayerConsGauge( m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniConsGauge );
+		stage.GetPlayerConsLevel( m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniConsLevel );
+		//::memcpy( &m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniConsGauge, &data.m_ConsGauge, sizeof( data.m_ConsGauge ) );
+		//::memcpy( &m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniConsLevel, &data.m_ConsLevel, sizeof( data.m_ConsLevel ) );
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCrystal = stage.GetCrystal();
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCrystalUsed = stage.GetCrystalUsed();
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniHP = stage.GetPlayerHP();
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniKilled = stage.GetKilled();
+		stage.GetPlayerPos(	&m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniPosX,
+							&m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniPosY );
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniScore = stage.GetScore();
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniShotPower = stage.GetPlayerShotPower();
+	}
+
+	void SceneManager::Impl::SaveStageReplayData( int stageNo, const InitialGameData& data )
+	{
+		if( stageNo != 0 ){
+			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Invalid stage no." ), -1 );
 		}
-		else{
-			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
-		}
+
+		// 初期データの保存
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCons = data.m_Cons;
+		::memcpy( &m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniConsGauge, &data.m_ConsGauge, sizeof( data.m_ConsGauge ) );
+		::memcpy( &m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniConsLevel, &data.m_ConsLevel, sizeof( data.m_ConsLevel ) );
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCrystal = data.m_Crystal;
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCrystalUsed = data.m_CrystalUsed;
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniHP = data.m_HP;
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniKilled = data.m_Killed;
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniPosX = data.m_PosX;
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniPosY = data.m_PosY;
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniScore = data.m_Score;
+		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniShotPower = data.m_Score;
 	}
 
 	void SceneManager::Impl::InitializeIniGameData()
@@ -219,7 +235,7 @@ namespace GameEngine
 		m_IniGameData.m_PosY = 400;
 		m_IniGameData.m_HP = 10;
 #if defined ( MAKE_MODE_DEBUG )
-		m_IniGameData.m_HP = 2;
+		m_IniGameData.m_HP = 10;
 #endif
 		for( int i = 0; i < 3; ++i ){
 			m_IniGameData.m_ConsGauge[ i ] = 1000;
@@ -294,6 +310,7 @@ namespace GameEngine
 						Replay* pp = dynamic_cast < Replay* > ( m_pCurScene.get() );
 						if( pp ){
 							m_CurStage = pp->GetReplayStage() + 1;
+							m_ReplayNo = pp->GetReplayNo();
 							// 初期データの設定
 							InitializeIniGameData();
 							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
@@ -303,11 +320,12 @@ namespace GameEngine
 						}
 					}
 					else{
-						m_GameMode = GAME_MODE_NORMAL;
 						if( m_CurSceneType == SCENE_TYPE_MENU ){
+							m_GameMode = GAME_MODE_NORMAL;
 							m_CurStage = 1;
 							// 初期データの設定
 							InitializeIniGameData();
+							SaveStageReplayData( 0, m_IniGameData );
 							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 						}
 						else if( m_CurSceneType == SCENE_TYPE_STAGE ){
@@ -316,9 +334,9 @@ namespace GameEngine
 								// 初期データの構築
 								SetupInitialData( *pStage );
 								// ステージ別のスコア情報を保存
-								SaveStageScoreData( m_CurStage, m_IniGameData );
+								SaveStageScoreData( m_CurStage, *pStage );
 								// ステージ別のリプレイ情報を保存
-								SaveStageReplayData( m_CurStage, m_IniGameData );
+								SaveStageReplayData( m_CurStage, *pStage );
 								// 次のステージ番号を取得し、遷移する
 								m_CurStage = pStage->GetNextStageNo();
 								p->SendEvent( EVENT_TYPE_MOVE_TO_NEXT_STAGE, &m_CurStage );
@@ -345,10 +363,10 @@ namespace GameEngine
 							// 初期データの構築
 							SetupInitialData( *pStage );
 							// ステージ別のスコア情報を保存
-							SaveStageScoreData( m_CurStage, m_IniGameData );
+							SaveStageScoreData( m_CurStage, *pStage );
 							PrepareScoreEntry();
 							// ステージ別のリプレイ情報を保存
-							SaveStageReplayData( m_CurStage, m_IniGameData );
+							SaveStageReplayData( m_CurStage, *pStage );
 							PrepareReplayEntry();
 							p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
 						}
@@ -367,7 +385,8 @@ namespace GameEngine
 						p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SCORE_ENTRY );
 					}
 					else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
-						m_ReplayInfo = ( ( ReplayEntry*) m_pCurScene.get() )->GetReplayInfo();
+						//m_ReplayInfo = ( ( ReplayEntry*) m_pCurScene.get() )->GetReplayInfo();
+						m_ReplayDataRecord = ( (ReplayEntry*) m_pCurScene.get() )->GetReplayDataRecord();
 						p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF );
 					}
 					else{
@@ -401,6 +420,11 @@ namespace GameEngine
 	void SceneManager::Impl::AttachDisplayedReplayInfo( const DisplayedReplayInfo& info )
 	{
 		m_DisplayedReplayInfo = info;
+	}
+
+	void SceneManager::Impl::AttachInitialGameData( const InitialGameData& data )
+	{
+		m_IniGameData = data;
 	}
 
 	void SceneManager::Impl::ChangeScene( SceneType scene )
@@ -478,15 +502,16 @@ namespace GameEngine
 
 	int SceneManager::Impl::GetReplayNo() const
 	{
-		Replay* p = dynamic_cast < Replay* > ( m_pCurScene.get() );
+		/*Replay* p = dynamic_cast < Replay* > ( m_pCurScene.get() );
 		if( p ){
 			return p->GetReplayNo();
 		}
 		else{
-			exit( -1 );
-		}
+			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Must be called from replay" ), -1 );
+		}*/
 
-		return -1;
+		//return -1;
+		return m_ReplayNo;
 	}
 
 	void SceneManager::Impl::SwitchToNextScene()
@@ -520,7 +545,8 @@ namespace GameEngine
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
 			( (ReplayEntry*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
-			( (ReplayEntry*) m_pCurScene.get() )->AttachReplayInfo( m_ReplayInfo );
+			( (ReplayEntry*) m_pCurScene.get() )->AttachReplayDataRecord( m_ReplayDataRecord );
+			//( (ReplayEntry*) m_pCurScene.get() )->AttachReplayInfo( m_ReplayInfo );
 			m_CurSceneType = SCENE_TYPE_REPLAY;
 		}
 		m_pCurScene->AttachResourceMap( m_ResourceMap );
@@ -583,6 +609,11 @@ namespace GameEngine
 	void SceneManager::AttachDisplayedReplayInfo( const DisplayedReplayInfo& info )
 	{
 		m_pImpl->AttachDisplayedReplayInfo( info );
+	}
+
+	void SceneManager::AttachInitialGameData( const InitialGameData& data )
+	{
+		m_pImpl->AttachInitialGameData( data );
 	}
 
 	const DisplayedSaveData& SceneManager::GetDisplayedSaveData() const

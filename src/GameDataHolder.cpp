@@ -12,7 +12,7 @@ namespace GameEngine
 	{
 		struct Difficulty
 		{
-			SaveDataRecord		m_Record[ 25 ];			// 25エントリまでスコアの記録が可能
+			SaveDataRecord		m_Record[ MAX_SCORE_ENTRY ];			// 25エントリまでスコアの記録が可能
 			int					m_AllClear;				// 全クリ回数
 			int					m_PlayTime;				// プレイ時間
 			int					m_StageProgress;		// 各ステージ進行度（1:Stage1クリア）
@@ -20,7 +20,7 @@ namespace GameEngine
 
 		int			m_PlayTime;						// プレイ時間（秒単位）
 		int			m_Progress;						// 進行度（0:未プレイ）
-		Difficulty	m_Difficulty[ 4 ];				// 難易度別ゲーム状態
+		Difficulty	m_Difficulty[ GAME_DIFFICULTY_TOTAL ];				// 難易度別ゲーム状態
 	};
 
 	class GameDataHolder::Impl
@@ -90,11 +90,11 @@ namespace GameEngine
 
 		CopyInt( &data, m_GameFileData.m_PlayTime );
 		CopyInt( &data, m_GameFileData.m_Progress );
-		for( int i = 0; i < 4; ++i ){
+		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
 			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_AllClear );
 			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_PlayTime );
 			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_StageProgress );
-			for( int j = 0; j < 25; ++j ){
+			for( int j = 0; j < MAX_SCORE_ENTRY; ++j ){
 				SaveDataRecord record = m_GameFileData.m_Difficulty[ i ].m_Record[ j ];
 				CopyArray( &data, record.m_Name, sizeof( record.m_Name ) );
 				CopyInt( &data, record.m_Date.m_Year );
@@ -103,7 +103,7 @@ namespace GameEngine
 				data.push_back( record.m_Date.m_Hour );
 				data.push_back( record.m_Date.m_Min );
 				data.push_back( record.m_Date.m_Sec );
-				for( int k = 0; k < 5; ++k ){
+				for( int k = 0; k < STAGE_TOTAL; ++k ){
 					SaveDataRecord::StageData stage = record.m_StageData[ k ];
 					CopyInt( &data, stage.m_Score );
 					CopyInt( &data, stage.m_Killed );
@@ -166,12 +166,12 @@ namespace GameEngine
 		char* p = pData;
 		m_GameFileData.m_PlayTime = GetInt( &p );
 		m_GameFileData.m_Progress = GetInt( &p );
-		for( int i = 0; i < 4; ++i ){
+		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
 			GameFileData::Difficulty difficulty;
 			difficulty.m_AllClear = GetInt( &p );
 			difficulty.m_PlayTime = GetInt( &p );
 			difficulty.m_StageProgress = GetInt( &p );
-			for( int j = 0; j < 25; ++j ){
+			for( int j = 0; j < MAX_SCORE_ENTRY; ++j ){
 				SaveDataRecord record;
 				::memcpy( record.m_Name, p, sizeof( record.m_Name ) );
 				p += sizeof( record.m_Name );
@@ -181,7 +181,7 @@ namespace GameEngine
 				record.m_Date.m_Hour = *p++;
 				record.m_Date.m_Min = *p++;
 				record.m_Date.m_Sec = *p++;
-				for( int k = 0; k < 5; ++k ){
+				for( int k = 0; k < STAGE_TOTAL; ++k ){
 					SaveDataRecord::StageData stage;
 					stage.m_Score = GetInt( &p );
 					stage.m_Killed = GetInt( &p );

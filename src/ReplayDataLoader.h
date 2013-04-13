@@ -26,6 +26,7 @@ namespace GameEngine
 		void Cleanup();
 		DisplayedReplayInfo::Entry GetDisplayedInfo( const std::string& fileName ) const;
 		const ReplayDataRecord& GetReplayDataRecord() const;
+		InitialGameData GetIniGameData( int stageNo ) const;
 	};
 }
 
