@@ -28,6 +28,7 @@ namespace GameEngine
 		void SetRecord( int difficulty, const SaveDataRecord& record );
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
 		int GetHIScore( int difficulty ) const;
+		void Load( const std::string& fileName );
 	};
 }
 

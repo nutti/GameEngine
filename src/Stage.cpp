@@ -110,10 +110,11 @@ namespace GameEngine
 		};
 
 
-		ButtonStatusHolder			m_ButtonStatus;		// ボタンの状態
-		ScriptData					m_ScriptData;		// スクリプトデータ
-		StageData					m_Data;				// ステージ用データ
-		ScoreManager				m_ScoreManager;		// スコア管理クラス
+		ButtonStatusHolder					m_ButtonStatus;		// ボタンの状態
+		ScriptData							m_ScriptData;		// スクリプトデータ
+		StageData							m_Data;				// ステージ用データ
+		ScoreManager						m_ScoreManager;		// スコア管理クラス
+		ReplayDataRecord::StageKeyStates	m_KeyStateList;		// リプレイ用キーリスト
 
 		StageVCPU					m_VM;				// 仮想マシン
 		StageBackground				m_Background;		// 背景
@@ -165,6 +166,7 @@ namespace GameEngine
 		int GetPlayerCons() const;
 		void GetPlayerConsGauge( int* pGauge ) const;
 		void GetPlayerConsLevel( int* pLevel ) const;
+		ReplayDataRecord::StageKeyStates GetKeyStates() const;
 
 		void SetInitialData( const InitialGameData& data );
 
@@ -216,6 +218,7 @@ namespace GameEngine
 
 		m_Profiler.Clear();
 		m_DispProf = false;
+		m_KeyStateList.m_StatusList.clear();
 	}
 
 	Stage::Impl::~Impl()
@@ -1210,6 +1213,9 @@ namespace GameEngine
 		m_Data.m_GameData.m_CrystalUsed += m_Data.m_FrameGameData.m_CrystalUsed;
 		m_Data.m_GameData.m_Killed += m_Data.m_FrameGameData.m_Killed;
 
+		// リプレイデータ更新
+		m_KeyStateList.m_StatusList.push_back( m_ButtonStatus.m_RawButtonStatus );
+
 		// 敵が最後にダメージを受けた時のメッセージを破棄
 		Enemy::ClearLastDamagedMsg();
 
@@ -1708,6 +1714,11 @@ namespace GameEngine
 		}
 	}
 
+	ReplayDataRecord::StageKeyStates Stage::Impl::GetKeyStates() const
+	{
+		return m_KeyStateList;
+	}
+
 
 	void Stage::Impl::SetInitialData( const InitialGameData& data )
 	{
@@ -1824,6 +1835,11 @@ namespace GameEngine
 	void Stage::GetPlayerConsLevel( int* pLevel ) const
 	{
 		m_pImpl->GetPlayerConsLevel( pLevel );
+	}
+
+	ReplayDataRecord::StageKeyStates Stage::GetKeyStates() const
+	{
+		return m_pImpl->GetKeyStates();
 	}
 
 

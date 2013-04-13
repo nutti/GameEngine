@@ -21,10 +21,11 @@ namespace GameEngine
 	public:
 		ReplayDataLoader();
 		~ReplayDataLoader();
-		ButtonPushedStatus GetButtonState( int frame ) const;
+		ButtonPushedStatus GetButtonState( int stage, int frame ) const;
 		void Load( const std::string& fileName );
 		void Cleanup();
 		DisplayedReplayInfo::Entry GetDisplayedInfo( const std::string& fileName ) const;
+		const ReplayDataRecord& GetReplayDataRecord() const;
 	};
 }
 

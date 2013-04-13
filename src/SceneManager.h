@@ -33,7 +33,8 @@ namespace GameEngine
 		void SetGameDifficulty( int difficulty );
 		void SetRecordRank( int rank );
 		void SetHIScore( int score );
-		const SaveDataRecord& GetRecord() const;
+		const SaveDataRecord& GetSaveDataRecord() const;
+		const ReplayDataRecord& GetReplayDataRecord() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();
 		const DisplayedReplayInfo::Entry& GetReplayInfo() const;

@@ -7,6 +7,8 @@
 #include "InputTypes.h"
 #include "Date.h"
 
+#include "GameStateTypes.h"
+
 namespace GameEngine
 {
 	class ReplayDataBuilder
@@ -19,6 +21,7 @@ namespace GameEngine
 		~ReplayDataBuilder();
 		void AddButtonState( ButtonPushedStatus status );
 		void Save( const std::string& fileName );
+		void Save( const std::string& fileName, const ReplayDataRecord& record );
 		void Cleanup();
 		void SetName( const char* pName );
 		void SetProgress( int progress );

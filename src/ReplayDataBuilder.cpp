@@ -46,6 +46,7 @@ namespace GameEngine
 		~Impl(){}
 		void AddButtonState( ButtonPushedStatus status );
 		void Save( const std::string& fileName );
+		void Save( const std::string& fileName, const ReplayDataRecord& record );
 		void Cleanup();
 		void SetName( const char* pName );
 		void SetProgress( int progress );
@@ -136,6 +137,70 @@ namespace GameEngine
 		MAPIL::SafeDeleteArray( pBuf );
 	}
 
+	inline void ReplayDataBuilder::Impl::Save( const std::string& fileName, const ReplayDataRecord& record )
+	{
+		std::vector < char > data;
+		data.reserve( 50000 );		// 50,000バイトを予約
+
+		std::ofstream fOut( fileName, std::ios::binary | std::ios::out );
+		if( !fOut ){
+			return;
+		}
+
+		CopyArray( &data, record.m_Name, sizeof( record.m_Name ) );
+		CopyInt( &data, record.m_Progress );
+		CopyInt( &data, record.m_Score );
+		CopyInt( &data, record.m_Crystal );
+		CopyInt( &data, record.m_CrystalUsed );
+		CopyInt( &data, record.m_Killed );
+		CopyInt( &data, record.m_Difficulty );
+		CopyInt( &data, record.m_Date.m_Year );
+		data.push_back( record.m_Date.m_Month );
+		data.push_back( record.m_Date.m_Day );
+		data.push_back( record.m_Date.m_Hour );
+		data.push_back( record.m_Date.m_Min );
+		data.push_back( record.m_Date.m_Sec );
+		// 各ステージ開始時のデータを保存
+		for( int i = 0; i < 5; ++i ){
+			ReplayDataRecord::StageDataInfo stage = record.m_StageDataInfo[ i ];
+			CopyInt( &data, stage.m_IniPosX );
+			CopyInt( &data, stage.m_IniPosY );
+			CopyInt( &data, stage.m_IniHP );
+			CopyInt( &data, stage.m_IniShotPower );
+			CopyInt( &data, stage.m_IniScore );
+			CopyInt( &data, stage.m_IniKilled );
+			CopyInt( &data, stage.m_IniCrystal );
+			CopyInt( &data, stage.m_IniCrystalUsed );
+			CopyInt( &data, stage.m_IniCons );
+			for( int j = 0; j < 3; ++j ){
+				CopyInt( &data, stage.m_IniConsGauge[ j ] );
+			}
+			for( int j = 0; j < 3; ++j ){
+				CopyInt( &data, stage.m_IniConsLevel[ j ] );
+			}
+			CopyInt( &data, record.m_StageKeyStatusList[ i ].m_StatusList.size() );
+			// 入力ボタンの保存
+			for( unsigned int j = 0; j < record.m_StageKeyStatusList[ i ].m_StatusList.size(); ++j ){
+				data.push_back( record.m_StageKeyStatusList[ i ].m_StatusList[ j ] );
+			}
+		}
+
+		// 圧縮
+		char* pBuf = new char [ data.size() * 2 ];
+		int compSize = 0;
+		MAPIL::LZ lz( 200, 5 );
+		lz.Compress( &data[ 0 ], data.size(), &pBuf, data.size() * 2, &compSize );
+		// シーザ暗号化
+		MAPIL::Caesar caesar( 10 );
+		caesar.Encrypt( pBuf, compSize );
+		// XOR暗号化
+		MAPIL::XOR xor( 60 );
+		xor.Encrypt( pBuf, compSize );
+		fOut.write( pBuf, compSize );
+		fOut.close();
+		MAPIL::SafeDeleteArray( pBuf );
+	}
+
 	inline void ReplayDataBuilder::Impl::Cleanup()
 	{
 		MAPIL::ZeroObject( &m_ReplayDataInfo, sizeof( m_ReplayDataInfo ) );
@@ -198,6 +263,11 @@ namespace GameEngine
 	void ReplayDataBuilder::Save( const std::string& fileName )
 	{
 		m_pImpl->Save( fileName );
+	}
+
+	void ReplayDataBuilder::Save( const std::string& fileName, const ReplayDataRecord& record )
+	{
+		m_pImpl->Save( fileName, record );
 	}
 
 	void ReplayDataBuilder::Cleanup()

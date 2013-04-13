@@ -37,6 +37,7 @@ int SelectWindowMode()
 int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd )
 {
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	
 
 	try{
 #if defined ( MAKE_MODE_RELEASE )
@@ -59,6 +60,7 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd 
 		}
 #else
 		app.Init( true );
+		
 
 		/*int wndMode = SelectWindowMode();
 

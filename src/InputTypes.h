@@ -46,7 +46,8 @@ namespace GameEngine
 	struct ButtonStatusHolder
 	{
 	public:
-		unsigned char		m_Status[ 8 ];
+		unsigned char			m_Status[ 8 ];			// 各ボタンの状態
+		ButtonPushedStatus		m_RawButtonStatus;		// 加工前のボタン状態
 	};
 }
 

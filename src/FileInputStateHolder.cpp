@@ -13,6 +13,7 @@ namespace GameEngine
 		ButtonPushedStatus	m_ButtonStatus;
 		ReplayDataLoader	m_Loader;
 		int					m_Frame;
+		int					m_StageNo;
 	public:
 		Impl();
 		~Impl(){}
@@ -21,6 +22,7 @@ namespace GameEngine
 		void Cleanup();
 		ButtonPushedStatus GetButtonStatus();
 		void LoadFile( int fileNo );
+		void SetStageNo( int stageNo );
 	};
 
 
@@ -36,7 +38,7 @@ namespace GameEngine
 
 	void FileInputStateHolder::Impl::Update()
 	{
-		m_ButtonStatus = m_Loader.GetButtonState( m_Frame );
+		m_ButtonStatus = m_Loader.GetButtonState( m_StageNo, m_Frame );
 		++m_Frame;
 	}
 
@@ -45,6 +47,7 @@ namespace GameEngine
 		m_Loader.Cleanup();
 		m_Frame = 0;
 		m_ButtonStatus = 0;
+		m_StageNo = 0;
 	}
 
 	ButtonPushedStatus FileInputStateHolder::Impl::GetButtonStatus()
@@ -64,6 +67,13 @@ namespace GameEngine
 		fileName += REPLAY_FILE_NAME_SUFFIX;
 
 		m_Loader.Load( fileName );
+	}
+
+	void FileInputStateHolder::Impl::SetStageNo( int stageNo )
+	{
+		m_Frame = 0;
+		m_ButtonStatus = 0;
+		m_StageNo = stageNo;
 	}
 
 
@@ -97,5 +107,10 @@ namespace GameEngine
 	void FileInputStateHolder::LoadFile( int entryNo )
 	{
 		m_pImpl->LoadFile( entryNo );
+	}
+
+	void FileInputStateHolder::SetStageNo( int stageNo )
+	{
+		m_pImpl->SetStageNo( stageNo );
 	}
 }

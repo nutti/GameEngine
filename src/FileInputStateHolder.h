@@ -20,6 +20,7 @@ namespace GameEngine
 		void Update();
 		ButtonPushedStatus GetButtonState();
 		void LoadFile( int entryNo );
+		void SetStageNo( int stageNo );
 	};
 }
 

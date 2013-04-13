@@ -77,13 +77,13 @@ namespace GameEngine
 		if( !wndMode ){
 			MAPIL::ChangeWindowMode( 1 );
 		}
-
 		m_Profiler.Clear();
 	}
 
 	// アプリケーション実行
 	void Application::Impl::Run()
 	{
+
 		// メインループ
 		while( !MAPIL::ProcessMessage() ){
 

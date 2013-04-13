@@ -16,7 +16,7 @@ namespace GameEngine
 	{
 	private:
 		std::auto_ptr < InputStateHolder >		m_pInputStateHolder;		// 入力デバイス
-		int										m_PrevButtonStatus;			// 前回のキーの状態
+	//	int										m_PrevButtonStatus;			// 前回のキーの状態
 		int										m_CurButtonStatus;			// 現在のキーの状態
 		ButtonStatusHolder						m_ButtonStatus;				// ボタンの状態 ( ButtonStatus )
 		int										m_SpecialKeyStatus[ 2 ];	// 特殊キーの状態
@@ -29,6 +29,7 @@ namespace GameEngine
 		void ChangeDevice( InputDevice device );
 		ButtonPushedStatus GetRawButtonStatus() const;
 		void SetReplayNo( int entryNo );
+		void SetStageNo( int stageNo );
 	};
 
 	GeneralButtonManager::Impl::Impl() : m_pInputStateHolder()
@@ -39,10 +40,10 @@ namespace GameEngine
 	void GeneralButtonManager::Impl::Update()
 	{
 		m_pInputStateHolder->Update();
-		int state = m_pInputStateHolder->GetButtonState();
+		m_CurButtonStatus = m_pInputStateHolder->GetButtonState();
 
 		for( int i = 0; i < 8 ; ++i ){
-			if( IsPushed( state, i ) ){
+			if( IsPushed( m_CurButtonStatus, i ) ){
 				// 連続して押されている場合
 				if( m_ButtonStatus.m_Status[ i ] == BUTTON_STATUS_PUSHED ){
 					m_ButtonStatus.m_Status[ i ] = BUTTON_STATUS_KEEP;
@@ -75,7 +76,8 @@ namespace GameEngine
 
 	void GeneralButtonManager::Impl::GetButtonStatus( ButtonStatusHolder* pHolder )
 	{
-		*pHolder = m_ButtonStatus;
+		::memcpy( pHolder->m_Status, m_ButtonStatus.m_Status, sizeof( pHolder->m_Status ) );
+		pHolder->m_RawButtonStatus = m_CurButtonStatus;
 	}
 
 	bool GeneralButtonManager::Impl::IsSpecialKeyPushed( int key )
@@ -110,7 +112,18 @@ namespace GameEngine
 			p->LoadFile( entryNo );
 		}
 		else{
-			exit( 0 );
+			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Input method is not file." ), -1 );
+		}
+	}
+
+	void GeneralButtonManager::Impl::SetStageNo( int stageNo )
+	{
+		FileInputStateHolder* p = dynamic_cast < FileInputStateHolder* > ( m_pInputStateHolder.get() );
+		if( p ){
+			p->SetStageNo( stageNo );
+		}
+		else{
+			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Input method is not file." ), -1 );
 		}
 	}
 
@@ -155,5 +168,10 @@ namespace GameEngine
 	void GeneralButtonManager::SetReplayNo( int entryNo )
 	{
 		m_pImpl->SetReplayNo( entryNo );
+	}
+
+	void GeneralButtonManager::SetStageNo( int stageNo )
+	{
+		m_pImpl->SetStageNo( stageNo );
 	}
 }

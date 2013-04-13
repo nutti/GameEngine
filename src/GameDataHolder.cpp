@@ -108,12 +108,14 @@ namespace GameEngine
 					CopyInt( &data, stage.m_Score );
 					CopyInt( &data, stage.m_Killed );
 					CopyInt( &data, stage.m_Crystal );
+					CopyInt( &data, stage.m_CrystalUsed );
 					CopyInt( &data, stage.m_Progress );
 				}
 				CopyInt( &data, record.m_Score );
 				CopyInt( &data, record.m_Progress );
 				CopyInt( &data, record.m_Killed );
 				CopyInt( &data, record.m_Crystal );
+				CopyInt( &data, record.m_CrystalUsed );
 			}
 		}
 
@@ -135,6 +137,9 @@ namespace GameEngine
 
 	void GameDataHolder::Impl::Load( const std::string& fileName )
 	{
+		// Œ»ÝŽž‚ðŽæ“¾
+		m_TimeStamp = ::time( NULL );
+
 		std::fstream fIn( m_SaveDataFileName, std::ios::binary | std::ios::in );
 		if( !fIn ){
 			return;
@@ -181,6 +186,7 @@ namespace GameEngine
 					stage.m_Score = GetInt( &p );
 					stage.m_Killed = GetInt( &p );
 					stage.m_Crystal = GetInt( &p );
+					stage.m_CrystalUsed = GetInt( &p );
 					stage.m_Progress = GetInt( &p );
 					record.m_StageData[ k ] = stage;
 				}
@@ -188,6 +194,7 @@ namespace GameEngine
 				record.m_Progress = GetInt( &p );
 				record.m_Killed = GetInt( &p );
 				record.m_Crystal = GetInt( &p );
+				record.m_CrystalUsed = GetInt( &p );
 				difficulty.m_Record[ j ] = record;
 			}
 			m_GameFileData.m_Difficulty[ i ] = difficulty;
@@ -341,5 +348,10 @@ namespace GameEngine
 	int GameDataHolder::GetHIScore( int difficulty ) const
 	{
 		return m_pImpl->GetHIScore( difficulty );
+	}
+
+	void GameDataHolder::Load( const std::string& fileName )
+	{
+		m_pImpl->Load( fileName );
 	}
 }

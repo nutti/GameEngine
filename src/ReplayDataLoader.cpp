@@ -11,7 +11,7 @@ namespace GameEngine
 	const char* REPLAY_FILE_NAME_PREFIX = "replay";
 	const char* REPLAY_FILE_NAME_SUFFIX = ".rpy";
 
-	struct ReplayDataInfo
+	/*struct ReplayDataInfo
 	{
 		struct StageData
 		{
@@ -46,34 +46,36 @@ namespace GameEngine
 		Date					m_Date;					// 作成日時
 
 		StageData				m_StageData[ 5 ];		// 初期ステージデータ
-	};
+	};*/
 
 	class ReplayDataLoader::Impl
 	{
 	private:
-		std::vector < ButtonPushedStatus >		m_ButtonList;			// 過去のボタンの履歴
-		ReplayDataInfo							m_ReplayDataInfo;		// リプレイデータの情報
+		//std::vector < ButtonPushedStatus >		m_ButtonList;			// 過去のボタンの履歴
+		//ReplayDataInfo							m_ReplayDataInfo;		// リプレイデータの情報
+		ReplayDataRecord						m_ReplayDataRecord;		// リプレイデータ
 	public:
 		Impl();
 		~Impl(){}
-		ButtonPushedStatus GetButtonState( int frame ) const;
+		ButtonPushedStatus GetButtonState( int stageNo, int frame ) const;
+		//void Load( const std::string& fileName );
 		void Load( const std::string& fileName );
 		void Cleanup();
 		DisplayedReplayInfo::Entry GetDisplayedInfo( const std::string& fileName ) const;
+		const ReplayDataRecord& GetReplayDataRecord() const;
 	};
 
 	ReplayDataLoader::Impl::Impl()
 	{
-		MAPIL::ZeroObject( &m_ReplayDataInfo, sizeof( m_ReplayDataInfo ) );
-		m_ButtonList.clear();
+		Cleanup();
 	}
 
-	ButtonPushedStatus ReplayDataLoader::Impl::GetButtonState( int frame ) const
+	ButtonPushedStatus ReplayDataLoader::Impl::GetButtonState( int stageNo, int frame ) const
 	{
-		return m_ButtonList[ frame ];
+		return m_ReplayDataRecord.m_StageKeyStatusList[ stageNo - 1 ].m_StatusList[ frame ];
 	}
 
-	void ReplayDataLoader::Impl::Load( const std::string& fileName )
+	/*void ReplayDataLoader::Impl::Load( const std::string& fileName )
 	{
 		// ファイルの読み込み
 		std::fstream fIn( fileName, std::ios::binary | std::ios::in );
@@ -138,12 +140,22 @@ namespace GameEngine
 		}
 
 		MAPIL::SafeDeleteArray( pData );
-	}
+	}*/
 
 	void ReplayDataLoader::Impl::Cleanup()
 	{
-		MAPIL::ZeroObject( &m_ReplayDataInfo, sizeof( m_ReplayDataInfo ) );
-		m_ButtonList.clear();
+		MAPIL::ZeroObject( &m_ReplayDataRecord.m_StageDataInfo, sizeof( m_ReplayDataRecord.m_StageDataInfo ) );
+		m_ReplayDataRecord.m_Crystal = 0;
+		m_ReplayDataRecord.m_CrystalUsed = 0;
+		MAPIL::ZeroObject( &m_ReplayDataRecord.m_Date, sizeof( m_ReplayDataRecord.m_Date ) );
+		m_ReplayDataRecord.m_Difficulty = 0;
+		m_ReplayDataRecord.m_Killed = 0;
+		MAPIL::ZeroObject( m_ReplayDataRecord.m_Name, sizeof( m_ReplayDataRecord.m_Name ) );
+		m_ReplayDataRecord.m_Progress = 0;
+		m_ReplayDataRecord.m_Score = 0;
+		for( int i = 0; i < 5; ++i ){
+			m_ReplayDataRecord.m_StageKeyStatusList[ i ].m_StatusList.clear();
+		}
 	}
 
 	DisplayedReplayInfo::Entry ReplayDataLoader::Impl::GetDisplayedInfo( const std::string& fileName ) const
@@ -184,6 +196,7 @@ namespace GameEngine
 		entry.m_Progress = GetInt( &p );
 		entry.m_Score = GetInt( &p );
 		entry.m_Crystal = GetInt( &p );
+		entry.m_CrystalUsed = GetInt( &p );
 		entry.m_Killed = GetInt( &p );
 		entry.m_Difficulty = GetInt( &p );
 		entry.m_Date.m_Year = GetInt( &p );
@@ -198,6 +211,82 @@ namespace GameEngine
 		return entry;
 	}
 
+	void ReplayDataLoader::Impl::Load( const std::string& fileName )
+	{
+		// ファイルの読み込み
+		std::fstream fIn( fileName, std::ios::binary | std::ios::in );
+		int size = GetFileSize( fIn );
+		char* pBuf = new char [ size ];
+		fIn.read( pBuf, size * sizeof( char ) );
+		fIn.close();
+
+		// XOR暗号復号化
+		MAPIL::XOR xor( 60 );
+		xor.Decrypt( pBuf, size );
+		// シーザ暗号復号化
+		MAPIL::Caesar caesar( 10 );
+		caesar.Decrypt( pBuf, size );
+		// 解凍
+		MAPIL::LZ lz( 200, 5 );
+		char* pData = new char [ size * 1000 ];
+		int dataSize = 0;
+		lz.Expand( pBuf, size, &pData, size * 1000, &dataSize );
+		MAPIL::SafeDeleteArray( pBuf );
+
+		// データ設定
+		char* p = pData;
+		::memcpy( m_ReplayDataRecord.m_Name, p, sizeof( m_ReplayDataRecord.m_Name ) );
+		p += sizeof( m_ReplayDataRecord.m_Name );
+		m_ReplayDataRecord.m_Progress = GetInt( &p );
+		m_ReplayDataRecord.m_Score = GetInt( &p );
+		m_ReplayDataRecord.m_Crystal = GetInt( &p );
+		m_ReplayDataRecord.m_CrystalUsed = GetInt( &p );
+		m_ReplayDataRecord.m_Killed = GetInt( &p );
+		m_ReplayDataRecord.m_Difficulty = GetInt( &p );
+		m_ReplayDataRecord.m_Date.m_Year = GetInt( &p );
+		m_ReplayDataRecord.m_Date.m_Month = *p++;
+		m_ReplayDataRecord.m_Date.m_Day = *p++;
+		m_ReplayDataRecord.m_Date.m_Hour = *p++;
+		m_ReplayDataRecord.m_Date.m_Min = *p++;
+		m_ReplayDataRecord.m_Date.m_Sec = *p++;
+		// 各ステージデータ開始時のデータを取得
+		for( int i = 0; i < 5; ++i ){
+			ReplayDataRecord::StageDataInfo stage;
+			stage.m_IniPosX = GetInt( &p );
+			stage.m_IniPosY = GetInt( &p );
+			stage.m_IniHP = GetInt( &p );
+			stage.m_IniShotPower = GetInt( &p );
+			stage.m_IniScore = GetInt( &p );
+			stage.m_IniKilled = GetInt( &p );
+			stage.m_IniCrystal = GetInt( &p );
+			stage.m_IniCrystalUsed = GetInt( &p );
+			stage.m_IniCons = GetInt( &p );
+			for( int j = 0; j < 3; ++j ){
+				stage.m_IniConsGauge[ j ] = GetInt( &p );
+			}
+			for( int j = 0; j < 3; ++j ){
+				stage.m_IniConsLevel[ j ] = GetInt( &p );
+			}
+			m_ReplayDataRecord.m_StageDataInfo[ i ] = stage;
+
+			int frameTotal = GetInt( &p );
+			// 入力ボタンのロード
+			m_ReplayDataRecord.m_StageKeyStatusList[ i ].m_StatusList.resize( frameTotal + 50, 0 );
+			for( unsigned int j = 0; j < frameTotal; ++j ){
+				m_ReplayDataRecord.m_StageKeyStatusList[ i ].m_StatusList[ j ] = *p++;
+			}
+		}
+
+		
+
+		MAPIL::SafeDeleteArray( pData );
+	}
+
+	const ReplayDataRecord& ReplayDataLoader::Impl::GetReplayDataRecord() const
+	{
+		return m_ReplayDataRecord;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -210,9 +299,9 @@ namespace GameEngine
 	{
 	}
 
-	ButtonPushedStatus ReplayDataLoader::GetButtonState( int frame ) const
+	ButtonPushedStatus ReplayDataLoader::GetButtonState( int stageNo, int frame ) const
 	{
-		return m_pImpl->GetButtonState( frame );
+		return m_pImpl->GetButtonState( stageNo, frame );
 	}
 	
 	void ReplayDataLoader::Load( const std::string& fileName )
@@ -228,5 +317,10 @@ namespace GameEngine
 	DisplayedReplayInfo::Entry ReplayDataLoader::GetDisplayedInfo( const std::string& fileName ) const
 	{
 		return m_pImpl->GetDisplayedInfo( fileName );
+	}
+
+	const ReplayDataRecord& ReplayDataLoader::GetReplayDataRecord() const
+	{
+		return m_pImpl->GetReplayDataRecord();
 	}
 }

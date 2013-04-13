@@ -113,6 +113,7 @@ namespace GameEngine
 		int		m_Cons;					// 初期の意識状態
 		int		m_ConsGauge[ 3 ];		// 初期の意識ゲージ
 		int		m_ConsLevel[ 3 ];		// 初期の意識レベル
+		int		m_Progress;				// ステージ進行度
 	};
 
 	struct ScriptData;
@@ -145,6 +146,7 @@ namespace GameEngine
 		void GetPlayerConsGauge( int* pGauge ) const;
 		void GetPlayerConsLevel( int* pLevel ) const;
 
+		ReplayDataRecord::StageKeyStates GetKeyStates() const;
 
 
 		void SetInitialData( const InitialGameData& data );

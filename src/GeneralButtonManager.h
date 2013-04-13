@@ -20,6 +20,7 @@ namespace GameEngine
 		void ChangeDevice( InputDevice device );
 		ButtonPushedStatus GetRawButtonStatus() const;
 		void SetReplayNo( int entryNo );
+		void SetStageNo( int stageNo );
 	};
 }
 
