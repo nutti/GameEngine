@@ -430,8 +430,11 @@ namespace GameEngine
 				m_Loading.AddStageResourceItem( stage, false );
 				//m_Loading.AddStageResourceItem( 2, false );
 #elif defined ( USE_GAME_UNIT )
+#if defined ( MAKE_MODE_RELEASE )
 				m_Loading.AddStageResourceItem( stage, false );
-				//m_Loading.AddStageResourceItem( 2, false );
+#elif defined ( MAKE_MODE_DEBUG )
+				m_Loading.AddStageResourceItem( 2, false );
+#endif
 #endif
 				m_Loading.Start();
 				// ゲームデータの初期化（※2面以降が問題？）
@@ -449,6 +452,7 @@ namespace GameEngine
 					m_pButtonManager->SetReplayNo( m_pSceneManager->GetReplayNo() );
 					// リプレイ用初期データ取得
 					InitialGameData iniGameData = m_pGameStateManager->GetReplayIniData( m_pSceneManager->GetReplayNo(), stage );
+					iniGameData.m_HIScore = m_pGameStateManager->GetHIScore( GAME_DIFFICULTY_EASY );
 					// 初期データ設定
 					m_pSceneManager->AttachInitialGameData( iniGameData );
 					m_pButtonManager->SetStageNo( stage );
@@ -481,6 +485,7 @@ namespace GameEngine
 					m_pButtonManager->SetReplayNo( m_pSceneManager->GetReplayNo() );
 					// リプレイ用初期データ取得
 					InitialGameData iniGameData = m_pGameStateManager->GetReplayIniData( m_pSceneManager->GetReplayNo(), stage );
+					iniGameData.m_HIScore = m_pGameStateManager->GetHIScore( GAME_DIFFICULTY_EASY );
 					// 初期データ設定
 					m_pSceneManager->AttachInitialGameData( iniGameData );
 					m_pButtonManager->SetStageNo( stage );

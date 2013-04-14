@@ -294,6 +294,7 @@ namespace GameEngine
 		if( next != SCENE_TYPE_NOT_CHANGE && m_CurSceneType != SCENE_TYPE_LOADING ){
 			if( std::shared_ptr < EventMediator > p = m_pEventMediator.lock() ){
 				if( next == SCENE_TYPE_MENU ){
+					m_GameMode = GAME_MODE_NORMAL;
 					if( m_CurSceneType == SCENE_TYPE_REPLAY_ENTRY ){
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY );
 					}

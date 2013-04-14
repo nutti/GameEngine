@@ -133,8 +133,8 @@ namespace GameEngine
 			}
 		}
 		else if( m_ItemData.m_ItemID == ITEM_ID_CRYSTAL ){
-			float scaleX = m_ItemData.m_ItemSubID * 0.025f;
-			float scaleY = m_ItemData.m_ItemSubID * 0.025f;
+			float scaleX = m_ItemData.m_ItemSubID * 0.03f + 0.1f;
+			float scaleY = m_ItemData.m_ItemSubID * 0.03f + 0.1f;
 			if( m_ItemData.m_Counter <= 10 ){
 				scaleY += 0.3f * m_ItemData.m_Counter / 10.0f;
 				scaleX += 0.3f + ( 10 - m_ItemData.m_Counter ) * 0.1f;

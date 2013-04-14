@@ -268,7 +268,7 @@ namespace GameEngine
 	// atan2
 	GameUnit Atan2GU( GameUnit y, GameUnit x )
 	{
-		return GameUnit( (float)MAPIL::RadToDeg( std::atan2( (float)y.GetRawValue(), (float)x.GetRawValue() ) ) );
+		return GameUnit( (float)MAPIL::RadToDeg( std::atan2( y.GetFloat(), x.GetFloat() ) ) );
 	}
 
 	// abs

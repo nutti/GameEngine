@@ -11,10 +11,18 @@ namespace GameEngine
 	private:
 		EnemyShotGroupData*		m_pEnemyShotGroupData;
 
+		void SysGetPlayerPosXGU();
+		void SysGetPlayerPosYGU();
+		void SysGetEnemyPosXGU();
+		void SysGetEnemyPosYGU();
+
+
 		void SysGetPlayerPosX();
 		void SysGetPlayerPosY();
 		
 		void SysGetRandF();
+		void SysGetRandGU();
+		
 
 		void SysGetEnemyPosX();
 		void SysGetEnemyPosY();
@@ -24,6 +32,8 @@ namespace GameEngine
 		void SysGetEnemyCounterF();
 		void SysGetEnemyAngle();
 		void SysGetEnemyConsGauge();
+
+		void SysSetEnemyShotStatusGU();
 
 		void SysCreateEnemyShot();
 		void SysCreateConsEnemyShot();

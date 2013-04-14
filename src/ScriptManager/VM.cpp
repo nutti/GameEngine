@@ -81,6 +81,12 @@ void VM::VCPU::OpSysCall( int val )
 		case SYS_FLOAT_TO_INT:
 			SysFloatToInt();
 			break;
+		case SYS_INT_TO_GU:
+			SysIntToGU();
+			break;
+		case SYS_GU_TO_INT:
+			SysGUToInt();
+			break;
 		case SYS_ADD_SCORE:
 			SysAddScore();
 			break;
@@ -102,6 +108,20 @@ void VM::VCPU::OpSysCall( int val )
 		case SYS_SQRT:
 			SysSqrt();
 			break;
+
+		case SYS_SIN_GU:
+			SysSinGU();
+			break;
+		case SYS_COS_GU:
+			SysCosGU();
+			break;
+		case SYS_ATAN2_GU:
+			SysAtan2GU();
+			break;
+		case SYS_ABS_GU:
+			SysAbsGU();
+			break;
+
 		case SYS_DEG_TO_RAD:
 			SysDegToRad();
 			break;
@@ -149,6 +169,20 @@ void VM::VCPU::SysIntToFloat()
 	Push( static_cast < float > ( i ) );
 }
 
+void VM::VCPU::SysIntToGU()
+{
+	int i = Top().m_Integer;
+	Pop();
+	Push( GameEngine::ToGU( i ) );
+}
+
+void VM::VCPU::SysGUToInt()
+{
+	int gu = Top().m_Integer;
+	Pop();
+	Push( GameEngine::ToInt( gu ) );
+}
+
 void VM::VCPU::SysAddScore()
 {
 	int score = Top().m_Integer;
@@ -185,6 +219,41 @@ void VM::VCPU::SysSqrt()
 	float val = Top().m_Float;
 	Pop();
 	Push( std::sqrtf( val ) );
+}
+
+void VM::VCPU::SysSinGU()
+{
+	GameEngine::GameUnit deg;
+	deg.SetRawValue( Top().m_Integer );
+	Pop();
+	Push( GameEngine::SinGU( deg ).GetRawValue() );
+}
+
+void VM::VCPU::SysCosGU()
+{
+	GameEngine::GameUnit deg;
+	deg.SetRawValue( Top().m_Integer );
+	Pop();
+	Push( GameEngine::CosGU( deg ).GetRawValue() );
+}
+
+void VM::VCPU::SysAtan2GU()
+{
+	GameEngine::GameUnit x;
+	GameEngine::GameUnit y;
+	x.SetRawValue( Top().m_Integer );
+	Pop();
+	y.SetRawValue( Top().m_Integer );
+	Pop();
+	Push( GameEngine::Atan2GU( y, x ).GetRawValue() );
+}
+
+void VM::VCPU::SysAbsGU()
+{
+	GameEngine::GameUnit value;
+	value.SetRawValue( Top().m_Integer );
+	Pop();
+	Push( GameEngine::AbsGU( value ).GetRawValue() );
 }
 
 void VM::VCPU::SysAbs()
@@ -252,7 +321,6 @@ void VM::VCPU::OpFEq()
 	Pop();
 	float lhs = Top().m_Float;
 	Pop();
-	printf( "test" );
 	Push( (int)(lhs == rhs) );
 }
 
@@ -342,7 +410,7 @@ void VM::VCPU::OpFDiv()
 
 void VM::VCPU::OpGUNeg()
 {
-	Top().m_Integer = -GameEngine::GUNeg( Top().m_Integer );
+	Top().m_Integer = GameEngine::GUNeg( Top().m_Integer );
 }
 
 void VM::VCPU::OpGUEq()

@@ -8,6 +8,16 @@ namespace GameEngine
 	typedef int		ScriptGU;
 	const int SCRIPT_GU_DECIMAL_SHIFT	= 10;
 
+	inline int ToInt( int gu )
+	{
+		return gu >> SCRIPT_GU_DECIMAL_SHIFT;
+	}
+
+	inline ScriptGU ToGU( int i )
+	{
+		return i << SCRIPT_GU_DECIMAL_SHIFT;
+	}
+
 	inline ScriptGU MakeGU( int i, int d )
 	{
 		return ( i << SCRIPT_GU_DECIMAL_SHIFT ) + d;
@@ -26,7 +36,7 @@ namespace GameEngine
 	inline ScriptGU GUMul( const ScriptGU& lhs, const ScriptGU& rhs )
 	{
 		long long value = ( static_cast < long long > ( lhs ) * rhs );
-		return value >> SCRIPT_GU_DECIMAL_SHIFT;
+		return static_cast < int > ( value >> SCRIPT_GU_DECIMAL_SHIFT );
 	}
 
 	inline ScriptGU GUDiv( const ScriptGU& lhs, const ScriptGU& rhs )
@@ -340,6 +350,7 @@ namespace GameEngine
 		bool operator!=( const GameUnit& u );
 
 		int GetRawValue() const;
+		void SetRawValue( int value );
 		int GetUnit() const;
 		int GetInt() const;
 		float GetFloat() const;
@@ -444,27 +455,16 @@ namespace GameEngine
 
 	inline GameUnit& GameUnit::operator*=( const GameUnit& u )
 	{
-		int sign = m_Sign.m_Sign ^ u.m_Sign.m_Sign;
-		if( sign == 1 ){
-			int a = 0;
-		}
 		long long value = ( static_cast < long long > ( m_Value ) * u.m_Value );
-		//m_Value = ( ( value >> SHIFT ) ^ ( ( 1 - sign ) - 1 ) ) + sign;
-		m_Value = value >> SHIFT;
-		
-		
-		//m_Sign.m_Value = ( static_cast < long long > ( m_Sign.m_Value ) * u.m_Sign.m_Value );
-		//long long value = ( static_cast < long long > ( m_Value ) * u.m_Value );
-		//m_Value = value > 0 ? ( value >> SHIFT ) : -( (-value) >> SHIFT );
+		m_Value = static_cast < int > ( value >> SHIFT );
 		return *this;
 	}
 
 	inline GameUnit& GameUnit::operator/=( const GameUnit& u )
 	{
-		//int sign = m_Sign.m_Sign;
-		int value = ( static_cast < long long > ( m_Value << SHIFT ) / u.m_Value );
-		//m_Value = ( ( value ) ^ ( ( 1 - sign ) ) ) + sign;
+		int value = ( ( static_cast < long long > ( m_Value ) << SHIFT ) / u.m_Value );
 		m_Value = value;
+		//m_Value = ( ( static_cast < long long > ( m_Value << ( SHIFT * 2 ) ) / u.m_Value ) >> SHIFT );
 		return *this;
 	}
 
@@ -514,6 +514,11 @@ namespace GameEngine
 	inline int GameUnit::GetRawValue() const
 	{
 		return m_Value;
+	}
+
+	inline void GameUnit::SetRawValue( int value )
+	{
+		m_Value = value;
 	}
 
 	inline int GameUnit::GetUnit() const

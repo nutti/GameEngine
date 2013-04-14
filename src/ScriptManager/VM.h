@@ -33,6 +33,8 @@ namespace VM
 
 		SYS_INT_TO_FLOAT,			// Convert int to float.
 		SYS_FLOAT_TO_INT,			// Convert float to int.
+		SYS_GU_TO_INT,				// Convert gu to int.
+		SYS_INT_TO_GU,				// Convert int to gu.
 
 		SYS_SIN,					// Call math library sin().
 		SYS_COS,					// Call math library cos().
@@ -41,12 +43,22 @@ namespace VM
 		SYS_FABS,					// Call math library std::fabs( float ).
 		SYS_SQRT,					// Call math library std::sqrt( float ).
 
+		// GU version math library.
+		SYS_SIN_GU,
+		SYS_COS_GU,
+		SYS_ATAN2_GU,
+		SYS_ABS_GU,
+		SYS_FABS_GU,
+
 		SYS_DEG_TO_RAD,				// Convert degree to radius.
 
+		SYS_GET_PLAYER_POSX_GU,		// Get player position. (X, gameunit)
+		SYS_GET_PLAYER_POSY_GU,		// Get player position. (Y, gameunit)
 		SYS_GET_PLAYER_POSX,		// Get player position. ( X )
 		SYS_GET_PLAYER_POSY,		// Get player position. ( Y )
 		SYS_GET_PLAYER_HP,			// Get player HP.
 		SYS_GET_RANDOM_F,			// Get random. (float)
+		SYS_GET_RANDOM_GU,			// Get random. (gameunit)
 		SYS_ADD_SCORE,				// Add score.
 
 		SYS_PLAY_SE,		// Play SE.
@@ -55,6 +67,10 @@ namespace VM
 		SYS_STOP_BGM,		// Stop BGM.
 
 		// For enemy script.
+		SYS_ENEMY_GET_POSX_GU,				// Get position. (X, gameunit)
+		SYS_ENEMY_GET_POSY_GU,				// Get position. (Y, gameunit)
+		SYS_ENEMY_SET_COLLISION_RADIUS_GU,	// Set collision radius. (gameunit)
+		SYS_ENEMY_SET_POS_GU,				// Set position. (gameunit)
 		SYS_ENEMY_GET_POSX,			// Get position. ( X )
 		SYS_ENEMY_GET_POSY,			// Get position. ( Y )
 		SYS_ENEMY_GET_HP,			// Get HP.
@@ -92,12 +108,16 @@ namespace VM
 
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)
+		SYS_ENEMY_CREATE_EFFECT_1_GU,		// Create effect. (Bombbed Effect. gameunit)
 		SYS_ENEMY_CREATE_SHOT_GROUP,		// Create shot group.
 		SYS_ENEMY_CREATE_SHOT_GROUP_REG,	// Create shot group. (1 Register)
 		SYS_ENEMY_CREATE_SHOT_GROUP_FREG,	// Create shot group. (1 Floating-point register)
 		SYS_CREATE_ITEM,		// Create item.
+		SYS_CREATE_ITEM_GU,		// Create item. (gameunit)
 
 		// For enemy shot group.
+		SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU,
+
 		SYS_ENEMY_SHOT_GROUP_CREATE_SHOT,
 		SYS_ENEMY_SHOT_GROUP_CREATE_CONS_SHOT,
 		SYS_ENEMY_SHOT_GROUP_SET_POS,
@@ -617,6 +637,8 @@ namespace VM
 
 		void SysFloatToInt();
 		void SysIntToFloat();
+		void SysIntToGU();
+		void SysGUToInt();
 		void SysAddScore();
 
 		void SysSin();
@@ -626,6 +648,12 @@ namespace VM
 		void SysFabs();
 		void SysDegToRad();
 		void SysSqrt();
+
+		void SysSinGU();
+		void SysCosGU();
+		void SysAtan2GU();
+		void SysAbsGU();
+
 
 		void SysPlaySE();
 		void SysStopSE();

@@ -565,9 +565,13 @@ namespace GameEngine
 		else{
 
 			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
-				GameUnit r = CosGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
+#if defined ( MAKE_MODE_RELEASE )
 				m_GUData.m_PosX += m_GUData.m_Speed * CosGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
 				m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
+#elif defined ( MAKE_MODE_DEBUG )
+				m_GUData.m_PosX += m_GUData.m_Speed * CosGU( m_GUData.m_Angle );
+				m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( m_GUData.m_Angle );
+#endif
 				m_Circle.SetCenterX( m_GUData.m_PosX.GetFloat() );
 				m_Circle.SetCenterY( m_GUData.m_PosY.GetFloat() );
 			}
@@ -586,7 +590,11 @@ namespace GameEngine
 		}
 
 		if( m_ImgRotMode == IMG_ROT_MODE_SYNC ){
+#if defined ( MAKE_MODE_RELEASE )
 			m_ImgRotAngle = m_GUData.m_Angle.GetFloat() + MAPIL::DegToRad( 90.0f );
+#elif defined ( MAKE_MODE_DEBUG )
+			m_ImgRotAngle = MAPIL::DegToRad( m_GUData.m_Angle.GetFloat() + 90.0f );
+#endif
 		}
 		else if( m_ImgRotMode == IMG_ROT_MODE_AUTO ){
 			m_ImgRotAngle += m_ImgRotAnglePerFrame;

@@ -11,12 +11,18 @@ namespace GameEngine
 	private:
 		EnemyData*		m_pEnemyData;
 
+		void SysGetPlayerPosXGU();
+		void SysGetPlayerPosYGU();
 		void SysGetPlayerPosX();
 		void SysGetPlayerPosY();
 		void SysGetPlayerHP();
 		
 		void SysGetRandF();
 
+		void SysGetEnemyPosXGU();
+		void SysGetEnemyPosYGU();
+		void SysSetEnemyCollisionRadiusGU();
+		void SysSetEnemyPosGU();
 		void SysGetEnemyPosX();
 		void SysGetEnemyPosY();
 		void SysGetEnemyHP();
@@ -53,6 +59,7 @@ namespace GameEngine
 
 		void SysCreateEnemyShot1();
 		void SysCreateEffect1();
+		void SysCreateEffect1GU();
 		void SysCreateEnemyShotGroup();
 		void SysCreateEnemyShotGroupReg();
 		void SysCreateEnemyShotGroupFReg();
@@ -62,6 +69,7 @@ namespace GameEngine
 		void SysEnemyShiftNextMode();
 
 		void SysCreateItem();
+		void SysCreateItemGU();
 
 		void SysPlaySE();
 		void SysStopSE();

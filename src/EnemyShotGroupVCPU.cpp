@@ -600,12 +600,112 @@ namespace GameEngine
 		}
 	}
 
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotStatusGU()
+	{
+		GameUnit x;
+		GameUnit y;
+		GameUnit angle;
+		GameUnit speed;
+		GameUnit radius;
+
+		Pop();
+		int imgID = Top().m_Integer;
+		Pop();
+		radius.SetRawValue( Top().m_Integer );
+		Pop();
+		speed.SetRawValue( Top().m_Integer );
+		Pop();
+		angle.SetRawValue( Top().m_Integer );
+		Pop();
+		y.SetRawValue( Top().m_Integer );
+		Pop();
+		x.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetPos( x, y );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetAngle( angle );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetSpeed( speed );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetCollisionRadius( radius );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetImage( imgID );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyPosXGU()
+	{
+		Pop();
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			Push( m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosX.GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyPosYGU()
+	{
+		Pop();
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			Push( m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosY.GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetPlayerPosXGU()
+	{
+		Pop();
+		GameUnit x;
+		GameUnit y;
+		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
+		Push( x.GetRawValue() );
+	}
+
+	void EnemyShotGroupVCPU::SysGetPlayerPosYGU()
+	{
+		Pop();
+		GameUnit x;
+		GameUnit y;
+		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
+		Push( y.GetRawValue() );
+	}
+
+	void EnemyShotGroupVCPU::SysGetRandGU()
+	{
+		Pop();
+		GameUnit r = m_pEnemyShotGroupData->m_pStageData->m_RandGen.GetRand();
+		GameUnit max = m_pEnemyShotGroupData->m_pStageData->m_RandGen.GetRandMax();
+		GameUnit l = r  / max;
+		Push( ( r / max ).GetRawValue() );
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
 			case VM::SYS_GET_RANDOM_F:
 				SysGetRandF();
 				break;
+			case VM::SYS_GET_RANDOM_GU:
+				SysGetRandGU();
+				break;
+
+			case VM::SYS_GET_PLAYER_POSX_GU:
+				SysGetPlayerPosXGU();
+				break;
+			case VM::SYS_GET_PLAYER_POSY_GU:
+				SysGetPlayerPosYGU();
+				break;
+			case VM::SYS_ENEMY_GET_POSX_GU:
+				SysGetEnemyPosXGU();
+				break;
+			case VM::SYS_ENEMY_GET_POSY_GU:
+				SysGetEnemyPosYGU();
+				break;
+
 			case VM::SYS_GET_PLAYER_POSX:
 				SysGetPlayerPosX();
 				break;
@@ -639,6 +739,10 @@ namespace GameEngine
 				break;
 			case VM::SYS_STOP_SE:
 				SysStopSE();
+				break;
+
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU:
+				SysSetEnemyShotStatusGU();
 				break;
 
 			case VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT:

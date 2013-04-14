@@ -814,7 +814,6 @@ void Assign::Analyze( Compiler* pCompiler )
 		if( m_pValue->Pop( pCompiler ) == TYPE_STRING ){
 			pCompiler->error( m_Location, "Assign the string to integer." );
 		}
-		printf( "test" );
 		return;
 	}
 
