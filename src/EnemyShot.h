@@ -62,6 +62,7 @@ namespace GameEngine
 		void AddSpeed( float speed );						// 速度を加算
 		void GetPos( float* pPosX, float* pPosY );
 		void SetPos( float posX, float posY );				// 位置を設定
+		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
 		void SetAngle( float angle );						// 角度を設定
 		void SetSpeed( float speed );						// 速度を設定
 		void SetCollisionRadius( float radius );			// 衝突判定の半径を設定
@@ -74,6 +75,11 @@ namespace GameEngine
 		void AddSpeed( const GameUnit& speed );						// 速度を加算
 		void GetPos( GameUnit* pPosX, GameUnit* pPosY );
 		void SetPos( const GameUnit& posX, const GameUnit& posY );				// 位置を設定
+		void SetLinePos(	const GameUnit& x1,
+							const GameUnit& y1,
+							const GameUnit& x2,
+							const GameUnit& y2,
+							const GameUnit& thickness );		// 線の値を設定
 		void SetAngle( const GameUnit& angle );						// 角度を設定
 		void SetSpeed( const GameUnit& speed );						// 速度を設定
 		void SetCollisionRadius( const GameUnit& radius );			// 衝突判定の半径を設定
@@ -91,7 +97,7 @@ namespace GameEngine
 		void SetImgRotAnglePerFrame( float angle );			// 毎フレーム増加する回転角度を設定
 		void SetAlphaBlendingMode( int mode );				// αブレンディングの方法を設定
 		void SetShape( int shape );							// 衝突判定の形を設定
-		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
+		
 		void EnableInvincibleMode();				// 消えないモードへ移行
 		void DisableInvincibleMode();			// 消えるモードへ移行
 		void EnableInvisibleMode();				// 見えないモードへ移行

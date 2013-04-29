@@ -24,7 +24,6 @@ namespace GameEngine
 	typedef std::list < Enemy* >			EnemyList;
 	typedef std::list < PlayerShot*	>		PlayerShotList;
 	typedef std::list < EnemyShot* >		EnemyShotList;
-	//typedef std::list < Item* >				ItemList;
 	typedef std::list < std::shared_ptr < Item > >		ItemList;
 	typedef std::list < Effect* >			EffectList;
 	typedef std::list < EnemyShotGroup* >	EnemyShotGroupList;
@@ -70,6 +69,7 @@ namespace GameEngine
 	struct StageData
 	{
 		int					m_StageNo;				// ステージ番号
+		int					m_Difficulty;			// 難易度
 		int					m_Frame;				// フレーム数
 		int					m_FrameTotal;			// ステージ全体のフレーム数
 		bool				m_IsReplay;				// リプレイ状態ならtrue
@@ -132,6 +132,7 @@ namespace GameEngine
 
 
 		void SetInitialData( const InitialGameData& data );
+		void SetDifficulty( int difficulty );
 
 		int GetNextStageNo() const;
 		GameDataMsg GetFrameData() const;

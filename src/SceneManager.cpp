@@ -386,7 +386,6 @@ namespace GameEngine
 						p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SCORE_ENTRY );
 					}
 					else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
-						//m_ReplayInfo = ( ( ReplayEntry*) m_pCurScene.get() )->GetReplayInfo();
 						m_ReplayDataRecord = ( (ReplayEntry*) m_pCurScene.get() )->GetReplayDataRecord();
 						p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF );
 					}
@@ -503,15 +502,6 @@ namespace GameEngine
 
 	int SceneManager::Impl::GetReplayNo() const
 	{
-		/*Replay* p = dynamic_cast < Replay* > ( m_pCurScene.get() );
-		if( p ){
-			return p->GetReplayNo();
-		}
-		else{
-			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Must be called from replay" ), -1 );
-		}*/
-
-		//return -1;
 		return m_ReplayNo;
 	}
 
@@ -527,6 +517,7 @@ namespace GameEngine
 		else if( typeid( *m_pCurScene.get() ) == typeid( Stage ) ){
 			( (Stage*) m_pCurScene.get() )->AttachScriptData( m_ScriptData );
 			( (Stage*) m_pCurScene.get() )->SetInitialData( m_IniGameData );
+			( (Stage*) m_pCurScene.get() )->SetDifficulty( m_GameDifficulty );
 			m_CurSceneType = SCENE_TYPE_STAGE;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){
@@ -547,7 +538,6 @@ namespace GameEngine
 		else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
 			( (ReplayEntry*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
 			( (ReplayEntry*) m_pCurScene.get() )->AttachReplayDataRecord( m_ReplayDataRecord );
-			//( (ReplayEntry*) m_pCurScene.get() )->AttachReplayInfo( m_ReplayInfo );
 			m_CurSceneType = SCENE_TYPE_REPLAY;
 		}
 		m_pCurScene->AttachResourceMap( m_ResourceMap );

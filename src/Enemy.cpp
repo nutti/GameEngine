@@ -63,6 +63,7 @@ namespace GameEngine
 		m_Data.m_ShotGroupList.clear();
 		m_Data.m_Name = "No Name";
 		MAPIL::ZeroObject( &m_Data.m_Regs, sizeof( m_Data.m_Regs ) );
+		m_Data.m_StatusFlags.reset();
 
 		m_PrivateData.m_PrevConsGauge = 200;
 		m_PrivateData.m_ConsSkillEffectCounter = 0;
@@ -555,6 +556,10 @@ void Enemy::Draw()
 			return;
 		}
 
+		if( pPlayerShot->GetConsAttr() >= PLAYER_CONS_MODE_GREEN ){
+			m_Data.m_StatusFlags.set( EnemyData::DAMAGED_BY_CONS_SHOT );
+		}
+
 		if( !m_Data.m_Destroyed ){
 			m_Data.m_pStageData->m_FrameGameData.m_Score += 10;
 			// 無敵状態でない時
@@ -562,7 +567,7 @@ void Enemy::Draw()
 
 				int damage = 0;
 				// 属性がある場合(意識技使用時+複合属性ではない場合)
-				if( m_Data.m_IsConsSkillMode && m_Data.m_ConsSkillAttr <= 3 && m_Data.m_ConsSkillAttr > 0 ){
+				if( m_Data.m_IsConsSkillMode && m_Data.m_ConsSkillAttr <= 3 /*&& m_Data.m_ConsSkillAttr > 0*/ ){
 					// 属性が一致している時
 					if( m_Data.m_ConsSkillAttr == pPlayerShot->GetConsAttr() ){
 						damage = 0;	// ダメージ無効化

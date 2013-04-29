@@ -130,6 +130,9 @@ namespace GameEngine
 		while( u < 0 ){
 			u += ROUND;
 		}
+		while( u > ROUND ){
+			u -= ROUND;
+		}
 
 		int value = u.GetInt();
 
@@ -186,6 +189,9 @@ namespace GameEngine
 		GameUnit u = deg;
 		while( u < 0 ){
 			u += ROUND;
+		}
+		while( u > ROUND ){
+			u -= ROUND;
 		}
 
 		int value = u.GetInt();
@@ -256,6 +262,7 @@ namespace GameEngine
 			value += 360;
 		}
 
+
 		int ratio = deg.GetRawValue() % deg.GetUnit();					// 線形補完率
 		int offset1 = value % 360;		// テーブルオフセット１
 		int offset2 = ( offset1 + 1 ) == 360 ? 0 : offset1 + 1;	// テーブルオフセット２
@@ -275,10 +282,10 @@ namespace GameEngine
 	GameUnit AbsGU( GameUnit val )
 	{
 		if( val.GetRawValue() < 0 ){
-			return GameUnit( 0, -val.GetRawValue() / val.GetUnit() );
+			return GameUnit( 0, -val.GetRawValue() );
 		}
 		else{
-			return GameUnit( 0, val.GetRawValue() / val.GetUnit() );
+			return GameUnit( 0, val.GetRawValue() );
 		}
 	}
 }

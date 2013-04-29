@@ -34,6 +34,15 @@ namespace GameEngine
 		void SysGetEnemyConsGauge();
 
 		void SysSetEnemyShotStatusGU();
+		void SysGetEnemyShotPosXGU();
+		void SysGetEnemyShotPosYGU();
+		void SysSetEnemyShotSpeedGU();
+		void SysSetEnemyShotAngleGU();
+		void SysSetEnemyShotPosGU();
+		void SysEnemyShotAddAngleGU();
+		void SysEnemyShotSetLineStatusGU();
+		void SysGetEnemyShotAngleGU();
+		void SysEnemyShotAddSpeedGU();
 
 		void SysCreateEnemyShot();
 		void SysCreateConsEnemyShot();
@@ -68,6 +77,9 @@ namespace GameEngine
 		void SysGetStageFrame();
 		void SysGetEnemyShotGroupReg();
 		void SysGetEnemyShotGroupFReg();
+		void SysGetEnemyShotGroupGReg();
+
+		void SysGetDifficulty();
 
 		void SysPlaySE();
 		void SysStopSE();

@@ -18,11 +18,14 @@ namespace GameEngine
 		void SysGetPlayerHP();
 		
 		void SysGetRandF();
+		void SysGetRandGU();
 
 		void SysGetEnemyPosXGU();
 		void SysGetEnemyPosYGU();
 		void SysSetEnemyCollisionRadiusGU();
 		void SysSetEnemyPosGU();
+		void SysSetEnemyPos3DGU();
+
 		void SysGetEnemyPosX();
 		void SysGetEnemyPosY();
 		void SysGetEnemyHP();
@@ -35,6 +38,9 @@ namespace GameEngine
 		void SysSearchItem();
 		void SysGetItemPosX();
 		void SysGetItemPosY();
+
+		void SysGetItemPosXGU();
+		void SysGetItemPosYGU();
 
 		void SysSetEnemyName();
 		void SysSetEnemyPos();
@@ -56,17 +62,21 @@ namespace GameEngine
 		void SysEnemyDisableNonCollisionMode();
 		void SysEnemyInvokeConsSkill();
 		void SysEnemyStopConsSkill();
+		void SysEnemyDamagedByConsShot();
 
 		void SysCreateEnemyShot1();
+		void SysCreateEnemyShot1GU();
 		void SysCreateEffect1();
 		void SysCreateEffect1GU();
 		void SysCreateEnemyShotGroup();
 		void SysCreateEnemyShotGroupReg();
 		void SysCreateEnemyShotGroupFReg();
+		void SysCreateEnemyShotGroupGReg();
 
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();
 		void SysEnemyShiftNextMode();
+		void SysGetDifficulty();
 
 		void SysCreateItem();
 		void SysCreateItemGU();

@@ -5,6 +5,8 @@
 #include "StageBackground.h"
 #include "Stage.h"
 
+#include "SpriteBatch.h"
+
 
 namespace GameEngine
 {
@@ -331,7 +333,11 @@ namespace GameEngine
 		int index = Top().m_Integer;
 		Pop();
 
-		MAPIL::DrawTexture( m_pStageBGData->m_pStageData->m_ResourceMap.m_pStageResourceMap->m_TextureMap[ index ], x, y, sx, sy, centerize, color );
+		AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT,
+							m_pStageBGData->m_pStageData->m_ResourceMap.m_pStageResourceMap->m_TextureMap[ index ],
+							x, y , sx, sy, 0.0f, centerize, color );
+		
+		//MAPIL::DrawTexture( , x, y, sx, sy, centerize, color );
 	}
 
 	void StageBackgroundVCPU::SysColorARGB()
@@ -347,6 +353,13 @@ namespace GameEngine
 		Pop();
 
 		Push( a << 24 | r << 16 | g << 8 | b );
+	}
+
+	void StageBackgroundVCPU::SysStageGetBossFlag()
+	{
+		Pop();
+		int flag = m_pStageBGData->m_pStageData->m_BossMode ? 1 : 0;
+		Push( flag );
 	}
 
 	void StageBackgroundVCPU::OpSysCall( int val )
@@ -421,6 +434,10 @@ namespace GameEngine
 				break;
 			case VM::SYS_COLOR_ARGB:
 				SysColorARGB();
+				break;
+
+			case VM::SYS_STAGE_GET_BOSS_FLAG:
+				SysStageGetBossFlag();
 				break;
 
 			case VM::SYS_STAGE_GET_FRAME:

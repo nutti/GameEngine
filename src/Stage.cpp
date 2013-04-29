@@ -30,13 +30,22 @@
 
 namespace GameEngine
 {
+	// クリアした時のボーナス
+	const int CLEARED_CRYSTAL_BONUS			= 10;
+	const int CLEARED_CRYSTAL_REST_BONUS	= 20;
+	const int CLEARED_HP_REST_BONUS			= 1000;
+	const int CLEARED_KILLED_BONUS			= 20;
+
 	class Stage::Impl
 	{
 	private:
+		
+
 		// フラグ管理
 		enum StatusFlag
 		{
-			CLEARED				= 0,		// クリアしたか？
+			CLEARED					= 0,		// クリアしたか？
+			PREPARED_NEXT_STAGE		= 1,		// 次のステージへ移行する準備が出来たか？
 			STATUS_FLAG_TOTAL,
 		};
 
@@ -97,6 +106,22 @@ namespace GameEngine
 			{
 				int				m_Counter[ ITEM_ID_TOTAL ];		// アイテムごとにエフェクトカウンタ
 			};
+			// ステージ完了時のデータ
+			struct StageResultData
+			{
+				int		m_Score;				// スコア
+				int		m_Crystal;				// 取得クリスタルの総数
+				int		m_CrystalUsed;			// 使用したクリスタル総数
+				int		m_Killed;				// 倒した敵の数
+				int		m_PosX;					// 最後にいた場所（X座標）
+				int		m_PosY;					// 最後にいた場所（Y座標）
+				int		m_HP;					// 残りHP
+				int		m_ShotPower;			// ショットパワー
+				int		m_Cons;					// 意識状態
+				int		m_ConsGauge[ 3 ];		// 意識ゲージ
+				int		m_ConsLevel[ 3 ];		// 意識レベル
+				int		m_Progress;				// ステージ進行度
+			};
 
 			ConsSkillModeData						m_ConsSkillModeData;
 			BossModeData							m_BossModeData;
@@ -107,6 +132,7 @@ namespace GameEngine
 			FixedGameData							m_FixedGameData;
 			std::bitset < STATUS_FLAG_TOTAL >		m_StatusFlags;
 			InitialGameData							m_IniGameData;
+			StageResultData							m_StageResultData;
 		};
 
 
@@ -127,6 +153,8 @@ namespace GameEngine
 		void ProcessCollision();		// 衝突判定
 		void UpdateGameObjects();		// 全GameObjectの更新
 		void ProcessMessage();			// ステージ用メッセージの処理
+		void SaveStageResultData();		// ステージ完了データの保存
+		int GetStageClearBonus() const;	// ステージクリア時のボーナス
 
 		void UpdateConsSkillEffect();		// 意識技エフェクト処理の更新
 		void DrawConsSkillEffect() const;	// 意識技エフェクト処理の描画
@@ -135,6 +163,7 @@ namespace GameEngine
 		void DrawBossModeEffect() const;	// ボスモード時のエフェクト処理の描画
 		void UpdateBombModeEffect();		// ボムモード時のエフェクト処理の更新
 		void DrawBombModeEffect() const;	// ボムモード時のエフェクト処理の描画
+		void DrawResult() const;			// ステージクリア時のリザルト画面表示
 
 		// GameObject全削除メソッド
 		void DeleteAllEnemyShots();
@@ -169,6 +198,7 @@ namespace GameEngine
 		ReplayDataRecord::StageKeyStates GetKeyStates() const;
 
 		void SetInitialData( const InitialGameData& data );
+		void SetDifficulty( int difficulty );
 
 		int GetNextStageNo() const;
 		GameDataMsg GetFrameData() const;
@@ -215,6 +245,7 @@ namespace GameEngine
 		m_PrivData.m_ClearModeData.m_Counter = 0;
 		m_PrivData.m_ClearModeData.m_NextStageNo = 0;
 		MAPIL::ZeroObject( m_PrivData.m_ItemObtainedData.m_Counter, sizeof( m_PrivData.m_ItemObtainedData.m_Counter ) );
+		MAPIL::ZeroObject( &m_PrivData.m_StageResultData, sizeof( m_PrivData.m_StageResultData ) );
 
 		m_Profiler.Clear();
 		m_DispProf = false;
@@ -1136,6 +1167,58 @@ namespace GameEngine
 		m_Data.m_pPlayer->SetCons( m_PrivData.m_IniGameData.m_Cons );
 	}
 
+	void Stage::Impl::DrawResult() const
+	{
+		if( m_PrivData.m_StatusFlags[ CLEARED ] && m_PrivData.m_ClearModeData.m_Counter > 100 ){
+
+			DrawFontString(	m_Data.m_ResourceMap, 170.0f, 200.0f, 0.45f, 0xFFFFFFFF, "Score %d",
+							m_PrivData.m_StageResultData.m_Score );
+			DrawFontString( m_Data.m_ResourceMap, 150.0f, 100.0f, 0.7f, 0xFFAA4444, "Stage %d Cleared",
+							m_Data.m_StageNo );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 180.0f, 0.45f, 0xFFFFFFFF, "HP Rest %d x 10000 %d",
+							m_PrivData.m_StageResultData.m_HP, m_PrivData.m_StageResultData.m_HP * CLEARED_HP_REST_BONUS );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 220.0f, 0.45f, 0xFFFFFFFF, "Killed %d x 200 %d",
+							m_PrivData.m_StageResultData.m_Killed, m_PrivData.m_StageResultData.m_Killed * CLEARED_KILLED_BONUS );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 240.0f, 0.45f, 0xFFFFFFFF, "Crystal %d x 100 %d",
+							m_PrivData.m_StageResultData.m_Crystal, m_PrivData.m_StageResultData.m_Crystal * CLEARED_CRYSTAL_BONUS );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 260.0f, 0.45f, 0xFFFFFFFF, "Crystal Rest %d x 500 %d",
+							m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed,
+							( m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed ) * CLEARED_CRYSTAL_REST_BONUS );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 300.0f, 0.55f, 0xFFFFFFFF, "Bonus Total %d", GetStageClearBonus() );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 330.0f, 0.55f, 0xFFFFFFFF, "Total Score %d", m_Data.m_GameData.m_Score );
+		}
+
+	}
+
+	void Stage::Impl::SaveStageResultData()
+	{
+		m_PrivData.m_StageResultData.m_Cons = m_Data.m_pPlayer->GetCurCons();
+		for( int i = 0; i < 3; ++i ){
+			m_PrivData.m_StageResultData.m_ConsGauge[ i ] = m_Data.m_pPlayer->GetConsGauge( i );
+			m_PrivData.m_StageResultData.m_ConsLevel[ i ] = m_Data.m_pPlayer->GetConsLevel( i );
+		}
+		m_PrivData.m_StageResultData.m_Crystal = m_Data.m_GameData.m_CrystalTotal;
+		m_PrivData.m_StageResultData.m_CrystalUsed = m_Data.m_GameData.m_CrystalUsed;
+		m_PrivData.m_StageResultData.m_HP = m_Data.m_pPlayer->GetHP();
+		m_PrivData.m_StageResultData.m_Killed = m_Data.m_GameData.m_Killed;
+		GameUnit x;
+		GameUnit y;
+		m_Data.m_pPlayer->GetPos( &x, &y );
+		m_PrivData.m_StageResultData.m_PosX = x.GetIntegerPart();
+		m_PrivData.m_StageResultData.m_PosY = y.GetIntegerPart();
+		m_PrivData.m_StageResultData.m_Progress = m_Data.m_Frame;
+		m_PrivData.m_StageResultData.m_Score = m_Data.m_GameData.m_Score;
+		m_PrivData.m_StageResultData.m_ShotPower = m_Data.m_pPlayer->GetShotPower();
+	}
+
+	int Stage::Impl::GetStageClearBonus() const
+	{
+		return	m_PrivData.m_StageResultData.m_Crystal * CLEARED_CRYSTAL_BONUS +
+				( m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed ) * CLEARED_CRYSTAL_REST_BONUS +
+				m_PrivData.m_StageResultData.m_HP * CLEARED_HP_REST_BONUS +
+				m_PrivData.m_StageResultData.m_Killed * CLEARED_KILLED_BONUS;
+	}
+
 	SceneType Stage::Impl::Update()
 	{
 		// リプレイバグ対策（浮動小数点演算器の初期化を行う。）
@@ -1165,13 +1248,29 @@ namespace GameEngine
 		// ゲームオーバー時の処理
 		if( m_Data.m_HasTermSig ){
 			m_Background.Terminate();
+			SaveStageResultData();
 			return SCENE_TYPE_SCORE_ENTRY;
 		}
 		// ステージクリア時の処理
-		if( m_PrivData.m_ClearModeData.m_Counter >= 80 ){
-			return SCENE_TYPE_STAGE;
-		}
 		if( m_PrivData.m_StatusFlags[ CLEARED ] ){
+			if( m_PrivData.m_ClearModeData.m_Counter == 0 ){
+				SaveStageResultData();
+			}
+			// ボーナス加点
+			if( m_PrivData.m_ClearModeData.m_Counter == 200 ){
+				m_Data.m_FrameGameData.m_Score += GetStageClearBonus();
+			}
+			if( m_PrivData.m_ClearModeData.m_Counter == 400 ){
+				SaveStageResultData();
+			}
+			if( m_PrivData.m_ClearModeData.m_Counter > 400 ){
+				m_PrivData.m_StatusFlags.set( PREPARED_NEXT_STAGE );
+			}
+			if(	m_PrivData.m_StatusFlags[ PREPARED_NEXT_STAGE ] &&
+				( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) || m_PrivData.m_ClearModeData.m_Counter >= 1200 ) ){
+				SaveStageResultData();
+				return SCENE_TYPE_STAGE;
+			}
 			++m_PrivData.m_ClearModeData.m_Counter;
 		}
 
@@ -1182,6 +1281,7 @@ namespace GameEngine
 		m_VM.Run();
 		if( m_VM.Terminated() ){
 			m_Background.Terminate();
+			SaveStageResultData();
 			return SCENE_TYPE_SCORE_ENTRY;
 		}
 
@@ -1206,9 +1306,6 @@ namespace GameEngine
 		m_ScoreManager.Add( m_Data.m_FrameGameData.m_Score );
 		m_ScoreManager.Update();
 		m_Data.m_GameData.m_Score = m_ScoreManager.GetScore();
-		/*if( m_PrivData.m_IniGameData.m_HIScore <= m_Data.m_GameData.m_Score ){
-			m_Data.m_GameData.m_HIScore = m_Data.m_GameData.m_Score;
-		}*/
 		m_Data.m_GameData.m_CrystalTotal += m_Data.m_FrameGameData.m_CrystalTotal;
 		m_Data.m_GameData.m_CrystalUsed += m_Data.m_FrameGameData.m_CrystalUsed;
 		m_Data.m_GameData.m_Killed += m_Data.m_FrameGameData.m_Killed;
@@ -1256,11 +1353,7 @@ namespace GameEngine
 		// 背景の描画
 		m_Background.Draw();
 
-
-		
 		MAPIL::EnableBlending();
-
-		
 
 		// 2D画像描画開始
 		MAPIL::BeginRendering2DGraphics();
@@ -1269,11 +1362,11 @@ namespace GameEngine
 		// プレイヤーの描画
 		m_Data.m_pPlayer->Draw();
 
-		MAPIL::EndRendering2DGraphics();
+		/*MAPIL::EndRendering2DGraphics();
 		MAPIL::DisableLighting();
 		MAPIL::DoAllModelOn2DBatchWorks();
 		MAPIL::EnableLighting();
-		MAPIL::BeginRendering2DGraphics();
+		MAPIL::BeginRendering2DGraphics();*/
 
 		// 敵の描画
 		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){
@@ -1289,6 +1382,8 @@ namespace GameEngine
 		MAPIL::DoAllModelOn2DBatchWorks();
 		MAPIL::EnableLighting();
 		MAPIL::BeginRendering2DGraphics();
+
+		ProcAllBatchWorks();
 
 		// スキル使用時のエフェクトを描画
 		DrawConsSkillEffect();
@@ -1324,7 +1419,11 @@ namespace GameEngine
 		// ボス戦闘時のエフェクトの描画
 		DrawBossModeEffect();
 
-		LateDrawConsSkillEffect();		
+		LateDrawConsSkillEffect();
+
+		// リザルト画面表示
+		DrawResult();
+
 
 		// 状態画面の描画
 		m_Profiler.Begin( "Game Stat" );
@@ -1497,7 +1596,9 @@ namespace GameEngine
 							18.0f, 393.0f, 0.3f, 0.3f );
 
 
-		DrawFontString( m_Data.m_ResourceMap, 30.0f, 440.0f, 0.4f, 0xFFFF0000, "hazard" );
+		const char* DIFFICULTY_DISP[] = { "calm", "easy", "normal", "hard", "hazard" };
+
+		DrawFontString( m_Data.m_ResourceMap, 30.0f, 440.0f, 0.4f, 0xFFFF0000, DIFFICULTY_DISP[ m_Data.m_Difficulty ] );
 		
 		
 		// 右画面
@@ -1653,64 +1754,71 @@ namespace GameEngine
 
 	int Stage::Impl::GetProgress() const
 	{
-		return m_Data.m_Frame;
+		return m_PrivData.m_StageResultData.m_Progress;
+		//return m_Data.m_Frame;
 	}
 	
 	int Stage::Impl::GetScore() const
 	{
-		return m_Data.m_GameData.m_Score;
+		return m_PrivData.m_StageResultData.m_Score;
+		//return m_Data.m_GameData.m_Score;
 	}
 
 	int Stage::Impl::GetKilled() const
 	{
-		return m_Data.m_GameData.m_Killed;
+		return m_PrivData.m_StageResultData.m_Killed;
+		//return m_Data.m_GameData.m_Killed;
 	}
 
 	int Stage::Impl::GetCrystal() const
 	{
-		return m_Data.m_GameData.m_CrystalTotal;
+		return m_PrivData.m_StageResultData.m_Crystal;
+		//return m_Data.m_GameData.m_CrystalTotal;
 	}
 
 	int Stage::Impl::GetCrystalUsed() const
 	{
-		return m_Data.m_GameData.m_CrystalUsed;
+		return m_PrivData.m_StageResultData.m_CrystalUsed;
+		//return m_Data.m_GameData.m_CrystalUsed;
 	}
 
 	void Stage::Impl::GetPlayerPos( int* pPosX, int* pPosY ) const
 	{
-		GameUnit x;
-		GameUnit y;
-		m_Data.m_pPlayer->GetPos( &x, &y );
-		*pPosX = x.GetIntegerPart();
-		*pPosY = y.GetIntegerPart();
+		*pPosX = m_PrivData.m_StageResultData.m_PosX;
+		*pPosY = m_PrivData.m_StageResultData.m_PosY;
 	}
 
 	int Stage::Impl::GetPlayerHP() const
 	{
-		return m_Data.m_pPlayer->GetHP();
+		return m_PrivData.m_StageResultData.m_HP;
+		//return m_Data.m_pPlayer->GetHP();
 	}
 
 	int Stage::Impl::GetPlayerShotPower() const
 	{
-		return m_Data.m_pPlayer->GetShotPower();
+		return m_PrivData.m_StageResultData.m_ShotPower;
+		//return m_Data.m_pPlayer->GetShotPower();
 	}
 
 	int Stage::Impl::GetPlayerCons() const
 	{
-		return m_Data.m_pPlayer->GetCurCons();
+		return m_PrivData.m_StageResultData.m_Cons;
+		//return m_Data.m_pPlayer->GetCurCons();
 	}
 
 	void Stage::Impl::GetPlayerConsGauge( int* pGauge ) const
 	{
 		for( int i = 0; i < 3; ++i ){
-			pGauge[ i ] = m_Data.m_pPlayer->GetConsGauge( i );
+			pGauge[ i ] = m_PrivData.m_StageResultData.m_ConsGauge[ i ];
+			//pGauge[ i ] = m_Data.m_pPlayer->GetConsGauge( i );
 		}
 	}
 
 	void Stage::Impl::GetPlayerConsLevel( int* pLevel ) const
 	{
 		for( int i = 0; i < 3; ++i ){
-			pLevel[ i ] = m_Data.m_pPlayer->GetConsLevel( i );
+			pLevel[ i ] = m_PrivData.m_StageResultData.m_ConsLevel[ i ];
+			//pLevel[ i ] = m_Data.m_pPlayer->GetConsLevel( i );
 		}
 	}
 
@@ -1733,6 +1841,11 @@ namespace GameEngine
 	GameDataMsg Stage::Impl::GetFrameData() const
 	{
 		return m_Data.m_FrameGameData;
+	}
+
+	void Stage::Impl::SetDifficulty( int difficulty )
+	{
+		m_Data.m_Difficulty = difficulty;
 	}
 
 	// ----------------------------------
@@ -1846,6 +1959,11 @@ namespace GameEngine
 	void Stage::SetInitialData( const InitialGameData& data )
 	{
 		m_pImpl->SetInitialData( data );
+	}
+
+	void Stage::SetDifficulty( int difficulty )
+	{
+		m_pImpl->SetDifficulty( difficulty );
 	}
 
 	int Stage::GetNextStageNo() const

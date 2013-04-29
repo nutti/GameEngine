@@ -17,12 +17,6 @@ namespace GameEngine
 	public:
 		GameStateManager();
 		~GameStateManager();
-		//void RecordButtonState( ButtonPushedStatus status );
-		//void SaveReplayFile( const DisplayedReplayInfo::Entry& entry );
-		//void StartReplayRecording();
-		//void EndReplayRecording();
-		//void StartGameDataRecording();
-		//void EndGameDataRecording();
 		void FlushGameData();			// ファイルへ現在のゲームデータを保存
 		int GetPlayTime() const;
 		void UpdatePlayTime();
@@ -38,6 +32,7 @@ namespace GameEngine
 		void SaveReplay( const ReplayDataRecord& record );
 		void LoadGameData();
 		InitialGameData GetReplayIniData( int replayNo, int stageNo );
+		int GetReplayGameDifficulty( int replayNo );
 	};
 }
 

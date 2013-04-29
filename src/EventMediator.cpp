@@ -98,10 +98,6 @@ namespace GameEngine
 				m_pButtonManager->Update();
 				m_pButtonManager->GetButtonStatus( &holder );
 				m_pSceneManager->AttachButtonState( &holder );
-				//if( m_pSceneManager->GetCurSceneType() == SCENE_TYPE_STAGE ){
-				//	// リプレイ用に記録
-				//	m_pGameStateManager->RecordButtonState( m_pButtonManager->GetRawButtonStatus() );
-				//}
 			}
 			else{
 				// ボタン無効化
@@ -407,7 +403,6 @@ namespace GameEngine
 				break;
 			// ゲーム終了要求
 			case EVENT_TYPE_GAME_TERM:
-				//m_pGameStateManager->EndGameDataRecording();
 				m_pGameStateManager->FlushGameData();
 				m_HasTermSig = true;
 				break;
@@ -433,26 +428,31 @@ namespace GameEngine
 #if defined ( MAKE_MODE_RELEASE )
 				m_Loading.AddStageResourceItem( stage, false );
 #elif defined ( MAKE_MODE_DEBUG )
-				m_Loading.AddStageResourceItem( 2, false );
+				m_Loading.AddStageResourceItem( stage, false );
+				//m_Loading.AddStageResourceItem( 2, false );
 #endif
 #endif
 				m_Loading.Start();
 				// ゲームデータの初期化（※2面以降が問題？）
 				m_pSceneManager->ClearGameData();
-				// 難易度の設定（※複数の難易度で問題化？）
-				m_pSceneManager->SetGameDifficulty( GAME_DIFFICULTY_EASY );
-				// ハイスコアの設定
-				m_pSceneManager->SetHIScore( m_pGameStateManager->GetHIScore( GAME_DIFFICULTY_EASY ) );
 				// 入力デバイス変更
 				if( m_pSceneManager->GetGameMode() == GAME_MODE_NORMAL ){
 					m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+					// 難易度の設定（※複数の難易度で問題化？）
+					m_pSceneManager->SetGameDifficulty( GAME_DIFFICULTY_HAZARD );
+					// ハイスコアの設定
+					m_pSceneManager->SetHIScore( m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() ) );
 				}
 				else if( m_pSceneManager->GetGameMode() == GAME_MODE_REPLAY ){
 					m_pButtonManager->ChangeDevice( INPUT_DEVICE_FILE );
 					m_pButtonManager->SetReplayNo( m_pSceneManager->GetReplayNo() );
 					// リプレイ用初期データ取得
 					InitialGameData iniGameData = m_pGameStateManager->GetReplayIniData( m_pSceneManager->GetReplayNo(), stage );
-					iniGameData.m_HIScore = m_pGameStateManager->GetHIScore( GAME_DIFFICULTY_EASY );
+					iniGameData.m_HIScore = m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() );
+					// 難易度の設定（※複数の難易度で問題化？）
+					m_pSceneManager->SetGameDifficulty( m_pGameStateManager->GetReplayGameDifficulty( m_pSceneManager->GetReplayNo() ) );
+					// ハイスコアの設定
+					m_pSceneManager->SetHIScore( m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() ) );
 					// 初期データ設定
 					m_pSceneManager->AttachInitialGameData( iniGameData );
 					m_pButtonManager->SetStageNo( stage );
@@ -485,7 +485,7 @@ namespace GameEngine
 					m_pButtonManager->SetReplayNo( m_pSceneManager->GetReplayNo() );
 					// リプレイ用初期データ取得
 					InitialGameData iniGameData = m_pGameStateManager->GetReplayIniData( m_pSceneManager->GetReplayNo(), stage );
-					iniGameData.m_HIScore = m_pGameStateManager->GetHIScore( GAME_DIFFICULTY_EASY );
+					iniGameData.m_HIScore = m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() );
 					// 初期データ設定
 					m_pSceneManager->AttachInitialGameData( iniGameData );
 					m_pButtonManager->SetStageNo( stage );

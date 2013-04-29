@@ -35,6 +35,8 @@ namespace VM
 		SYS_FLOAT_TO_INT,			// Convert float to int.
 		SYS_GU_TO_INT,				// Convert gu to int.
 		SYS_INT_TO_GU,				// Convert int to gu.
+		SYS_GU_TO_FLOAT,			// Convert gu to float.
+		SYS_FLOAT_TO_GU,			// Convert float to gu.
 
 		SYS_SIN,					// Call math library sin().
 		SYS_COS,					// Call math library cos().
@@ -49,6 +51,7 @@ namespace VM
 		SYS_ATAN2_GU,
 		SYS_ABS_GU,
 		SYS_FABS_GU,
+		SYS_SQRT_GU,
 
 		SYS_DEG_TO_RAD,				// Convert degree to radius.
 
@@ -71,6 +74,7 @@ namespace VM
 		SYS_ENEMY_GET_POSY_GU,				// Get position. (Y, gameunit)
 		SYS_ENEMY_SET_COLLISION_RADIUS_GU,	// Set collision radius. (gameunit)
 		SYS_ENEMY_SET_POS_GU,				// Set position. (gameunit)
+		SYS_ENEMY_SET_POS_3D_GU,	// Set position. (3D coordinate, gameunit)
 		SYS_ENEMY_GET_POSX,			// Get position. ( X )
 		SYS_ENEMY_GET_POSY,			// Get position. ( Y )
 		SYS_ENEMY_GET_HP,			// Get HP.
@@ -105,18 +109,33 @@ namespace VM
 		SYS_ENEMY_SEARCH_ITEM,				// Search item.
 		SYS_ENEMY_GET_ITEM_POS_X,			// Get item position x.
 		SYS_ENEMY_GET_ITEM_POS_Y,			// Get item position y.
+		SYS_ENEMY_DAMAGED_BY_CONS_SHOT,		// Damaged by cons shot?
+
+		SYS_ENEMY_GET_ITEM_POS_X_GU,		// Get item position x. (gameunit)
+		SYS_ENEMY_GET_ITEM_POS_Y_GU,		// Get item position y. (gameunit)
 
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
+		SYS_ENEMY_CREATE_SHOT_1_GU,			// Create enemy shot. (Linear. gameunit)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)
 		SYS_ENEMY_CREATE_EFFECT_1_GU,		// Create effect. (Bombbed Effect. gameunit)
 		SYS_ENEMY_CREATE_SHOT_GROUP,		// Create shot group.
 		SYS_ENEMY_CREATE_SHOT_GROUP_REG,	// Create shot group. (1 Register)
 		SYS_ENEMY_CREATE_SHOT_GROUP_FREG,	// Create shot group. (1 Floating-point register)
+		SYS_ENEMY_CREATE_SHOT_GROUP_GREG,	// Create shot group. (1 gameunit register)
 		SYS_CREATE_ITEM,		// Create item.
 		SYS_CREATE_ITEM_GU,		// Create item. (gameunit)
 
 		// For enemy shot group.
 		SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU,
+		SYS_ENEMY_SHOT_GROUP_GET_POS_X_GU,
+		SYS_ENEMY_SHOT_GROUP_GET_POS_Y_GU,
+		SYS_ENEMY_SHOT_GROUP_SET_SPEED_GU,
+		SYS_ENEMY_SHOT_GROUP_SET_ANGLE_GU,
+		SYS_ENEMY_SHOT_GROUP_SET_POS_GU,
+		SYS_ENEMY_SHOT_GROUP_ADD_ANGLE_GU,
+		SYS_ENEMY_SHOT_GROUP_ADD_SPEED_GU,
+		SYS_ENEMY_SHOT_SET_LINE_SHOT_STATUS_GU,
+		SYS_ENEMY_SHOT_GROUP_GET_ANGLE_GU,
 
 		SYS_ENEMY_SHOT_GROUP_CREATE_SHOT,
 		SYS_ENEMY_SHOT_GROUP_CREATE_CONS_SHOT,
@@ -135,6 +154,7 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_GET_ANGLE,
 		SYS_ENEMY_SHOT_GROUP_GET_REG,
 		SYS_ENEMY_SHOT_GROUP_GET_FREG,
+		SYS_ENEMY_SHOT_GROUP_GET_GREG,
 		SYS_ENEMY_SHOT_GROUP_ADD_ANGLE,
 		SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE,
 		SYS_ENEMY_SHOT_GROUP_ADD_POS,
@@ -160,6 +180,7 @@ namespace VM
 		SYS_STAGE_CREATE_BOSS,				// Create boss.
 		SYS_STAGE_SET_FRAME_TOTAL,			// Set frame total.
 		SYS_STAGE_SWITCH_TO_NEXT_STAGE,		// Switch to next stage.
+		SYS_STAGE_GET_DIFFICULTY,			// Get difficulty.
 
 		// For stage background.
 		SYS_STAGE_BACKGROUND_GET_COUNTER,	// Get count.
@@ -639,6 +660,8 @@ namespace VM
 		void SysIntToFloat();
 		void SysIntToGU();
 		void SysGUToInt();
+		void SysGUToFloat();
+		void SysFloatToGU();
 		void SysAddScore();
 
 		void SysSin();
@@ -653,6 +676,7 @@ namespace VM
 		void SysCosGU();
 		void SysAtan2GU();
 		void SysAbsGU();
+		void SysSqrtGU();
 
 
 		void SysPlaySE();

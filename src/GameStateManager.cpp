@@ -18,12 +18,6 @@ namespace GameEngine
 	public:
 		Impl();
 		~Impl(){}
-		//void RecordButtonState( ButtonPushedStatus status );
-		//void SaveReplayFile( const DisplayedReplayInfo::Entry& entry );
-		//void StartReplayRecording();
-		//void EndReplayRecording();
-		//void StartGameDataRecording();
-		//void EndGameDataRecording();
 		void FlushGameData();
 		int GetPlayTime() const;
 		void UpdatePlayTime();
@@ -39,6 +33,7 @@ namespace GameEngine
 		void SaveReplay( const ReplayDataRecord& record );
 		void LoadGameData();
 		InitialGameData GetReplayIniData( int replayNo, int stageNo );
+		int GetReplayGameDifficulty( int replayNo );
 	};
 
 	GameStateManager::Impl::Impl() :	m_ReplayBuilder(),
@@ -46,54 +41,6 @@ namespace GameEngine
 										m_ReplayLoader()
 	{
 	}
-
-	//void GameStateManager::Impl::RecordButtonState( ButtonPushedStatus status )
-	//{
-	//	m_ReplayBuilder.AddButtonState( status );
-	//}
-
-	//void GameStateManager::Impl::SaveReplayFile( const DisplayedReplayInfo::Entry& entry )
-	//{
-	//	if( !FileExist( REPLAY_FILE_DIR ) ){
-	//		CreateDirectory( REPLAY_FILE_DIR );
-	//	}
-
-	//	m_ReplayBuilder.SetName( entry.m_Name );
-	//	m_ReplayBuilder.SetProgress( entry.m_Progress );
-	//	m_ReplayBuilder.SetScore( entry.m_Score );
-	//	m_ReplayBuilder.SetCrystal( entry.m_Crystal );
-	//	m_ReplayBuilder.SetKilled( entry.m_Killed );
-	//	m_ReplayBuilder.SetDifficulty( entry.m_Difficulty );
-	//	m_ReplayBuilder.SetDate( entry.m_Date );
-
-	//	std::string fileName = REPLAY_FILE_DIR;
-	//	fileName += '/';
-	//	fileName += REPLAY_FILE_NAME_PREFIX;
-	//	fileName += ( entry.m_EntryNo / 10 ) + '0';
-	//	fileName += ( entry.m_EntryNo % 10 ) + '0';
-	//	fileName += REPLAY_FILE_NAME_SUFFIX;
-	//	m_ReplayBuilder.Save( fileName );
-	//}
-
-	//void GameStateManager::Impl::StartReplayRecording()
-	//{
-	//	m_ReplayBuilder.Cleanup();
-	//}
-
-	//void GameStateManager::Impl::EndReplayRecording()
-	//{
-	//	m_ReplayBuilder.Cleanup();
-	//}
-
-	//void GameStateManager::Impl::StartGameDataRecording()
-	//{
-	//	m_GameDataHolder.StartRecording();
-	//}
-
-	//void GameStateManager::Impl::EndGameDataRecording()
-	//{
-	//	m_GameDataHolder.EndRecording();
-	//}
 
 	void GameStateManager::Impl::FlushGameData()
 	{
@@ -206,6 +153,23 @@ namespace GameEngine
 		return iniData;
 	}
 
+	int GameStateManager::Impl::GetReplayGameDifficulty( int replayNo )
+	{
+		std::string fileName = REPLAY_FILE_DIR;
+		fileName += '/';
+		fileName += REPLAY_FILE_NAME_PREFIX;
+		fileName += ( replayNo / 10 ) + '0';
+		fileName += ( replayNo % 10 ) + '0';
+		fileName += REPLAY_FILE_NAME_SUFFIX;
+
+		ReplayDataLoader loader;
+		InitialGameData iniData;
+		MAPIL::ZeroObject( &iniData, sizeof( iniData ) );
+		loader.Load( fileName );
+
+		return loader.GetGameDifficulty();
+	}
+
 	// ----------------------------------
 	// ŽÀ‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ
 	// ----------------------------------
@@ -217,36 +181,6 @@ namespace GameEngine
 	GameStateManager::~GameStateManager()
 	{
 	}
-
-	//void GameStateManager::RecordButtonState( ButtonPushedStatus status )
-	//{
-	//	m_pImpl->RecordButtonState( status );
-	//}
-
-	//void GameStateManager::SaveReplayFile( const DisplayedReplayInfo::Entry& entry )
-	//{
-	//	m_pImpl->SaveReplayFile( entry );
-	//}
-
-	//void GameStateManager::StartReplayRecording()
-	//{
-	//	m_pImpl->StartReplayRecording();
-	//}
-
-	//void GameStateManager::EndReplayRecording()
-	//{
-	//	m_pImpl->EndReplayRecording();
-	//}
-
-	//void GameStateManager::StartGameDataRecording()
-	//{
-	//	m_pImpl->StartGameDataRecording();
-	//}
-
-	//void GameStateManager::EndGameDataRecording()
-	//{
-	//	m_pImpl->EndGameDataRecording();
-	//}
 
 	void GameStateManager::FlushGameData()
 	{
@@ -321,5 +255,10 @@ namespace GameEngine
 	InitialGameData GameStateManager::GetReplayIniData( int replayNo, int stageNo )
 	{
 		return m_pImpl->GetReplayIniData( replayNo, stageNo );
+	}
+
+	int GameStateManager::GetReplayGameDifficulty( int replayNo )
+	{
+		return m_pImpl->GetReplayGameDifficulty( replayNo );
 	}
 }

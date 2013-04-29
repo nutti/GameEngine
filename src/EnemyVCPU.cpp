@@ -145,6 +145,26 @@ namespace GameEngine
 #endif
 	}
 
+	void EnemyVCPU::SysSetEnemyPos3DGU()
+	{
+		Pop();
+		ScriptGU z = Top().m_Integer;
+		Pop();
+		ScriptGU y = Top().m_Integer;
+		Pop();
+		ScriptGU x = Top().m_Integer;
+		Pop();
+#if defined ( USE_FLOATING_POINT )
+		m_pEnemyData->m_PosX = x;
+		m_pEnemyData->m_PosY = y;
+		m_pEnemyData->m_PosZ = z;
+#elif defined ( USE_GAME_UNIT )
+		m_pEnemyData->m_GUData.m_PosX.SetRawValue( x );
+		m_pEnemyData->m_GUData.m_PosY.SetRawValue( y );
+		m_pEnemyData->m_GUData.m_PosZ.SetRawValue( z );
+#endif
+	}
+
 	void EnemyVCPU::SysSetEnemyAngle()
 	{
 		Pop();
@@ -324,7 +344,7 @@ namespace GameEngine
 		// ˆÓŽ¯ƒQ[ƒWŒ¸­
 		m_pEnemyData->m_ConsGauge -= cost;
 		// –³“Gó‘Ô‚ÉÝ’è
-		m_pEnemyData->m_IsInvincibleMode = true;
+		//m_pEnemyData->m_IsInvincibleMode = true;
 		m_pEnemyData->m_ConsSkillAttr = attr;
 	}
 		
@@ -404,6 +424,15 @@ namespace GameEngine
 	{
 		Pop();
 		Push( m_pEnemyData->m_pStageData->m_RandGen.GetRand() * 1.0f / m_pEnemyData->m_pStageData->m_RandGen.GetRandMax() );
+	}
+
+	void EnemyVCPU::SysGetRandGU()
+	{
+		Pop();
+		GameUnit r = m_pEnemyData->m_pStageData->m_RandGen.GetRand();
+		GameUnit max = m_pEnemyData->m_pStageData->m_RandGen.GetRandMax();
+		GameUnit l = r  / max;
+		Push( l.GetRawValue() );
 	}
 
 	void EnemyVCPU::SysCreateEffect1()
@@ -680,11 +709,104 @@ namespace GameEngine
 		m_pEnemyData->m_pStageData->m_ItemList.push_back( pNewItem );
 	}
 
+	void EnemyVCPU::SysCreateEnemyShot1GU()
+	{
+		GameUnit x;
+		GameUnit y;
+		GameUnit speed;
+		GameUnit angle;
+		GameUnit radius;
+
+
+		Pop();
+		int power = Top().m_Integer;
+		Pop();
+		int imgID = Top().m_Integer;
+		Pop();
+		radius.SetRawValue( Top().m_Integer );
+		Pop();
+		angle.SetRawValue( Top().m_Integer );
+		Pop();
+		speed.SetRawValue( Top().m_Integer );
+		Pop();
+		y.SetRawValue( Top().m_Integer );
+		Pop();
+		x.SetRawValue( Top().m_Integer );
+		Pop();
+		EnemyShot* pNewShot = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShot( 0 );
+		pNewShot->SetPos( x, y );
+		pNewShot->SetAngle( angle );
+		pNewShot->SetSpeed( speed );
+		pNewShot->SetImage( imgID );
+		pNewShot->SetPower( power );
+		pNewShot->SetCollisionRadius( radius );
+		m_pEnemyData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
+	}
+
+	void EnemyVCPU::SysCreateEnemyShotGroupGReg()
+	{
+		Pop();
+		int reg = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
+		pNewGroup->Init();
+		pNewGroup->SetReg( reg );
+		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
+	}
+
+	void EnemyVCPU::SysGetItemPosXGU()
+	{
+		Pop();
+		std::shared_ptr < Item > raw = m_pEnemyData->m_RefItem.lock();
+		if( raw ){
+			GameUnit x;
+			GameUnit y;
+			raw->GetPos( &x, &y );
+			Push( x.GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyVCPU::SysGetItemPosYGU()
+	{
+		Pop();
+		std::shared_ptr < Item > raw = m_pEnemyData->m_RefItem.lock();
+		if( raw ){
+			GameUnit x;
+			GameUnit y;
+			raw->GetPos( &x, &y );
+			Push( y.GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyVCPU::SysEnemyDamagedByConsShot()
+	{
+		Pop();
+		Push( m_pEnemyData->m_StatusFlags[ EnemyData::DAMAGED_BY_CONS_SHOT ] ? 1 : 0 );
+	}
+
+	void EnemyVCPU::SysGetDifficulty()
+	{
+		Pop();
+		Push( m_pEnemyData->m_pStageData->m_Difficulty );
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
 			case VM::SYS_GET_RANDOM_F:
 				SysGetRandF();
+				break;
+			case VM::SYS_GET_RANDOM_GU:
+				SysGetRandGU();
 				break;
 			case VM::SYS_GET_PLAYER_POSX_GU:
 				SysGetPlayerPosXGU();
@@ -713,6 +835,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SET_POS_GU:
 				SysSetEnemyPosGU();
+				break;
+			case VM::SYS_ENEMY_SET_POS_3D_GU:
+				SysSetEnemyPos3DGU();
 				break;
 
 			case VM::SYS_ENEMY_GET_POSX:
@@ -748,6 +873,13 @@ namespace GameEngine
 			case VM::SYS_ENEMY_GET_ITEM_POS_Y:
 				SysGetItemPosY();
 				break;
+				
+			case VM::SYS_ENEMY_GET_ITEM_POS_X_GU:
+				SysGetItemPosXGU();
+				break;
+			case VM::SYS_ENEMY_GET_ITEM_POS_Y_GU:
+				SysGetItemPosYGU();
+				break;
 
 			case VM::SYS_ENEMY_SET_NAME:
 				SysSetEnemyName();
@@ -772,6 +904,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_CREATE_SHOT_1:
 				SysCreateEnemyShot1();
+				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_1_GU:
+				SysCreateEnemyShot1GU();
 				break;
 			case VM::SYS_ENEMY_SET_IMAGE:
 				SysSetEnemyImgID();
@@ -809,6 +944,9 @@ namespace GameEngine
 			case VM::SYS_ENEMY_STOP_CONS_SKILL:
 				SysEnemyStopConsSkill();
 				break;
+			case VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT:
+				SysEnemyDamagedByConsShot();
+				break;
 
 			case VM::SYS_ENEMY_CREATE_EFFECT_1:
 				SysCreateEffect1();
@@ -831,8 +969,14 @@ namespace GameEngine
 			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_FREG:
 				SysCreateEnemyShotGroupFReg();
 				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_GREG:
+				SysCreateEnemyShotGroupGReg();
+				break;
 			case VM::SYS_ENEMY_SHIFT_NEXT_MODE:
 				SysEnemyShiftNextMode();
+				break;
+			case VM::SYS_STAGE_GET_DIFFICULTY:
+				SysGetDifficulty();
 				break;
 
 			case VM::SYS_PLAY_SE:

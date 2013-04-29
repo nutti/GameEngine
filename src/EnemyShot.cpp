@@ -286,6 +286,7 @@ namespace GameEngine
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 #if defined ( USE_FLOATING_POINT )
 		void SetPos( float posX, float posY );
+		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
 		void GetPos( float* pX, float* pY );
 		void SetAngle( float angle );						// 角度を設定
 		void SetSpeed( float speed );						// 速度を設定
@@ -297,6 +298,11 @@ namespace GameEngine
 		float GetCollisionRadius() const;
 #elif defined ( USE_GAME_UNIT )
 		void SetPos( const GameUnit& posX, const GameUnit& posY );
+		void SetLinePos(	const GameUnit& x1,
+							const GameUnit& y1,
+							const GameUnit& x2,
+							const GameUnit& y2,
+							const GameUnit& thickness );		// 線の値を設定
 		void GetPos( GameUnit* pX, GameUnit* pY );
 		void SetAngle( const GameUnit& angle );						// 角度を設定
 		void SetSpeed( const GameUnit& speed );						// 速度を設定
@@ -321,7 +327,6 @@ namespace GameEngine
 		void SetAlphaBlendingMode( int mode );				// αブレンディングの方法を設定
 		bool DoesColideWithPlayer( float x, float y, float radius );	// プレイヤーとの衝突判定
 		void SetShape( int shape );							// 衝突判定の形を設定
-		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
 		void EnableInvincibleMode();				// 消えないモードへ移行
 		void DisableInvincibleMode();			// 消えるモードへ移行
 		void EnableInvisibleMode();				// 見えないモードへ移行
@@ -566,8 +571,12 @@ namespace GameEngine
 
 			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
 #if defined ( MAKE_MODE_RELEASE )
-				m_GUData.m_PosX += m_GUData.m_Speed * CosGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
-				m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
+				//m_GUData.m_PosX += m_GUData.m_Speed * CosGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
+				//m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
+
+
+				m_GUData.m_PosX += m_GUData.m_Speed * CosGU( m_GUData.m_Angle );
+				m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( m_GUData.m_Angle );
 #elif defined ( MAKE_MODE_DEBUG )
 				m_GUData.m_PosX += m_GUData.m_Speed * CosGU( m_GUData.m_Angle );
 				m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( m_GUData.m_Angle );
@@ -591,7 +600,8 @@ namespace GameEngine
 
 		if( m_ImgRotMode == IMG_ROT_MODE_SYNC ){
 #if defined ( MAKE_MODE_RELEASE )
-			m_ImgRotAngle = m_GUData.m_Angle.GetFloat() + MAPIL::DegToRad( 90.0f );
+			//m_ImgRotAngle = m_GUData.m_Angle.GetFloat() + MAPIL::DegToRad( 90.0f );
+			m_ImgRotAngle = MAPIL::DegToRad( m_GUData.m_Angle.GetFloat() + 90.0f );
 #elif defined ( MAKE_MODE_DEBUG )
 			m_ImgRotAngle = MAPIL::DegToRad( m_GUData.m_Angle.GetFloat() + 90.0f );
 #endif
@@ -877,6 +887,7 @@ namespace GameEngine
 		m_ShotShape = shape;
 	}
 
+#if defined ( USE_FLOATING_POINT )
 	void EnemyShot::Impl::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
 	{
 		m_Line.SetStartX( x1 );
@@ -885,6 +896,20 @@ namespace GameEngine
 		m_Line.SetEndY( y2 );
 		m_Line.SetThickness( thickness );
 	}
+#elif defined ( USE_GAME_UNIT )
+	void EnemyShot::Impl::SetLinePos(	const GameUnit& x1,
+										const GameUnit& y1,
+										const GameUnit& x2,
+										const GameUnit& y2,
+										const GameUnit& thickness )
+	{
+		m_Line.SetStartX( x1.GetFloat() );
+		m_Line.SetStartY( y1.GetFloat() );
+		m_Line.SetEndX( x2.GetFloat() );
+		m_Line.SetEndY( y2.GetFloat() );
+		m_Line.SetThickness( thickness.GetFloat() );
+	}
+#endif
 
 	inline void EnemyShot::Impl::EnableInvincibleMode()
 	{
@@ -1054,6 +1079,11 @@ namespace GameEngine
 		m_pImpl->SetPos( posX, posY );
 	}
 
+	void EnemyShot::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
+	{
+		m_pImpl->SetLinePos( x1, y1, x2, y2, thickness );
+	}
+
 	void EnemyShot::GetPos( float* pPosX, float* pPosY )
 	{
 		m_pImpl->GetPos( pPosX, pPosY );
@@ -1107,6 +1137,15 @@ namespace GameEngine
 	void EnemyShot::SetPos( const GameUnit& posX, const GameUnit& posY )
 	{
 		m_pImpl->SetPos( posX, posY );
+	}
+
+	void EnemyShot::SetLinePos(	const GameUnit& x1,
+								const GameUnit& y1,
+								const GameUnit& x2,
+								const GameUnit& y2,
+								const GameUnit& thickness )
+	{
+		m_pImpl->SetLinePos( x1, y1, x2, y2, thickness );
 	}
 
 	void EnemyShot::GetPos( GameUnit* pPosX, GameUnit* pPosY )
@@ -1166,10 +1205,7 @@ namespace GameEngine
 		m_pImpl->SetShape( shape );
 	}
 
-	void EnemyShot::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
-	{
-		m_pImpl->SetLinePos( x1, y1, x2, y2, thickness );
-	}
+	
 
 	void EnemyShot::EnableInvincibleMode()
 	{

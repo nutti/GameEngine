@@ -680,7 +680,164 @@ namespace GameEngine
 		GameUnit r = m_pEnemyShotGroupData->m_pStageData->m_RandGen.GetRand();
 		GameUnit max = m_pEnemyShotGroupData->m_pStageData->m_RandGen.GetRandMax();
 		GameUnit l = r  / max;
-		Push( ( r / max ).GetRawValue() );
+		Push( l.GetRawValue() );
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotPosXGU()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			GameUnit x;
+			GameUnit y;
+			m_pEnemyShotGroupData->m_pShots[ id ]->GetPos( &x, &y );
+			Push( x.GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotPosYGU()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			GameUnit x;
+			GameUnit y;
+			m_pEnemyShotGroupData->m_pShots[ id ]->GetPos( &x, &y );
+			Push( y.GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotSpeedGU()
+	{
+		Pop();
+		GameUnit speed;
+		speed.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetSpeed( speed );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotAngleGU()
+	{
+		Pop();
+		GameUnit angle;
+		angle.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetAngle( angle );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotPosGU()
+	{
+		Pop();
+		GameUnit y;
+		y.SetRawValue( Top().m_Integer );
+		Pop();
+		GameUnit x;
+		x.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetPos( x, y );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotAddAngleGU()
+	{
+		Pop();
+		GameUnit angle;
+		angle.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->AddAngle( angle );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotGroupGReg()
+	{
+		Pop();
+		Push( m_pEnemyShotGroupData->m_Reg );
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotSetLineStatusGU()
+	{
+		Pop();
+		GameUnit thickness;
+		thickness.SetRawValue( Top().m_Integer );
+		Pop();
+		GameUnit y2;
+		y2.SetRawValue( Top().m_Integer );
+		Pop();
+		GameUnit x2;
+		x2.SetRawValue( Top().m_Integer );
+		Pop();
+		GameUnit y1;
+		y1.SetRawValue( Top().m_Integer );
+		Pop();
+		GameUnit x1;
+		x1.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetLinePos( x1, y1, x2, y2, thickness );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotAngleGU()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			Push( m_pEnemyShotGroupData->m_pShots[ id ]->GetAngle().GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotAddSpeedGU()
+	{
+		Pop();
+		GameUnit speed;
+		speed.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->AddSpeed( speed );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetDifficulty()
+	{
+		Pop();
+		Push( m_pEnemyShotGroupData->m_pStageData->m_Difficulty );
 	}
 
 	void EnemyShotGroupVCPU::OpSysCall( int val )
@@ -743,6 +900,33 @@ namespace GameEngine
 
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU:
 				SysSetEnemyShotStatusGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X_GU:
+				SysGetEnemyShotPosXGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y_GU:
+				SysGetEnemyShotPosYGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_SPEED_GU:
+				SysSetEnemyShotSpeedGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_ANGLE_GU:
+				SysSetEnemyShotAngleGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_POS_GU:
+				SysSetEnemyShotPosGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE_GU:
+				SysEnemyShotAddAngleGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_SET_LINE_SHOT_STATUS_GU:
+				SysEnemyShotSetLineStatusGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_ANGLE_GU:
+				SysGetEnemyShotAngleGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED_GU:
+				SysEnemyShotAddSpeedGU();
 				break;
 
 			case VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT:
@@ -841,6 +1025,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_FREG:
 				SysGetEnemyShotGroupFReg();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_GREG:
+				SysGetEnemyShotGroupGReg();
+				break;
+			case VM::SYS_STAGE_GET_DIFFICULTY:
+				SysGetDifficulty();
 				break;
 
 			default:

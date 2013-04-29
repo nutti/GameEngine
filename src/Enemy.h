@@ -2,6 +2,7 @@
 #define INCLUDED_GAMEENGINE_ENEMY_H
 
 #include <vector>
+#include <bitset>
 
 #include "CollisionObject.h"
 #include "EnemyVCPU.h"
@@ -38,6 +39,14 @@ namespace GameEngine
 		};
 		GameUnitData		m_GUData;
 #endif
+
+		// フラグ管理
+		enum StatusFlag
+		{
+			DAMAGED_BY_CONS_SHOT		= 0,	// 属性攻撃を受けたか?
+			STATUS_FLAG_TOTAL,
+		};
+		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
 
 		std::string			m_Name;				// 敵の名前
 		

@@ -18,6 +18,16 @@ namespace GameEngine
 		return i << SCRIPT_GU_DECIMAL_SHIFT;
 	}
 
+	inline ScriptGU ToGU( float f )
+	{
+		return static_cast < ScriptGU > ( f * ( 1 << SCRIPT_GU_DECIMAL_SHIFT ) );
+	}
+
+	inline float ToFloat( int gu )
+	{
+		return gu > 0 ? gu * 1.0f / ( 1 << SCRIPT_GU_DECIMAL_SHIFT ) : -( (-gu) * 1.0f / ( 1 << SCRIPT_GU_DECIMAL_SHIFT ) );
+	}
+
 	inline ScriptGU MakeGU( int i, int d )
 	{
 		return ( i << SCRIPT_GU_DECIMAL_SHIFT ) + d;

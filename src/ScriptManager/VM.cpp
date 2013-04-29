@@ -87,6 +87,9 @@ void VM::VCPU::OpSysCall( int val )
 		case SYS_GU_TO_INT:
 			SysGUToInt();
 			break;
+		case SYS_GU_TO_FLOAT:
+			SysGUToFloat();
+			break;
 		case SYS_ADD_SCORE:
 			SysAddScore();
 			break;
@@ -121,6 +124,9 @@ void VM::VCPU::OpSysCall( int val )
 		case SYS_ABS_GU:
 			SysAbsGU();
 			break;
+		case SYS_SQRT_GU:
+			SysSqrtGU();
+			break;
 
 		case SYS_DEG_TO_RAD:
 			SysDegToRad();
@@ -136,6 +142,10 @@ void VM::VCPU::OpSysCall( int val )
 			break;
 		case SYS_STOP_BGM:
 			SysStopBGM();
+			break;
+
+		default:
+			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Invalid system call." ), -1 );
 			break;
 	}
 }
@@ -178,9 +188,23 @@ void VM::VCPU::SysIntToGU()
 
 void VM::VCPU::SysGUToInt()
 {
-	int gu = Top().m_Integer;
+	GameEngine::ScriptGU gu = Top().m_Integer;
 	Pop();
 	Push( GameEngine::ToInt( gu ) );
+}
+
+void VM::VCPU::SysGUToFloat()
+{
+	GameEngine::ScriptGU gu = Top().m_Integer;
+	Pop();
+	Push( GameEngine::ToFloat( gu ) );
+}
+
+void VM::VCPU::SysFloatToGU()
+{
+	float f = Top().m_Float;
+	Pop();
+	Push( GameEngine::ToGU( f ) );
 }
 
 void VM::VCPU::SysAddScore()
@@ -254,6 +278,14 @@ void VM::VCPU::SysAbsGU()
 	value.SetRawValue( Top().m_Integer );
 	Pop();
 	Push( GameEngine::AbsGU( value ).GetRawValue() );
+}
+
+void VM::VCPU::SysSqrtGU()
+{
+	GameEngine::GameUnit gu;
+	gu.SetRawValue( Top().m_Integer );
+	Pop();
+	Push( GameEngine::ToGU( std::sqrt( gu.GetFloat() ) ) );
 }
 
 void VM::VCPU::SysAbs()

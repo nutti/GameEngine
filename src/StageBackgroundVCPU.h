@@ -37,6 +37,7 @@ namespace GameEngine
 		void SysColorARGB();
 
 		void SysStageGetFrame();
+		void SysStageGetBossFlag();
 	public:
 		StageBackgroundVCPU();
 		~StageBackgroundVCPU();
