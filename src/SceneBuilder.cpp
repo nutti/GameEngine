@@ -7,6 +7,7 @@
 #include "ScoreEntry.h"
 #include "ReplayEntry.h"
 #include "Initialize.h"
+#include "DifficultySelection.h"
 
 namespace GameEngine
 {
@@ -41,6 +42,8 @@ namespace GameEngine
 				return new Stage( 0, false );
 			case SCENE_TYPE_REPLAY_ENTRY:
 				return new ReplayEntry;
+			case SCENE_TYPE_DIFFICULTY_SELECTION:
+				return new DifficultySelection;
 			default:
 				return NULL;
 		}

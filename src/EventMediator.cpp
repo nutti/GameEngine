@@ -315,6 +315,13 @@ namespace GameEngine
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
+			// 難易度選択画面移行要求
+			case EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION:{
+				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->ChangeScene( SCENE_TYPE_DIFFICULTY_SELECTION );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
 			// スコア画面移行要求
 			case EVENT_TYPE_MOVE_TO_SCORE:{
 				m_pResourceManager->ReleaseStageResources();
@@ -426,10 +433,11 @@ namespace GameEngine
 				//m_Loading.AddStageResourceItem( 2, false );
 #elif defined ( USE_GAME_UNIT )
 #if defined ( MAKE_MODE_RELEASE )
+				//m_Loading.AddStageResourceItem( 2, false );
 				m_Loading.AddStageResourceItem( stage, false );
 #elif defined ( MAKE_MODE_DEBUG )
-				m_Loading.AddStageResourceItem( stage, false );
-				//m_Loading.AddStageResourceItem( 2, false );
+				//m_Loading.AddStageResourceItem( stage, false );
+				m_Loading.AddStageResourceItem( 2, false );
 #endif
 #endif
 				m_Loading.Start();
@@ -439,7 +447,7 @@ namespace GameEngine
 				if( m_pSceneManager->GetGameMode() == GAME_MODE_NORMAL ){
 					m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 					// 難易度の設定（※複数の難易度で問題化？）
-					m_pSceneManager->SetGameDifficulty( GAME_DIFFICULTY_HAZARD );
+					//m_pSceneManager->SetGameDifficulty( GAME_DIFFICULTY_HAZARD );
 					// ハイスコアの設定
 					m_pSceneManager->SetHIScore( m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() ) );
 				}

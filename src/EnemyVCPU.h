@@ -77,6 +77,8 @@ namespace GameEngine
 		void SysStageSetBossFlag();
 		void SysEnemyShiftNextMode();
 		void SysGetDifficulty();
+		void SysSetBossPhaseTotal();
+		void SysSetBossPhaseShiftHP();
 
 		void SysCreateItem();
 		void SysCreateItemGU();

@@ -7,6 +7,7 @@
 #include "Stage.h"
 #include "Score.h"
 #include "Replay.h"
+#include "DifficultySelection.h"
 #include "Menu.h"
 #include "Initialize.h"
 #include "ScoreEntry.h"
@@ -195,8 +196,6 @@ namespace GameEngine
 		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCons = stage.GetPlayerCons();
 		stage.GetPlayerConsGauge( m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniConsGauge );
 		stage.GetPlayerConsLevel( m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniConsLevel );
-		//::memcpy( &m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniConsGauge, &data.m_ConsGauge, sizeof( data.m_ConsGauge ) );
-		//::memcpy( &m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniConsLevel, &data.m_ConsLevel, sizeof( data.m_ConsLevel ) );
 		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCrystal = stage.GetCrystal();
 		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniCrystalUsed = stage.GetCrystalUsed();
 		m_ReplayDataRecord.m_StageDataInfo[ stageNo ].m_IniHP = stage.GetPlayerHP();
@@ -305,6 +304,9 @@ namespace GameEngine
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
 					}
 				}
+				else if( next == SCENE_TYPE_DIFFICULTY_SELECTION ){
+					p->SendEvent( EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION );
+				}
 				else if( next == SCENE_TYPE_STAGE ){
 					if( m_CurSceneType == SCENE_TYPE_REPLAY ){
 						m_GameMode = GAME_MODE_REPLAY;
@@ -321,7 +323,12 @@ namespace GameEngine
 						}
 					}
 					else{
-						if( m_CurSceneType == SCENE_TYPE_MENU ){
+						//if( m_CurSceneType == SCENE_TYPE_MENU ){
+						if( m_CurSceneType == SCENE_TYPE_DIFFICULTY_SELECTION ){
+							DifficultySelection* pScene = dynamic_cast < DifficultySelection* > ( m_pCurScene.get() );
+							if( pScene ){
+								m_GameDifficulty = pScene->GetDifficulty();
+							}
 							m_GameMode = GAME_MODE_NORMAL;
 							m_CurStage = 1;
 							// ‰Šúƒf[ƒ^‚ÌÝ’è
@@ -539,6 +546,9 @@ namespace GameEngine
 			( (ReplayEntry*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
 			( (ReplayEntry*) m_pCurScene.get() )->AttachReplayDataRecord( m_ReplayDataRecord );
 			m_CurSceneType = SCENE_TYPE_REPLAY;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( DifficultySelection ) ){
+			m_CurSceneType = SCENE_TYPE_DIFFICULTY_SELECTION;
 		}
 		m_pCurScene->AttachResourceMap( m_ResourceMap );
 		m_pCurScene->Init();

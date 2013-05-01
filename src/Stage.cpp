@@ -32,9 +32,9 @@ namespace GameEngine
 {
 	// クリアした時のボーナス
 	const int CLEARED_CRYSTAL_BONUS			= 10;
-	const int CLEARED_CRYSTAL_REST_BONUS	= 20;
-	const int CLEARED_HP_REST_BONUS			= 1000;
-	const int CLEARED_KILLED_BONUS			= 20;
+	const int CLEARED_CRYSTAL_REST_BONUS	= 30;
+	const int CLEARED_HP_REST_BONUS			= 5000;
+	const int CLEARED_KILLED_BONUS			= 40;
 
 	class Stage::Impl
 	{
@@ -73,8 +73,11 @@ namespace GameEngine
 			// ボス状態に関するデータ
 			struct BossModeData
 			{
-				bool			m_IsBossMode;		// ボス出現状態ならtrue
-				int				m_DamagedCounter;	// ダメージを受けた時のエフェクトカウンタ
+				bool			m_IsBossMode;			// ボス出現状態ならtrue
+				int				m_DamagedCounter;		// ダメージを受けた時のエフェクトカウンタ
+				int				m_ShiftFrame[ 10 ];		// 次の段階へ移行したときのフレーム
+				int				m_PhaseInterval;		// 次の段階へのインターバル
+				int				m_CurPhase;				// 段階数
 			};
 			// ボムに関するデータ
 			struct BombModeData
@@ -164,6 +167,8 @@ namespace GameEngine
 		void UpdateBombModeEffect();		// ボムモード時のエフェクト処理の更新
 		void DrawBombModeEffect() const;	// ボムモード時のエフェクト処理の描画
 		void DrawResult() const;			// ステージクリア時のリザルト画面表示
+		void UpdateBossPhaseShiftEffect();		// ボスが次の段階へ進むときの更新処理
+		void DrawBossPhaseShiftEffect() const;	// ボスが次の段階へ進むときの描画処理
 
 		// GameObject全削除メソッド
 		void DeleteAllEnemyShots();
@@ -228,6 +233,7 @@ namespace GameEngine
 		//m_Data.m_BossMode = 0;
 		m_Data.m_pBoss = NULL;
 		m_Data.m_FrameTotal = 100000;
+		m_Data.m_BossPhaseTotal = 4;
 
 		m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode = false;
 		m_PrivData.m_ConsSkillModeData.m_Counter = 0;
@@ -246,6 +252,7 @@ namespace GameEngine
 		m_PrivData.m_ClearModeData.m_NextStageNo = 0;
 		MAPIL::ZeroObject( m_PrivData.m_ItemObtainedData.m_Counter, sizeof( m_PrivData.m_ItemObtainedData.m_Counter ) );
 		MAPIL::ZeroObject( &m_PrivData.m_StageResultData, sizeof( m_PrivData.m_StageResultData ) );
+		MAPIL::ZeroObject( &m_PrivData.m_BossModeData, sizeof( m_PrivData.m_BossModeData ) );
 
 		m_Profiler.Clear();
 		m_DispProf = false;
@@ -476,7 +483,6 @@ namespace GameEngine
 				if( distance < colRadius ){
 					( *it )->Colided( m_Data.m_pPlayer );
 					m_Data.m_pPlayer->Colided( ( *it ).get() );
-					//m_Data.m_pPlayer->Colided( ( *it ) );
 				}
 				// 近くにいる時
 				else{
@@ -512,7 +518,6 @@ namespace GameEngine
 				GameUnit radius = ( iRad + eRad ) * ( iRad + eRad );
 				if( distance < radius ){
 					( *itEnemy )->Colided( ( *itItem ).get() );
-				//	( *itEnemy )->Colided( ( *itItem ) );
 					( *itItem )->Colided( *itEnemy );
 				}
 			}
@@ -624,14 +629,12 @@ namespace GameEngine
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_STARTED:
 					m_PrivData.m_BossModeData.m_IsBossMode = true;
+					m_PrivData.m_BossModeData.m_ShiftFrame[ 0 ] = m_Data.m_Frame;
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_ENDED:
-					m_PrivData.m_BossModeData.m_IsBossMode = false;
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_SHIFT_NEXT_MODE:
-					for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
-						( *it )->PostMessage( EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED );
-					}
+					m_PrivData.m_BossModeData.m_PhaseInterval = 0;
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_ENEMY_INVOKE_CONS_SKILL:
 					break;
@@ -708,9 +711,6 @@ namespace GameEngine
 
 	void Stage::Impl::DeleteAllItems()
 	{
-		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){
-			//delete ( *it );
-		}
 		m_Data.m_ItemList.clear();
 	}
 
@@ -721,9 +721,6 @@ namespace GameEngine
 		}
 		else{
 			++m_PrivData.m_ConsSkillModeData.m_PostCounter;
-			//if( m_Data.m_pBoss ){
-			//	m_PrivData.m_ConsSkillModeData.m_PrevConsGauge = m_Data.m_pBoss->GetConsGauge();
-			//}
 		}
 	}
 
@@ -810,6 +807,8 @@ namespace GameEngine
 	void Stage::Impl::UpdateBossModeEffect()
 	{
 		--m_PrivData.m_BossModeData.m_DamagedCounter;
+	
+		UpdateBossPhaseShiftEffect();
 	}
 
 	void Stage::Impl::DrawBossModeEffect() const
@@ -831,16 +830,43 @@ namespace GameEngine
 					MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 				}
 
-				for( int i = 0; i < 6; ++i ){
-				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-									150.0f + i * 64.0f, 10.0f,
-									0.1f, 0.5f, false, 0xFFFFFFFF );
+				for( int i = 0; i < m_Data.m_BossPhaseTotal; ++i ){
+					MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+										150.0f + 320.0f * m_Data.m_BossPhaseStartHP[ i ] / m_Data.m_pBoss->GetMaxHP(), 10.0f,
+										0.1f, 0.5f, false, 0xFFFFFFFF );
 				}
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									150.0f + 320.0f, 10.0f,
+									0.1f, 0.5f, false, 0xFFFFFFFF );
 				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 									246.0f, 20.0f,
 									0.1f, 0.5f, false, 0xFFFFFFFF );
+
+				for( int i = 0; i < m_PrivData.m_BossModeData.m_CurPhase; ++i ){
+					float interval = ( m_PrivData.m_BossModeData.m_ShiftFrame[ i + 1 ] - m_PrivData.m_BossModeData.m_ShiftFrame[ i ] ) / 60.0f;
+					DrawFontString( m_Data.m_ResourceMap, 420.0f, 50.0f + i * 14.0f, 0.4f, 0xFF11FF55, "%d", i + 1 );
+					DrawFontString( m_Data.m_ResourceMap, 440.0f, 50.0f + i * 14.0f, 0.4f, "%.2f", interval );
+				}
+				DrawFontString(	m_Data.m_ResourceMap,
+								140.0f,
+								50.0f,
+								0.5f,
+								0xFFFFAAAA,
+								"%.2f",
+								( m_Data.m_Frame - m_PrivData.m_BossModeData.m_ShiftFrame[ m_PrivData.m_BossModeData.m_CurPhase ] ) / 60.0f );
+				DrawFontString(	m_Data.m_ResourceMap,
+								140.0f,
+								70.0f,
+								0.4f,
+								0xFFFFAAFF,
+								"%.2f",
+								( m_Data.m_Frame - m_PrivData.m_BossModeData.m_ShiftFrame[ 0 ] ) / 60.0f );
+
 			}
+
 		}
+
+		DrawBossPhaseShiftEffect();
 	}
 
 #if defined ( USE_FLOATING_POINT )
@@ -1175,14 +1201,21 @@ namespace GameEngine
 							m_PrivData.m_StageResultData.m_Score );
 			DrawFontString( m_Data.m_ResourceMap, 150.0f, 100.0f, 0.7f, 0xFFAA4444, "Stage %d Cleared",
 							m_Data.m_StageNo );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 180.0f, 0.45f, 0xFFFFFFFF, "HP Rest %d x 10000 %d",
-							m_PrivData.m_StageResultData.m_HP, m_PrivData.m_StageResultData.m_HP * CLEARED_HP_REST_BONUS );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 220.0f, 0.45f, 0xFFFFFFFF, "Killed %d x 200 %d",
-							m_PrivData.m_StageResultData.m_Killed, m_PrivData.m_StageResultData.m_Killed * CLEARED_KILLED_BONUS );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 240.0f, 0.45f, 0xFFFFFFFF, "Crystal %d x 100 %d",
-							m_PrivData.m_StageResultData.m_Crystal, m_PrivData.m_StageResultData.m_Crystal * CLEARED_CRYSTAL_BONUS );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 260.0f, 0.45f, 0xFFFFFFFF, "Crystal Rest %d x 500 %d",
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 180.0f, 0.45f, 0xFFFFFFFF, "HP Rest %d x %d %d",
+							m_PrivData.m_StageResultData.m_HP,
+							CLEARED_HP_REST_BONUS,
+							m_PrivData.m_StageResultData.m_HP * CLEARED_HP_REST_BONUS );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 220.0f, 0.45f, 0xFFFFFFFF, "Killed %d x %d %d",
+							m_PrivData.m_StageResultData.m_Killed,
+							CLEARED_KILLED_BONUS,
+							m_PrivData.m_StageResultData.m_Killed * CLEARED_KILLED_BONUS );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 240.0f, 0.45f, 0xFFFFFFFF, "Crystal %d x %d %d",
+							m_PrivData.m_StageResultData.m_Crystal,
+							CLEARED_CRYSTAL_BONUS,
+							m_PrivData.m_StageResultData.m_Crystal * CLEARED_CRYSTAL_BONUS );
+			DrawFontString( m_Data.m_ResourceMap, 170.0f, 260.0f, 0.45f, 0xFFFFFFFF, "Crystal Rest %d x %d %d",
 							m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed,
+							CLEARED_CRYSTAL_REST_BONUS,
 							( m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed ) * CLEARED_CRYSTAL_REST_BONUS );
 			DrawFontString( m_Data.m_ResourceMap, 170.0f, 300.0f, 0.55f, 0xFFFFFFFF, "Bonus Total %d", GetStageClearBonus() );
 			DrawFontString( m_Data.m_ResourceMap, 170.0f, 330.0f, 0.55f, 0xFFFFFFFF, "Total Score %d", m_Data.m_GameData.m_Score );
@@ -1217,6 +1250,75 @@ namespace GameEngine
 				( m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed ) * CLEARED_CRYSTAL_REST_BONUS +
 				m_PrivData.m_StageResultData.m_HP * CLEARED_HP_REST_BONUS +
 				m_PrivData.m_StageResultData.m_Killed * CLEARED_KILLED_BONUS;
+	}
+
+	void Stage::Impl::UpdateBossPhaseShiftEffect()
+	{
+		if( m_PrivData.m_BossModeData.m_IsBossMode ){
+			if( m_PrivData.m_BossModeData.m_PhaseInterval == 0 ){
+				for( EnemyShotList::iterator it = m_Data.m_EnemyShotList.begin(); it != m_Data.m_EnemyShotList.end(); ++it ){
+					( *it )->PostMessage( EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED );
+				}
+				++m_PrivData.m_BossModeData.m_CurPhase;
+				m_PrivData.m_BossModeData.m_ShiftFrame[ m_PrivData.m_BossModeData.m_CurPhase ] = m_Data.m_Frame;
+				int elapsedTime =	m_PrivData.m_BossModeData.m_ShiftFrame[ m_PrivData.m_BossModeData.m_CurPhase ] -
+									m_PrivData.m_BossModeData.m_ShiftFrame[ m_PrivData.m_BossModeData.m_CurPhase - 1 ];
+				int bonus = ( 3600 - elapsedTime ) >= 0 ? ( 3600 - elapsedTime ) * 10 : 0;
+				m_Data.m_FrameGameData.m_Score += bonus;
+			}
+			++m_PrivData.m_BossModeData.m_PhaseInterval;
+			if( m_PrivData.m_BossModeData.m_PhaseInterval == 15 && m_Data.m_pBoss == NULL ){
+				int elapsedTimeTotal =	m_PrivData.m_BossModeData.m_ShiftFrame[ m_PrivData.m_BossModeData.m_CurPhase ] -
+										m_PrivData.m_BossModeData.m_ShiftFrame[ 0 ];
+				int bonus = ( 18000 - elapsedTimeTotal ) >= 0 ? ( 18000 - elapsedTimeTotal ) * 20 : 0;
+				m_Data.m_FrameGameData.m_Score += bonus;
+			}
+			if( m_PrivData.m_BossModeData.m_PhaseInterval == 240 && m_Data.m_pBoss == NULL ){
+				m_PrivData.m_BossModeData.m_IsBossMode = false;
+			}
+		}
+		else{
+			m_PrivData.m_BossModeData.m_PhaseInterval = 350;
+		}
+	}
+
+	void Stage::Impl::DrawBossPhaseShiftEffect() const
+	{
+		if( m_PrivData.m_BossModeData.m_IsBossMode ){
+			int time = m_PrivData.m_BossModeData.m_PhaseInterval;
+			int elapsedTime =	m_PrivData.m_BossModeData.m_ShiftFrame[ m_PrivData.m_BossModeData.m_CurPhase ] -
+								m_PrivData.m_BossModeData.m_ShiftFrame[ m_PrivData.m_BossModeData.m_CurPhase - 1 ];
+			int bonus = ( 3600 - elapsedTime ) >= 0 ? ( 3600 - elapsedTime ) * 10 : 0;
+			if( time <= 30 ){
+				DrawFontString( m_Data.m_ResourceMap, 600.0f - time * 14.0f, 120.0f, 0.5f, 0xFFFFFF00, "Time Bonus" );
+				DrawFontString( m_Data.m_ResourceMap, 600.0f - time * 14.0f, 140.0f, 0.5f, "%.2f  %d", elapsedTime / 60.0f, bonus );
+			}
+			else if( time <= 180 ){
+				DrawFontString( m_Data.m_ResourceMap, 180.0f, 120.0f, 0.5f, 0xFFFFFF00, "Time Bonus" );
+				DrawFontString( m_Data.m_ResourceMap, 180.0f, 140.0f, 0.5f, "%.2f  %d", elapsedTime / 60.0f, bonus );
+			}
+			else if( time <= 220 ){
+				DrawFontString( m_Data.m_ResourceMap, 2700.0f - time * 14.0f, 120.0f, 0.5f, 0xFFFFFF00, "Time Bonus" );
+				DrawFontString( m_Data.m_ResourceMap, 2700.0f - time * 14.0f, 140.0f, 0.5f, "%.2f  %d", elapsedTime / 60.0f, bonus );
+			}
+			if( m_Data.m_pBoss == NULL ){
+				int elapsedTimeTotal =	m_PrivData.m_BossModeData.m_ShiftFrame[ m_PrivData.m_BossModeData.m_CurPhase ] -
+										m_PrivData.m_BossModeData.m_ShiftFrame[ 0 ];
+				int bonus2 = ( 18000 - elapsedTimeTotal ) >= 0 ? ( 18000 - elapsedTimeTotal ) * 20 : 0;
+				if( time <= 45 ){
+					DrawFontString( m_Data.m_ResourceMap, 810.0f - time * 14.0f, 180.0f, 0.5f, 0xFFFF55AA, "Destroy Bonus" );
+					DrawFontString( m_Data.m_ResourceMap, 810.0f - time * 14.0f, 200.0f, 0.5f, "%.2f  %d", elapsedTimeTotal / 60.0f, bonus2 );
+				}
+				else if( time <= 195 ){
+					DrawFontString( m_Data.m_ResourceMap, 180.0f, 180.0f, 0.5f, 0xFFFF55AA, "Destroy Bonus" );
+					DrawFontString( m_Data.m_ResourceMap, 180.0f, 200.0f, 0.5f, "%.2f  %d", elapsedTimeTotal / 60.0f, bonus2 );
+				}
+				else if( time <= 235 ){
+					DrawFontString( m_Data.m_ResourceMap, 2910.0f - time * 14.0f, 180.0f, 0.5f, 0xFFFF55AA, "Destroy Bonus" );
+					DrawFontString( m_Data.m_ResourceMap, 2910.0f - time * 14.0f, 200.0f, 0.5f, "%.2f  %d", elapsedTimeTotal / 60.0f, bonus2 );
+				}
+			}
+		}
 	}
 
 	SceneType Stage::Impl::Update()
@@ -1361,12 +1463,6 @@ namespace GameEngine
 		
 		// プレイヤーの描画
 		m_Data.m_pPlayer->Draw();
-
-		/*MAPIL::EndRendering2DGraphics();
-		MAPIL::DisableLighting();
-		MAPIL::DoAllModelOn2DBatchWorks();
-		MAPIL::EnableLighting();
-		MAPIL::BeginRendering2DGraphics();*/
 
 		// 敵の描画
 		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){

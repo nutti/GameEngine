@@ -6,17 +6,21 @@ namespace GameEngine
 	// シーン識別子
 	enum SceneType
 	{
-		SCENE_TYPE_INITIALIZE	= 0,		// 初期化
-		SCENE_TYPE_MENU			= 1,		// メニュー
-		SCENE_TYPE_STAGE		= 2,		// ステージ
-		SCENE_TYPE_SCORE		= 3,		// スコア
-		SCENE_TYPE_SCORE_ENTRY	= 4,		// スコア入力
-		SCENE_TYPE_REPLAY_ENTRY	= 5,		// リプレイ入力
-		SCENE_TYPE_REPLAY		= 6,		// リプレイ
-		SCENE_TYPE_NOT_CHANGE	= 100,		// シーン変更なし
-		SCENE_TYPE_GAME_TERM	= 101,		// ゲーム終了
-		SCENE_TYPE_LOADING		= 102,		// ロード中
-		SCENE_TYPE_UNKNOWN		= 200,		// 不明なシーン
+		SCENE_TYPE_INITIALIZE			= 0,		// 初期化
+		SCENE_TYPE_MENU					= 1,		// メニュー
+		SCENE_TYPE_STAGE				= 2,		// ステージ
+		SCENE_TYPE_SCORE				= 3,		// スコア
+		SCENE_TYPE_SCORE_ENTRY			= 4,		// スコア入力
+		SCENE_TYPE_REPLAY_ENTRY			= 5,		// リプレイ入力
+		SCENE_TYPE_REPLAY				= 6,		// リプレイ
+		SCENE_TYPE_DIFFICULTY_SELECTION	= 7,		// 難易度選択
+		SCENE_TYPE_STAGE_SELECTION		= 8,		// ステージ選択
+		SCENE_TYPE_CONFIG				= 9,		// コンフィグ画面
+		SCENE_TYPE_ENDING				= 10,		// エンディング
+		SCENE_TYPE_NOT_CHANGE			= 100,		// シーン変更なし
+		SCENE_TYPE_GAME_TERM			= 101,		// ゲーム終了
+		SCENE_TYPE_LOADING				= 102,		// ロード中
+		SCENE_TYPE_UNKNOWN				= 200,		// 不明なシーン
 	};
 
 	// ステージ識別子

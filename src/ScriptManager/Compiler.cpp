@@ -177,6 +177,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STAGE_SET_FRAME_TOTAL, TYPE_VOID, "SetFrameTotal", "i" );				// void SetFrameTotal( frame );
 	AddFunction( VM::SYS_STAGE_SWITCH_TO_NEXT_STAGE, TYPE_VOID, "SwitchToNextStage", "i" );		// void SwitchToNextStage( stage_no );
 	AddFunction( VM::SYS_STAGE_GET_DIFFICULTY, TYPE_INTEGER, "GetDifficulty", "" );		// int GetDifficulty();
+	AddFunction( VM::SYS_STAGE_SET_BOSS_PHASE_TOTAL, TYPE_VOID, "SetBossPhaseTotal", "i" );		// void SetBossPhaseTotal( phase_total );
+	AddFunction( VM::SYS_STAGE_SET_BOSS_PHASE_SHIFT_HP, TYPE_VOID, "SetBossPhaseShiftHP", "ii" );		// void SetBossPhaseShiftHP( phase, hp );
 
 	// System call for stage background.
 	AddFunction( VM::SYS_STAGE_BACKGROUND_GET_COUNTER, TYPE_INTEGER, "StageBackgroundGetCounter", "" );	// int StageBackgroundGetCounter();

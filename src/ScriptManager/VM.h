@@ -181,6 +181,8 @@ namespace VM
 		SYS_STAGE_SET_FRAME_TOTAL,			// Set frame total.
 		SYS_STAGE_SWITCH_TO_NEXT_STAGE,		// Switch to next stage.
 		SYS_STAGE_GET_DIFFICULTY,			// Get difficulty.
+		SYS_STAGE_SET_BOSS_PHASE_TOTAL,		// Set boss phase total.
+		SYS_STAGE_SET_BOSS_PHASE_SHIFT_HP,	// Set boss phase shift hp.
 
 		// For stage background.
 		SYS_STAGE_BACKGROUND_GET_COUNTER,	// Get count.

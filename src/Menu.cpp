@@ -52,9 +52,7 @@ namespace GameEngine
 			MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
 			switch( m_MenuPointed ){
 				case MENU_ID_GAME_START:
-					MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
-					m_PlayBGM = false;
-					return SCENE_TYPE_STAGE;
+					return SCENE_TYPE_DIFFICULTY_SELECTION;
 				case MENU_ID_SCORE:
 					return SCENE_TYPE_SCORE;
 				case MENU_ID_REPLAY:

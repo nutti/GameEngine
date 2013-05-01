@@ -799,6 +799,26 @@ namespace GameEngine
 		Push( m_pEnemyData->m_pStageData->m_Difficulty );
 	}
 
+	void EnemyVCPU::SysSetBossPhaseTotal()
+	{
+		Pop();
+		int phase = Top().m_Integer;
+		Pop();
+		
+		m_pEnemyData->m_pStageData->m_BossPhaseTotal = phase;
+	}
+
+	void EnemyVCPU::SysSetBossPhaseShiftHP()
+	{
+		Pop();
+		int hp = Top().m_Integer;
+		Pop();
+		int phase = Top().m_Integer;
+		Pop();
+
+		m_pEnemyData->m_pStageData->m_BossPhaseStartHP[ phase ] = hp;
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -977,6 +997,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_STAGE_GET_DIFFICULTY:
 				SysGetDifficulty();
+				break;
+			case VM::SYS_STAGE_SET_BOSS_PHASE_TOTAL:
+				SysSetBossPhaseTotal();
+				break;
+			case VM::SYS_STAGE_SET_BOSS_PHASE_SHIFT_HP:
+				SysSetBossPhaseShiftHP();
 				break;
 
 			case VM::SYS_PLAY_SE:

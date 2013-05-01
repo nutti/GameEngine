@@ -96,6 +96,9 @@ namespace GameEngine
 		ResourceMap			m_ResourceMap;
 
 		int					m_ConsLevel;			// 意識レベルのベースレベル
+
+		int					m_BossPhaseTotal;				// ボスの段階数の合計
+		int					m_BossPhaseStartHP[ 10 ];		// 段階を開始するHP
 	};
 
 	struct ScriptData;
