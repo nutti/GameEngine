@@ -274,6 +274,9 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_MODEL,
 											GLOBAL_RESOURCE_MODEL_ID_PLAYER,
 											"archive/resource/model/player.x", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_BACKGROUND,
+											"archive/resource/texture/eriKs_stage_background.png", false );
 		m_Loading.Start();
 	}
 
@@ -319,6 +322,20 @@ namespace GameEngine
 			case EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION:{
 				m_pResourceManager->ReleaseStageResources();
 				m_pSceneManager->ChangeScene( SCENE_TYPE_DIFFICULTY_SELECTION );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
+			// 難易度選択画面（ステージ選択あり）移行要求
+			case EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION_IN_STAGE:{
+				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->ChangeScene( SCENE_TYPE_DIFFICULTY_SELECTION );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
+			// ステージ選択画面移行要求
+			case EVENT_TYPE_MOVE_TO_STAGE_SELECTION:{
+				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->ChangeScene( SCENE_TYPE_STAGE_SELECTION );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
@@ -436,8 +453,8 @@ namespace GameEngine
 				//m_Loading.AddStageResourceItem( 2, false );
 				m_Loading.AddStageResourceItem( stage, false );
 #elif defined ( MAKE_MODE_DEBUG )
-				//m_Loading.AddStageResourceItem( stage, false );
-				m_Loading.AddStageResourceItem( 2, false );
+				m_Loading.AddStageResourceItem( stage, false );
+				//m_Loading.AddStageResourceItem( 2, false );
 #endif
 #endif
 				m_Loading.Start();

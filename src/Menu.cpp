@@ -11,10 +11,11 @@ namespace GameEngine
 	enum MenuID
 	{
 		MENU_ID_GAME_START		= 0,	// ゲーム開始
-		MENU_ID_SCORE			= 1,	// スコア
-		MENU_ID_REPLAY			= 2,	// リプレイ
-		MENU_ID_CONFIG			= 3,	// 設定
-		MENU_ID_EXIT			= 4,	// ゲーム終了
+		MENU_ID_STAGE_SELECT	= 1,	// ステージセレクト
+		MENU_ID_SCORE			= 2,	// スコア
+		MENU_ID_REPLAY			= 3,	// リプレイ
+		MENU_ID_CONFIG			= 4,	// 設定
+		MENU_ID_EXIT			= 5,	// ゲーム終了
 	};
 
 	class Menu::Impl
@@ -53,6 +54,8 @@ namespace GameEngine
 			switch( m_MenuPointed ){
 				case MENU_ID_GAME_START:
 					return SCENE_TYPE_DIFFICULTY_SELECTION;
+				case MENU_ID_STAGE_SELECT:
+					return SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE;
 				case MENU_ID_SCORE:
 					return SCENE_TYPE_SCORE;
 				case MENU_ID_REPLAY:
@@ -96,35 +99,39 @@ namespace GameEngine
 
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START ],
 							20.0f, 250.0f, 0.8f, 0.8f, false );
+		DrawFontString( m_ResourceMap, 20.0f, 290.0f, 0.6f, 0xFFFFFFFF, "Stage Selection" );
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE ],
-							20.0f, 280.0f, 0.8f, 0.8f, false );
-		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY ],
 							20.0f, 310.0f, 0.8f, 0.8f, false );
-		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG ],
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY ],
 							20.0f, 340.0f, 0.8f, 0.8f, false );
-		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT ],
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG ],
 							20.0f, 370.0f, 0.8f, 0.8f, false );
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT ],
+							20.0f, 410.0f, 0.8f, 0.8f, false );
 
 		unsigned char alpha = 255 - ( m_Counter % 20 ) * 5;
 		if( m_MenuPointed == MENU_ID_GAME_START ){
 			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_GAME_START_SELECTED ],
 								20.0f, 250.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
 		}
+		else if( m_MenuPointed == MENU_ID_STAGE_SELECT ){
+			DrawFontString( m_ResourceMap, 20.0f, 290.0f, 0.6f, 0xFFFFFF00, "Stage Selection" );
+		}
 		else if( m_MenuPointed == MENU_ID_SCORE ){
 			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_SCORE_SELECTED ],
-								20.0f, 280.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+								20.0f, 310.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
 		}
 		else if( m_MenuPointed == MENU_ID_REPLAY ){
 			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_REPLAY_SELECTED ],
-								20.0f, 310.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+								20.0f, 340.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
 		}
 		else if( m_MenuPointed == MENU_ID_CONFIG ){
 			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_CONFIG_SELECTED ],
-								20.0f, 340.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+								20.0f, 370.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
 		}
 		else if( m_MenuPointed == MENU_ID_EXIT ){
 			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_MENU_EXIT_SELECTED ],
-								20.0f, 370.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
+								20.0f, 410.0f, 0.8f, 0.8f, false, 0xFFFFFF | ( alpha << 24 ) );
 		}
 		
 

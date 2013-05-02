@@ -8,6 +8,7 @@
 #include "Score.h"
 #include "Replay.h"
 #include "DifficultySelection.h"
+#include "StageSelection.h"
 #include "Menu.h"
 #include "Initialize.h"
 #include "ScoreEntry.h"
@@ -304,8 +305,25 @@ namespace GameEngine
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
 					}
 				}
+				else if( next == SCENE_TYPE_STAGE_SELECTION ){
+					if( m_CurSceneType == SCENE_TYPE_DIFFICULTY_SELECTION ){
+						DifficultySelection* pScene = dynamic_cast < DifficultySelection* > ( m_pCurScene.get() );
+						if( pScene ){
+							m_GameDifficulty = pScene->GetDifficulty();
+						}
+						else{
+							throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+						}
+					}
+					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE_SELECTION );
+				}
 				else if( next == SCENE_TYPE_DIFFICULTY_SELECTION ){
+					m_GameMode = GAME_MODE_NORMAL;
 					p->SendEvent( EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION );
+				}
+				else if( next == SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE ){
+					m_GameMode = GAME_MODE_ONE_STAGE;
+					p->SendEvent( EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION_IN_STAGE );
 				}
 				else if( next == SCENE_TYPE_STAGE ){
 					if( m_CurSceneType == SCENE_TYPE_REPLAY ){
@@ -319,11 +337,10 @@ namespace GameEngine
 							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 						}
 						else{
-							exit( -1 );
+							throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 						}
 					}
 					else{
-						//if( m_CurSceneType == SCENE_TYPE_MENU ){
 						if( m_CurSceneType == SCENE_TYPE_DIFFICULTY_SELECTION ){
 							DifficultySelection* pScene = dynamic_cast < DifficultySelection* > ( m_pCurScene.get() );
 							if( pScene ){
@@ -333,7 +350,22 @@ namespace GameEngine
 							m_CurStage = 1;
 							// 初期データの設定
 							InitializeIniGameData();
-							SaveStageReplayData( 0, m_IniGameData );
+							SaveStageReplayData( m_CurStage - 1, m_IniGameData );
+							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
+						}
+						else if( m_CurSceneType == SCENE_TYPE_STAGE_SELECTION ){
+							m_GameMode = GAME_MODE_ONE_STAGE;
+							StageSelection* pScene = dynamic_cast < StageSelection* > ( m_pCurScene.get() );
+							if( pScene ){
+								m_CurStage = pScene->GetStageNo();
+							}
+							else{
+								throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+							}
+							// 初期データの設定
+							InitializeIniGameData();
+							// ※ステージごとにリプレイを保存する場合、バグが生じる↓
+							//SaveStageReplayData( m_CurStage - 1, m_IniGameData );
 							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 						}
 						else if( m_CurSceneType == SCENE_TYPE_STAGE ){
@@ -347,7 +379,12 @@ namespace GameEngine
 								SaveStageReplayData( m_CurStage, *pStage );
 								// 次のステージ番号を取得し、遷移する
 								m_CurStage = pStage->GetNextStageNo();
-								p->SendEvent( EVENT_TYPE_MOVE_TO_NEXT_STAGE, &m_CurStage );
+								if( m_GameMode == GAME_MODE_NORMAL || m_GameMode == GAME_MODE_REPLAY ){
+									p->SendEvent( EVENT_TYPE_MOVE_TO_NEXT_STAGE, &m_CurStage );
+								}
+								else{
+									p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
+								}
 							}
 							else{
 								throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
@@ -383,7 +420,7 @@ namespace GameEngine
 						}
 					}
 					// ※最終的には新たな状態を作り、リプレイかどうかで分岐を行う。
-					else if( m_GameMode == GAME_MODE_REPLAY ){
+					else if( m_GameMode == GAME_MODE_REPLAY || m_GameMode == GAME_MODE_ONE_STAGE ){
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
 					}
 				}
@@ -548,7 +585,11 @@ namespace GameEngine
 			m_CurSceneType = SCENE_TYPE_REPLAY;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( DifficultySelection ) ){
+			( (DifficultySelection*) m_pCurScene.get() )->SetGameMode( m_GameMode );
 			m_CurSceneType = SCENE_TYPE_DIFFICULTY_SELECTION;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( StageSelection ) ){
+			m_CurSceneType = SCENE_TYPE_STAGE_SELECTION;
 		}
 		m_pCurScene->AttachResourceMap( m_ResourceMap );
 		m_pCurScene->Init();

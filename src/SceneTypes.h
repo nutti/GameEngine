@@ -17,6 +17,7 @@ namespace GameEngine
 		SCENE_TYPE_STAGE_SELECTION		= 8,		// ステージ選択
 		SCENE_TYPE_CONFIG				= 9,		// コンフィグ画面
 		SCENE_TYPE_ENDING				= 10,		// エンディング
+		SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE	= 11,	// 難易度選択（ステージ選択を含める）
 		SCENE_TYPE_NOT_CHANGE			= 100,		// シーン変更なし
 		SCENE_TYPE_GAME_TERM			= 101,		// ゲーム終了
 		SCENE_TYPE_LOADING				= 102,		// ロード中
@@ -50,6 +51,7 @@ namespace GameEngine
 	{
 		GAME_MODE_NORMAL			= 0,	// 通常プレイ
 		GAME_MODE_REPLAY			= 1,	// リプレイ
+		GAME_MODE_ONE_STAGE			= 2,	// ステージ選択プレイ
 	};
 }
 

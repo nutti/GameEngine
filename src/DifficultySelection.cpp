@@ -18,6 +18,7 @@ namespace GameEngine
 		int							m_Counter;
 		int							m_MenuPointed;
 		bool						m_PlayBGM;
+		int							m_GameMode;
 	public:
 		Impl();
 		~Impl(){}
@@ -26,6 +27,7 @@ namespace GameEngine
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
 		int GetDifficulty() const;
+		void SetGameMode( int mode );
 	};
 
 	DifficultySelection::Impl::Impl()
@@ -37,9 +39,14 @@ namespace GameEngine
 	SceneType DifficultySelection::Impl::Update()
 	{
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
-			MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
-			return SCENE_TYPE_STAGE;
+			if( m_GameMode == GAME_MODE_NORMAL ){
+				MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
+				MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
+				return SCENE_TYPE_STAGE;
+			}
+			else{
+				return SCENE_TYPE_STAGE_SELECTION;
+			}
 		}
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
 			return SCENE_TYPE_MENU;
@@ -100,6 +107,11 @@ namespace GameEngine
 		return m_MenuPointed;
 	}
 
+	void DifficultySelection::Impl::SetGameMode( int mode )
+	{
+		m_GameMode = mode;
+	}
+
 	// ----------------------------------
 	// ŽÀ‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ
 	// ----------------------------------
@@ -139,5 +151,10 @@ namespace GameEngine
 	int DifficultySelection::GetDifficulty() const
 	{
 		return m_pImpl->GetDifficulty();
+	}
+
+	void DifficultySelection::SetGameMode( int mode )
+	{
+		m_pImpl->SetGameMode( mode );
 	}
 }

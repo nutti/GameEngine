@@ -451,13 +451,25 @@ namespace GameEngine
 			//if( m_Counter >= 6 ){
 			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
 				if( m_StatusFlags[ HAS_CONS_ATTR ] ){
-					AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										posX, posY, m_ImgRotAngle );
-					if( ( m_Counter / 4 ) % 2 == 0 ){
+					if( m_StatusFlags[ IMG_SCALE_CHANGED ] ){
 						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										posX, posY, m_ImgRotAngle );
+											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
+						if( ( m_Counter / 4 ) % 2 == 0 ){
+							AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
+						}
+					}
+					else{
+						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+											posX, posY, m_ImgRotAngle );
+						if( ( m_Counter / 4 ) % 2 == 0 ){
+							AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+											posX, posY, m_ImgRotAngle );
+						}
 					}
 				}
 				else if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
