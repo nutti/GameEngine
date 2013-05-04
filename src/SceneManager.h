@@ -28,7 +28,6 @@ namespace GameEngine
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
 		void AttachInitialGameData( const InitialGameData& data );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
-		//GameDataMsg GetFrameScoreData() const;
 		void ChangeScene( SceneType scene );
 		SceneType GetCurSceneType() const;
 		void SetGameDifficulty( int difficulty );
@@ -43,6 +42,7 @@ namespace GameEngine
 		int GetReplayNo() const;
 		void SwitchToNextScene();
 		bool NeedToSwitch() const;
+		bool Paused() const;
 	};
 }
 

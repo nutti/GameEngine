@@ -44,9 +44,15 @@ namespace GameEngine
 
 	SceneType Menu::Impl::Update()
 	{
+		++m_Counter;
+
 		// BGMçƒê∂
 		if( m_PlayBGM ){
 			MAPIL::PlayStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
+		}
+
+		if( m_Counter <= 10 ){
+			return SCENE_TYPE_NOT_CHANGE;
 		}
 
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
@@ -85,8 +91,6 @@ namespace GameEngine
 				m_MenuPointed = MENU_ID_EXIT;
 			}
 		}
-
-		++m_Counter;
 
 		return SCENE_TYPE_NOT_CHANGE;
 	}

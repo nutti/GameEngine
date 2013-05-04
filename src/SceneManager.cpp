@@ -56,6 +56,8 @@ namespace GameEngine
 		InitialGameData							m_IniGameData;			// 初期のゲームデータ
 		int										m_HIScore;				// ハイスコア
 
+		bool									m_Paused;				// ポーズ状態か？
+
 		void SaveStageScoreData( int stageNo, const Stage& stage );	// ステージのスコアを保存
 		void SaveStageReplayData( int stageNo, const Stage& stage );	// ステージのリプレイ情報を保存
 		void SaveStageReplayData( int stageNo, const InitialGameData& data );
@@ -90,6 +92,7 @@ namespace GameEngine
 		int GetReplayNo() const;
 		void SwitchToNextScene();
 		bool NeedToSwitch() const;
+		bool Paused() const;
 	};
 
 	SceneManager::Impl::Impl( std::shared_ptr < EventMediator > pEventMediator ) :	m_pSceneBuilder( new SceneBuilder ),
@@ -120,6 +123,8 @@ namespace GameEngine
 		m_GameMode = GAME_MODE_NORMAL;
 		m_Counter = 0;
 		m_ReplayNo = 0;
+
+		m_Paused = false;
 	}
 
 	void SceneManager::Impl::PrepareScoreEntry()
@@ -289,9 +294,15 @@ namespace GameEngine
 	{
 		// シーン更新
 		SceneType next = m_pCurScene->Update();
+		if( next == SCENE_TYPE_PAUSED ){
+			m_Paused = true;
+		}
+		else{
+			m_Paused = false;
+		}
 
 		// シーン遷移
-		if( next != SCENE_TYPE_NOT_CHANGE && m_CurSceneType != SCENE_TYPE_LOADING ){
+		if( next != SCENE_TYPE_NOT_CHANGE && m_CurSceneType != SCENE_TYPE_LOADING && next != SCENE_TYPE_PAUSED ){
 			if( std::shared_ptr < EventMediator > p = m_pEventMediator.lock() ){
 				if( next == SCENE_TYPE_MENU ){
 					m_GameMode = GAME_MODE_NORMAL;
@@ -600,6 +611,11 @@ namespace GameEngine
 		return m_CurSceneType == SCENE_TYPE_LOADING;
 	}
 
+	bool SceneManager::Impl::Paused() const
+	{
+		return m_Paused;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -726,5 +742,10 @@ namespace GameEngine
 	bool SceneManager::NeedToSwitch() const
 	{
 		return m_pImpl->NeedToSwitch();
+	}
+
+	bool SceneManager::Paused() const
+	{
+		return m_pImpl->Paused();
 	}
 }

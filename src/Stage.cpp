@@ -19,6 +19,7 @@
 
 #include "StageVCPU.h"
 #include "StageBackground.h"
+#include "StagePause.h"
 
 #include "ScoreManager.h"
 
@@ -44,8 +45,10 @@ namespace GameEngine
 		// フラグ管理
 		enum StatusFlag
 		{
-			CLEARED					= 0,		// クリアしたか？
-			PREPARED_NEXT_STAGE		= 1,		// 次のステージへ移行する準備が出来たか？
+			CLEARED					= 0,		// クリアした
+			PREPARED_NEXT_STAGE		= 1,		// 次のステージへ移行する準備が出来た
+			PAUSED					= 2,		// ポーズ状態
+			HALT					= 3,		// 強制終了された
 			STATUS_FLAG_TOTAL,
 		};
 
@@ -147,6 +150,7 @@ namespace GameEngine
 
 		StageVCPU					m_VM;				// 仮想マシン
 		StageBackground				m_Background;		// 背景
+		StagePause					m_Pause;			// ポーズ画面
 
 		Profiler					m_Profiler;			// プロファイラ
 		bool						m_DispProf;			// プロファイラの結果を表示
@@ -253,6 +257,9 @@ namespace GameEngine
 		MAPIL::ZeroObject( m_PrivData.m_ItemObtainedData.m_Counter, sizeof( m_PrivData.m_ItemObtainedData.m_Counter ) );
 		MAPIL::ZeroObject( &m_PrivData.m_StageResultData, sizeof( m_PrivData.m_StageResultData ) );
 		MAPIL::ZeroObject( &m_PrivData.m_BossModeData, sizeof( m_PrivData.m_BossModeData ) );
+
+		m_Pause.Init();
+		m_Pause.AttachStageData( &m_Data );
 
 		m_Profiler.Clear();
 		m_DispProf = false;
@@ -1328,6 +1335,39 @@ namespace GameEngine
 			finit
 		}
 
+		if( m_PrivData.m_StatusFlags[ HALT ] ){
+			return SCENE_TYPE_NOT_CHANGE;
+		}
+
+		// ポーズ状態の時
+		if( m_PrivData.m_StatusFlags[ PAUSED ] ){
+			SceneType type = m_Pause.Update();
+			if( type == SCENE_TYPE_PAUSED ){
+				return SCENE_TYPE_PAUSED;
+			}
+			else if( type == SCENE_TYPE_STAGE ){
+				m_PrivData.m_StatusFlags.reset( PAUSED );
+				return SCENE_TYPE_NOT_CHANGE;
+			}
+			else if( type == SCENE_TYPE_MENU ){
+				// ※3Dの敵がいるとバグが出る。
+				m_PrivData.m_StatusFlags.reset( PAUSED );
+				m_PrivData.m_StatusFlags.set( HALT );
+				m_Background.Terminate();
+				SaveStageResultData();
+				return SCENE_TYPE_MENU;
+			}
+			else{
+				throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Invalid scene type." ), -1 );
+			}
+		}
+
+		// ※ここに置かないと、リプレイが1フレーム分だけずれる。
+		if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_ESCAPE ) ) ){
+			m_PrivData.m_StatusFlags.set( PAUSED );
+			m_Pause.Reset();
+		}
+
 		static bool prevPushed = false;
 		if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( MAPIL::KEYBOARD_KEY_Q ) ) && !prevPushed ){
 			m_DispProf = !m_DispProf;
@@ -1437,7 +1477,7 @@ namespace GameEngine
 		static bool isFirst = true;
 		static int light;
 
-		if( m_Data.m_HasTermSig ){
+		if( m_Data.m_HasTermSig || m_PrivData.m_StatusFlags[ HALT ] ){
 			return;
 		}
 
@@ -1521,13 +1561,13 @@ namespace GameEngine
 		// リザルト画面表示
 		DrawResult();
 
+		// ポーズ状態の時
+		if( m_PrivData.m_StatusFlags[ PAUSED ] ){
+			m_Pause.Draw();
+		}
 
 		// 状態画面の描画
 		m_Profiler.Begin( "Game Stat" );
-		/*MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_BACKGROUND_TEXTURE ],
-							0.0f, 0.0f, false );
-		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_BACKGROUND_TEXTURE ],
-							512.0f, 0.0f, false );*/
 
 		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_STAGE_BACKGROUND ],
 							0.0f, 0.0f, false );
@@ -1556,7 +1596,7 @@ namespace GameEngine
 			}
 		}
 		MAPIL::DrawTexture( m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-							15.0f + 20.0f * lv, 140.0f, 0.1f * ( m_Data.m_pPlayer->GetShotPower() % 10 ), 0.5f, false,
+							12.0f + 22.0f * lv, 168.0f, 0.107f * ( m_Data.m_pPlayer->GetShotPower() % 10 ), 0.5f, false,
 							0xEE000033 | ( ( m_Data.m_pPlayer->GetShotPower() % 10 ) * 25 ) << 8 | ( ( 10 - ( m_Data.m_pPlayer->GetShotPower() % 10 ) ) * 25 ) << 16 );
 
 		static int moveCount = 0;
@@ -1697,21 +1737,14 @@ namespace GameEngine
 
 		// スコア
 		dispOffsetY += 45.0f;
-		//MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_SCORE ],
-		//					RIGHT_DISP_OFFSET_X, dispOffsetY, 0.8f, 0.8f, false );
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 35.0f, 0.4f, "%08d", m_Data.m_GameData.m_Score + m_PrivData.m_FixedGameData.m_PrevScore );
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 55.0f, 0.4f, 0xFF888888, "%08d", m_Data.m_GameData.m_Score );
 		// 撃破数
 		dispOffsetY += 66.0f;
-		//MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_KILLED ],
-		//					RIGHT_DISP_OFFSET_X, dispOffsetY, 0.8f, 0.8f, false );
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 35.0f, 0.4f, "%d", m_Data.m_GameData.m_Killed + m_PrivData.m_FixedGameData.m_PrevKilled );
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 55.0f, 0.4f, 0xFF888888, "%d", m_Data.m_GameData.m_Killed );
 		// 取得クリスタル数
 		dispOffsetY += 66.0f;
-		//MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GAME_CRYSTAL ],
-		//					RIGHT_DISP_OFFSET_X, dispOffsetY, 0.8f, 0.8f, false );
-		
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 35.0f, 0.4f, "%d/%d",
 						( m_PrivData.m_FixedGameData.m_PrevCrystal + m_Data.m_GameData.m_CrystalTotal ) - ( m_Data.m_GameData.m_CrystalUsed + m_PrivData.m_FixedGameData.m_PrevCrystalUsed ),
 						m_PrivData.m_FixedGameData.m_PrevCrystal + m_Data.m_GameData.m_CrystalTotal );
@@ -1729,30 +1762,32 @@ namespace GameEngine
 		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 55.0f, 0.4f, 0xFF888888, "%d", m_Data.m_GameData.m_CrystalTotal );
 		// 進行度
 		dispOffsetY += 90.0f;
-		//DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY, 0.4f, 0xFFAAFFAA, "progress" );
+
+		
+
 		if( m_Data.m_Frame < m_Data.m_FrameTotal ){
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 20.0f, 6.0f, 0.4f, false, 0xFF222222 );
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 20.0f, m_Data.m_Frame * 6.0f / m_Data.m_FrameTotal, 0.4f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x2222FF );
+								RIGHT_DISP_OFFSET_X, dispOffsetY + 21.0f, m_Data.m_Frame * 6.1f / m_Data.m_FrameTotal, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x00AAFF );
 			
 		}
 		else{
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 20.0f, 6.0f, 0.4f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x2222FF );
-		}
-		// 最後に攻撃した敵データ
-		dispOffsetY += 50.0f;
-		if( m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge != 10000 ){
-			DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY, 0.4f, 0xFFAAFFAA, "%s", m_PrivData.m_LastDamagedEnemyData.m_EnemyName.c_str() );
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 10.0f, m_PrivData.m_LastDamagedEnemyData.m_HP * 6.0f / m_PrivData.m_LastDamagedEnemyData.m_MaxHP, 0.5f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF2222 );
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								RIGHT_DISP_OFFSET_X + 5.0f, dispOffsetY + 20.0f, m_PrivData.m_LastDamagedEnemyData.m_ConsGauge * 6.0f / m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge, 0.5f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x22FF22 );
+								RIGHT_DISP_OFFSET_X, dispOffsetY + 21.0f, 6.1f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x00AAFF );
 		}
 
-		// FPS
-		DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 5.0f, 450.0f, 0.4f, 0xFFAAFFAA, "fps" );
+		MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_STAGE_BACKGROUND_2 ],
+							RIGHT_DISP_OFFSET_X - 3.0f, dispOffsetY + 18.0f, 0.0f, false );
+		
+		// 最後に攻撃した敵データ
+		dispOffsetY += 57.0f;
+		if( m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge != 10000 ){
+			DrawFontString( m_Data.m_ResourceMap, RIGHT_DISP_OFFSET_X + 27.0f, dispOffsetY, 0.25f, 0xFFAAFFAA, "%s", m_PrivData.m_LastDamagedEnemyData.m_EnemyName.c_str() );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								RIGHT_DISP_OFFSET_X + 50.0f, dispOffsetY + 16.0f, m_PrivData.m_LastDamagedEnemyData.m_HP * 3.55f / m_PrivData.m_LastDamagedEnemyData.m_MaxHP, 0.55f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF2222 );
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								RIGHT_DISP_OFFSET_X + 50.0f, dispOffsetY + 34.0f, m_PrivData.m_LastDamagedEnemyData.m_ConsGauge * 3.55f / m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge, 0.55f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x22FF22 );
+		
+		}
 		
 		m_Profiler.End( "Game Stat" );
 
@@ -1834,31 +1869,26 @@ namespace GameEngine
 	int Stage::Impl::GetProgress() const
 	{
 		return m_PrivData.m_StageResultData.m_Progress;
-		//return m_Data.m_Frame;
 	}
 	
 	int Stage::Impl::GetScore() const
 	{
 		return m_PrivData.m_StageResultData.m_Score;
-		//return m_Data.m_GameData.m_Score;
 	}
 
 	int Stage::Impl::GetKilled() const
 	{
 		return m_PrivData.m_StageResultData.m_Killed;
-		//return m_Data.m_GameData.m_Killed;
 	}
 
 	int Stage::Impl::GetCrystal() const
 	{
 		return m_PrivData.m_StageResultData.m_Crystal;
-		//return m_Data.m_GameData.m_CrystalTotal;
 	}
 
 	int Stage::Impl::GetCrystalUsed() const
 	{
 		return m_PrivData.m_StageResultData.m_CrystalUsed;
-		//return m_Data.m_GameData.m_CrystalUsed;
 	}
 
 	void Stage::Impl::GetPlayerPos( int* pPosX, int* pPosY ) const
@@ -1870,26 +1900,22 @@ namespace GameEngine
 	int Stage::Impl::GetPlayerHP() const
 	{
 		return m_PrivData.m_StageResultData.m_HP;
-		//return m_Data.m_pPlayer->GetHP();
 	}
 
 	int Stage::Impl::GetPlayerShotPower() const
 	{
 		return m_PrivData.m_StageResultData.m_ShotPower;
-		//return m_Data.m_pPlayer->GetShotPower();
 	}
 
 	int Stage::Impl::GetPlayerCons() const
 	{
 		return m_PrivData.m_StageResultData.m_Cons;
-		//return m_Data.m_pPlayer->GetCurCons();
 	}
 
 	void Stage::Impl::GetPlayerConsGauge( int* pGauge ) const
 	{
 		for( int i = 0; i < 3; ++i ){
 			pGauge[ i ] = m_PrivData.m_StageResultData.m_ConsGauge[ i ];
-			//pGauge[ i ] = m_Data.m_pPlayer->GetConsGauge( i );
 		}
 	}
 
@@ -1897,7 +1923,6 @@ namespace GameEngine
 	{
 		for( int i = 0; i < 3; ++i ){
 			pLevel[ i ] = m_PrivData.m_StageResultData.m_ConsLevel[ i ];
-			//pLevel[ i ] = m_Data.m_pPlayer->GetConsLevel( i );
 		}
 	}
 

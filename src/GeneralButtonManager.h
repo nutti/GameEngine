@@ -17,7 +17,9 @@ namespace GameEngine
 		void Update();
 		void GetButtonStatus( ButtonStatusHolder* pHolder );
 		bool IsSpecialKeyPushed( int key );
+		//bool IsSubDeviceKeyPushed( int key );
 		void ChangeDevice( InputDevice device );
+		//void ChangeSubDevice( InputDevice device );
 		ButtonPushedStatus GetRawButtonStatus() const;
 		void SetReplayNo( int entryNo );
 		void SetStageNo( int stageNo );

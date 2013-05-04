@@ -92,7 +92,8 @@ namespace GameEngine
 			}
 
 			// ロード時は、リプレイデータを読み込まないようにするため、入力は不可能とする。
-			if( m_pSceneManager->GetCurSceneType() != SCENE_TYPE_LOADING ){
+			if( m_pSceneManager->GetCurSceneType() != SCENE_TYPE_LOADING &&
+				!m_pSceneManager->Paused() ){
 				// ボタンの取得
 				ButtonStatusHolder holder;
 				m_pButtonManager->Update();
@@ -277,6 +278,9 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_BACKGROUND,
 											"archive/resource/texture/eriKs_stage_background.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_BACKGROUND_2,
+											"archive/resource/texture/eriKs_stage_background2.png", false );
 		m_Loading.Start();
 	}
 

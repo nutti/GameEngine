@@ -18,6 +18,7 @@ namespace GameEngine
 		SCENE_TYPE_CONFIG				= 9,		// コンフィグ画面
 		SCENE_TYPE_ENDING				= 10,		// エンディング
 		SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE	= 11,	// 難易度選択（ステージ選択を含める）
+		SCENE_TYPE_PAUSED				= 12,		// ポーズ状態
 		SCENE_TYPE_NOT_CHANGE			= 100,		// シーン変更なし
 		SCENE_TYPE_GAME_TERM			= 101,		// ゲーム終了
 		SCENE_TYPE_LOADING				= 102,		// ロード中

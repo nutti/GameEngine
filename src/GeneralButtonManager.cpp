@@ -16,7 +16,6 @@ namespace GameEngine
 	{
 	private:
 		std::auto_ptr < InputStateHolder >		m_pInputStateHolder;		// 入力デバイス
-	//	int										m_PrevButtonStatus;			// 前回のキーの状態
 		int										m_CurButtonStatus;			// 現在のキーの状態
 		ButtonStatusHolder						m_ButtonStatus;				// ボタンの状態 ( ButtonStatus )
 		int										m_SpecialKeyStatus[ 2 ];	// 特殊キーの状態
