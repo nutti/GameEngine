@@ -70,7 +70,7 @@ namespace GameEngine
 															"archive/resource/texture/loading_2.png" );
 		m_pResourceManager->LoadGlobalResourceFromArchive(	RESOURCE_TYPE_TEXTURE,
 															GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE,
-															"archive/resource/texture/initialize.png" );
+															"archive/resource/texture/eriKs_background_small.png" );
 		m_FPSManager.SetFPS( 60 );
 		m_FPSManager.SetPrecise( 100 );
 		m_pEventMediator->SendEvent( EVENT_TYPE_INITIALIZE );
