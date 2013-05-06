@@ -24,6 +24,7 @@ namespace GameEngine
 		int							m_SelectedReplayNo;		// 選択されたリプレイ番号
 		int							m_SelectedStage;		// リプレイするステージ
 		int							m_CurSelectState;		// 現在の選択状態
+		int							m_PrepareCounter;
 	public:
 		Impl();
 		~Impl(){}
@@ -42,6 +43,7 @@ namespace GameEngine
 		m_SelectedReplayNo = 0;
 		m_CurSelectState = REPLAY_SELECT_NO;
 		m_SelectedStage = STAGE_ID_STAGE_1;
+		m_PrepareCounter = 0;
 	}
 
 	SceneType Replay::Impl::Update()
@@ -49,6 +51,16 @@ namespace GameEngine
 		if( m_Counter < 20 ){
 			++m_Counter;
 			return SCENE_TYPE_NOT_CHANGE;
+		}
+
+		if( m_PrepareCounter > 0 ){
+			++m_PrepareCounter;
+			if( m_PrepareCounter == 20 ){
+				return SCENE_TYPE_STAGE;
+			}
+			else{
+				return SCENE_TYPE_NOT_CHANGE;
+			}
 		}
 
 		if( m_CurSelectState == REPLAY_SELECT_NO ){
@@ -77,7 +89,8 @@ namespace GameEngine
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
 				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress >= m_SelectedStage + 1 ){
 					MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
-					return SCENE_TYPE_STAGE;
+					m_PrepareCounter = 1;
+					//return SCENE_TYPE_STAGE;
 				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
@@ -181,6 +194,15 @@ namespace GameEngine
 					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFFFFFFF, str.c_str() );
 				}
 			}
+		}
+
+		if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+								0.0f, ( m_PrepareCounter - 20 ) * 24.0f, false );
+		}
+		else if( m_PrepareCounter > 20 ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+								0.0f, 0.0f, false );
 		}
 
 

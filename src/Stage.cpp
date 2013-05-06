@@ -46,9 +46,10 @@ namespace GameEngine
 		enum StatusFlag
 		{
 			CLEARED					= 0,		// クリアした
-			PREPARED_NEXT_STAGE		= 1,		// 次のステージへ移行する準備が出来た
-			PAUSED					= 2,		// ポーズ状態
-			HALT					= 3,		// 強制終了された
+			PREPARING				= 1,		// 次のステージへ移行中
+			PREPARED_NEXT_STAGE		= 2,		// 次のステージへ移行する準備が出来た
+			PAUSED					= 3,		// ポーズ状態
+			HALT					= 4,		// 強制終了された
 			STATUS_FLAG_TOTAL,
 		};
 
@@ -106,6 +107,7 @@ namespace GameEngine
 			{
 				int				m_Counter;			// カウンタ
 				int				m_NextStageNo;		// 次のステージ番号
+				int				m_PrepareCounter;	// 次のステージへ移行するためのカウンタ
 			};
 			// アイテム取得時の処理に関するデータ
 			struct ItemObtainedData
@@ -139,6 +141,7 @@ namespace GameEngine
 			std::bitset < STATUS_FLAG_TOTAL >		m_StatusFlags;
 			InitialGameData							m_IniGameData;
 			StageResultData							m_StageResultData;
+			bool									m_IsFirstTime;
 		};
 
 
@@ -211,6 +214,8 @@ namespace GameEngine
 
 		int GetNextStageNo() const;
 		GameDataMsg GetFrameData() const;
+
+		void MarkFirstTime();
 	};
 
 	Stage::Impl::Impl( int stageNo, bool isReplay )	:	m_ButtonStatus(),
@@ -254,9 +259,11 @@ namespace GameEngine
 		m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge = 10000;
 		m_PrivData.m_ClearModeData.m_Counter = 0;
 		m_PrivData.m_ClearModeData.m_NextStageNo = 0;
+		m_PrivData.m_ClearModeData.m_PrepareCounter = 0;
 		MAPIL::ZeroObject( m_PrivData.m_ItemObtainedData.m_Counter, sizeof( m_PrivData.m_ItemObtainedData.m_Counter ) );
 		MAPIL::ZeroObject( &m_PrivData.m_StageResultData, sizeof( m_PrivData.m_StageResultData ) );
 		MAPIL::ZeroObject( &m_PrivData.m_BossModeData, sizeof( m_PrivData.m_BossModeData ) );
+		m_PrivData.m_IsFirstTime = false;
 
 		m_Pause.Init();
 		m_Pause.AttachStageData( &m_Data );
@@ -1202,32 +1209,60 @@ namespace GameEngine
 
 	void Stage::Impl::DrawResult() const
 	{
-		if( m_PrivData.m_StatusFlags[ CLEARED ] && m_PrivData.m_ClearModeData.m_Counter > 100 ){
+		if( m_PrivData.m_StatusFlags[ CLEARED ] ){
 
-			DrawFontString(	m_Data.m_ResourceMap, 170.0f, 200.0f, 0.45f, 0xFFFFFFFF, "Score %d",
-							m_PrivData.m_StageResultData.m_Score );
-			DrawFontString( m_Data.m_ResourceMap, 150.0f, 100.0f, 0.7f, 0xFFAA4444, "Stage %d Cleared",
-							m_Data.m_StageNo );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 180.0f, 0.45f, 0xFFFFFFFF, "HP Rest %d x %d %d",
-							m_PrivData.m_StageResultData.m_HP,
-							CLEARED_HP_REST_BONUS,
-							m_PrivData.m_StageResultData.m_HP * CLEARED_HP_REST_BONUS );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 220.0f, 0.45f, 0xFFFFFFFF, "Killed %d x %d %d",
-							m_PrivData.m_StageResultData.m_Killed,
-							CLEARED_KILLED_BONUS,
-							m_PrivData.m_StageResultData.m_Killed * CLEARED_KILLED_BONUS );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 240.0f, 0.45f, 0xFFFFFFFF, "Crystal %d x %d %d",
-							m_PrivData.m_StageResultData.m_Crystal,
-							CLEARED_CRYSTAL_BONUS,
-							m_PrivData.m_StageResultData.m_Crystal * CLEARED_CRYSTAL_BONUS );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 260.0f, 0.45f, 0xFFFFFFFF, "Crystal Rest %d x %d %d",
-							m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed,
-							CLEARED_CRYSTAL_REST_BONUS,
-							( m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed ) * CLEARED_CRYSTAL_REST_BONUS );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 300.0f, 0.55f, 0xFFFFFFFF, "Bonus Total %d", GetStageClearBonus() );
-			DrawFontString( m_Data.m_ResourceMap, 170.0f, 330.0f, 0.55f, 0xFFFFFFFF, "Total Score %d", m_Data.m_GameData.m_Score );
+			if( m_PrivData.m_ClearModeData.m_Counter <= 100 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									0.0f, 0.0f,
+									40.0f, 32.0f,
+									false,
+									( m_PrivData.m_ClearModeData.m_Counter * 255 / 100 ) << 24 );
+			}
+			else{
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+									0.0f, 0.0f,
+									40.0f, 32.0f,
+									false,
+									0xFF000000 );
+			}
+		
+			if( m_PrivData.m_ClearModeData.m_Counter > 100 ){
+
+				DrawFontString(	m_Data.m_ResourceMap, 170.0f, 200.0f, 0.45f, 0xFFFFFFFF, "Score %d",
+								m_PrivData.m_StageResultData.m_Score );
+				DrawFontString( m_Data.m_ResourceMap, 150.0f, 100.0f, 0.7f, 0xFFAA4444, "Stage %d Cleared",
+								m_Data.m_StageNo );
+				DrawFontString( m_Data.m_ResourceMap, 170.0f, 180.0f, 0.45f, 0xFFFFFFFF, "HP Rest %d x %d %d",
+								m_PrivData.m_StageResultData.m_HP,
+								CLEARED_HP_REST_BONUS,
+								m_PrivData.m_StageResultData.m_HP * CLEARED_HP_REST_BONUS );
+				DrawFontString( m_Data.m_ResourceMap, 170.0f, 220.0f, 0.45f, 0xFFFFFFFF, "Killed %d x %d %d",
+								m_PrivData.m_StageResultData.m_Killed,
+								CLEARED_KILLED_BONUS,
+								m_PrivData.m_StageResultData.m_Killed * CLEARED_KILLED_BONUS );
+				DrawFontString( m_Data.m_ResourceMap, 170.0f, 240.0f, 0.45f, 0xFFFFFFFF, "Crystal %d x %d %d",
+								m_PrivData.m_StageResultData.m_Crystal,
+								CLEARED_CRYSTAL_BONUS,
+								m_PrivData.m_StageResultData.m_Crystal * CLEARED_CRYSTAL_BONUS );
+				DrawFontString( m_Data.m_ResourceMap, 170.0f, 260.0f, 0.45f, 0xFFFFFFFF, "Crystal Rest %d x %d %d",
+								m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed,
+								CLEARED_CRYSTAL_REST_BONUS,
+								( m_PrivData.m_StageResultData.m_Crystal - m_PrivData.m_StageResultData.m_CrystalUsed ) * CLEARED_CRYSTAL_REST_BONUS );
+				DrawFontString( m_Data.m_ResourceMap, 170.0f, 300.0f, 0.55f, 0xFFFFFFFF, "Bonus Total %d", GetStageClearBonus() );
+				DrawFontString( m_Data.m_ResourceMap, 170.0f, 330.0f, 0.55f, 0xFFFFFFFF, "Total Score %d", m_Data.m_GameData.m_Score );
+			}
+
+			
 		}
 
+		if( m_PrivData.m_ClearModeData.m_PrepareCounter > 0 && m_PrivData.m_ClearModeData.m_PrepareCounter <= 20 ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+								0.0f, -( 20 - m_PrivData.m_ClearModeData.m_PrepareCounter ) * 24.0f, false );
+		}
+		else if( m_PrivData.m_ClearModeData.m_PrepareCounter >= 20 ){
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+								0.0f, 0.0f, false );
+		}
 	}
 
 	void Stage::Impl::SaveStageResultData()
@@ -1406,13 +1441,21 @@ namespace GameEngine
 				SaveStageResultData();
 			}
 			if( m_PrivData.m_ClearModeData.m_Counter > 400 ){
-				m_PrivData.m_StatusFlags.set( PREPARED_NEXT_STAGE );
+				m_PrivData.m_StatusFlags.set( PREPARING );
 			}
-			if(	m_PrivData.m_StatusFlags[ PREPARED_NEXT_STAGE ] &&
+			if( m_PrivData.m_StatusFlags[ PREPARING ] &&
 				( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) || m_PrivData.m_ClearModeData.m_Counter >= 1200 ) ){
 				m_Background.Terminate();
 				SaveStageResultData();
-				return SCENE_TYPE_STAGE;
+				m_PrivData.m_StatusFlags.set( PREPARED_NEXT_STAGE );
+			}
+			if(	m_PrivData.m_StatusFlags[ PREPARED_NEXT_STAGE ] ){
+				if( m_PrivData.m_ClearModeData.m_PrepareCounter >= 20 ){
+					return SCENE_TYPE_STAGE;
+				}
+				else{
+					++m_PrivData.m_ClearModeData.m_PrepareCounter;
+				}
 			}
 			++m_PrivData.m_ClearModeData.m_Counter;
 		}
@@ -1564,6 +1607,17 @@ namespace GameEngine
 		// ポーズ状態の時
 		if( m_PrivData.m_StatusFlags[ PAUSED ] ){
 			m_Pause.Draw();
+		}
+
+		if( !m_PrivData.m_IsFirstTime ){
+			if( m_Data.m_Frame <= 10 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+									0.0f, 0.0f, false );
+			}
+			else if( m_Data.m_Frame >= 10 && m_Data.m_Frame <= 30 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+									0.0f, -( m_Data.m_Frame - 10 ) * 24.0f, false );
+			}
 		}
 
 		// 状態画面の描画
@@ -1792,6 +1846,17 @@ namespace GameEngine
 								RIGHT_DISP_OFFSET_X + 50.0f, dispOffsetY + 34.0f, m_PrivData.m_LastDamagedEnemyData.m_ConsGauge * 3.55f / m_PrivData.m_LastDamagedEnemyData.m_MaxConsGauge, 0.55f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0x22FF22 );
 		
 		}
+
+		if( m_PrivData.m_IsFirstTime ){
+			if( m_Data.m_Frame <= 10 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+									0.0f, 0.0f, false );
+			}
+			else if( m_Data.m_Frame >= 10 && m_Data.m_Frame <= 30 ){
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+									0.0f, -( m_Data.m_Frame - 10 ) * 24.0f, false );
+			}
+		}
 		
 		m_Profiler.End( "Game Stat" );
 
@@ -1956,6 +2021,11 @@ namespace GameEngine
 		m_Data.m_Difficulty = difficulty;
 	}
 
+	void Stage::Impl::MarkFirstTime()
+	{
+		m_PrivData.m_IsFirstTime = true;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -2082,5 +2152,10 @@ namespace GameEngine
 	GameDataMsg Stage::GetFrameData() const
 	{
 		return m_pImpl->GetFrameData();
+	}
+
+	void Stage::MarkFirstTime()
+	{
+		m_pImpl->MarkFirstTime();
 	}
 }

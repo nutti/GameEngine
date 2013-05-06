@@ -58,6 +58,8 @@ namespace GameEngine
 
 		bool									m_Paused;				// ポーズ状態か？
 
+		bool									m_IsFirstStage;			// 最初のステージか？
+
 		void SaveStageScoreData( int stageNo, const Stage& stage );	// ステージのスコアを保存
 		void SaveStageReplayData( int stageNo, const Stage& stage );	// ステージのリプレイ情報を保存
 		void SaveStageReplayData( int stageNo, const InitialGameData& data );
@@ -125,6 +127,7 @@ namespace GameEngine
 		m_ReplayNo = 0;
 
 		m_Paused = false;
+		m_IsFirstStage = false;
 	}
 
 	void SceneManager::Impl::PrepareScoreEntry()
@@ -339,6 +342,7 @@ namespace GameEngine
 				else if( next == SCENE_TYPE_STAGE ){
 					if( m_CurSceneType == SCENE_TYPE_REPLAY ){
 						m_GameMode = GAME_MODE_REPLAY;
+						m_IsFirstStage = true;
 						Replay* pp = dynamic_cast < Replay* > ( m_pCurScene.get() );
 						if( pp ){
 							m_CurStage = pp->GetReplayStage() + 1;
@@ -358,6 +362,7 @@ namespace GameEngine
 								m_GameDifficulty = pScene->GetDifficulty();
 							}
 							m_GameMode = GAME_MODE_NORMAL;
+							m_IsFirstStage = true;
 							m_CurStage = 1;
 							// 初期データの設定
 							InitializeIniGameData();
@@ -366,6 +371,7 @@ namespace GameEngine
 						}
 						else if( m_CurSceneType == SCENE_TYPE_STAGE_SELECTION ){
 							m_GameMode = GAME_MODE_ONE_STAGE;
+							m_IsFirstStage = true;
 							StageSelection* pScene = dynamic_cast < StageSelection* > ( m_pCurScene.get() );
 							if( pScene ){
 								m_CurStage = pScene->GetStageNo();
@@ -380,6 +386,7 @@ namespace GameEngine
 							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 						}
 						else if( m_CurSceneType == SCENE_TYPE_STAGE ){
+							m_IsFirstStage = false;
 							Stage* pStage = dynamic_cast < Stage* > ( m_pCurScene.get() );
 							if( pStage ){
 								// 初期データの構築
@@ -573,6 +580,9 @@ namespace GameEngine
 			( (Stage*) m_pCurScene.get() )->AttachScriptData( m_ScriptData );
 			( (Stage*) m_pCurScene.get() )->SetInitialData( m_IniGameData );
 			( (Stage*) m_pCurScene.get() )->SetDifficulty( m_GameDifficulty );
+			if( m_IsFirstStage ){
+				( (Stage*) m_pCurScene.get() )->MarkFirstTime();
+			}
 			m_CurSceneType = SCENE_TYPE_STAGE;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){

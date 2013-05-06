@@ -19,6 +19,7 @@ namespace GameEngine
 		int							m_MenuPointed;
 		bool						m_PlayBGM;
 		int							m_GameMode;
+		int							m_PrepareCounter;
 	public:
 		Impl();
 		~Impl(){}
@@ -33,16 +34,28 @@ namespace GameEngine
 	DifficultySelection::Impl::Impl()
 	{
 		m_Counter = 0;
+		m_PrepareCounter = 0;
 		m_MenuPointed = GAME_DIFFICULTY_CALM;
 	}
 
 	SceneType DifficultySelection::Impl::Update()
 	{
+		if( m_PrepareCounter > 0 ){
+			++m_PrepareCounter;
+			if( m_PrepareCounter == 20 ){
+				return SCENE_TYPE_STAGE;
+			}
+			else{
+				return SCENE_TYPE_NOT_CHANGE;
+			}
+		}
+
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
 			if( m_GameMode == GAME_MODE_NORMAL ){
 				MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
 				MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
-				return SCENE_TYPE_STAGE;
+				m_PrepareCounter = 1;
+				//return SCENE_TYPE_STAGE;
 			}
 			else{
 				return SCENE_TYPE_STAGE_SELECTION;
@@ -88,6 +101,15 @@ namespace GameEngine
 
 		DrawFontString( m_ResourceMap, 20.0f, 250.0f + m_MenuPointed * 30.0f, 0.5f, 0xFFFFFF00, pDispStr[ m_MenuPointed ] );
 		
+
+		if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+								0.0f, ( m_PrepareCounter - 20 ) * 24.0f, false );
+		}
+		else if( m_PrepareCounter > 20 ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+								0.0f, 0.0f, false );
+		}
 
 		MAPIL::EndRendering2DGraphics();
 	}

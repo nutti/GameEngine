@@ -139,6 +139,8 @@ namespace GameEngine
 
 		int GetNextStageNo() const;
 		GameDataMsg GetFrameData() const;
+
+		void MarkFirstTime();
 	};
 }
 
