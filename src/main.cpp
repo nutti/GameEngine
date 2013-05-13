@@ -80,10 +80,15 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd 
 		app.Run();
 	}
 	catch( MAPIL::MapilException& e ){
+		std::basic_fstream < MAPIL::MapilTChar > fOut( "eriKs.log", std::ios::out );
+		fOut.write( e.GetExceptionStr().c_str(), _tcslen( e.GetExceptionStr().c_str() ) );
+		fOut.close();
 		::OutputDebugString( e.GetExceptionStr().c_str() );
 	}
 	catch( std::exception& e ){
-		::OutputDebugStringA( e.what() );
+		std::ofstream fOut( "eriKs_general.log", std::ios::out );
+		fOut.write( e.what(), ::strlen( e.what() ) );
+		fOut.close();
 	}
 
 	return 0;

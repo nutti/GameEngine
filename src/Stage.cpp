@@ -1256,11 +1256,11 @@ namespace GameEngine
 		}
 
 		if( m_PrivData.m_ClearModeData.m_PrepareCounter > 0 && m_PrivData.m_ClearModeData.m_PrepareCounter <= 20 ){
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 								0.0f, -( 20 - m_PrivData.m_ClearModeData.m_PrepareCounter ) * 24.0f, false );
 		}
 		else if( m_PrivData.m_ClearModeData.m_PrepareCounter >= 20 ){
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 								0.0f, 0.0f, false );
 		}
 	}
@@ -1611,11 +1611,11 @@ namespace GameEngine
 
 		if( !m_PrivData.m_IsFirstTime ){
 			if( m_Data.m_Frame <= 10 ){
-				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 									0.0f, 0.0f, false );
 			}
 			else if( m_Data.m_Frame >= 10 && m_Data.m_Frame <= 30 ){
-				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 									0.0f, -( m_Data.m_Frame - 10 ) * 24.0f, false );
 			}
 		}
@@ -1630,7 +1630,7 @@ namespace GameEngine
 		// HP•\Ž¦
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
 		int hp = m_Data.m_pPlayer->GetHP();
-		for( int i = 0; i < hp; ++i ){
+		for( int i = 0; i < hp && i < 10; ++i ){
 			int surplus = ( 30 + m_Data.m_Frame - i * 3 ) % 30;
 			if( surplus < 20 ){
 				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
@@ -1640,6 +1640,8 @@ namespace GameEngine
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 								16.0f + 11.0f * i, 88.0f, 0.31f, 0.6f, true, 0xFF000000 | ( 120 + i * 15 ) << 8 | ( i * 10 ) | ( 255 - i * 10 ) << 16 );
 		}
+		DrawFontString( m_Data.m_ResourceMap, 80.0f, 110.0f, 0.5f, 0xFFFFFFFF, "%d",
+						hp - 10 > 0 ? hp - 10 : 0 );
 		int lv =  m_Data.m_pPlayer->GetShotPower() / 10;
 		for( int i = 0; i < lv; ++i ){
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
@@ -1849,11 +1851,11 @@ namespace GameEngine
 
 		if( m_PrivData.m_IsFirstTime ){
 			if( m_Data.m_Frame <= 10 ){
-				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 									0.0f, 0.0f, false );
 			}
 			else if( m_Data.m_Frame >= 10 && m_Data.m_Frame <= 30 ){
-				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+				MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 									0.0f, -( m_Data.m_Frame - 10 ) * 24.0f, false );
 			}
 		}

@@ -277,10 +277,16 @@ namespace GameEngine
 											"archive/resource/model/player.x", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_BACKGROUND,
-											"archive/resource/texture/eriKs_stage_background.png", false );
+											"archive/resource/texture/eriKs_stage_background.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_BACKGROUND_2,
-											"archive/resource/texture/eriKs_stage_background2.png", false );
+											"archive/resource/texture/eriKs_stage_background2.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_TITLE,
+											"archive/resource/texture/eriKs_title.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND,
+											"archive/resource/texture/eriKs_background_small.png", false );
 		m_Loading.Start();
 	}
 
@@ -457,8 +463,8 @@ namespace GameEngine
 				//m_Loading.AddStageResourceItem( 2, false );
 				m_Loading.AddStageResourceItem( stage, false );
 #elif defined ( MAKE_MODE_DEBUG )
-				m_Loading.AddStageResourceItem( stage, false );
-				//m_Loading.AddStageResourceItem( 2, false );
+				//m_Loading.AddStageResourceItem( stage, false );
+				m_Loading.AddStageResourceItem( 2, false );
 #endif
 #endif
 				m_Loading.Start();

@@ -103,11 +103,11 @@ namespace GameEngine
 		
 
 		if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
-			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 								0.0f, ( m_PrepareCounter - 20 ) * 24.0f, false );
 		}
 		else if( m_PrepareCounter > 20 ){
-			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 								0.0f, 0.0f, false );
 		}
 

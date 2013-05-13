@@ -33,9 +33,23 @@ namespace GameEngine
 	void Initialize::Impl::Draw()
 	{
 		MAPIL::BeginRendering2DGraphics();
-		//MAPIL::DrawString( 300.0f, 240.0f, "Initializing... %d", m_Counter );
+		
+		const float CHAR_INTERVAL = 96.0f;
+		const float INI_CHAR_POS = 8.0f;
+		const float DISP_Y = 234.0f;
+		const float DISP_X_OFFSET = 123.0f;
+
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
 							0.0f, 0.0f, false );
+
+		// ƒ^ƒCƒgƒ‹
+		for( int i = 0; i < 5; ++i ){
+			MAPIL::DrawClipedTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_TITLE_2 ],
+										DISP_X_OFFSET + CHAR_INTERVAL * i, DISP_Y, 1.0f, 1.0f,
+										0.0f, INI_CHAR_POS + CHAR_INTERVAL * i, 0.0f, INI_CHAR_POS + CHAR_INTERVAL * ( i + 1 ),
+										104.0f );
+		}
+
 		MAPIL::EndRendering2DGraphics();
 	}
 

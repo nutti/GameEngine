@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "PlayerShot.h"
 #include "EnemyShot.h"
+#include "Enemy.h"
 #include "ResourceTypes.h"
 #include "Util.h"
 #include "Item.h"
@@ -1025,6 +1026,11 @@ namespace GameEngine
 		if( m_Data.m_RestInvincibleTime > 0 ){
 			return;
 		}
+		
+		// Õ“Ë”»’è–³Œø‰»’†
+		if( pEnemy->IsNonCollisionMode() ){
+			return;
+		}
 
 		int damage = 3;
 
@@ -1157,9 +1163,9 @@ namespace GameEngine
 		}
 		else if( pItem->GetItemID() == ITEM_ID_RECOVER ){
 			++m_Data.m_HP;
-			if( m_Data.m_HP > 10 ){
-				m_Data.m_HP = 10;
-			}
+			//if( m_Data.m_HP > 10 ){
+			//	m_Data.m_HP = 10;
+			//}
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_2_SE ] );
 		}
 		else if( pItem->GetItemID() == ITEM_ID_CONS_LEVEL_RECOVER ){
