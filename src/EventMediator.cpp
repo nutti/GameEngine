@@ -286,7 +286,7 @@ namespace GameEngine
 											"archive/resource/texture/eriKs_title.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND,
-											"archive/resource/texture/eriKs_background_small.png", false );
+											"archive/resource/texture/eriKs_background_small.png", true );
 		m_Loading.Start();
 	}
 
