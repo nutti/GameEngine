@@ -582,17 +582,8 @@ namespace GameEngine
 		else{
 
 			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
-#if defined ( MAKE_MODE_RELEASE )
-				//m_GUData.m_PosX += m_GUData.m_Speed * CosGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
-				//m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( (float)MAPIL::RadToDeg( m_GUData.m_Angle.GetFloat() ) );
-
-
 				m_GUData.m_PosX += m_GUData.m_Speed * CosGU( m_GUData.m_Angle );
 				m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( m_GUData.m_Angle );
-#elif defined ( MAKE_MODE_DEBUG )
-				m_GUData.m_PosX += m_GUData.m_Speed * CosGU( m_GUData.m_Angle );
-				m_GUData.m_PosY -= m_GUData.m_Speed * SinGU( m_GUData.m_Angle );
-#endif
 				m_Circle.SetCenterX( m_GUData.m_PosX.GetFloat() );
 				m_Circle.SetCenterY( m_GUData.m_PosY.GetFloat() );
 			}
@@ -600,7 +591,6 @@ namespace GameEngine
 				m_GUData.m_PosX = m_Line.GetStartX();
 				m_GUData.m_PosY = m_Line.GetStartY();
 			}
-
 
 			if(	m_GUData.m_PosX < GameUnit( 0 ) ||
 				m_GUData.m_PosX > GameUnit( 640 ) ||
@@ -611,12 +601,7 @@ namespace GameEngine
 		}
 
 		if( m_ImgRotMode == IMG_ROT_MODE_SYNC ){
-#if defined ( MAKE_MODE_RELEASE )
-			//m_ImgRotAngle = m_GUData.m_Angle.GetFloat() + MAPIL::DegToRad( 90.0f );
 			m_ImgRotAngle = MAPIL::DegToRad( m_GUData.m_Angle.GetFloat() + 90.0f );
-#elif defined ( MAKE_MODE_DEBUG )
-			m_ImgRotAngle = MAPIL::DegToRad( m_GUData.m_Angle.GetFloat() + 90.0f );
-#endif
 		}
 		else if( m_ImgRotMode == IMG_ROT_MODE_AUTO ){
 			m_ImgRotAngle += m_ImgRotAnglePerFrame;
@@ -855,7 +840,6 @@ namespace GameEngine
 		if( !m_StatusFlags[ DEAD ] ){
 			m_DeadCounter = 0;
 			m_StatusFlags.set( DEAD );
-			//m_IsDead = true;
 		}
 	}
 

@@ -481,13 +481,13 @@ namespace GameEngine
 				else if( m_pSceneManager->GetGameMode() == GAME_MODE_REPLAY ){
 					m_pButtonManager->ChangeDevice( INPUT_DEVICE_FILE );
 					m_pButtonManager->SetReplayNo( m_pSceneManager->GetReplayNo() );
-					// リプレイ用初期データ取得
-					InitialGameData iniGameData = m_pGameStateManager->GetReplayIniData( m_pSceneManager->GetReplayNo(), stage );
-					iniGameData.m_HIScore = m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() );
 					// 難易度の設定（※複数の難易度で問題化？）
 					m_pSceneManager->SetGameDifficulty( m_pGameStateManager->GetReplayGameDifficulty( m_pSceneManager->GetReplayNo() ) );
 					// ハイスコアの設定
 					m_pSceneManager->SetHIScore( m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() ) );
+					// リプレイ用初期データ取得
+					InitialGameData iniGameData = m_pGameStateManager->GetReplayIniData( m_pSceneManager->GetReplayNo(), stage );
+					iniGameData.m_HIScore = m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() );
 					// 初期データ設定
 					m_pSceneManager->AttachInitialGameData( iniGameData );
 					m_pButtonManager->SetStageNo( stage );

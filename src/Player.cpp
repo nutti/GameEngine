@@ -851,6 +851,10 @@ namespace GameEngine
 				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
 									posX, posY, true, 0xFFFF5555 );
 			}
+			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								posX, posY,
+								0.5f, 0.5f, true,
+								0xFFFF0000 );
 		}
 
 		if( m_Data.m_ConsCur != PLAYER_CONS_MODE_NORMAL ){
