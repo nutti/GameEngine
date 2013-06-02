@@ -503,11 +503,20 @@ namespace GameEngine
 				unsigned int texSizeY;
 				MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
 				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-									m_Line.GetStartX() - texSizeX / 2,
-									m_Line.GetStartY(),
+									//m_Line.GetStartX() - texSizeX / 2,
+									//m_Line.GetStartY(),
+									m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
+									m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
 									1.0f,
 									length / texSizeY,
 									angle,
+									false );
+				MAPIL::DrawTexture( m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE ],
+									m_Line.GetStartX(),
+									m_Line.GetStartY(),
+									0.3f,
+									0.3f,
+									0.0f,
 									false );
 			}
 		}
