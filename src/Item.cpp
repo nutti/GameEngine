@@ -283,7 +283,7 @@ namespace GameEngine
 			return;
 		}
 
-		if( m_ItemData.m_ConsumedCounter < 15 ){
+		if( m_ItemData.m_ConsumedCounter < 15 && m_ItemData.m_Counter > 120 ){
 			++m_ItemData.m_ConsumedCounter;
 			return;
 		}

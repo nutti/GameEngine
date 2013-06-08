@@ -21,6 +21,9 @@ namespace GameEngine
 		int							m_PrevDifficulty;
 		int							m_ScrollDirection;
 		int							m_SelectedRecord;
+
+		int							m_SelectCounter;				// 選択時の準備用カウンタ
+		int							m_DifficultySelectCounter;		// 難易度選択時の準備用カウンタ
 	public:
 		Impl();
 		~Impl(){}

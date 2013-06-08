@@ -25,6 +25,8 @@ namespace GameEngine
 		int							m_SelectedStage;		// リプレイするステージ
 		int							m_CurSelectState;		// 現在の選択状態
 		int							m_PrepareCounter;
+		int							m_SelectCounter;		// 選択時の準備用カウンタ
+		int							m_StageSelectCounter;	// ステージ選択時のカウンタ
 	public:
 		Impl();
 		~Impl(){}
@@ -44,11 +46,13 @@ namespace GameEngine
 		m_CurSelectState = REPLAY_SELECT_NO;
 		m_SelectedStage = STAGE_ID_STAGE_1;
 		m_PrepareCounter = 0;
+		m_SelectCounter = 0;
+		m_StageSelectCounter = 0;
 	}
 
 	SceneType Replay::Impl::Update()
 	{
-		if( m_Counter < 20 ){
+		if( m_Counter < 60 ){
 			++m_Counter;
 			return SCENE_TYPE_NOT_CHANGE;
 		}
@@ -61,6 +65,14 @@ namespace GameEngine
 			else{
 				return SCENE_TYPE_NOT_CHANGE;
 			}
+		}
+
+		if( m_SelectCounter > 0 ){
+			--m_SelectCounter;
+		}
+
+		if( m_StageSelectCounter > 0 ){
+			--m_StageSelectCounter;
 		}
 
 		if( m_CurSelectState == REPLAY_SELECT_NO ){
@@ -77,12 +89,14 @@ namespace GameEngine
 				if( m_SelectedReplayNo > MAX_REPLAY_ENTRY - 1 ){
 					m_SelectedReplayNo = 0;
 				}
+				m_SelectCounter = 10;
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
 				--m_SelectedReplayNo;
 				if( m_SelectedReplayNo < 0 ){
 					m_SelectedReplayNo = MAX_REPLAY_ENTRY - 1;
 				}
+				m_SelectCounter = 10;
 			}
 		}
 		else if( m_CurSelectState == REPLAY_SELECT_STAGE ){
@@ -90,7 +104,6 @@ namespace GameEngine
 				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress >= m_SelectedStage + 1 ){
 					MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
 					m_PrepareCounter = 1;
-					//return SCENE_TYPE_STAGE;
 				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
@@ -98,15 +111,17 @@ namespace GameEngine
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
 				++m_SelectedStage;
-				if( m_SelectedStage > STAGE_ID_STAGE_5 ){
+				if( m_SelectedStage > m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress - 1 ){
 					m_SelectedStage = STAGE_ID_STAGE_1;
 				}
+				m_StageSelectCounter = 10;
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
 				--m_SelectedStage;
 				if( m_SelectedStage < STAGE_ID_STAGE_1 ){
-					m_SelectedStage = STAGE_ID_STAGE_5;
+					m_SelectedStage = m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress - 1;
 				}
+				m_StageSelectCounter = 10;
 			}
 		}
 
@@ -119,92 +134,162 @@ namespace GameEngine
 	{
 		MAPIL::BeginRendering2DGraphics();
 
-		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-							0.0f, 0.0f, 640.0f, 480.0f, 0.0f, false, 0xFF999999 );
-
-		char* difStr[] = { "easy", "normal", "hard", "hazard" };
-		char* progStr[] = { "", "stage 1", "stage 2", "stage 3", "stage 4", "stage 5", "all clear" };
-
-		
-
-		// 縦にスクロールした場合
+		// 背景画像
+		int weight;
 		if( m_Counter < 20 ){
-			DrawFontString( m_ResourceMap, 30.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "rank" );
-			DrawFontString( m_ResourceMap, 100.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "name" );
-			DrawFontString( m_ResourceMap, 200.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "progress" );
-			DrawFontString( m_ResourceMap, 350.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "score" );
-			DrawFontString( m_ResourceMap, 500.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < MAX_REPLAY_ENTRY; ++i ){
-				if( m_DisplayedReplayInfo.m_Entries[ i ].m_Progress != -1 ){
-					DrawFontString( m_ResourceMap, 30.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
-					DrawFontString( m_ResourceMap, 100.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedReplayInfo.m_Entries[ i ].m_Name );
-					DrawFontString( m_ResourceMap, 200.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_DisplayedReplayInfo.m_Entries[ i ].m_Progress ] );
-					DrawFontString( m_ResourceMap, 350.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", m_DisplayedReplayInfo.m_Entries[ i ].m_Score );
-					DrawFontString( m_ResourceMap, 500.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f, 0.45f, "%04d%02d%02d%02d%02d",
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Year,
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Month,
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Day,
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Hour,
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Min );
-				}
-			}
+			weight = ( m_Counter * 6 ) & 0xFF;
 		}
-		// 通常の表示
 		else{
-			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 99.0f + m_SelectedReplayNo * 17.0f, 50.0f, 1.0f, false, 0xDD5577FF );
-			DrawFontString( m_ResourceMap, 30.0f, 85.0f, 0.5f, 0xFFAAFFAA, "rank" );
-			DrawFontString( m_ResourceMap, 100.0f, 85.0f, 0.5f, 0xFFAAFFAA, "name" );
-			DrawFontString( m_ResourceMap, 200.0f, 85.0f, 0.5f, 0xFFAAFFAA, "progress" );
-			DrawFontString( m_ResourceMap, 350.0f, 85.0f, 0.5f, 0xFFAAFFAA, "score" );
-			DrawFontString( m_ResourceMap, 500.0f, 85.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < MAX_REPLAY_ENTRY; ++i ){
-				if( m_DisplayedReplayInfo.m_Entries[ i ].m_Progress != -1 ){
-					DrawFontString( m_ResourceMap, 30.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
-					DrawFontString( m_ResourceMap, 100.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_DisplayedReplayInfo.m_Entries[ i ].m_Name );
-					DrawFontString( m_ResourceMap, 200.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_DisplayedReplayInfo.m_Entries[ i ].m_Progress ] );
-					DrawFontString( m_ResourceMap, 350.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", m_DisplayedReplayInfo.m_Entries[ i ].m_Score );
-					DrawFontString( m_ResourceMap, 500.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%04d%02d%02d%02d%02d",
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Year,
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Month,
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Day,
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Hour,
-									m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Min );
-				}
+			if( m_PrepareCounter == 0 ){
+				weight = 0x78;		// 120
 			}
-			DrawFontString( m_ResourceMap, 30.0f, 380.0f, 0.5f, 0xFFAAFFAA, "killed" );
-			DrawFontString( m_ResourceMap, 30.0f, 400.0f, 0.5f, 0xFFAAFFAA, "crystal" );
-			DrawFontString( m_ResourceMap, 160.0f, 380.0f, 0.45f,
-							"%d", m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Killed );
-			DrawFontString( m_ResourceMap, 160.0f, 400.0f, 0.45f,
-							"%d", m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Crystal );
+			else if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
+				weight = 0x78 + 10 + m_PrepareCounter * 6;
+			}
+			else{
+				weight = 0xFF;
+			}
 		}
+		int color = weight << 16 | weight << 8 | weight;
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
+							0.0f, 0.0f, false, 0xFF << 24 | color );
 
-		if( m_CurSelectState == REPLAY_SELECT_STAGE ){
-			for( int i = 0; i < STAGE_TOTAL; ++i ){
-				std::string str = "stage";
-				str += i + '1';
-				if( m_SelectedStage == ( STAGE_ID_STAGE_1 + i ) ){
-					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFAAFFAA, str.c_str() );
+
+		// リプレイデータ一覧表示
+		char* rankStr[] = { "calm", "easy", "normal", "hard", "hazard" };
+		char* progStr[] = { "", "st 1", "st 2", "st 3", "st 4", "st 5", "all" };
+		int alpha = 0;
+		if( m_Counter >= 20 && m_Counter < 60 ){
+			alpha = ( ( m_Counter - 20 ) * 6 + 10 ) & 0xFF;
+		}
+		else if( m_Counter >= 60 ){
+			if( m_PrepareCounter == 0 ){
+				alpha = 0xFF;
+			}
+			else if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
+				alpha = ( 0xFF * ( 20 - m_PrepareCounter ) ) / 20;
+			}
+			else{
+				alpha = 0x00;
+			}
+		}
+		int color1 = alpha << 24 | 0xAAFFAA;
+		int color2 = alpha << 24 | 0xAAAAAA;
+		int selColor = alpha << 24 | 0xFFFFFF;
+
+		float titleFont = 0.4f;
+		float itemFont = 0.38f;
+
+		enum ItemID
+		{
+			ITEM_ID_NO		= 0,
+			ITEM_ID_NAME	= 1,
+			ITEM_ID_RANK	= 2,
+			ITEM_ID_PROG	= 3,
+			ITEM_ID_SCORE	= 4,
+			ITEM_ID_DATE	= 5,
+			ITEM_ID_TOTAL,
+		};
+
+		float startX[ ITEM_ID_TOTAL ];
+		startX[ ITEM_ID_NO ] = 30.0f;
+		startX[ ITEM_ID_NAME ] = startX[ ITEM_ID_NO ] + 40.0f;
+		startX[ ITEM_ID_RANK ] = startX[ ITEM_ID_NAME ] + 100.0f;
+		startX[ ITEM_ID_PROG ] = startX[ ITEM_ID_RANK ] + 100.0f;
+		startX[ ITEM_ID_SCORE ] = startX[ ITEM_ID_PROG ] + 70.0f;
+		startX[ ITEM_ID_DATE ] = startX[ ITEM_ID_SCORE ] + 110.0f;
+
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_NO ], 10.0f, 0.7f, color1, "Please select past conscious" );
+
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_NO ], 85.0f, titleFont, color1, "no" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_NAME ], 85.0f, titleFont, color1, "name" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_RANK ], 85.0f, titleFont, color1, "rank" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_PROG ], 85.0f, titleFont, color1, "prog" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_SCORE ], 85.0f, titleFont, color1, "score" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_DATE ], 85.0f, titleFont, color1, "date" );
+		for( int i = 0; i < MAX_REPLAY_ENTRY; ++i ){
+			if( m_DisplayedReplayInfo.m_Entries[ i ].m_Progress != -1 ){
+				int c = color2;
+				float offsetX = 0.0f;
+				float offsetY = 0.0f;
+				if( i == m_SelectedReplayNo ){
+					if( m_SelectCounter > 0 ){
+						offsetX = -2.0f * sin( MAPIL::DegToRad( m_SelectCounter * 45.0 ) );
+					}
+					else{
+						offsetX = -2.0f;
+					}
+					offsetY = 0.0f;
+					c = selColor;
 				}
-				else if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress < i + 1 ){
-					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFAAAAAA, str.c_str() );
+
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_NO ] + offsetX, 90.0f + ( i + 1 ) * 17.0f + offsetY, itemFont, c, "%d", i + 1 );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_NAME ] + offsetX, 90.0f + ( i + 1 ) * 17.0f + offsetY, itemFont, c, m_DisplayedReplayInfo.m_Entries[ i ].m_Name );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_RANK ] + offsetX, 90.0f + ( i + 1 ) * 17.0f + offsetY, itemFont, c, rankStr[ m_DisplayedReplayInfo.m_Entries[ i ].m_Difficulty ] );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_PROG ] + offsetX, 90.0f + ( i + 1 ) * 17.0f + offsetY, itemFont, c, progStr[ m_DisplayedReplayInfo.m_Entries[ i ].m_Progress ] );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_SCORE ] + offsetX, 90.0f + ( i + 1 ) * 17.0f + offsetY, itemFont, c, "%d", m_DisplayedReplayInfo.m_Entries[ i ].m_Score );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_DATE ] + offsetX, 90.0f + ( i + 1 ) * 17.0f + offsetY, itemFont, c, "%02d/%02d/%02d %02d:%02d",
+								m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Year % 100,
+								m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Month,
+								m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Day,
+								m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Hour,
+								m_DisplayedReplayInfo.m_Entries[ i ].m_Date.m_Min );
+			}
+		}
+		DrawFontString( m_ResourceMap, 30.0f, 380.0f, titleFont, color1, "killed" );
+		DrawFontString( m_ResourceMap, 30.0f, 400.0f, titleFont, color1, "crystal" );
+
+
+		// 詳細情報の表示
+		int color3 = 0;
+		if( m_Counter > 60 ){
+			if( m_PrepareCounter == 0 ){
+				if( m_SelectCounter > 0 ){
+					color3 = ( ( 10 - m_SelectCounter ) * 25 ) << 24 | 0xFFFFFF;
 				}
 				else{
-					DrawFontString( m_ResourceMap, 300.0f, 380.0f + i * 17.0f, 0.5f, 0xFFFFFFFF, str.c_str() );
+					color3 = 0xFFFFFFFF;
 				}
 			}
+			else{
+				color3 = selColor;
+			}
 		}
+		DrawFontString( m_ResourceMap, 160.0f, 380.0f, itemFont, color3,
+						"%d", m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Killed );
+		DrawFontString( m_ResourceMap, 160.0f, 400.0f, itemFont, color3,
+						"%d", m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Crystal );
 
-		if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
-			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
-								0.0f, ( m_PrepareCounter - 20 ) * 24.0f, false );
-		}
-		else if( m_PrepareCounter > 20 ){
-			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_INITIALIZE ],
-								0.0f, 0.0f, false );
-		}
 
+		// ステージ情報の表示
+		if( m_CurSelectState == REPLAY_SELECT_STAGE ){
+			for( int i = 0; i < STAGE_TOTAL; ++i ){
+				std::string str;
+				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress > i ){
+					str = "stage";
+					str += i + '1';
+				}
+				else{
+					str = "-----";
+				}
+
+				int c = color2;
+				float offsetX = 0.0f;
+				float offsetY = 0.0f;
+				if( m_SelectedStage == ( STAGE_ID_STAGE_1 + i ) ){
+					if( m_StageSelectCounter > 0 ){
+						offsetX = -2.0f * sin( MAPIL::DegToRad( m_StageSelectCounter * 45.0 ) );
+					}
+					else{
+						offsetX = -2.0f;
+					}
+					offsetY = 0.0f;
+					c = selColor;
+				}
+
+				DrawFontString( m_ResourceMap, 300.0f + offsetX, 380.0f + i * 17.0f + offsetY, 0.5f, c, str.c_str() );
+			}
+		}
 
 		MAPIL::EndRendering2DGraphics();
 	}
