@@ -1187,6 +1187,7 @@ namespace GameEngine
 		m_Data.m_pPlayer = reinterpret_cast < Player* > ( m_Data.m_ObjBuilder.CreateCollisionObject( GAME_OBJECT_ID_PLAYER ) );
 		MAPIL::ZeroObject( &m_Data.m_FrameGameData, sizeof( m_Data.m_FrameGameData ) );
 		MAPIL::ZeroObject( &m_Data.m_GameData, sizeof( m_Data.m_GameData ) );
+		MAPIL::ZeroObject( &m_Data.m_TotalGameData, sizeof( m_Data.m_TotalGameData ) );
 		m_Background.AttachStageData( &m_Data );
 		m_Background.AttachScriptData( m_ScriptData );
 		m_Background.Init();
@@ -1496,6 +1497,12 @@ namespace GameEngine
 		m_Data.m_GameData.m_CrystalUsed += m_Data.m_FrameGameData.m_CrystalUsed;
 		m_Data.m_GameData.m_Killed += m_Data.m_FrameGameData.m_Killed;
 
+		// 全体データの更新
+		m_Data.m_TotalGameData.m_Score = m_PrivData.m_FixedGameData.m_PrevScore + m_Data.m_GameData.m_Score;
+		m_Data.m_TotalGameData.m_CrystalTotal = m_PrivData.m_FixedGameData.m_PrevCrystal + m_Data.m_GameData.m_CrystalTotal;
+		m_Data.m_TotalGameData.m_CrystalUsed = m_PrivData.m_FixedGameData.m_PrevCrystalUsed + m_Data.m_GameData.m_CrystalUsed;
+		m_Data.m_TotalGameData.m_Killed = m_PrivData.m_FixedGameData.m_PrevKilled + m_Data.m_GameData.m_Killed;
+
 		// リプレイデータ更新
 		m_KeyStateList.m_StatusList.push_back( m_ButtonStatus.m_RawButtonStatus );
 
@@ -1674,11 +1681,6 @@ namespace GameEngine
 								37.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF7722 );
 		}
 		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_GREEN ){
-			/*if( prevCons == PLAYER_CONS_MODE_NORMAL ){
-				prevCons = PLAYER_CONS_MODE_GREEN;
-			}
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 190.0f, 8.0f, 2.0f, false, 0x4400CCEE );*/
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 								37.0f, CONS_GAUGE_BASE, m_Data.m_pPlayer->GetConsGauge( 0 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0x55FF55 );
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
@@ -1689,15 +1691,6 @@ namespace GameEngine
 								37.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF7722 );
 		}
 		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_BLUE ){
-			/*if( prevCons == PLAYER_CONS_MODE_GREEN ){
-				moveCount = 0;
-				prevCons = PLAYER_CONS_MODE_BLUE;
-			}
-			else if( moveCount < 32 ){
-				moveCount += 2;
-			}
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 190.0f + moveCount, 8.0f, 2.0f, false, 0x4400CCEE );*/
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 								37.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET, m_Data.m_pPlayer->GetConsGauge( 1 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0x5555FF );
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
@@ -1708,15 +1701,6 @@ namespace GameEngine
 								37.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 30 ) * 2 ) << 24 | 0xFF7722 );
 		}
 		else if( m_Data.m_pPlayer->GetCurCons() == PLAYER_CONS_MODE_RED ){
-			/*if( prevCons == PLAYER_CONS_MODE_BLUE ){
-				moveCount = 0;
-				prevCons = PLAYER_CONS_MODE_RED;
-			}
-			else if( moveCount < 32 ){
-				moveCount += 2;
-			}
-			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 222.0f + moveCount, 8.0f, 2.0f, false, 0x4400CCEE );*/
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
 								37.0f, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * 2, m_Data.m_pPlayer->GetConsGauge( 2 ) * 5.0f / 1000.0f, 0.8f, false, ( 255 - ( m_Data.m_Frame % 6 ) * 20 ) << 24 | 0xFF7722 );
 			MAPIL::DrawTexture(	m_Data.m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],

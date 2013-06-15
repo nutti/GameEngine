@@ -47,11 +47,13 @@ namespace GameEngine
 		m_Data.m_RotZ = 0.0f;
 		m_Data.m_ImgID = -1;
 		m_Data.m_Score = 0;
+		m_Data.m_ScoreBonus = 0;
 		m_Data.m_HP = 2000;
 		m_Data.m_MaxHP = 2000;
 		m_Data.m_Counter = 0;
 		m_Data.m_ConsGauge = 200;
 		m_Data.m_MaxConsGauge = 200;
+		m_Data.m_DamagedConsGauge = 0;
 		m_Data.m_IsBoss = false;
 		m_Data.m_IsInvincibleMode = false;
 		m_Data.m_IsNonCollisionMode = false;
@@ -552,114 +554,180 @@ void Enemy::Draw()
 #elif defined ( USE_GAME_UNIT )
 	void Enemy::ProcessCollision( PlayerShot* pPlayerShot )
 	{
+		// 非衝突モード
 		if( m_Data.m_IsNonCollisionMode ){
 			return;
 		}
 
+		// 属性攻撃を受けたことを通知
 		if( pPlayerShot->GetConsAttr() >= PLAYER_CONS_MODE_GREEN ){
 			m_Data.m_StatusFlags.set( EnemyData::DAMAGED_BY_CONS_SHOT );
 		}
 
-		if( !m_Data.m_Destroyed ){
-			m_Data.m_pStageData->m_FrameGameData.m_Score += 10;
-			// 無敵状態でない時
-			if( !m_Data.m_IsInvincibleMode ){
+		// 撃破時は終了
+		if( m_Data.m_Destroyed ){
+			return;
+		}
 
-				int damage = 0;
-				// 属性がある場合(意識技使用時+複合属性ではない場合)
-				if( m_Data.m_IsConsSkillMode && m_Data.m_ConsSkillAttr <= 3 /*&& m_Data.m_ConsSkillAttr > 0*/ ){
-					// 属性が一致している時
-					if( m_Data.m_ConsSkillAttr == pPlayerShot->GetConsAttr() ){
-						damage = 0;	// ダメージ無効化
-					}
-					// 属性勝ちしている時
-					// (緑->青, 青->赤, 赤->緑)
-					else if(	m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_BLUE ||
-								m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_BLUE && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ||
-								m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ){
-						damage = 0;		// ダメージ無効化
-					}
-					// 属性負けしている時
-					// (青->緑, 赤->青, 緑->赤)
-					else if(	m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_BLUE && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ||
-								m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_BLUE ||
-								m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ){
-						damage = pPlayerShot->GetShotPower() * 2;		// ダメージ2倍
-						
-					}
-				}
-				// 属性が無い場合
-				else{
-					damage = pPlayerShot->GetShotPower();
-				}
+		//-----------------------
+		// 衝突判定
+		//-----------------------
 
-				m_Data.m_HP -= damage;
-				if( m_Data.m_IsBoss ){
-					StageMessage msg;
-					msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_DAMAGED;
-					m_Data.m_pStageData->m_MsgQueue.push( msg );
+		m_Data.m_pStageData->m_FrameGameData.m_Score += 10;
+		// 無敵状態でない時
+		if( !m_Data.m_IsInvincibleMode ){
+
+			int damage = 0;
+			int gaugeDelta = 0;
+			int scoreDelta = 0;
+
+			// 属性判定は、意識技の属性 -> 先天属性 の順に判定が行われる
+
+			// 属性がある場合(意識技使用時+複合属性ではない場合)
+			if( m_Data.m_IsConsSkillMode && m_Data.m_ConsSkillAttr <= 3 ){
+				// 属性が一致している時
+				if( m_Data.m_ConsSkillAttr == pPlayerShot->GetConsAttr() ){
+					damage = 0;			// ダメージ無効化
+					gaugeDelta += 1;	// ゲージ1回復
+					scoreDelta = 0;		// スコアボーナス変更なし
+				}
+				// 属性勝ちしている時
+				// (緑->青, 青->赤, 赤->緑)
+				else if(	m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_BLUE ||
+							m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_BLUE && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ||
+							m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ){
+					damage = 0;			// ダメージ無効化
+					gaugeDelta = 0;		// ゲージ変更なし
+					scoreDelta += 2;	// スコアボーナス増加（スキル中は2倍）
+				}
+				// 属性負けしている時
+				// (青->緑, 赤->青, 緑->赤)
+				else if(	m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_BLUE && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ||
+							m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_BLUE ||
+							m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ){
+					damage = pPlayerShot->GetShotPower() * 2;		// ダメージ2倍
+					gaugeDelta -= 1;		// ゲージ1減少
+					scoreDelta -= 1;		// スコアボーナス減少
+					m_Data.m_DamagedConsGauge += 1;
 				}
 			}
-
-			// 最後のダメージを受けた時に発行
-			if( !m_SentLastDamagedMsg ){
-				if( m_Data.m_HP > 0 ){
-					StageMessage msg;
-					msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
-					StageMessage::StageMessageData data;
-					data.m_pString = new std::string ( m_Data.m_Name );
-					msg.m_MsgDataList.push_back( data );
-					data.m_Integer = m_Data.m_HP;
-					msg.m_MsgDataList.push_back( data );
-					data.m_Integer = m_Data.m_MaxHP;
-					msg.m_MsgDataList.push_back( data );
-					data.m_Integer = m_Data.m_ConsGauge;
-					msg.m_MsgDataList.push_back( data );
-					data.m_Integer = 200;
-					msg.m_MsgDataList.push_back( data );
-					m_Data.m_pStageData->m_MsgQueue.push( msg );
-					m_SentLastDamagedMsg = true;
+			// 先天属性がある場合（意識技未使用時+属性がある時）
+			else if( !m_Data.m_IsConsSkillMode && m_Data.m_ConsType > 0 ){
+				// 属性が一致している時
+				if( m_Data.m_ConsType == pPlayerShot->GetConsAttr() ){
+					damage = pPlayerShot->GetShotPower();		// 通常ダメージ
+					gaugeDelta = 0;		// ゲージ変更なし
+					scoreDelta = 0;		// スコアボーナス変更なし
+				}
+				// 属性勝ちしている時
+				// (緑->青, 青->赤, 赤->緑)
+				else if(	m_Data.m_ConsType == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_BLUE ||
+							m_Data.m_ConsType == PLAYER_CONS_MODE_BLUE && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ||
+							m_Data.m_ConsType == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ){
+					damage = pPlayerShot->GetShotPower();		// 通常ダメージ
+					gaugeDelta = 0;		// ゲージ変更なし
+					scoreDelta += 1;	// スコアボーナス増加
+				}
+				// 属性負けしている時
+				// (青->緑, 赤->青, 緑->赤)
+				else if(	m_Data.m_ConsType == PLAYER_CONS_MODE_BLUE && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ||
+							m_Data.m_ConsType == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_BLUE ||
+							m_Data.m_ConsType == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ){
+					damage = pPlayerShot->GetShotPower();		// 通常ダメージ
+					gaugeDelta = 0;								// ゲージ変更なし
+					scoreDelta -= 1;							// スコアボーナス減少
 				}
 			}
-			if( m_Data.m_HP <= 0 ){
+			// 属性が無い場合
+			else{
+				damage = pPlayerShot->GetShotPower();		// 通常ダメージ
+				gaugeDelta = 0;
+				scoreDelta = 0;
+			}
+
+			// データの更新
+			m_Data.m_HP -= damage;
+			m_Data.m_ScoreBonus += scoreDelta;
+			m_Data.m_ConsGauge += gaugeDelta;
+			if( m_Data.m_ScoreBonus < 0 ){
+				m_Data.m_ScoreBonus = 0;
+			}
+
+			if( m_Data.m_IsBoss ){
+				StageMessage msg;
+				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_DAMAGED;
+				m_Data.m_pStageData->m_MsgQueue.push( msg );
+			}
+		}
+
+		//------------------------------
+		// Stageへのメッセージ発行機能
+		//------------------------------
+
+		// 最後のダメージを受けた時に発行
+		if( !m_SentLastDamagedMsg ){
+			if( m_Data.m_HP > 0 ){
 				StageMessage msg;
 				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
 				StageMessage::StageMessageData data;
-				data.m_pString = new std::string ( "" );
+				data.m_pString = new std::string ( m_Data.m_Name );
 				msg.m_MsgDataList.push_back( data );
-				data.m_Integer = 0;
+				data.m_Integer = m_Data.m_HP;
 				msg.m_MsgDataList.push_back( data );
-				data.m_Integer = 10000;
+				data.m_Integer = m_Data.m_MaxHP;
 				msg.m_MsgDataList.push_back( data );
-				data.m_Integer = 0;
+				data.m_Integer = m_Data.m_ConsGauge;
 				msg.m_MsgDataList.push_back( data );
-				data.m_Integer = 10000;
+				data.m_Integer = 200;
 				msg.m_MsgDataList.push_back( data );
 				m_Data.m_pStageData->m_MsgQueue.push( msg );
 				m_SentLastDamagedMsg = true;
 			}
-
-
-
-			if( m_Data.m_HP <= 0 ){
-				m_Data.m_HP = 0;
-				m_Data.m_pStageData->m_FrameGameData.m_Score += m_Data.m_Score;
-				++m_Data.m_pStageData->m_FrameGameData.m_Killed;
-				m_Data.m_Destroyed = true;
-			}
-			Effect* pEffect = m_Data.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_PLAYER_SHOT_COLLIDED, 0 );
-			GameUnit x;
-			GameUnit y;
-			pPlayerShot->GetPos( &x, &y );
-			pEffect->SetPos( x.GetFloat(), y.GetFloat() );
-			m_Data.m_pStageData->m_EffectList.push_back( pEffect );
 		}
-		else{
-			if( m_Data.m_HP > 0 ){
-				int dummy;
-				dummy += 1;
-			}
+		if( m_Data.m_HP <= 0 ){
+			StageMessage msg;
+			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
+			StageMessage::StageMessageData data;
+			data.m_pString = new std::string ( "" );
+			msg.m_MsgDataList.push_back( data );
+			data.m_Integer = 0;
+			msg.m_MsgDataList.push_back( data );
+			data.m_Integer = 10000;
+			msg.m_MsgDataList.push_back( data );
+			data.m_Integer = 0;
+			msg.m_MsgDataList.push_back( data );
+			data.m_Integer = 10000;
+			msg.m_MsgDataList.push_back( data );
+			m_Data.m_pStageData->m_MsgQueue.push( msg );
+			m_SentLastDamagedMsg = true;
 		}
+
+
+		// 撃破時の処理
+		if( m_Data.m_HP <= 0 ){
+			m_Data.m_HP = 0;
+			// スコア加算
+			int addScore = ( ( m_Data.m_Score * ( 1000 + m_Data.m_ScoreBonus ) ) / 10000 ) * 10;
+			m_Data.m_pStageData->m_FrameGameData.m_Score += addScore;
+			// 減少させた分のゲージのクリスタルを取得
+			if( m_Data.m_DamagedConsGauge >= 5 ){
+				std::shared_ptr < Item > pNewItem;
+				pNewItem.reset( m_Data.m_pStageData->m_ObjBuilder.CreateItem( ITEM_ID_CRYSTAL, m_Data.m_DamagedConsGauge / 5 ) );
+				pNewItem->SetPos( m_Data.m_GUData.m_PosX + GameUnit( 70 ), m_Data.m_GUData.m_PosY );
+				m_Data.m_pStageData->m_ItemList.push_back( pNewItem );
+			}
+			// 撃破数加算
+			++m_Data.m_pStageData->m_FrameGameData.m_Killed;
+			m_Data.m_Destroyed = true;
+		}
+
+		// 撃破エフェクトの作成
+		Effect* pEffect = m_Data.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_PLAYER_SHOT_COLLIDED, 0 );
+		GameUnit x;
+		GameUnit y;
+		pPlayerShot->GetPos( &x, &y );
+		pEffect->SetPos( x.GetFloat(), y.GetFloat() );
+		m_Data.m_pStageData->m_EffectList.push_back( pEffect );
 	}
 #endif
 
@@ -766,6 +834,16 @@ void Enemy::Draw()
 		if( regNo < MAX_ENEMY_REGS && regNo >= 0 ){
 			m_Data.m_Regs[ regNo ] = val;
 		}
+	}
+
+	std::string Enemy::GetName() const
+	{
+		return m_Data.m_Name;
+	}
+
+	bool Enemy::IsInSkillMode() const
+	{
+		return m_Data.m_IsConsSkillMode;
 	}
 
 	bool Enemy::m_SentLastDamagedMsg = false;

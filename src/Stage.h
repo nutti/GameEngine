@@ -88,6 +88,8 @@ namespace GameEngine
 		GameDataMsg			m_GameData;				// 現フレームにおけるゲームデータ
 		GameDataMsg			m_FrameGameData;		// 現フレームで更新されるゲームデータ
 
+		GameDataMsg			m_TotalGameData;		// 現フレームにおける全てのステージゲームデータ
+
 		StageMessageQueue	m_MsgQueue;				// ステージ用メッセージキュー
 
 		bool				m_HasTermSig;

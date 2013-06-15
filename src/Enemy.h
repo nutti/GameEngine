@@ -61,9 +61,11 @@ namespace GameEngine
 		int					m_MaxHP;			// MaxHP
 		int					m_ConsGauge;		// 意識ゲージ
 		int					m_MaxConsGauge;		// Max意識ゲージ
-		int					m_ConsType;			// 意識タイプ
+		int					m_ConsType;			// 意識タイプ（属性、意識技で上書きされる）
+		int					m_DamagedConsGauge;	// 減少させられた意識ゲージ
 		int					m_Counter;			// カウンタ
 		int					m_Score;			// スコア
+		int					m_ScoreBonus;		// スコアボーナス（1で0.001倍）
 		int					m_IsBoss;			// ボスなら1
 		bool				m_Destroyed;		// 倒された場合はtrue
 		bool				m_IsInvincibleMode;	// 無敵状態の場合はtrue
@@ -135,6 +137,9 @@ namespace GameEngine
 		static void ClearLastDamagedMsg();
 		bool IsNonCollisionMode() const;
 		void SetReg( int regNo, int val );					// レジスタに値をセット
+
+		std::string GetName() const;						// 敵の名前を取得
+		bool IsInSkillMode() const;							// スキル使用中の場合true
 	};
 
 	

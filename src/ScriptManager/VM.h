@@ -110,10 +110,14 @@ namespace VM
 		SYS_ENEMY_GET_ITEM_POS_X,			// Get item position x.
 		SYS_ENEMY_GET_ITEM_POS_Y,			// Get item position y.
 		SYS_ENEMY_DAMAGED_BY_CONS_SHOT,		// Damaged by cons shot?
+		SYS_SEARCH_ENEMY_IN_SKILL_MODE,		// Search enemy in skill mode.
+		SYS_SEARCH_ENEMY_IN_SKILL_MODE_BY_NAME,		// Search enemy in skill mode by name.
 
 		SYS_ENEMY_GET_ITEM_POS_X_GU,		// Get item position x. (gameunit)
 		SYS_ENEMY_GET_ITEM_POS_Y_GU,		// Get item position y. (gameunit)
 
+		SYS_CREATE_ENEMY_INI_POS_GU,		// Create enemy. (Initial position with gu.)
+		SYS_CREATE_ENEMY_INI_POS_REG_GU,	// Create enemy. (Initial position with gu. 1 register.)
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_SHOT_1_GU,			// Create enemy shot. (Linear. gameunit)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)

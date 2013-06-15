@@ -63,6 +63,8 @@ namespace GameEngine
 		void SysEnemyInvokeConsSkill();
 		void SysEnemyStopConsSkill();
 		void SysEnemyDamagedByConsShot();
+		void SysSearchEnemyInSkillMode();
+		void SysSearchEnemyInSkillModeByName();
 
 		void SysCreateEnemyShot1();
 		void SysCreateEnemyShot1GU();
@@ -72,6 +74,8 @@ namespace GameEngine
 		void SysCreateEnemyShotGroupReg();
 		void SysCreateEnemyShotGroupFReg();
 		void SysCreateEnemyShotGroupGReg();
+		void SysCreateEnemyIniPosGU();
+		void SysCreateEnemyIniPosRegGU();
 
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();

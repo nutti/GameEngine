@@ -102,6 +102,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_ANGLE_PER_FRAME, TYPE_VOID, "SetEnemyShotImgRotAnglePerFrame", "if" );		// void SetImgAnglePerFrame( shot_id, angle );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_ALPHA_BLENDING_MODE, TYPE_VOID, "SetEnemyShotAlphaBlendingMode", "ii" );		// void SetImgAlphaBlendingMode( shot_id, mode );
 	AddFunction( VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT, TYPE_INTEGER, "EnemyDamagedByConsShot", "" );		// int EnemyDamagedByConsShot();
+	AddFunction( VM::SYS_SEARCH_ENEMY_IN_SKILL_MODE, TYPE_INTEGER, "SearchEnemyInSkillMode", "" );		// int SearchEnemyInSkillMode();
+	AddFunction( VM::SYS_SEARCH_ENEMY_IN_SKILL_MODE_BY_NAME, TYPE_INTEGER, "SearchEnemyInSkillModeByName", "s" );		// int SearchEnemyInSkillModeByName( enemy_name );
 
 
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_1, TYPE_VOID, "CreateEnemyShot1", "fffffii" );	// void CreateEnemyShot1( x, y, speed, angle, radius, texture_id, power );
@@ -133,7 +135,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_ANGLE_GU, TYPE_GU, "GetEnemyShotAngleGU", "i" );	// gu GetEnemyShotAngleGU( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED_GU, TYPE_VOID, "EnemyShotAddSpeedGU", "ig" );			// void EnemyShotAddSpeedGU( id, speed );
 	
-
+	AddFunction( VM::SYS_CREATE_ENEMY_INI_POS_GU, TYPE_VOID, "CreateEnemyIniPosGU", "igg" );	// void CreateEnemyIniPosGU( id, x, y );
+	AddFunction( VM::SYS_CREATE_ENEMY_INI_POS_REG_GU, TYPE_VOID, "CreateEnemyIniPosRegGU", "iggi" );	// void CreateEnemyIniPosRegGU( id, x, y, reg1 );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT, TYPE_INTEGER, "CreateEnemyShot", "" );	// int CreateEnemyShot();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_CONS_SHOT, TYPE_INTEGER, "CreateConsEnemyShot", "i" );	// int CreateConsEnemyShot( shot_attr );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_POS, TYPE_VOID, "SetEnemyShotPos", "iff" );		// void SetEnemyShotPos( shot_id, x, y );

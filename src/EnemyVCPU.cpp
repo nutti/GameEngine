@@ -819,6 +819,84 @@ namespace GameEngine
 		m_pEnemyData->m_pStageData->m_BossPhaseStartHP[ phase ] = hp;
 	}
 
+	void EnemyVCPU::SysCreateEnemyIniPosGU()
+	{
+		GameUnit x;
+		GameUnit y;
+		int id;
+
+		Pop();
+		y.SetRawValue( Top().m_Integer );
+		Pop();
+		x.SetRawValue( Top().m_Integer );
+		Pop();
+		id = Top().m_Integer;
+		Pop();
+
+		Enemy* pNewEnemy = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemy( id );
+		pNewEnemy->Init( x, y );
+		m_pEnemyData->m_pStageData->m_EnemyList.push_back( pNewEnemy );
+	}
+
+	void EnemyVCPU::SysCreateEnemyIniPosRegGU()
+	{
+		GameUnit x;
+		GameUnit y;
+		int id;
+		int reg;
+
+		Pop();
+		reg = Top().m_Integer;
+		Pop();
+		y.SetRawValue( Top().m_Integer );
+		Pop();
+		x.SetRawValue( Top().m_Integer );
+		Pop();
+		id = Top().m_Integer;
+		Pop();
+
+		Enemy* pNewEnemy = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemy( id );
+		pNewEnemy->Init( x, y );
+		pNewEnemy->SetReg( 0, reg );
+		m_pEnemyData->m_pStageData->m_EnemyList.push_back( pNewEnemy );
+	}
+
+	void EnemyVCPU::SysSearchEnemyInSkillMode()
+	{
+		Pop();
+
+		EnemyList::iterator it;
+		for(	it = m_pEnemyData->m_pStageData->m_EnemyList.begin();
+				it != m_pEnemyData->m_pStageData->m_EnemyList.end();
+				++it ){
+			if( ( *it )->IsInSkillMode() ){
+				Push( 1 );
+				return;
+			}
+		}
+		Push( 0 );
+	}
+
+	void EnemyVCPU::SysSearchEnemyInSkillModeByName()
+	{
+		Pop();
+		std::string name = Top().m_pString->m_Str;
+		Pop();
+
+		EnemyList::iterator it;
+		for(	it = m_pEnemyData->m_pStageData->m_EnemyList.begin();
+				it != m_pEnemyData->m_pStageData->m_EnemyList.end();
+				++it ){
+			if( ( *it )->IsInSkillMode() ){
+				if( ( *it )->GetName() == name ){
+					Push( 1 );
+					return;
+				}
+			}
+		}
+		Push( 0 );
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -967,6 +1045,12 @@ namespace GameEngine
 			case VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT:
 				SysEnemyDamagedByConsShot();
 				break;
+			case VM::SYS_SEARCH_ENEMY_IN_SKILL_MODE:
+				SysSearchEnemyInSkillMode();
+				break;
+			case VM::SYS_SEARCH_ENEMY_IN_SKILL_MODE_BY_NAME:
+				SysSearchEnemyInSkillModeByName();
+				break;
 
 			case VM::SYS_ENEMY_CREATE_EFFECT_1:
 				SysCreateEffect1();
@@ -991,6 +1075,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_GREG:
 				SysCreateEnemyShotGroupGReg();
+				break;
+			case VM::SYS_CREATE_ENEMY_INI_POS_REG_GU:
+				SysCreateEnemyIniPosRegGU();
+				break;
+			case VM::SYS_CREATE_ENEMY_INI_POS_GU:
+				SysCreateEnemyIniPosGU();
 				break;
 			case VM::SYS_ENEMY_SHIFT_NEXT_MODE:
 				SysEnemyShiftNextMode();

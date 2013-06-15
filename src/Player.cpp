@@ -972,7 +972,8 @@ namespace GameEngine
 		
 		// ボム
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
-			if( m_Data.m_RestInvincibleTime <= 0 ){
+			if( m_Data.m_RestInvincibleTime <= 0 &&
+				m_pStageData->m_GameData.m_CrystalTotal - m_pStageData->m_GameData.m_CrystalUsed >= 500 ){
 				if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
 					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
 					GreenModeBomb();
@@ -985,6 +986,7 @@ namespace GameEngine
 					RedModeBomb();
 					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
 				}
+				m_pStageData->m_FrameGameData.m_CrystalUsed += 500;
 			}
 		}
 
@@ -1075,6 +1077,7 @@ namespace GameEngine
 		}
 
 		int damage = 0;
+		int scoreDelta = 0;
 		bool hasAttr = pEnemyShot->GetConsAttr() >= ENEMY_SHOT_ATTR_GREEN;
 		// 敵弾が属性を持っているとき
 		if( hasAttr ){
@@ -1084,7 +1087,8 @@ namespace GameEngine
 				if( m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] > 1000 ){
 					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] = 1000;
 				}
-				damage = 0;	// ダメージ無効化
+				damage = 0;			// ダメージ無効化
+				scoreDelta = 100;	// 100点追加
 			}
 			// 属性が無い時
 			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL ){
@@ -1126,6 +1130,9 @@ namespace GameEngine
 			}
 		}
 
+		// スコア追加
+		m_pStageData->m_FrameGameData.m_Score += scoreDelta;
+
 		// ダメージが発生した時
 		if( damage > 0 ){
 			// ダメージ時のメッセージ送信
@@ -1136,6 +1143,12 @@ namespace GameEngine
 			msg.m_MsgDataList.push_back( data );
 			m_pStageData->m_MsgQueue.push( msg );
 			m_Data.m_HP -= damage;
+			if( m_pStageData->m_TotalGameData.m_CrystalTotal - m_pStageData->m_TotalGameData.m_CrystalUsed >= 1000 ){
+				m_pStageData->m_FrameGameData.m_CrystalUsed += 1000;
+			}
+			else{
+				m_pStageData->m_FrameGameData.m_CrystalUsed += m_pStageData->m_TotalGameData.m_CrystalTotal - m_pStageData->m_TotalGameData.m_CrystalUsed;
+			}
 			// ゲームオーバー処理
 			if( m_Data.m_HP <= 0 ){
 				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED ] );
