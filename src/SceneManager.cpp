@@ -450,6 +450,11 @@ namespace GameEngine
 					else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
 						m_ReplayDataRecord = ( (ReplayEntry*) m_pCurScene.get() )->GetReplayDataRecord();
 						p->SendEvent( EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF );
+						if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
+							( (ReplayEntry*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
+							( (ReplayEntry*) m_pCurScene.get() )->AttachReplayDataRecord( m_ReplayDataRecord );
+							m_CurSceneType = SCENE_TYPE_REPLAY;
+						}
 					}
 					else{
 						exit( 1 );

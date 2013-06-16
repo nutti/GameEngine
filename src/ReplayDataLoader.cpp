@@ -193,13 +193,15 @@ namespace GameEngine
 			data.m_Cons = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniCons;
 			::memcpy( data.m_ConsGauge, m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniConsGauge, sizeof( data.m_ConsGauge ) );
 			::memcpy( data.m_ConsLevel, m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniConsLevel, sizeof( data.m_ConsLevel ) );
-			data.m_Crystal = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniCrystal;
-			data.m_CrystalUsed = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniCrystalUsed;
+			for( int i = 0; i < stageNo; ++i ){
+				data.m_Crystal += m_ReplayDataRecord.m_StageDataInfo[ i ].m_IniCrystal;
+				data.m_CrystalUsed += m_ReplayDataRecord.m_StageDataInfo[ i ].m_IniCrystalUsed;
+				data.m_Killed += m_ReplayDataRecord.m_StageDataInfo[ i ].m_IniKilled;
+				data.m_Score += m_ReplayDataRecord.m_StageDataInfo[ i ].m_IniScore;
+			}
 			data.m_HP = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniHP;
-			data.m_Killed = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniKilled;
 			data.m_PosX = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniPosX;
 			data.m_PosY = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniPosY;
-			data.m_Score = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniScore;
 			data.m_ShotPower = m_ReplayDataRecord.m_StageDataInfo[ stageNo - 1 ].m_IniShotPower;
 		}
 

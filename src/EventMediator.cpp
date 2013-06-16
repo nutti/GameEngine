@@ -427,8 +427,8 @@ namespace GameEngine
 				DisplayedReplayInfo info = m_pGameStateManager->GetDisplayedReplayInfo();
 				m_pSceneManager->AttachDisplayedReplayInfo( info );
 				// シーンの変更
-				m_pSceneManager->ChangeScene( SCENE_TYPE_REPLAY_ENTRY );
-				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				//m_pSceneManager->ChangeScene( SCENE_TYPE_REPLAY_ENTRY );
+				//m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
 			// フレーム更新要求
