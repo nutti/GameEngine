@@ -8,6 +8,12 @@
 
 namespace GameEngine
 {
+	const int NAME_CHARS_X = 12;		// 横並び数
+	const int NAME_CHARS_Y = 3;			// 縦並び数
+	const char NAME_CHARS[ NAME_CHARS_Y ][ NAME_CHARS_X + 1 ] =	{	"abcdefghijkl",
+																	"mnopqrstuvwx",
+																	"yz0123456789" };
+
 
 	class ScoreEntry::Impl
 	{
@@ -19,9 +25,13 @@ namespace GameEngine
 		SaveDataRecord				m_NewRecord;			// 新しいゲームデータ
 		int							m_Difficulty;
 		int							m_NewEntryRank;			// 新しくエントリされるランク（ランク外の場合は-1）
-		int							m_EntryName[ 10 ];		// エントリ名（9文字まで）
+		//int							m_EntryName[ 10 ];		// エントリ名（9文字まで）
 		int							m_NameInputPos;			// 名前入力の場所
-		int							m_NameSelectPos;		// 名前選択の場所
+		int							m_NameSelectPosX;		// 名前選択の場所
+		int							m_NameSelectPosY;
+
+		int							m_SelectCounter;		// 選択時のカウンタ
+		int							m_SceneChangeCounter;	// 画面遷移時のカウンタ
 	public:
 		Impl();
 		~Impl(){}
@@ -42,26 +52,36 @@ namespace GameEngine
 		m_Counter = 0;
 		m_Difficulty = GAME_DIFFICULTY_EASY;
 		m_NewEntryRank = -1;
-		MAPIL::ZeroObject( m_EntryName, sizeof( m_EntryName ) );
-		m_NameInputPos = 0;
-		m_NameSelectPos = 0;
+		//MAPIL::ZeroObject( m_EntryName, sizeof( m_EntryName ) );
+		m_NameInputPos = -1;
+		m_NameSelectPosX = 0;
+		m_NameSelectPosY = 0;
+
+		m_SelectCounter = 0;
+		m_SceneChangeCounter = 0;
 	}
 
 	SceneType ScoreEntry::Impl::Update()
 	{
+		if( m_Counter < 20 ){
+			++m_Counter;
+			return SCENE_TYPE_NOT_CHANGE;
+		}
+
+		if( m_SelectCounter > 0 ){
+			--m_SelectCounter;
+		}
+
 		if( m_NewEntryRank == -1 ){
 			return SCENE_TYPE_REPLAY_ENTRY;
 		}
 
-		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
-			m_NewRecord.m_Name[ m_NameInputPos ] = '\0';
-			return SCENE_TYPE_REPLAY_ENTRY;
-		}
+		
 
-		const int NAME_CHARS_TOTAL = 36;
-		const char* NAME_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+		//const int NAME_CHARS_TOTAL = 36;
+		//const char* NAME_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
 
-		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
+		/*if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
 			m_NewRecord.m_Name[ m_NameInputPos ] = NAME_CHARS[ m_NameSelectPos ];
 			if( m_NameInputPos < 8 ){
 				++m_NameInputPos;
@@ -86,7 +106,54 @@ namespace GameEngine
 			}
 		}
 
-		m_NewRecord.m_Name[ m_NameInputPos ] = NAME_CHARS[ m_NameSelectPos ];
+		m_NewRecord.m_Name[ m_NameInputPos ] = NAME_CHARS[ m_NameSelectPos ];*/
+
+		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
+			if( m_NameInputPos != -1 ){
+				m_NewRecord.m_Name[ m_NameInputPos ] = '\0';
+				--m_NameInputPos;
+			}
+		}
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
+			m_NewRecord.m_Name[ m_NameInputPos + 1 ] = '\0';
+			return SCENE_TYPE_REPLAY_ENTRY;
+		}
+		/*else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
+			m_EntryName[ m_NameInputPos + 1 ] = '\0';
+			::memcpy( m_ReplayDataRecord.m_Name, m_EntryName, sizeof( m_EntryName ) );
+			m_CurSelectState = REPLAY_ENTRY_SELECT_STATE_NO;
+			return SCENE_TYPE_REPLAY_ENTRY;
+		}*/
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
+			if( m_NameInputPos < 7 ){
+				++m_NameInputPos;
+			}
+			m_NewRecord.m_Name[ m_NameInputPos ] = NAME_CHARS[ m_NameSelectPosY ][ m_NameSelectPosX ];
+		}
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_LEFT ) ){
+			--m_NameSelectPosX;
+			if( m_NameSelectPosX < 0 ){
+				m_NameSelectPosX = NAME_CHARS_X - 1;
+			}
+		}
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_RIGHT ) ){
+			++m_NameSelectPosX;
+			if( m_NameSelectPosX >= NAME_CHARS_X ){
+				m_NameSelectPosX = 0;
+			}
+		}
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
+			--m_NameSelectPosY;
+			if( m_NameSelectPosY < 0 ){
+				m_NameSelectPosY = NAME_CHARS_Y - 1;
+			}
+		}
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
+			++m_NameSelectPosY;
+			if( m_NameSelectPosY >= NAME_CHARS_Y ){
+				m_NameSelectPosY = 0;
+			}
+		}
 
 
 		++m_Counter;
@@ -98,98 +165,128 @@ namespace GameEngine
 	{
 		MAPIL::BeginRendering2DGraphics();
 
-		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-							0.0f, 0.0f, 640.0f, 480.0f, 0.0f, false, 0xFF999999 );
-
-		char* progStr[] = { "", "stage 1", "stage 2", "stage 3", "stage 4", "stage 5", "all clear" };
-
 		
-
-		// 縦にスクロールした場合
+		// 背景画像
+		int weight;
 		if( m_Counter < 20 ){
-			DrawFontString( m_ResourceMap, 30.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "rank" );
-			DrawFontString( m_ResourceMap, 100.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "name" );
-			DrawFontString( m_ResourceMap, 200.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "progress" );
-			DrawFontString( m_ResourceMap, 350.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "score" );
-			DrawFontString( m_ResourceMap, 500.0f, 505.0f - m_Counter * 21.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < 15; ++i ){
-				float offset = 0.0f;
-				int rank = 0;
-				if( m_NewEntryRank <= i ){
-					offset = 17.0f;
-					rank = 1;
-				}
-				if( i == m_NewEntryRank ){
-					DrawFontString( m_ResourceMap, 30.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
-					DrawFontString( m_ResourceMap, 100.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_NewRecord.m_Name );
-					DrawFontString( m_ResourceMap, 200.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_NewRecord.m_Progress ] );
-					DrawFontString( m_ResourceMap, 350.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", m_NewRecord.m_Score );
-					DrawFontString( m_ResourceMap, 500.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%04d%02d%02d%02d%02d",
-									m_NewRecord.m_Date.m_Year,
-									m_NewRecord.m_Date.m_Month,
-									m_NewRecord.m_Date.m_Day,
-									m_NewRecord.m_Date.m_Hour,
-									m_NewRecord.m_Date.m_Min );
-				}
-				if( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year != 0 ){
-					DrawFontString( m_ResourceMap, 30.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f + offset, 0.45f, "%d", i + 1 + rank );
-					DrawFontString( m_ResourceMap, 100.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f + offset, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Name );
-					DrawFontString( m_ResourceMap, 200.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f + offset, 0.45f, progStr[ m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Progress ] );
-					DrawFontString( m_ResourceMap, 350.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f + offset, 0.45f, "%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Score );
-					DrawFontString( m_ResourceMap, 500.0f, 505.0f - m_Counter * 21.0f + ( i + 1 ) * 17.0f + offset, 0.45f, "%04d%02d%02d%02d%02d",
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year,
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Month,
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Day,
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Hour,
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Min );
-				}
-			}
+			weight = ( m_Counter * 6 ) & 0xFF;
 		}
 		else{
-			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								0.0f, 99.0f + m_NewEntryRank * 17.0f, 50.0f, 1.0f, false, 0xDD5577FF );
+			weight = 0x78;		// 120
+		}
+		int color = weight << 16 | weight << 8 | weight;
+		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
+							0.0f, 0.0f, false, 0xFF << 24 | color );
 
-			DrawFontString( m_ResourceMap, 30.0f, 85.0f, 0.5f, 0xFFAAFFAA, "rank" );
-			DrawFontString( m_ResourceMap, 100.0f, 85.0f, 0.5f, 0xFFAAFFAA, "name" );
-			DrawFontString( m_ResourceMap, 200.0f, 85.0f, 0.5f, 0xFFAAFFAA, "progress" );
-			DrawFontString( m_ResourceMap, 350.0f, 85.0f, 0.5f, 0xFFAAFFAA, "score" );
-			DrawFontString( m_ResourceMap, 500.0f, 85.0f, 0.5f, 0xFFAAFFAA, "date" );
-			for( int i = 0; i < 15; ++i ){
-				float offset = 0.0f;
-				int rank = 0;
-				if( m_NewEntryRank <= i ){
-					offset = 17.0f;
-					rank = 1;
-				}
-				if( i == m_NewEntryRank ){
-					MAPIL::DrawTexture( m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-										101.0f + m_NameInputPos * 32.0f * 0.45f, 90.0f + ( i + 1 ) * 17.0f, 0.95f, 1.0f, true, 0xFF55FF55 );
-					DrawFontString( m_ResourceMap, 30.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", i + 1 );
-					DrawFontString( m_ResourceMap, 100.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, m_NewRecord.m_Name );
-					DrawFontString( m_ResourceMap, 200.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, progStr[ m_NewRecord.m_Progress ] );
-					DrawFontString( m_ResourceMap, 350.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%d", m_NewRecord.m_Score );
-					DrawFontString( m_ResourceMap, 500.0f, 90.0f + ( i + 1 ) * 17.0f, 0.45f, "%04d%02d%02d%02d%02d",
-									m_NewRecord.m_Date.m_Year,
-									m_NewRecord.m_Date.m_Month,
-									m_NewRecord.m_Date.m_Day,
-									m_NewRecord.m_Date.m_Hour,
-									m_NewRecord.m_Date.m_Min );
-				}
-				if( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year != 0 ){
-					DrawFontString( m_ResourceMap, 30.0f, 90.0f + ( i + 1 ) * 17.0f + offset, 0.45f, "%d", i + 1 + rank );
-					DrawFontString( m_ResourceMap, 100.0f, 90.0f + ( i + 1 ) * 17.0f + offset, 0.45f, m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Name );
-					DrawFontString( m_ResourceMap, 200.0f, 90.0f + ( i + 1 ) * 17.0f + offset, 0.45f, progStr[ m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Progress ] );
-					DrawFontString( m_ResourceMap, 350.0f, 90.0f + ( i + 1 ) * 17.0f + offset, 0.45f, "%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Score );
-					DrawFontString( m_ResourceMap, 500.0f, 90.0f + ( i + 1 ) * 17.0f + offset, 0.45f, "%04d%02d%02d%02d%02d",
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year,
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Month,
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Day,
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Hour,
-									m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Min );
-				}
+		char* rankStr[] = { "calm", "easy", "normal", "hard", "hazard" };
+		char* progStr[] = { "", "st 1", "st 2", "st 3", "st 4", "st 5", "all" };
+
+
+		
+		// リプレイデータ一覧表示
+		int alpha = 0;
+		if( m_Counter >= 20 && m_Counter < 60 ){
+			alpha = ( ( m_Counter - 20 ) * 6 + 10 ) & 0xFF;
+		}
+		else if( m_Counter >= 60 ){
+			if( m_SceneChangeCounter == 0 ){
+				alpha = 0xFF;
+			}
+			else if( m_SceneChangeCounter > 0 && m_SceneChangeCounter <= 20 ){
+				alpha = ( 0xFF * ( 20 - m_SceneChangeCounter ) ) / 20;
+			}
+			else{
+				alpha = 0x00;
+			}
+		}
+		int color1 = alpha << 24 | 0xAAFFAA;
+		int color2 = alpha << 24 | 0xAAAAAA;
+		int selColor = alpha << 24 | 0xFFFFFF;
+
+
+		float titleFont = 0.4f;
+		float itemFont = 0.38f;
+
+		enum ItemID
+		{
+			ITEM_ID_RANK	= 0,
+			ITEM_ID_NAME	= 1,
+			ITEM_ID_PROG	= 2,
+			ITEM_ID_SCORE	= 3,
+			ITEM_ID_DATE	= 4,
+			ITEM_ID_TOTAL,
+		};
+
+		float startX[ ITEM_ID_TOTAL ];
+		startX[ ITEM_ID_RANK ] = 70.0f;
+		startX[ ITEM_ID_NAME ] = startX[ ITEM_ID_RANK ] + 60.0f;
+		startX[ ITEM_ID_PROG ] = startX[ ITEM_ID_NAME ] + 100.0f;
+		startX[ ITEM_ID_SCORE ] = startX[ ITEM_ID_PROG ] + 70.0f;
+		startX[ ITEM_ID_DATE ] = startX[ ITEM_ID_SCORE ] + 110.0f;
+		float startY = 90.0f;
+
+		DrawFontString( m_ResourceMap, 30.0f, 10.0f, 0.7f, color1, "Records past conscious" );
+
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_RANK ], startY, titleFont, color1, "rank" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_NAME ], startY, titleFont, color1, "name" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_PROG ], startY, titleFont, color1, "prog" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_SCORE ], startY, titleFont, color1, "score" );
+		DrawFontString( m_ResourceMap, startX[ ITEM_ID_DATE ], startY, titleFont, color1, "date" );
+		startY += 15.0f;
+		for( int i = 0; i < MAX_SCORE_ENTRY; ++i ){;
+			int rank = 0;
+			if( m_NewEntryRank <= i ){
+				rank = 1;
+			}
+
+			int c = color2;
+			float offsetX = 0.0f;
+			if( m_NewEntryRank == i ){
+				offsetX = -2.0f;
+			}
+			float offsetY = 0.0f;
+			DrawFontString( m_ResourceMap, startX[ ITEM_ID_RANK ] + offsetX, startY + ( i ) * 17.0f + offsetY, titleFont, color1, "%d", i + 1 );
+			if( m_NewEntryRank == i ){
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_NAME ] + offsetX, startY + ( i ) * 17.0f + offsetY, itemFont, selColor, m_NewRecord.m_Name );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_PROG ] + offsetX, startY + ( i ) * 17.0f + offsetY, itemFont, selColor, progStr[ m_NewRecord.m_Progress ] );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_SCORE ] + offsetX, startY + ( i ) * 17.0f + offsetY, itemFont, selColor, "%d", m_NewRecord.m_Score );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_DATE ] + offsetX, startY + ( i ) * 17.0f + offsetY, itemFont, selColor, "%02d/%02d/%02d %02d:%02d",
+								m_NewRecord.m_Date.m_Year % 100,
+								m_NewRecord.m_Date.m_Month,
+								m_NewRecord.m_Date.m_Day,
+								m_NewRecord.m_Date.m_Hour,
+								m_NewRecord.m_Date.m_Min );
+			}
+			if( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year != 0 ){
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_NAME ] + offsetX, startY + ( i + rank ) * 17.0f + offsetY, itemFont, color2, m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Name );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_PROG ] + offsetX, startY + ( i + rank ) * 17.0f + offsetY, itemFont, color2, progStr[ m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Progress ] );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_SCORE ] + offsetX, startY + ( i + rank ) * 17.0f + offsetY, itemFont, color2, "%d", m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Score );
+				DrawFontString( m_ResourceMap, startX[ ITEM_ID_DATE ] + offsetX, startY + ( i + rank ) * 17.0f + offsetY, itemFont, color2, "%02d/%02d/%02d %02d:%02d",
+								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Year % 100,
+								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Month,
+								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Day,
+								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Hour,
+								m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Date.m_Min );
 			}
 		}
 
+		float baseX = 300.0f;
+		float baseY = 400.0f;
+		float fontScale = 0.55f;
+		for( int i = 0; i < NAME_CHARS_Y; ++i ){
+			for( int j = 0; j < NAME_CHARS_X; ++j ){
+				std::string s;
+				s = NAME_CHARS[ i ][ j ];
+				if( i == m_NameSelectPosY && j == m_NameSelectPosX ){
+					DrawFontString( m_ResourceMap, baseX + j * 25.0f, baseY + i * 25.0f, fontScale, color1, s.c_str() );
+				}
+				else{
+					DrawFontString( m_ResourceMap, baseX + j * 25.0f, baseY + i * 25.0f, fontScale, color2, s.c_str() );
+				}
+			}
+		}
+		float fontScale2 = 0.7f;
+		DrawFontString( m_ResourceMap, 60.0f, 420.0f, fontScale2, m_NewRecord.m_Name );
 
 		MAPIL::EndRendering2DGraphics();
 	}
@@ -212,18 +309,6 @@ namespace GameEngine
 	void ScoreEntry::Impl::AttachRecord( const SaveDataRecord& record )
 	{
 		m_NewRecord = record;
-		//int newScore = record.m_Score;
-		//for( int i = 0; i < sizeof( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record ) / sizeof( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ 0 ] ); ++i ){
-		//	if( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ i ].m_Score < newScore ){
-		//		m_NewEntryRank = i;
-		//		// 消去されるものの全コピー
-		//		for( int j = sizeof( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record ) / sizeof( m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ 0 ] ) - 1; j > i; --j ){
-		//			m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ j ] = m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ j - 1 ];
-		//		}
-		//		m_DisplayedSaveData.m_Difficulty[ m_Difficulty ].m_Record[ m_NewEntryRank ] = record;
-		//		break;
-		//	}
-		//}
 	}
 
 	void ScoreEntry::Impl::SetDifficulty( int difficulty )

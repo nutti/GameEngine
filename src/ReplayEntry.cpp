@@ -8,7 +8,6 @@
 
 namespace GameEngine
 {
-	//const int NAME_CHARS_TOTAL = 36;
 	const int NAME_CHARS_X = 12;		// â°ï¿Ç—êî
 	const int NAME_CHARS_Y = 3;	// ècï¿Ç—êî
 	const char NAME_CHARS[ NAME_CHARS_Y ][ NAME_CHARS_X + 1 ] =	{	"abcdefghijkl",
@@ -51,7 +50,7 @@ namespace GameEngine
 
 	ReplayEntry::Impl::Impl()
 	{
-		m_Counter = 0;
+		m_Counter = 20;
 		m_CurSelectState = REPLAY_ENTRY_SELECT_STATE_NO;
 		m_NameInputPos = -1;
 		m_NameSelectPosX = 0;
@@ -143,8 +142,6 @@ namespace GameEngine
 					m_NameSelectPosY = 0;
 				}
 			}
-
-			//m_EntryName[ m_NameInputPos ] = NAME_CHARS[ m_NameSelectPos ];
 		}
 
 		++m_Counter;
