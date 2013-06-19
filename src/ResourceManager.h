@@ -40,6 +40,8 @@ namespace GameEngine
 											int height,
 											const std::string& fileName );
 		int GetArchiveHandle() const;
+		void SetBGMVolume( int volume );
+		void SetSEVolume( int volume );
 	};
 }
 

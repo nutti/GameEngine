@@ -41,6 +41,8 @@ namespace GameEngine
 											int height,
 											const std::string& fileName );
 		int GetArchiveHandle() const;
+		void SetBGMVolume( int volume );
+		void SetSEVolume( int volume );
 	};
 
 	ResourceManager::Impl::Impl()
@@ -387,6 +389,38 @@ namespace GameEngine
 		return m_ArchiveHandle;
 	}
 
+	void ResourceManager::Impl::SetBGMVolume( int volume )
+	{
+		// BGMの音量を変更
+		for( int i = 0; i < m_ResourceMap.m_pStageResourceMap->m_BGMMap.size(); ++i ){
+			if( m_ResourceMap.m_pStageResourceMap->m_BGMMap[ i ] != -1 ){
+				MAPIL::SetStreamingBufferVolume( m_ResourceMap.m_pStageResourceMap->m_BGMMap[ i ], volume );
+			}
+		}
+
+		for( int i = 0; i < m_ResourceMap.m_pGlobalResourceMap->m_BGMMap.size(); ++i ){
+			if( m_ResourceMap.m_pGlobalResourceMap->m_BGMMap[ i ] != -1 ){
+				MAPIL::SetStreamingBufferVolume( m_ResourceMap.m_pGlobalResourceMap->m_BGMMap[ i ], volume );
+			}
+		}
+	}
+
+	void ResourceManager::Impl::SetSEVolume( int volume )
+	{
+		// SEの音量を変更
+		for( int i = 0; i < m_ResourceMap.m_pStageResourceMap->m_SEMap.size(); ++i ){
+			if( m_ResourceMap.m_pStageResourceMap->m_SEMap[ i ] != -1 ){
+				MAPIL::SetStaticBufferVolume( m_ResourceMap.m_pStageResourceMap->m_SEMap[ i ], volume );
+			}
+		}
+
+		for( int i = 0; i < m_ResourceMap.m_pGlobalResourceMap->m_SEMap.size(); ++i ){
+			if( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ i ] != -1 ){
+				MAPIL::SetStaticBufferVolume( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ i ], volume );
+			}
+		}
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -462,6 +496,16 @@ namespace GameEngine
 	int ResourceManager::GetArchiveHandle() const
 	{
 		return m_pImpl->GetArchiveHandle();
+	}
+
+	void ResourceManager::SetBGMVolume( int volume )
+	{
+		m_pImpl->SetBGMVolume( volume );
+	}
+
+	void ResourceManager::SetSEVolume( int volume )
+	{
+		m_pImpl->SetSEVolume( volume );
 	}
 
 }

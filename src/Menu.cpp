@@ -78,6 +78,8 @@ namespace GameEngine
 					return SCENE_TYPE_DIFFICULTY_SELECTION;
 				case MENU_ID_STAGE_SELECT:
 					return SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE;
+				case MENU_ID_CONFIG:
+					return SCENE_TYPE_CONFIG;
 				case MENU_ID_SCORE:
 					return SCENE_TYPE_SCORE;
 				case MENU_ID_REPLAY:

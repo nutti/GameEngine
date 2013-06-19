@@ -140,6 +140,32 @@ namespace GameEngine
 		int		m_ConsLevel[ 3 ];		// 初期の意識レベル
 		int		m_Progress;				// ステージ進行度
 	};
+
+	// ゲームスピード
+	enum GamePlaySpeed
+	{
+		GAME_PLAY_SPEED_X1_4	= 0,
+		GAME_PLAY_SPEED_X1_3	= 1,
+		GAME_PLAY_SPEED_X1_2	= 2,
+		GAME_PLAY_SPEED_NORMAL	= 3,
+		GAME_PLAY_SPEED_X2		= 4,
+		GAME_PLAY_SPEED_X3		= 5,
+		GAME_PLAY_SPEED_X4		= 6,
+		GAME_PLAY_SPEED_TOTAL
+	};
+
+	const int MAX_BGM_VOLUME	= 100;
+	const int MIN_BGM_VOLUME	= 0;
+	const int MAX_SE_VOLUME		= 100;
+	const int MIN_SE_VOLUME		= 0;
+
+	// ゲーム設定データ
+	struct GameConfigData
+	{
+		int		m_BGMVolume;		// BGMの音量
+		int		m_SEVolume;			// 効果音の音量
+		int		m_PlaySpeed;		// プレイ速度
+	};
 }
 
 #endif

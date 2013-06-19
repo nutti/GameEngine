@@ -349,6 +349,13 @@ namespace GameEngine
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
+			// コンフィグ画面移行要求
+			case EVENT_TYPE_MOVE_TO_CONFIG:{
+				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->ChangeScene( SCENE_TYPE_CONFIG );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
 			// スコア画面移行要求
 			case EVENT_TYPE_MOVE_TO_SCORE:{
 				m_pResourceManager->ReleaseStageResources();
@@ -527,6 +534,18 @@ namespace GameEngine
 				}
 				// シーン変更
 				m_pSceneManager->ChangeScene( SCENE_TYPE_STAGE );
+				break;
+			}
+			// BGMの音量が変更された
+			case EVENT_TYPE_BGM_VOLUME_CHANGED:{
+				GameConfigData* pConfig = static_cast < GameConfigData* > ( pArg );
+				m_pResourceManager->SetBGMVolume( pConfig->m_BGMVolume );
+				break;
+			}
+			// SEの音量が変更された
+			case EVENT_TYPE_SE_VOLUME_CHANGED:{
+				GameConfigData* pConfig = static_cast < GameConfigData* > ( pArg );
+				m_pResourceManager->SetSEVolume( pConfig->m_SEVolume );
 				break;
 			}
 			default:

@@ -5,6 +5,7 @@
 #include "SceneBuilder.h"
 #include "Scene.h"
 #include "Stage.h"
+#include "Config.h"
 #include "Score.h"
 #include "Replay.h"
 #include "DifficultySelection.h"
@@ -410,6 +411,9 @@ namespace GameEngine
 						}
 					}
 				}
+				else if( next == SCENE_TYPE_CONFIG ){
+					p->SendEvent( EVENT_TYPE_MOVE_TO_CONFIG );
+				}
 				else if( next == SCENE_TYPE_SCORE ){
 					p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE );
 				}
@@ -589,6 +593,10 @@ namespace GameEngine
 				( (Stage*) m_pCurScene.get() )->MarkFirstTime();
 			}
 			m_CurSceneType = SCENE_TYPE_STAGE;
+		}
+		else if( typeid( *m_pCurScene.get() ) == typeid( Config ) ){
+			( (Config*) m_pCurScene.get() )->SetEventMediator( m_pEventMediator );
+			m_CurSceneType = SCENE_TYPE_CONFIG;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){
 			( (Score*) m_pCurScene.get() )->AttachDisplayedSaveData( m_SaveData );

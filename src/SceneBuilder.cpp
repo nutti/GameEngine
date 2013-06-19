@@ -1,6 +1,7 @@
 #include "SceneBuilder.h"
 #include "SceneTypes.h"
 #include "Menu.h"
+#include "Config.h"
 #include "Stage.h"
 #include "Score.h"
 #include "Replay.h"
@@ -33,6 +34,8 @@ namespace GameEngine
 				return new Initialize;
 			case SCENE_TYPE_MENU:
 				return new Menu;
+			case SCENE_TYPE_CONFIG:
+				return new Config;
 			case SCENE_TYPE_SCORE:
 				return new Score;
 			case SCENE_TYPE_REPLAY:

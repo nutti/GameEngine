@@ -20,6 +20,11 @@ namespace GameEngine
 		EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION					= 11,	// 難易度選択画面へ移行
 		EVENT_TYPE_MOVE_TO_STAGE_SELECTION						= 12,	// ステージ選択画面へ移行
 		EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION_IN_STAGE		= 13,	// ステージ選択を含む難易度選択画面へ移行
+		EVENT_TYPE_MOVE_TO_CONFIG								= 14,	// コンフィグ画面に移動
+		EVENT_TYPE_MOVE_TO_MENU_FROM_CONFIG						= 15,	// メニュー画面移行要求（コンフィグ画面から）
+		EVENT_TYPE_BGM_VOLUME_CHANGED							= 50,	// BGMのボリュームが変更された
+		EVENT_TYPE_SE_VOLUME_CHANGED							= 51,	// SEのボリュームが変更された
+		EVENT_TYPE_PLAY_SPEED_CHANGED							= 52,	// プレイスピードが変更された
 		EVENT_TYPE_FRAME_UPDATE									= 100,	// フレーム更新要求
 		EVENT_TYPE_GAME_TERM									= 101,	// ゲーム終了要求
 		EVENT_TYPE_UNKNOWN										= 200,
