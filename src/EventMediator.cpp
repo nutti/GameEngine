@@ -88,6 +88,8 @@ namespace GameEngine
 				m_pResourceManager->ReleaseStageResources();
 				m_pSceneManager->AttachSceneResourceMap( m_pResourceManager->GetStageResourceMap() );
 				m_pSceneManager->AttachScriptData( m_pScriptManager->GetScriptData() );
+				m_pResourceManager->SetBGMVolume( m_pGameStateManager->GetConfigData().m_BGMVolume );
+				m_pResourceManager->SetSEVolume( m_pGameStateManager->GetConfigData().m_SEVolume );
 				m_pSceneManager->SwitchToNextScene();
 			}
 
@@ -295,6 +297,7 @@ namespace GameEngine
 		switch( type ){
 			// 初期化要求
 			case EVENT_TYPE_INITIALIZE:{
+				m_pGameStateManager->LoadConfigData();
 				//m_pResourceManager->OpenArchive( "resource.dat" );
 				m_pGameStateManager->LoadGameData();
 				//m_pGameStateManager->StartGameDataRecording();
@@ -352,7 +355,16 @@ namespace GameEngine
 			// コンフィグ画面移行要求
 			case EVENT_TYPE_MOVE_TO_CONFIG:{
 				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->AttachConfigData( m_pGameStateManager->GetConfigData() );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_CONFIG );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
+			// コンフィグ画面からメニューへ移行要求
+			case EVENT_TYPE_MOVE_TO_MENU_FROM_CONFIG:{
+				m_pResourceManager->ReleaseStageResources();
+				m_pGameStateManager->SaveConfigData( m_pSceneManager->GetConfigData() );
+				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}

@@ -42,6 +42,7 @@ namespace GameEngine
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachConfigData( const GameConfigData& data );
 		void SetEventMediator( std::weak_ptr < EventMediator > pMediator );
+		const GameConfigData& GetConfigData() const;
 	};
 
 	Config::Impl::Impl()
@@ -240,6 +241,11 @@ namespace GameEngine
 		m_pEventMediator = pMediator;
 	}
 
+	const GameConfigData& Config::Impl::GetConfigData() const
+	{
+		return m_ConfigData;
+	}
+
 	// ----------------------------------
 	// é¿ëïÉNÉâÉXÇÃåƒÇ—èoÇµ
 	// ----------------------------------
@@ -284,5 +290,10 @@ namespace GameEngine
 	void Config::SetEventMediator( std::weak_ptr < EventMediator > pMediator )
 	{
 		m_pImpl->SetEventMediator( pMediator );
+	}
+
+	const GameConfigData& Config::GetConfigData() const
+	{
+		return m_pImpl->GetConfigData();
 	}
 }

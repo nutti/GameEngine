@@ -4,16 +4,21 @@
 
 #include "ReplayDataBuilder.h"
 #include "GameDataHolder.h"
+#include "ConfigDataHolder.h"
 #include "ReplayDataLoader.h"
 #include "Util.h"
 
 namespace GameEngine
 {
+	const char* CONFIG_FILE_DIR		= "config";
+	const char* CONFIG_FILE_NAME	= "eriKs.ini";
+
 	class GameStateManager::Impl
 	{
 	private:
 		ReplayDataBuilder			m_ReplayBuilder;
 		GameDataHolder				m_GameDataHolder;
+		ConfigDataHolder			m_ConfigDataHolder;
 		ReplayDataLoader			m_ReplayLoader;
 	public:
 		Impl();
@@ -34,10 +39,14 @@ namespace GameEngine
 		void LoadGameData();
 		InitialGameData GetReplayIniData( int replayNo, int stageNo );
 		int GetReplayGameDifficulty( int replayNo );
+		void SaveConfigData( const GameConfigData& data );
+		GameConfigData GetConfigData() const;
+		void LoadConfigData();
 	};
 
 	GameStateManager::Impl::Impl() :	m_ReplayBuilder(),
 										m_GameDataHolder(),
+										m_ConfigDataHolder(),
 										m_ReplayLoader()
 	{
 	}
@@ -170,6 +179,38 @@ namespace GameEngine
 		return loader.GetGameDifficulty();
 	}
 
+	void GameStateManager::Impl::SaveConfigData( const GameConfigData& data )
+	{
+		std::string fileName = CONFIG_FILE_DIR;
+		fileName += '/';
+		fileName += CONFIG_FILE_NAME;
+
+		m_ConfigDataHolder.SetBGMVolume( data.m_BGMVolume );
+		m_ConfigDataHolder.SetSEVolume( data.m_SEVolume );
+		m_ConfigDataHolder.SetPlaySpeed( data.m_PlaySpeed );
+		m_ConfigDataHolder.Save( fileName );
+	}
+
+	GameConfigData GameStateManager::Impl::GetConfigData() const
+	{
+		GameConfigData data;
+		
+		data.m_BGMVolume = m_ConfigDataHolder.GetBGMVolume();
+		data.m_SEVolume = m_ConfigDataHolder.GetSEVolume();
+		data.m_PlaySpeed = m_ConfigDataHolder.GetPlaySpeed();
+
+		return data;
+	}
+
+	void GameStateManager::Impl::LoadConfigData()
+	{
+		std::string fileName = CONFIG_FILE_DIR;
+		fileName += '/';
+		fileName += CONFIG_FILE_NAME;
+		
+		m_ConfigDataHolder.Load( fileName );
+	}
+
 	// ----------------------------------
 	// ŽÀ‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ
 	// ----------------------------------
@@ -260,5 +301,20 @@ namespace GameEngine
 	int GameStateManager::GetReplayGameDifficulty( int replayNo )
 	{
 		return m_pImpl->GetReplayGameDifficulty( replayNo );
+	}
+
+	void GameStateManager::SaveConfigData( const GameConfigData& data )
+	{
+		m_pImpl->SaveConfigData( data );
+	}
+
+	GameConfigData GameStateManager::GetConfigData() const
+	{
+		return m_pImpl->GetConfigData();
+	}
+
+	void GameStateManager::LoadConfigData()
+	{
+		m_pImpl->LoadConfigData();
 	}
 }

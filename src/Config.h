@@ -22,6 +22,7 @@ namespace GameEngine
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachConfigData( const GameConfigData& data );
 		void SetEventMediator( std::weak_ptr < EventMediator > pMediator );
+		const GameConfigData& GetConfigData() const;
 	};
 }
 

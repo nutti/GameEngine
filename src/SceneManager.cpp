@@ -46,6 +46,9 @@ namespace GameEngine
 		DisplayedReplayInfo						m_DisplayedReplayInfo;	// 表示用リプレイ情報
 		DisplayedReplayInfo::Entry				m_ReplayInfo;			// 現在プレイ中の情報
 
+		// コンフィグデータ
+		GameConfigData							m_ConfigData;			// 設定データ
+
 		int										m_GameDifficulty;		// 難易度
 		int										m_CurStage;				// 現在のステージ
 		int										m_RecordRank;			// スコアのランク
@@ -79,6 +82,7 @@ namespace GameEngine
 		void AttachScriptData( const ScriptData& data );
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
+		void AttachConfigData( const GameConfigData& data );
 		void AttachInitialGameData( const InitialGameData& data );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
 		void ChangeScene( SceneType scene );
@@ -88,6 +92,7 @@ namespace GameEngine
 		void SetHIScore( int score );
 		const SaveDataRecord& GetSaveDataRecord() const;
 		const ReplayDataRecord& GetReplayDataRecord() const;
+		const GameConfigData& GetConfigData() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();
 		const DisplayedReplayInfo::Entry& GetReplayInfo() const;
@@ -123,6 +128,7 @@ namespace GameEngine
 		
 		MAPIL::ZeroObject( &m_DisplayedReplayInfo, sizeof( m_DisplayedReplayInfo ) );
 		MAPIL::ZeroObject( &m_ReplayInfo, sizeof( m_ReplayInfo ) );
+		MAPIL::ZeroObject( &m_ConfigData, sizeof( m_ConfigData ) );
 		m_GameMode = GAME_MODE_NORMAL;
 		m_Counter = 0;
 		m_ReplayNo = 0;
@@ -313,6 +319,16 @@ namespace GameEngine
 					if( m_CurSceneType == SCENE_TYPE_REPLAY_ENTRY ){
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY );
 					}
+					else if( m_CurSceneType == SCENE_TYPE_CONFIG ){
+						Config* pScene = dynamic_cast < Config* > ( m_pCurScene.get() );
+						if( pScene ){
+							m_ConfigData = pScene->GetConfigData();
+						}
+						else{
+							throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+						}
+						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_CONFIG );
+					}
 					else if( m_CurSceneType == SCENE_TYPE_INITIALIZE ){
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_INITIALIZE );
 					}
@@ -327,7 +343,7 @@ namespace GameEngine
 							m_GameDifficulty = pScene->GetDifficulty();
 						}
 						else{
-							throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+							throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 						}
 					}
 					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE_SELECTION );
@@ -493,6 +509,11 @@ namespace GameEngine
 		m_DisplayedReplayInfo = info;
 	}
 
+	void SceneManager::Impl::AttachConfigData( const GameConfigData& data )
+	{
+		m_ConfigData = data;
+	}
+
 	void SceneManager::Impl::AttachInitialGameData( const InitialGameData& data )
 	{
 		m_IniGameData = data;
@@ -549,6 +570,11 @@ namespace GameEngine
 		return m_ReplayDataRecord;
 	}
 
+	const GameConfigData& SceneManager::Impl::GetConfigData() const
+	{
+		return m_ConfigData;
+	}
+
 	int SceneManager::Impl::GetGameDifficulty() const
 	{
 		return m_GameDifficulty;
@@ -596,6 +622,7 @@ namespace GameEngine
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( Config ) ){
 			( (Config*) m_pCurScene.get() )->SetEventMediator( m_pEventMediator );
+			( (Config*) m_pCurScene.get() )->AttachConfigData( m_ConfigData );
 			m_CurSceneType = SCENE_TYPE_CONFIG;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( Score ) ){
@@ -692,6 +719,11 @@ namespace GameEngine
 		m_pImpl->AttachDisplayedReplayInfo( info );
 	}
 
+	void SceneManager::AttachConfigData( const GameConfigData& data )
+	{
+		m_pImpl->AttachConfigData( data );
+	}
+
 	void SceneManager::AttachInitialGameData( const InitialGameData& data )
 	{
 		m_pImpl->AttachInitialGameData( data );
@@ -730,6 +762,11 @@ namespace GameEngine
 	const ReplayDataRecord& SceneManager::GetReplayDataRecord() const
 	{
 		return m_pImpl->GetReplayDataRecord();
+	}
+
+	const GameConfigData& SceneManager::GetConfigData() const
+	{
+		return m_pImpl->GetConfigData();
 	}
 
 	int SceneManager::GetGameDifficulty() const

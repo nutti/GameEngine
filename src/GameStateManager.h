@@ -33,6 +33,9 @@ namespace GameEngine
 		void LoadGameData();
 		InitialGameData GetReplayIniData( int replayNo, int stageNo );
 		int GetReplayGameDifficulty( int replayNo );
+		void SaveConfigData( const GameConfigData& data );
+		GameConfigData GetConfigData() const;
+		void LoadConfigData();
 	};
 }
 

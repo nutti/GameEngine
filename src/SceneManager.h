@@ -26,6 +26,7 @@ namespace GameEngine
 		void AttachScriptData( const ScriptData& data );
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
+		void AttachConfigData( const GameConfigData& data );
 		void AttachInitialGameData( const InitialGameData& data );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
 		void ChangeScene( SceneType scene );
@@ -35,6 +36,7 @@ namespace GameEngine
 		void SetHIScore( int score );
 		const SaveDataRecord& GetSaveDataRecord() const;
 		const ReplayDataRecord& GetReplayDataRecord() const;
+		const GameConfigData& GetConfigData() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();
 		const DisplayedReplayInfo::Entry& GetReplayInfo() const;
