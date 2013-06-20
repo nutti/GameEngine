@@ -17,6 +17,8 @@
 
 #include "GlobalDefinitions.h"
 
+#include "Util.h"
+
 namespace GameEngine
 {
 	// EventMediator実装クラス
@@ -30,6 +32,8 @@ namespace GameEngine
 		std::shared_ptr < ScriptManager >			m_pScriptManager;
 
 		Loading										m_Loading;			// バックグラウンドでロードするクラス
+
+		float										m_CurFPS;			// 現在のFPS値
 
 		bool										m_HasTermSig;
 
@@ -49,7 +53,8 @@ namespace GameEngine
 		bool HasTermSig() const;
 	};
 
-	EventMediator::Impl::Impl() : m_HasTermSig( false )
+	EventMediator::Impl::Impl() :	m_HasTermSig( false ),
+									m_CurFPS( 60.0f )
 	{
 		m_Loading.Init();
 		m_Loading.CleanupSession();
@@ -122,6 +127,13 @@ namespace GameEngine
 		int time = m_pGameStateManager->GetPlayTime();
 		MAPIL::BeginRendering2DGraphics();
 		MAPIL::DrawString( 10.0f, 10.0f, "%d : %d : %d", time / 3600, ( time / 60 ) % 60, time % 60 );
+		MAPIL::EndRendering2DGraphics();
+
+		// FPS表示
+		MAPIL::BeginRendering2DGraphics();
+		if( m_pSceneManager->GetCurSceneType() != SCENE_TYPE_INITIALIZE && m_pSceneManager->GetCurSceneType() != SCENE_TYPE_LOADING ){
+			DrawFontString( m_pResourceManager->GetStageResourceMap(), 582.0f, 444.0f, 0.4f, "%.1f", m_CurFPS );
+		}
 		MAPIL::EndRendering2DGraphics();
 	}
 
@@ -298,9 +310,7 @@ namespace GameEngine
 			// 初期化要求
 			case EVENT_TYPE_INITIALIZE:{
 				m_pGameStateManager->LoadConfigData();
-				//m_pResourceManager->OpenArchive( "resource.dat" );
 				m_pGameStateManager->LoadGameData();
-				//m_pGameStateManager->StartGameDataRecording();
 				m_pSceneManager->ChangeScene( SCENE_TYPE_INITIALIZE );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				m_pScriptManager->BuildFileStructure( m_pResourceManager->GetArchiveHandle(), "archive/script/build.isc", SCRIPT_FILE_TYPE_BINARY );
@@ -440,14 +450,10 @@ namespace GameEngine
 			case EVENT_TYPE_MOVE_TO_REPLAY_ENTRY_FROM_SELF:{
 				m_pResourceManager->ReleaseStageResources();
 				// リプレイの保存
-				//m_pGameStateManager->SaveReplayFile( m_pSceneManager->GetReplayInfo() );
 				m_pGameStateManager->SaveReplay( m_pSceneManager->GetReplayDataRecord() );
 				// リプレイ一覧を取得
 				DisplayedReplayInfo info = m_pGameStateManager->GetDisplayedReplayInfo();
 				m_pSceneManager->AttachDisplayedReplayInfo( info );
-				// シーンの変更
-				//m_pSceneManager->ChangeScene( SCENE_TYPE_REPLAY_ENTRY );
-				//m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
 			// フレーム更新要求
@@ -492,8 +498,6 @@ namespace GameEngine
 				// 入力デバイス変更
 				if( m_pSceneManager->GetGameMode() == GAME_MODE_NORMAL ){
 					m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
-					// 難易度の設定（※複数の難易度で問題化？）
-					//m_pSceneManager->SetGameDifficulty( GAME_DIFFICULTY_HAZARD );
 					// ハイスコアの設定
 					m_pSceneManager->SetHIScore( m_pGameStateManager->GetHIScore( m_pSceneManager->GetGameDifficulty() ) );
 				}
@@ -558,6 +562,12 @@ namespace GameEngine
 			case EVENT_TYPE_SE_VOLUME_CHANGED:{
 				GameConfigData* pConfig = static_cast < GameConfigData* > ( pArg );
 				m_pResourceManager->SetSEVolume( pConfig->m_SEVolume );
+				break;
+			}
+			// FPSの値が更新された
+			case EVENT_TYPE_FPS_CHANGED:{
+				float fps = *( static_cast < float* > ( pArg ) );
+				m_CurFPS = fps;
 				break;
 			}
 			default:

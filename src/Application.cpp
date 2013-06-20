@@ -132,12 +132,12 @@ namespace GameEngine
 
 				if( ( i % 60 ) == 0 ){ 
 					fps = m_FPSManager.GetNowFPS();
+					m_pEventMediator->SendEvent( EVENT_TYPE_FPS_CHANGED, &fps );
 				}
 
 				static int time = 0;
 
 				MAPIL::BeginRendering2DGraphics();
-				MAPIL::DrawString( 20.0f, 460.0f, "FPS : %f", fps );
 				MAPIL::DrawString( 500.0f, 10.0f, "Rendering : %.1f %%", time / 10.0f );
 				MAPIL::EndRendering2DGraphics();
 

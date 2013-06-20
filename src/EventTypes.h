@@ -25,6 +25,7 @@ namespace GameEngine
 		EVENT_TYPE_BGM_VOLUME_CHANGED							= 50,	// BGMのボリュームが変更された
 		EVENT_TYPE_SE_VOLUME_CHANGED							= 51,	// SEのボリュームが変更された
 		EVENT_TYPE_PLAY_SPEED_CHANGED							= 52,	// プレイスピードが変更された
+		EVENT_TYPE_FPS_CHANGED									= 70,	// FPSが更新された
 		EVENT_TYPE_FRAME_UPDATE									= 100,	// フレーム更新要求
 		EVENT_TYPE_GAME_TERM									= 101,	// ゲーム終了要求
 		EVENT_TYPE_UNKNOWN										= 200,
