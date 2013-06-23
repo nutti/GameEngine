@@ -9,7 +9,6 @@ namespace GameEngine
 		SPECIAL_KEY_SS		= 0,		// スクリーンショット用
 	};
 
-
 	// 入力デバイス
 	enum InputDevice
 	{
@@ -22,17 +21,19 @@ namespace GameEngine
 	// ゲーム内のボタン
 	enum GeneralButton
 	{
-		GENERAL_BUTTON_SHOT				= 0,		// ショットボタン
-		GENERAL_BUTTON_BOMB				= 1,		// ボムボタン
-		GENERAL_BUTTON_CHANGE_MODE		= 2,		// 攻撃手段変更
-		GENERAL_BUTTON_ADD_OPT			= 3,		// オプションの追加
-		GENERAL_BUTTON_MOVE_UP			= 4,		// 移動（上）
-		GENERAL_BUTTON_MOVE_DOWN		= 5,		// 移動（下）
-		GENERAL_BUTTON_MOVE_LEFT		= 6,		// 移動（左）
-		GENERAL_BUTTON_MOVE_RIGHT		= 7,		// 移動（右）
+		GENERAL_BUTTON_MOVE_UP			= 0,		// 移動（上）
+		GENERAL_BUTTON_MOVE_DOWN		= 1,		// 移動（下）
+		GENERAL_BUTTON_MOVE_LEFT		= 3,		// 移動（左）
+		GENERAL_BUTTON_MOVE_RIGHT		= 2,		// 移動（右）
+		GENERAL_BUTTON_SHOT				= 4,		// ショットボタン
+		GENERAL_BUTTON_BOMB				= 5,		// ボムボタン
+		GENERAL_BUTTON_GREEN			= 6,		// 緑属性へ変更
+		GENERAL_BUTTON_BLUE				= 7,		// 青属性へ変更
+		GENERAL_BUTTON_RED				= 8,		// 赤属性へ変更
+		GENERAL_BUTTON_TOTAL,
 	};
 
-	typedef char ButtonPushedStatus;
+	typedef short ButtonPushedStatus;
 
 	// ボタンの状態
 	enum ButtonStatus
@@ -46,8 +47,8 @@ namespace GameEngine
 	struct ButtonStatusHolder
 	{
 	public:
-		unsigned char			m_Status[ 8 ];			// 各ボタンの状態
-		ButtonPushedStatus		m_RawButtonStatus;		// 加工前のボタン状態
+		unsigned short			m_Status[ GENERAL_BUTTON_TOTAL ];	// 各ボタンの状態
+		ButtonPushedStatus		m_RawButtonStatus;					// 加工前のボタン状態
 	};
 }
 

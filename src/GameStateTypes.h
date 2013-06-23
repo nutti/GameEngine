@@ -162,9 +162,11 @@ namespace GameEngine
 	// ゲーム設定データ
 	struct GameConfigData
 	{
-		int		m_BGMVolume;		// BGMの音量
-		int		m_SEVolume;			// 効果音の音量
-		int		m_PlaySpeed;		// プレイ速度
+		int		m_BGMVolume;							// BGMの音量
+		int		m_SEVolume;								// 効果音の音量
+		int		m_PlaySpeed;							// プレイ速度
+		int		m_KeyboardCaps[ GENERAL_BUTTON_TOTAL ];	// キーボードの場合のキー配置
+		int		m_GamePadCaps[ GENERAL_BUTTON_TOTAL ];	// ゲームパッドの場合のキー配置
 	};
 }
 

@@ -41,7 +41,7 @@ namespace GameEngine
 		m_pInputStateHolder->Update();
 		m_CurButtonStatus = m_pInputStateHolder->GetButtonState();
 
-		for( int i = 0; i < 8 ; ++i ){
+		for( int i = 0; i < GENERAL_BUTTON_TOTAL ; ++i ){
 			if( IsPushed( m_CurButtonStatus, i ) ){
 				// ˜A‘±‚µ‚Ä‰Ÿ‚³‚ê‚Ä‚¢‚éê‡
 				if( m_ButtonStatus.m_Status[ i ] == BUTTON_STATUS_PUSHED ){

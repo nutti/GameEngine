@@ -41,6 +41,8 @@ namespace GameEngine
 
 	// •¶š—ñ‚©‚ç“Á’è‚Ì•¶š‚ğíœ
 	void DeleteChar( char* pOut, int size, const char* pStr, char deleteChar );
+
+	const char* GetStringByButton( int button );
 }
 
 #endif

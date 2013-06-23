@@ -76,37 +76,6 @@ namespace GameEngine
 			return SCENE_TYPE_REPLAY_ENTRY;
 		}
 
-		
-
-		//const int NAME_CHARS_TOTAL = 36;
-		//const char* NAME_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
-
-		/*if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			m_NewRecord.m_Name[ m_NameInputPos ] = NAME_CHARS[ m_NameSelectPos ];
-			if( m_NameInputPos < 8 ){
-				++m_NameInputPos;
-			}
-		}
-		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
-			m_NewRecord.m_Name[ m_NameInputPos ] = '\0';
-			if( m_NameInputPos > 0 ){
-				--m_NameInputPos;
-			}
-		}
-		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_LEFT ) ){
-			--m_NameSelectPos;
-			if( m_NameSelectPos < 0 ){
-				m_NameSelectPos = NAME_CHARS_TOTAL - 1;
-			}
-		}
-		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_RIGHT ) ){
-			++m_NameSelectPos;
-			if( m_NameSelectPos >= NAME_CHARS_TOTAL ){
-				m_NameSelectPos = 0;
-			}
-		}
-
-		m_NewRecord.m_Name[ m_NameInputPos ] = NAME_CHARS[ m_NameSelectPos ];*/
 
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
 			if( m_NameInputPos != -1 ){
@@ -114,16 +83,10 @@ namespace GameEngine
 				--m_NameInputPos;
 			}
 		}
-		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_GREEN ) ){
 			m_NewRecord.m_Name[ m_NameInputPos + 1 ] = '\0';
 			return SCENE_TYPE_REPLAY_ENTRY;
 		}
-		/*else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
-			m_EntryName[ m_NameInputPos + 1 ] = '\0';
-			::memcpy( m_ReplayDataRecord.m_Name, m_EntryName, sizeof( m_EntryName ) );
-			m_CurSelectState = REPLAY_ENTRY_SELECT_STATE_NO;
-			return SCENE_TYPE_REPLAY_ENTRY;
-		}*/
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
 			if( m_NameInputPos < 7 ){
 				++m_NameInputPos;

@@ -488,8 +488,8 @@ namespace GameEngine
 				//m_Loading.AddStageResourceItem( 2, false );
 				m_Loading.AddStageResourceItem( stage, false );
 #elif defined ( MAKE_MODE_DEBUG )
-				//m_Loading.AddStageResourceItem( stage, false );
-				m_Loading.AddStageResourceItem( 3, false );
+				m_Loading.AddStageResourceItem( stage, false );
+				//m_Loading.AddStageResourceItem( 3, false );
 #endif
 #endif
 				m_Loading.Start();

@@ -168,7 +168,9 @@ namespace GameEngine
 			// 入力ボタンのロード
 			m_ReplayDataRecord.m_StageKeyStatusList[ i ].m_StatusList.resize( frameTotal + 50, 0 );
 			for( unsigned int j = 0; j < frameTotal; ++j ){
-				m_ReplayDataRecord.m_StageKeyStatusList[ i ].m_StatusList[ j ] = *p++;
+				int lo = *p++;
+				int hi = *p++;
+				m_ReplayDataRecord.m_StageKeyStatusList[ i ].m_StatusList[ j ] = ( ( hi & 0xFF ) << 8 ) | ( lo & 0xFF );
 			}
 		}
 

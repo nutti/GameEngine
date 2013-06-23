@@ -36,6 +36,15 @@ namespace GameEngine
 		m_ConfigFileData.m_ConfigData.m_BGMVolume = MAX_BGM_VOLUME;
 		m_ConfigFileData.m_ConfigData.m_SEVolume = MAX_SE_VOLUME;
 		m_ConfigFileData.m_ConfigData.m_PlaySpeed = GAME_PLAY_SPEED_NORMAL;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_MOVE_UP ] = MAPIL::KEYBOARD_KEY_UP;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_MOVE_DOWN ] = MAPIL::KEYBOARD_KEY_DOWN;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_MOVE_LEFT ] = MAPIL::KEYBOARD_KEY_LEFT;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_MOVE_RIGHT ] = MAPIL::KEYBOARD_KEY_RIGHT;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_SHOT ] = MAPIL::KEYBOARD_KEY_LSHIFT;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_BOMB ] = MAPIL::KEYBOARD_KEY_SPACE;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_GREEN ] = MAPIL::KEYBOARD_KEY_Z;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_BLUE ] = MAPIL::KEYBOARD_KEY_X;
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ GENERAL_BUTTON_RED ] = MAPIL::KEYBOARD_KEY_C;
 	}
 
 	void ConfigDataHolder::Impl::Load( const std::string& fileName )
@@ -88,6 +97,25 @@ namespace GameEngine
 							m_ConfigFileData.m_ConfigData.m_PlaySpeed = GAME_PLAY_SPEED_X4;
 						}
 					}
+					else{
+						char* pCapsStr[ GENERAL_BUTTON_TOTAL ] = {	"MOVE_UP",
+																	"MOVE_DOWN",
+																	"MOVE_LEFT",
+																	"MOVE_RIGHT",
+																	"SHOT",
+																	"BOMB",
+																	"GREEN",
+																	"BLUE",
+																	"RED" };
+						for( int i = 0; i < GENERAL_BUTTON_TOTAL; ++i ){
+							std::string s = "KEYBOARD_";
+							s += pCapsStr[ i ];
+							s += "=";
+							if( key == s ){
+								m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ i ] = ::atoi( value.c_str() );
+							}
+						}
+					}
 				}
 			}
 		}
@@ -110,6 +138,23 @@ namespace GameEngine
 		fOut << "SE=" << m_ConfigFileData.m_ConfigData.m_SEVolume << std::endl;
 		std::string strings[ 7 ] = { "1/4", "1/3", "1/2", "x1", "x2", "x3", "x4" };
 		fOut << "PLAY_SPEED=" << strings[ m_ConfigFileData.m_ConfigData.m_PlaySpeed ] << std::endl;
+
+		char* pCapsStr[ GENERAL_BUTTON_TOTAL ] = {	"MOVE_UP",
+													"MOVE_DOWN",
+													"MOVE_LEFT",
+													"MOVE_RIGHT",
+													"SHOT",
+													"BOMB",
+													"GREEN",
+													"BLUE",
+													"RED" };
+
+		for( int i = 0; i < GENERAL_BUTTON_TOTAL; ++i ){
+			std::string s = "KEYBOARD_";
+			s += pCapsStr[ i ];
+			s += "=";
+			fOut << s << m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ i ] << std::endl;
+		}
 
 		fOut.close();
 	}

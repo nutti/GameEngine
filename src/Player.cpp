@@ -101,7 +101,7 @@ namespace GameEngine
 		m_Data.m_RestInvincibleTime = 0;
 #else
 		m_Data.m_RestInvincibleTime = 10000;
-		//m_Data.m_RestInvincibleTime = 0;
+		m_Data.m_RestInvincibleTime = 0;
 #endif
 
 		m_PlayerOptList.clear();
@@ -723,19 +723,47 @@ namespace GameEngine
 
 	void Player::Impl::ChangeMode()
 	{
-		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
-			++m_Data.m_ConsCur;
-			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED + 1 ){
+		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_GREEN ) ){
+			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
 				m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
 			}
-
+			else{
+				m_Data.m_ConsCur = PLAYER_CONS_MODE_GREEN;
+				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE ] );	
+			}
 			// オプションへモード変更を通知
 			std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
 			for( ; it != m_PlayerOptList.end(); ++it ){
 				( *it )->ChangeConsMode( m_Data.m_ConsCur );
 			}
-
-			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE ] );	
+		}
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BLUE ) ){
+			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
+				m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
+			}
+			else{
+				m_Data.m_ConsCur = PLAYER_CONS_MODE_BLUE;
+				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE ] );	
+			}
+			// オプションへモード変更を通知
+			std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
+			for( ; it != m_PlayerOptList.end(); ++it ){
+				( *it )->ChangeConsMode( m_Data.m_ConsCur );
+			}
+		}
+		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_RED ) ){
+			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED ){
+				m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
+			}
+			else{
+				m_Data.m_ConsCur = PLAYER_CONS_MODE_RED;
+				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_CHANGE_MODE ] );	
+			}
+			// オプションへモード変更を通知
+			std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
+			for( ; it != m_PlayerOptList.end(); ++it ){
+				( *it )->ChangeConsMode( m_Data.m_ConsCur );
+			}
 		}
 	}
 
@@ -991,9 +1019,9 @@ namespace GameEngine
 		}
 
 		// オプション追加
-		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_ADD_OPT ) ){
-			AddOpt();
-		}
+		//if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_ADD_OPT ) ){
+		//	AddOpt();
+		//}
 
 		UpdateCons();
 

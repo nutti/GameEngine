@@ -4,6 +4,8 @@
 
 #include "Application.h"
 
+//#include "Util.h"
+
 int SelectWindowMode()
 {
 	MAPIL::IGUIDevice dev = MAPIL::CreateGUIDevice( MAPIL::GUI_API_WIN32API );
@@ -38,6 +40,12 @@ int WINAPI WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nCmd 
 {
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	
+
+	//const char* p = GameEngine::GetStringByButton( MAPIL::KEYBOARD_KEY_LSHIFT );
+	//if( p ){
+	//	::OutputDebugStringA( p );
+	//	return 0;
+	//}
 
 	try{
 #if defined ( MAKE_MODE_RELEASE )

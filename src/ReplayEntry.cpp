@@ -106,7 +106,7 @@ namespace GameEngine
 					--m_NameInputPos;
 				}
 			}
-			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_CHANGE_MODE ) ){
+			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_GREEN ) ){
 				m_EntryName[ m_NameInputPos + 1 ] = '\0';
 				::memcpy( m_ReplayDataRecord.m_Name, m_EntryName, sizeof( m_EntryName ) );
 				m_CurSelectState = REPLAY_ENTRY_SELECT_STATE_NO;

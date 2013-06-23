@@ -71,7 +71,7 @@ namespace GameEngine
 	void ReplayDataBuilder::Impl::Save( const std::string& fileName )
 	{
 		std::vector < char > data;
-		data.reserve( 30000 );		// 30,000バイトを予約
+		data.reserve( 30000 );		// 30,000 x 2バイトを予約
 
 		std::ofstream fOut( fileName, std::ios::binary | std::ios::out );
 		if( !fOut ){
@@ -118,7 +118,8 @@ namespace GameEngine
 		CopyInt( &data, m_ButtonList.size() );
 		// 入力ボタンの保存
 		for( unsigned int i = 0; i < m_ButtonList.size(); ++i ){
-			data.push_back( m_ButtonList[ i ] );
+			data.push_back( m_ButtonList[ i ] & 0xFF );
+			data.push_back( ( m_ButtonList[ i ] >> 8 ) & 0xFF );
 		}
 
 		// 圧縮
@@ -181,7 +182,8 @@ namespace GameEngine
 			CopyInt( &data, record.m_StageKeyStatusList[ i ].m_StatusList.size() );
 			// 入力ボタンの保存
 			for( unsigned int j = 0; j < record.m_StageKeyStatusList[ i ].m_StatusList.size(); ++j ){
-				data.push_back( record.m_StageKeyStatusList[ i ].m_StatusList[ j ] );
+				data.push_back( record.m_StageKeyStatusList[ i ].m_StatusList[ j ] & 0xFF );
+				data.push_back( ( record.m_StageKeyStatusList[ i ].m_StatusList[ j ] >> 8 ) & 0xFF );
 			}
 		}
 
