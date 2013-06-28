@@ -36,6 +36,9 @@ namespace GameEngine
 		void SaveConfigData( const GameConfigData& data );
 		GameConfigData GetConfigData() const;
 		void LoadConfigData();
+		DisplayedNormalPlayStat GetDisplayedNormalPlayStat() const;
+		GameStat GetGameStat() const;
+		void SetGameStat( const GameStat& stat );
 	};
 }
 

@@ -2,6 +2,7 @@
 #define INCLUDED_GAMEENGINE_GAMESTATETYPES_H
 
 #include <vector>
+#include <map>
 
 #include "Date.h"
 #include "InputTypes.h"
@@ -84,6 +85,79 @@ namespace GameEngine
 			Date					m_Date;					// 作成日時
 		};
 		Entry		m_Entries[ MAX_REPLAY_ENTRY ];
+	};
+
+	// スキルの統計情報
+	struct SkillStat
+	{
+	};
+
+	// 敵の統計情報
+	struct EnemyStat
+	{
+		int		m_Destroy;		// 撃破回数
+		int		m_Damaged;		// 被ダメージ回数
+		int		m_KO;			// 撃破された回数
+		EnemyStat();
+		~EnemyStat();
+	};
+
+	// ステージ毎の統計情報
+	struct StageStat
+	{
+		typedef std::map < std::string, EnemyStat >		EnemyStatMap;
+		EnemyStatMap				m_EnemyStat;	// 敵の統計情報
+		int							m_ConsTime[ 4 ];	// 属性時間
+		StageStat();
+		~StageStat();
+	};
+
+	// 通しプレイの統計情報
+	struct NormalPlayStat
+	{
+		int				m_Play;							// プレイ回数
+		int				m_AllClear;						// クリア回数
+		int				m_PlayTime;						// プレイ時間
+		int				m_Progress;						// 最高進行度
+		StageStat		m_StageStat[ STAGE_TOTAL ];		// ステージごとの統計情報
+		NormalPlayStat();
+		~NormalPlayStat();
+	};
+
+	// ステージ選択プレイの統計情報
+	struct StageSelectionPlayStat
+	{
+		int				m_Play;			// プレイ回数
+		int				m_Clear;		// クリア回数
+		int				m_PlayTime;		// プレイ時間
+		StageStat		m_StageStat[ STAGE_TOTAL ];		// ステージごとの統計情報
+		StageSelectionPlayStat();
+		~StageSelectionPlayStat();
+	};
+
+	
+
+	// 統計情報
+	struct GameStat
+	{
+		struct Difficulty
+		{
+			NormalPlayStat				m_NormalPlayStat;
+			StageSelectionPlayStat		m_StageSelPlayStat;
+		};
+
+		Difficulty		m_Difficulty[ GAME_DIFFICULTY_TOTAL ];
+
+		GameStat();
+		~GameStat();
+	};
+
+
+	// 表示用の通しプレイの統計情報
+	struct DisplayedNormalPlayStat
+	{
+		NormalPlayStat		m_Stat[ GAME_DIFFICULTY_TOTAL ];
+		int					m_HIScore[ GAME_DIFFICULTY_TOTAL ];
 	};
 
 	// リプレイデータ

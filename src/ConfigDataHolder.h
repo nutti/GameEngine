@@ -20,9 +20,11 @@ namespace GameEngine
 		int GetBGMVolume() const;
 		int GetSEVolume() const;
 		int GetPlaySpeed() const;
+		int GetKeyboradCaps( int button ) const;
 		void SetBGMVolume( int volume );
 		void SetSEVolume( int volume );
 		void SetPlaySpeed( int speed );
+		void SetKeyboardCaps( int button, int cap );
 	};
 }
 

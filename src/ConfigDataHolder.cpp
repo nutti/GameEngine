@@ -25,9 +25,11 @@ namespace GameEngine
 		int GetBGMVolume() const;
 		int GetSEVolume() const;
 		int GetPlaySpeed() const;
+		int GetKeyboradCaps( int button ) const;
 		void SetBGMVolume( int volume );
 		void SetSEVolume( int volume );
 		void SetPlaySpeed( int speed );
+		void SetKeyboardCaps( int button, int cap );
 	};
 
 	ConfigDataHolder::Impl::Impl()
@@ -100,8 +102,8 @@ namespace GameEngine
 					else{
 						char* pCapsStr[ GENERAL_BUTTON_TOTAL ] = {	"MOVE_UP",
 																	"MOVE_DOWN",
-																	"MOVE_LEFT",
 																	"MOVE_RIGHT",
+																	"MOVE_LEFT",
 																	"SHOT",
 																	"BOMB",
 																	"GREEN",
@@ -110,9 +112,8 @@ namespace GameEngine
 						for( int i = 0; i < GENERAL_BUTTON_TOTAL; ++i ){
 							std::string s = "KEYBOARD_";
 							s += pCapsStr[ i ];
-							s += "=";
 							if( key == s ){
-								m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ i ] = ::atoi( value.c_str() );
+								m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ i ] = GetButtonFromString( value );
 							}
 						}
 					}
@@ -141,8 +142,8 @@ namespace GameEngine
 
 		char* pCapsStr[ GENERAL_BUTTON_TOTAL ] = {	"MOVE_UP",
 													"MOVE_DOWN",
-													"MOVE_LEFT",
 													"MOVE_RIGHT",
+													"MOVE_LEFT",
 													"SHOT",
 													"BOMB",
 													"GREEN",
@@ -153,7 +154,7 @@ namespace GameEngine
 			std::string s = "KEYBOARD_";
 			s += pCapsStr[ i ];
 			s += "=";
-			fOut << s << m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ i ] << std::endl;
+			fOut << s << GetStringFromButton( m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ i ] ) << std::endl;
 		}
 
 		fOut.close();
@@ -172,6 +173,11 @@ namespace GameEngine
 	int ConfigDataHolder::Impl::GetPlaySpeed() const
 	{
 		return m_ConfigFileData.m_ConfigData.m_PlaySpeed;
+	}
+
+	int ConfigDataHolder::Impl::GetKeyboradCaps( int button ) const
+	{
+		return m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ button ];
 	}
 
 	void ConfigDataHolder::Impl::SetBGMVolume( int volume )
@@ -213,6 +219,11 @@ namespace GameEngine
 		}
 	}
 
+	void ConfigDataHolder::Impl::SetKeyboardCaps( int button, int cap )
+	{
+		m_ConfigFileData.m_ConfigData.m_KeyboardCaps[ button ] = cap;
+	}
+
 	// ----------------------------------
 	// ŽÀ‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ
 	// ----------------------------------
@@ -250,6 +261,11 @@ namespace GameEngine
 		return m_pImpl->GetPlaySpeed();
 	}
 
+	int ConfigDataHolder::GetKeyboradCaps( int button ) const
+	{
+		return m_pImpl->GetKeyboradCaps( button );
+	}
+
 	void ConfigDataHolder::SetBGMVolume( int volume )
 	{
 		m_pImpl->SetBGMVolume( volume );
@@ -263,5 +279,10 @@ namespace GameEngine
 	void ConfigDataHolder::SetPlaySpeed( int speed )
 	{
 		m_pImpl->SetPlaySpeed( speed );
+	}
+
+	void ConfigDataHolder::SetKeyboardCaps( int button, int cap )
+	{
+		m_pImpl->SetKeyboardCaps( button, cap );
 	}
 }

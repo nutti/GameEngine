@@ -28,6 +28,8 @@ namespace GameEngine
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
 		void AttachConfigData( const GameConfigData& data );
 		void AttachInitialGameData( const InitialGameData& data );
+		void AttachDisplayedNormalPlayStat( const DisplayedNormalPlayStat& stat );
+		void AttachGameStat( const GameStat& stat );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
 		void ChangeScene( SceneType scene );
 		SceneType GetCurSceneType() const;
@@ -37,6 +39,7 @@ namespace GameEngine
 		const SaveDataRecord& GetSaveDataRecord() const;
 		const ReplayDataRecord& GetReplayDataRecord() const;
 		const GameConfigData& GetConfigData() const;
+		const GameStat& GetGameStat() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();
 		const DisplayedReplayInfo::Entry& GetReplayInfo() const;

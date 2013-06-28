@@ -42,6 +42,9 @@ namespace GameEngine
 		void SaveConfigData( const GameConfigData& data );
 		GameConfigData GetConfigData() const;
 		void LoadConfigData();
+		DisplayedNormalPlayStat GetDisplayedNormalPlayStat() const;
+		GameStat GetGameStat() const;
+		void SetGameStat( const GameStat& stat );
 	};
 
 	GameStateManager::Impl::Impl() :	m_ReplayBuilder(),
@@ -188,6 +191,9 @@ namespace GameEngine
 		m_ConfigDataHolder.SetBGMVolume( data.m_BGMVolume );
 		m_ConfigDataHolder.SetSEVolume( data.m_SEVolume );
 		m_ConfigDataHolder.SetPlaySpeed( data.m_PlaySpeed );
+		for( int i = 0; i < GENERAL_BUTTON_TOTAL; ++i ){
+			m_ConfigDataHolder.SetKeyboardCaps( i , data.m_KeyboardCaps[ i ] );
+		}
 		m_ConfigDataHolder.Save( fileName );
 	}
 
@@ -198,6 +204,9 @@ namespace GameEngine
 		data.m_BGMVolume = m_ConfigDataHolder.GetBGMVolume();
 		data.m_SEVolume = m_ConfigDataHolder.GetSEVolume();
 		data.m_PlaySpeed = m_ConfigDataHolder.GetPlaySpeed();
+		for( int i = 0; i < GENERAL_BUTTON_TOTAL; ++i ){
+			data.m_KeyboardCaps[ i ] = m_ConfigDataHolder.GetKeyboradCaps( i );
+		}
 
 		return data;
 	}
@@ -209,6 +218,39 @@ namespace GameEngine
 		fileName += CONFIG_FILE_NAME;
 		
 		m_ConfigDataHolder.Load( fileName );
+	}
+
+	DisplayedNormalPlayStat GameStateManager::Impl::GetDisplayedNormalPlayStat() const
+	{
+		DisplayedNormalPlayStat stat;
+		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
+			stat.m_HIScore[ i ] = m_GameDataHolder.GetHIScore( i );
+			stat.m_Stat[ i ].m_Play = m_GameDataHolder.GetPlayCount( i );
+			stat.m_Stat[ i ].m_AllClear = m_GameDataHolder.GetAllClearCount( i );
+			stat.m_Stat[ i ].m_PlayTime = m_GameDataHolder.GetPlayTime( i );
+			stat.m_Stat[ i ].m_Progress = m_GameDataHolder.GetProgress( i );
+		}
+
+		return stat;
+	}
+
+	GameStat GameStateManager::Impl::GetGameStat() const
+	{
+		GameStat stat;
+		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
+			stat.m_Difficulty[ i ].m_NormalPlayStat = m_GameDataHolder.GetNormalPlayStat( i );
+			stat.m_Difficulty[ i ].m_StageSelPlayStat = m_GameDataHolder.GetStageSelectionPlayStat( i );
+		}
+
+		return stat;
+	}
+
+	void GameStateManager::Impl::SetGameStat( const GameStat& stat )
+	{
+		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
+			m_GameDataHolder.SetNormalPlayStat( i, stat.m_Difficulty[ i ].m_NormalPlayStat );
+			m_GameDataHolder.SetStageSelectionPlayStat( i, stat.m_Difficulty[ i ].m_StageSelPlayStat );
+		}
 	}
 
 	// ----------------------------------
@@ -316,5 +358,20 @@ namespace GameEngine
 	void GameStateManager::LoadConfigData()
 	{
 		m_pImpl->LoadConfigData();
+	}
+
+	DisplayedNormalPlayStat GameStateManager::GetDisplayedNormalPlayStat() const
+	{
+		return m_pImpl->GetDisplayedNormalPlayStat();
+	}
+
+	GameStat GameStateManager::GetGameStat() const
+	{
+		return m_pImpl->GetGameStat();
+	}
+
+	void GameStateManager::SetGameStat( const GameStat& stat )
+	{
+		m_pImpl->SetGameStat( stat );
 	}
 }

@@ -19,6 +19,7 @@ namespace GameEngine
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
+		void AttachNormalPlayStat( const DisplayedNormalPlayStat& stat );
 		int GetDifficulty() const;
 		void SetGameMode( int mode );
 	};

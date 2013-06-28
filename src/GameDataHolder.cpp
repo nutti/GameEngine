@@ -12,21 +12,36 @@ namespace GameEngine
 	{
 		struct Difficulty
 		{
-			SaveDataRecord		m_Record[ MAX_SCORE_ENTRY ];			// 25エントリまでスコアの記録が可能
-			int					m_AllClear;				// 全クリ回数
-			int					m_PlayTime;				// プレイ時間
-			int					m_StageProgress;		// 各ステージ進行度（1:Stage1クリア）
+			SaveDataRecord				m_Record[ MAX_SCORE_ENTRY ];	// 25エントリまでスコアの記録が可能
+			NormalPlayStat				m_NormalPlayStat;				// 通常プレイの統計情報
+			StageSelectionPlayStat		m_StageSelectionPlayStat;		// ステージ選択プレイの統計情報
+			Difficulty()
+			{
+				MAPIL::ZeroObject( m_Record, sizeof( m_Record ) );
+			}
+			~Difficulty()
+			{
+				MAPIL::ZeroObject( m_Record, sizeof( m_Record ) );
+			}
 		};
 
 		int			m_PlayTime;						// プレイ時間（秒単位）
 		int			m_Progress;						// 進行度（0:未プレイ）
 		Difficulty	m_Difficulty[ GAME_DIFFICULTY_TOTAL ];				// 難易度別ゲーム状態
+
+		GameFileData() : m_PlayTime( 0 ), m_Progress( 0 )
+		{
+		}
+		~GameFileData()
+		{
+			m_PlayTime = 0;
+			m_Progress = 0;
+		}
 	};
 
 	class GameDataHolder::Impl
 	{
 	private:
-		GameDataMsg			m_GameData;				// 現在のゲームデータ
 		GameFileData		m_GameFileData;			// セーブファイルに書き出すデータ
 		std::string			m_SaveDataFileName;		// セーブファイル名
 
@@ -48,19 +63,22 @@ namespace GameEngine
 		void SetRecord( int difficulty, const SaveDataRecord& record );
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
 		int GetHIScore( int difficulty ) const;
+		int GetPlayCount( int difficulty ) const;
+
+		const NormalPlayStat& GetNormalPlayStat( int difficulty ) const;
+		const StageSelectionPlayStat& GetStageSelectionPlayStat( int difficulty ) const;
+
+		void SetNormalPlayStat( int difficulty, const NormalPlayStat& stat );
+		void SetStageSelectionPlayStat( int difficulty, const StageSelectionPlayStat& stat );
 	};
 
-	GameDataHolder::Impl::Impl() : m_SaveDataFileName()
+	GameDataHolder::Impl::Impl() : m_SaveDataFileName(), m_GameFileData()
 	{
-		MAPIL::ZeroObject( &m_GameData, sizeof( m_GameData ) );
-		MAPIL::ZeroObject( &m_GameFileData, sizeof( m_GameFileData ) );
 		m_SaveDataFileName = "save/data.dat";
 	}
 
 	void GameDataHolder::Impl::StartRecording()
 	{
-		MAPIL::ZeroObject( &m_GameData, sizeof( m_GameData ) );
-
 		Load( m_SaveDataFileName );
 
 		// 現在時刻を取得
@@ -91,9 +109,52 @@ namespace GameEngine
 		CopyInt( &data, m_GameFileData.m_PlayTime );
 		CopyInt( &data, m_GameFileData.m_Progress );
 		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
-			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_AllClear );
-			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_PlayTime );
-			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_StageProgress );
+			// 通常プレイの統計情報の保存
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_NormalPlayStat.m_Play );
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_NormalPlayStat.m_AllClear );
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_NormalPlayStat.m_PlayTime );
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_NormalPlayStat.m_Progress );
+			for( int j = 0; j < STAGE_TOTAL; ++j ){
+				// 敵情報の保存
+				const StageStat& stage = m_GameFileData.m_Difficulty[ i ].m_NormalPlayStat.m_StageStat[ j ];
+				StageStat::EnemyStatMap::const_iterator it = stage.m_EnemyStat.begin();
+				// エントリ数の保存
+				CopyInt( &data, stage.m_EnemyStat.size() );
+				for( ; it != stage.m_EnemyStat.end(); ++it ){
+					// 敵の名前の長さ保存
+					CopyInt( &data, it->first.size() );
+					// 敵の名前の保存
+					CopyArray( &data, it->first.c_str(), it->first.size() );
+					// 情報の保存
+					CopyInt( &data, it->second.m_Destroy );
+					CopyInt( &data, it->second.m_Damaged );
+					CopyInt( &data, it->second.m_KO );
+				}
+			}
+
+			// ステージ選択プレイの統計情報の保存
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_StageSelectionPlayStat.m_Play );
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_StageSelectionPlayStat.m_Clear );
+			CopyInt( &data, m_GameFileData.m_Difficulty[ i ].m_StageSelectionPlayStat.m_PlayTime );
+			for( int j = 0; j < STAGE_TOTAL; ++j ){
+				// 敵情報の保存
+				const StageStat& stage = m_GameFileData.m_Difficulty[ i ].m_StageSelectionPlayStat.m_StageStat[ j ];
+				StageStat::EnemyStatMap::const_iterator it = stage.m_EnemyStat.begin();
+				// エントリ数の保存
+				CopyInt( &data, stage.m_EnemyStat.size() );
+				for( ; it != stage.m_EnemyStat.end(); ++it ){
+					// 敵の名前の長さ保存
+					CopyInt( &data, it->first.size() );
+					// 敵の名前の保存
+					CopyArray( &data, it->first.c_str(), it->first.size() );
+					// 情報の保存
+					CopyInt( &data, it->second.m_Destroy );
+					CopyInt( &data, it->second.m_Damaged );
+					CopyInt( &data, it->second.m_KO );
+				}
+			}
+
+			// スコアの保存
 			for( int j = 0; j < MAX_SCORE_ENTRY; ++j ){
 				SaveDataRecord record = m_GameFileData.m_Difficulty[ i ].m_Record[ j ];
 				CopyArray( &data, record.m_Name, sizeof( record.m_Name ) );
@@ -168,9 +229,64 @@ namespace GameEngine
 		m_GameFileData.m_Progress = GetInt( &p );
 		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
 			GameFileData::Difficulty difficulty;
-			difficulty.m_AllClear = GetInt( &p );
-			difficulty.m_PlayTime = GetInt( &p );
-			difficulty.m_StageProgress = GetInt( &p );
+
+			// 通常プレイのデータを取得
+			difficulty.m_NormalPlayStat.m_Play = GetInt( &p );
+			difficulty.m_NormalPlayStat.m_AllClear = GetInt( &p );
+			difficulty.m_NormalPlayStat.m_PlayTime = GetInt( &p );
+			difficulty.m_NormalPlayStat.m_Progress = GetInt( &p );
+			for( int j = 0; j < STAGE_TOTAL; ++j ){
+				// 敵情報の取得
+				StageStat& stage = difficulty.m_NormalPlayStat.m_StageStat[ j ];
+				// エントリ数の取得
+				int entry = GetInt( &p );
+				for( int k = 0; k < entry; ++k ){
+					// 敵の名前の長さを取得
+					int length = GetInt( &p );
+					// 敵の名前の取得
+					char* pEnemyName = new char[ length + 1 ];
+					::memcpy( pEnemyName, p, sizeof( length ) );
+					pEnemyName[ length ] = '\0';
+					p += length;
+					// 情報の取得
+					EnemyStat enemyStat;
+					enemyStat.m_Destroy = GetInt( &p );
+					enemyStat.m_Damaged = GetInt( &p );
+					enemyStat.m_KO = GetInt( &p );
+					stage.m_EnemyStat[ pEnemyName ] = enemyStat;
+					MAPIL::SafeDeleteArray( pEnemyName );
+				}
+			}
+
+			// ステージ選択プレイのデータを取得
+			difficulty.m_StageSelectionPlayStat.m_Play = GetInt( &p );
+			difficulty.m_StageSelectionPlayStat.m_Clear = GetInt( &p );
+			difficulty.m_StageSelectionPlayStat.m_PlayTime = GetInt( &p );
+			for( int j = 0; j < STAGE_TOTAL; ++j ){
+				// 敵情報の取得
+				StageStat& stage = difficulty.m_StageSelectionPlayStat.m_StageStat[ j ];
+				// エントリ数の取得
+				int entry = GetInt( &p );
+				for( int k = 0; k < entry; ++k ){
+					// 敵の名前の長さを取得
+					int length = GetInt( &p );
+					// 敵の名前の取得
+					char* pEnemyName = new char[ length + 1 ];
+					::memcpy( pEnemyName, p, sizeof( length ) );
+					pEnemyName[ length ] = '\0';
+					p += length;
+					// 情報の取得
+					EnemyStat enemyStat;
+					enemyStat.m_Destroy = GetInt( &p );
+					enemyStat.m_Damaged = GetInt( &p );
+					enemyStat.m_KO = GetInt( &p );
+					stage.m_EnemyStat[ pEnemyName ] = enemyStat;
+					MAPIL::SafeDeleteArray( pEnemyName );
+				}
+			}
+
+
+			// スコアのロード
 			for( int j = 0; j < MAX_SCORE_ENTRY; ++j ){
 				SaveDataRecord record;
 				::memcpy( record.m_Name, p, sizeof( record.m_Name ) );
@@ -222,12 +338,12 @@ namespace GameEngine
 
 	int GameDataHolder::Impl::GetAllClearCount( int difficulty ) const
 	{
-		return m_GameFileData.m_Difficulty[ difficulty ].m_AllClear;
+		return m_GameFileData.m_Difficulty[ difficulty ].m_NormalPlayStat.m_AllClear;
 	}
 
 	int GameDataHolder::Impl::GetProgress( int difficulty ) const
 	{
-		return m_GameFileData.m_Difficulty[ difficulty ].m_StageProgress;
+		return m_GameFileData.m_Difficulty[ difficulty ].m_NormalPlayStat.m_Progress;
 	}
 
 	int GameDataHolder::Impl::GetProgress() const
@@ -237,7 +353,7 @@ namespace GameEngine
 
 	int GameDataHolder::Impl::GetPlayTime( int difficulty ) const
 	{
-		return m_GameFileData.m_Difficulty[ difficulty ].m_PlayTime;
+		return m_GameFileData.m_Difficulty[ difficulty ].m_NormalPlayStat.m_PlayTime;
 	}
 
 	void GameDataHolder::Impl::SetRecord( int difficulty, const SaveDataRecord& record )
@@ -271,6 +387,31 @@ namespace GameEngine
 	int GameDataHolder::Impl::GetHIScore( int difficulty ) const
 	{
 		return m_GameFileData.m_Difficulty[ difficulty ].m_Record[ 0 ].m_Score;
+	}
+
+	int GameDataHolder::Impl::GetPlayCount( int difficulty ) const
+	{
+		return m_GameFileData.m_Difficulty[ difficulty ].m_NormalPlayStat.m_Play;
+	}
+
+	const NormalPlayStat& GameDataHolder::Impl::GetNormalPlayStat( int difficulty ) const
+	{
+		return m_GameFileData.m_Difficulty[ difficulty ].m_NormalPlayStat;
+	}
+
+	const StageSelectionPlayStat& GameDataHolder::Impl::GetStageSelectionPlayStat( int difficulty ) const
+	{
+		return m_GameFileData.m_Difficulty[ difficulty ].m_StageSelectionPlayStat;
+	}
+
+	void GameDataHolder::Impl::SetNormalPlayStat( int difficulty, const NormalPlayStat& stat )
+	{
+		m_GameFileData.m_Difficulty[ difficulty ].m_NormalPlayStat = stat;
+	}
+
+	void GameDataHolder::Impl::SetStageSelectionPlayStat( int difficulty, const StageSelectionPlayStat& stat )
+	{
+		m_GameFileData.m_Difficulty[ difficulty ].m_StageSelectionPlayStat = stat;
 	}
 
 	// ----------------------------------
@@ -353,5 +494,30 @@ namespace GameEngine
 	void GameDataHolder::Load( const std::string& fileName )
 	{
 		m_pImpl->Load( fileName );
+	}
+
+	int GameDataHolder::GetPlayCount( int difficulty ) const
+	{
+		return m_pImpl->GetPlayCount( difficulty );
+	}
+
+	const NormalPlayStat& GameDataHolder::GetNormalPlayStat( int difficulty ) const
+	{
+		return m_pImpl->GetNormalPlayStat( difficulty );
+	}
+
+	const StageSelectionPlayStat& GameDataHolder::GetStageSelectionPlayStat( int difficulty ) const
+	{
+		return m_pImpl->GetStageSelectionPlayStat( difficulty );
+	}
+
+	void GameDataHolder::SetNormalPlayStat( int difficulty, const NormalPlayStat& stat )
+	{
+		m_pImpl->SetNormalPlayStat( difficulty, stat );
+	}
+
+	void GameDataHolder::SetStageSelectionPlayStat( int difficulty, const StageSelectionPlayStat& stat )
+	{
+		m_pImpl->SetStageSelectionPlayStat( difficulty, stat );
 	}
 }

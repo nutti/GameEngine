@@ -216,9 +216,9 @@ namespace GameEngine
 		*pOut = '\0';
 	}
 
-	const char* GetStringByButton( int button )
+	const char* GetStringFromButton( int button )
 	{
-		const int ALLOWED_BUTTONS[] = {
+		static const int ALLOWED_BUTTONS[] = {
 #define BUTTON_CODE_STR
 #include "ButtonCode.h"
 #undef BUTTON_CODE_STR
@@ -237,5 +237,28 @@ namespace GameEngine
 		}
 
 		return NULL;
+	}
+
+	int GetButtonFromString( const std::string& button )
+	{
+		static const int ALLOWED_BUTTONS[] = {
+#define BUTTON_CODE_STR
+#include "ButtonCode.h"
+#undef BUTTON_CODE_STR
+		};
+
+		static const char* BUTTON_STRINGS[] = {
+#define BUTTON_CODE_ID
+#include "ButtonCode.h"
+#undef BUTTON_CODE_ID
+		};
+
+		for( int i = 0; i < sizeof( BUTTON_STRINGS ) / sizeof( char* ); ++i ){
+			if( button == BUTTON_STRINGS[ i ] ){
+				return ALLOWED_BUTTONS[ i ];
+			}
+		}
+
+		return -1;
 	}
 }

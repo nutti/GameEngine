@@ -301,6 +301,24 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND,
 											"archive/resource/texture/eriKs_background_small.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_CALM,
+											"archive/resource/texture/difficulty_selection/calm_rank_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_EASY,
+											"archive/resource/texture/difficulty_selection/easy_rank_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_NORMAL,
+											"archive/resource/texture/difficulty_selection/normal_rank_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_HARD,
+											"archive/resource/texture/difficulty_selection/hard_rank_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_HAZARD,
+											"archive/resource/texture/difficulty_selection/hazard_rank_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_TITLE,
+											"archive/resource/texture/difficulty_selection/title.png", false );
 		m_Loading.Start();
 	}
 
@@ -324,6 +342,9 @@ namespace GameEngine
 				}
 				data.m_PlayTime = m_pGameStateManager->GetPlayTime();
 				m_pSceneManager->AttachDisplayedSaveData( data );
+				// 統計情報の設定
+				const GameStat& stat = m_pGameStateManager->GetGameStat();
+				m_pSceneManager->AttachGameStat( stat );
 				break;
 			}
 			// 初期化状態からメニュー画面移行要求
@@ -344,6 +365,7 @@ namespace GameEngine
 			// 難易度選択画面移行要求
 			case EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION:{
 				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->AttachDisplayedNormalPlayStat( m_pGameStateManager->GetDisplayedNormalPlayStat() );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_DIFFICULTY_SELECTION );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
@@ -443,6 +465,7 @@ namespace GameEngine
 			}
 			case EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY:{
 				m_pResourceManager->ReleaseStageResources();
+				m_pGameStateManager->SetGameStat( m_pSceneManager->GetGameStat() );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;

@@ -40,11 +40,13 @@ namespace GameEngine
 		// 現時点のゲームプレイに関する情報
 		SaveDataRecord							m_SaveDataRecord;		// 現在プレイ中の記録
 		ReplayDataRecord						m_ReplayDataRecord;		// 現在プレイ中のリプレイデータ
+		GameStat								m_GameStat;				// ゲームの統計情報
 
 		// シーン表示に必要な情報
 		DisplayedSaveData						m_SaveData;				// セーブデータ
 		DisplayedReplayInfo						m_DisplayedReplayInfo;	// 表示用リプレイ情報
 		DisplayedReplayInfo::Entry				m_ReplayInfo;			// 現在プレイ中の情報
+		DisplayedNormalPlayStat					m_DispNormalPlayStat;	// 表示用の通常プレイ情報
 
 		// コンフィグデータ
 		GameConfigData							m_ConfigData;			// 設定データ
@@ -82,6 +84,8 @@ namespace GameEngine
 		void AttachScriptData( const ScriptData& data );
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
+		void AttachDisplayedNormalPlayStat( const DisplayedNormalPlayStat& stat );
+		void AttachGameStat( const GameStat& stat );
 		void AttachConfigData( const GameConfigData& data );
 		void AttachInitialGameData( const InitialGameData& data );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
@@ -93,6 +97,7 @@ namespace GameEngine
 		const SaveDataRecord& GetSaveDataRecord() const;
 		const ReplayDataRecord& GetReplayDataRecord() const;
 		const GameConfigData& GetConfigData() const;
+		const GameStat& GetGameStat() const;
 		int GetGameDifficulty() const;
 		void ClearGameData();
 		const DisplayedReplayInfo::Entry& GetReplayInfo() const;
@@ -381,6 +386,8 @@ namespace GameEngine
 							m_GameMode = GAME_MODE_NORMAL;
 							m_IsFirstStage = true;
 							m_CurStage = 1;
+							// 統計情報の更新
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_Play += 1;
 							// 初期データの設定
 							InitializeIniGameData();
 							SaveStageReplayData( m_CurStage - 1, m_IniGameData );
@@ -396,6 +403,8 @@ namespace GameEngine
 							else{
 								throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 							}
+							// 統計情報の更新
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_Play += 1;
 							// 初期データの設定
 							InitializeIniGameData();
 							// ※ステージごとにリプレイを保存する場合、バグが生じる↓
@@ -535,6 +544,16 @@ namespace GameEngine
 		m_SaveData = data;
 	}
 
+	void SceneManager::Impl::AttachDisplayedNormalPlayStat( const DisplayedNormalPlayStat& stat )
+	{
+		m_DispNormalPlayStat = stat;
+	}
+
+	void SceneManager::Impl::AttachGameStat( const GameStat& stat )
+	{
+		m_GameStat = stat;
+	}
+
 	SceneType SceneManager::Impl::GetCurSceneType() const
 	{
 		return m_CurSceneType;
@@ -573,6 +592,11 @@ namespace GameEngine
 	const GameConfigData& SceneManager::Impl::GetConfigData() const
 	{
 		return m_ConfigData;
+	}
+
+	const GameStat& SceneManager::Impl::GetGameStat() const
+	{
+		return m_GameStat;
 	}
 
 	int SceneManager::Impl::GetGameDifficulty() const
@@ -643,10 +667,11 @@ namespace GameEngine
 		else if( typeid( *m_pCurScene.get() ) == typeid( ReplayEntry ) ){
 			( (ReplayEntry*) m_pCurScene.get() )->AttachDisplayedReplayInfo( m_DisplayedReplayInfo );
 			( (ReplayEntry*) m_pCurScene.get() )->AttachReplayDataRecord( m_ReplayDataRecord );
-			m_CurSceneType = SCENE_TYPE_REPLAY;
+			m_CurSceneType = SCENE_TYPE_REPLAY_ENTRY;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( DifficultySelection ) ){
 			( (DifficultySelection*) m_pCurScene.get() )->SetGameMode( m_GameMode );
+			( (DifficultySelection*) m_pCurScene.get() )->AttachNormalPlayStat( m_DispNormalPlayStat );
 			m_CurSceneType = SCENE_TYPE_DIFFICULTY_SELECTION;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( StageSelection ) ){
@@ -719,6 +744,11 @@ namespace GameEngine
 		m_pImpl->AttachDisplayedReplayInfo( info );
 	}
 
+	void SceneManager::AttachGameStat( const GameStat& stat )
+	{
+		m_pImpl->AttachGameStat( stat );
+	}
+
 	void SceneManager::AttachConfigData( const GameConfigData& data )
 	{
 		m_pImpl->AttachConfigData( data );
@@ -727,6 +757,11 @@ namespace GameEngine
 	void SceneManager::AttachInitialGameData( const InitialGameData& data )
 	{
 		m_pImpl->AttachInitialGameData( data );
+	}
+
+	void SceneManager::AttachDisplayedNormalPlayStat( const DisplayedNormalPlayStat& stat )
+	{
+		m_pImpl->AttachDisplayedNormalPlayStat( stat );
 	}
 
 	const DisplayedSaveData& SceneManager::GetDisplayedSaveData() const
@@ -767,6 +802,11 @@ namespace GameEngine
 	const GameConfigData& SceneManager::GetConfigData() const
 	{
 		return m_pImpl->GetConfigData();
+	}
+
+	const GameStat& SceneManager::GetGameStat() const
+	{
+		return m_pImpl->GetGameStat();
 	}
 
 	int SceneManager::GetGameDifficulty() const

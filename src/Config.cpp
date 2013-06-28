@@ -25,6 +25,7 @@ namespace GameEngine
 	{
 		CONFIG_MODE_MENU			= 0,
 		CONFIG_MODE_INPUT			= 1,
+		CONFIG_MODE_INPUT_KEY		= 2,
 	};
 
 	// 許可されたボタン
@@ -32,64 +33,6 @@ namespace GameEngine
 #define BUTTON_CODE_STR
 #include "ButtonCode.h"
 #undef BUTTON_CODE_STR
-/*		MAPIL::KEYBOARD_KEY_BACK,		///< Backspace.
-		MAPIL::KEYBOARD_KEY_RETURN,	///< Enter.
-		MAPIL::KEYBOARD_KEY_ESCAPE,	///< Esc.
-		MAPIL::KEYBOARD_KEY_SPACE,		///< Space.
-		MAPIL::KEYBOARD_KEY_LEFT,		///< Left.
-		MAPIL::KEYBOARD_KEY_UP,		///< Up.
-		MAPIL::KEYBOARD_KEY_RIGHT,		///< Right.
-		MAPIL::KEYBOARD_KEY_DOWN,		///< Down.
-		MAPIL::KEYBOARD_KEY_SNAPSHOT,	///< Print Screen.
-		MAPIL::KEYBOARD_KEY_DELETE,	///< Delete.
-		MAPIL::KEYBOARD_KEY_0,			///< 0.
-		MAPIL::KEYBOARD_KEY_1,			///< 1.
-		MAPIL::KEYBOARD_KEY_2,		///< 2.
-		MAPIL::KEYBOARD_KEY_3,		///< 3.
-		MAPIL::KEYBOARD_KEY_4,		///< 4.
-		MAPIL::KEYBOARD_KEY_5,		///< 5.
-		MAPIL::KEYBOARD_KEY_6,		///< 6.
-		MAPIL::KEYBOARD_KEY_7,		///< 7.
-		MAPIL::KEYBOARD_KEY_8,		///< 8.
-		MAPIL::KEYBOARD_KEY_9,		///< 9.
-		MAPIL::KEYBOARD_KEY_A,		///< A.
-		MAPIL::KEYBOARD_KEY_B,		///< B.
-		MAPIL::KEYBOARD_KEY_C,		///< C.
-		MAPIL::KEYBOARD_KEY_D,		///< D.
-		MAPIL::KEYBOARD_KEY_E,		///< E.
-		MAPIL::KEYBOARD_KEY_F,		///< F.
-		MAPIL::KEYBOARD_KEY_G,		///< G.
-		MAPIL::KEYBOARD_KEY_H,		///< H.
-		MAPIL::KEYBOARD_KEY_I,		///< I.
-		MAPIL::KEYBOARD_KEY_J,		///< J.
-		MAPIL::KEYBOARD_KEY_K,		///< K.
-		MAPIL::KEYBOARD_KEY_L,		///< L.
-		MAPIL::KEYBOARD_KEY_M,		///< M.
-		MAPIL::KEYBOARD_KEY_N,		///< N.
-		MAPIL::KEYBOARD_KEY_O,		///< O.
-		MAPIL::KEYBOARD_KEY_P,		///< P.
-		MAPIL::KEYBOARD_KEY_Q,		///< Q.
-		MAPIL::KEYBOARD_KEY_R,			///< R.
-		MAPIL::KEYBOARD_KEY_S,			///< S.
-		MAPIL::KEYBOARD_KEY_T,			///< T.
-		MAPIL::KEYBOARD_KEY_U,			///< U.
-		MAPIL::KEYBOARD_KEY_V,			///< V.
-		MAPIL::KEYBOARD_KEY_W,			///< W.
-		MAPIL::KEYBOARD_KEY_X,			///< X.
-		MAPIL::KEYBOARD_KEY_Y,			///< Y.
-		MAPIL::KEYBOARD_KEY_Z,			///< Z.
-		MAPIL::KEYBOARD_KEY_F1,		///< F1.
-		MAPIL::KEYBOARD_KEY_F2,		///< F2.
-		MAPIL::KEYBOARD_KEY_F3,		///< F3.
-		MAPIL::KEYBOARD_KEY_F4,		///< F4.
-		MAPIL::KEYBOARD_KEY_F5,		///< F5.
-		MAPIL::KEYBOARD_KEY_F6,		///< F6.
-		MAPIL::KEYBOARD_KEY_F7,		///< F7.
-		MAPIL::KEYBOARD_KEY_F8,		///< F8.
-		MAPIL::KEYBOARD_KEY_F9,		///< F9.
-		MAPIL::KEYBOARD_KEY_F10,		///< F10.
-		MAPIL::KEYBOARD_KEY_LSHIFT,		///< Left Shift key.
-		MAPIL::KEYBOARD_KEY_RSHIFT,		///< Right Shift key.*/
 	};
 
 	class Config::Impl
@@ -106,6 +49,8 @@ namespace GameEngine
 		int							m_SelectedItem;			// 選択されている項目
 
 		int							m_SelectCounter;		// 項目選択時のカウンタ
+
+		int							m_InputAccpetCount;		// 次に入力ボタン変更を受け付けるまでの時間
 
 		std::weak_ptr < EventMediator >			m_pEventMediator;		// イベント仲介役クラス
 
@@ -132,6 +77,7 @@ namespace GameEngine
 		MAPIL::ZeroObject( &m_ConfigData, sizeof( m_ConfigData ) );
 		m_Mode = CONFIG_MODE_MENU;
 		m_SelectedInputItem = GENERAL_BUTTON_MOVE_UP;
+		m_InputAccpetCount = 0;
 	}
 
 	SceneType Config::Impl::Update()
@@ -144,6 +90,11 @@ namespace GameEngine
 
 		if( m_SelectCounter > 0 ){
 			--m_SelectCounter;
+		}
+
+		if( m_InputAccpetCount > 0 ){
+			--m_InputAccpetCount;
+			return SCENE_TYPE_NOT_CHANGE;
 		}
 
 		if( m_Mode == CONFIG_MODE_MENU ){
@@ -255,6 +206,20 @@ namespace GameEngine
 				}
 				m_SelectCounter = 10;
 			}
+			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
+				m_Mode = CONFIG_MODE_INPUT_KEY;
+				m_InputAccpetCount = 10;
+			}
+		}
+		else if( m_Mode == CONFIG_MODE_INPUT_KEY ){
+			for( int i = 0; i < sizeof( ALLOWED_BUTTONS ) / sizeof( ALLOWED_BUTTONS[ 0 ] ); ++i ){
+				if( MAPIL::IsKeyboardKeyPushed( MAPIL::GetKeyboardKeyCode( ALLOWED_BUTTONS[ i ] ) ) ){
+					m_ConfigData.m_KeyboardCaps[ m_SelectedInputItem ] = ALLOWED_BUTTONS[ i ];
+					m_Mode = CONFIG_MODE_INPUT;
+					m_InputAccpetCount = 10;
+					break;
+				}
+			}
 		}
 
 
@@ -321,6 +286,9 @@ namespace GameEngine
 		}
 		int color1 = alpha1 << 24 | 0xAAAAAA;
 		int selColor = alpha1 << 24 | 0xFFFFFF;
+		if( m_Mode == CONFIG_MODE_INPUT_KEY ){
+			selColor = alpha1 << 24 | 0xFFFF00;
+		}
 
 		float fontScale = 0.6f;
 		float startX = 120.0f;
@@ -334,6 +302,7 @@ namespace GameEngine
 				c = selColor;
 			}
 			DrawFontString( m_ResourceMap, startX, startY + 30.0f * i, fontScale, c, pStr[ i ] );
+			DrawFontString( m_ResourceMap, startX + 150.0f, startY + 30.0f * i, fontScale, c, GetStringFromButton( m_ConfigData.m_KeyboardCaps[ i ] ) );
 		}
 	}
 
@@ -356,7 +325,7 @@ namespace GameEngine
 		if( m_Mode == CONFIG_MODE_MENU ){
 			DrawOnMenuMode();
 		}
-		else if( m_Mode == CONFIG_MODE_INPUT ){
+		else if( m_Mode == CONFIG_MODE_INPUT || m_Mode == CONFIG_MODE_INPUT_KEY ){
 			DrawOnInputMode();
 		}
 

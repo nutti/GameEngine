@@ -29,6 +29,14 @@ namespace GameEngine
 		int GetRank( int difficulty, const SaveDataRecord& record ) const;
 		int GetHIScore( int difficulty ) const;
 		void Load( const std::string& fileName );
+
+		int GetPlayCount( int difficulty ) const;
+
+		const NormalPlayStat& GetNormalPlayStat( int difficulty ) const;
+		const StageSelectionPlayStat& GetStageSelectionPlayStat( int difficulty ) const;
+
+		void SetNormalPlayStat( int difficulty, const NormalPlayStat& stat );
+		void SetStageSelectionPlayStat( int difficulty, const StageSelectionPlayStat& stat );
 	};
 }
 
