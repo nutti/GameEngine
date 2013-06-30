@@ -1447,7 +1447,7 @@ namespace GameEngine
 			if( m_PrivData.m_StatusFlags[ PREPARING ] &&
 				( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) || m_PrivData.m_ClearModeData.m_Counter >= 1200 ) ){
 				m_Background.Terminate();
-				SaveStageResultData();
+				//SaveStageResultData();		// 次のステージに行くときにバグになる？
 				m_PrivData.m_StatusFlags.set( PREPARED_NEXT_STAGE );
 			}
 			if(	m_PrivData.m_StatusFlags[ PREPARED_NEXT_STAGE ] ){

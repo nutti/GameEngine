@@ -88,7 +88,7 @@ namespace GameEngine
 #elif defined ( USE_GAME_UNIT )
 		m_Data.m_GUData.m_PosX = 300;
 		m_Data.m_GUData.m_PosY = 400;
-		m_Data.m_GUData.m_ColRadius = 2;
+		m_Data.m_GUData.m_ColRadius = GameUnit( 0, 500 );
 #endif
 		
 		m_Data.m_HP = 10;
@@ -101,7 +101,7 @@ namespace GameEngine
 		m_Data.m_RestInvincibleTime = 0;
 #else
 		m_Data.m_RestInvincibleTime = 10000;
-		m_Data.m_RestInvincibleTime = 0;
+		//m_Data.m_RestInvincibleTime = 0;
 #endif
 
 		m_PlayerOptList.clear();

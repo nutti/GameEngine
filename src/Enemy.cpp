@@ -562,6 +562,13 @@ void Enemy::Draw()
 		// ‘®«UŒ‚‚ðŽó‚¯‚½‚±‚Æ‚ð’Ê’m
 		if( pPlayerShot->GetConsAttr() >= PLAYER_CONS_MODE_GREEN ){
 			m_Data.m_StatusFlags.set( EnemyData::DAMAGED_BY_CONS_SHOT );
+			m_Data.m_StatusFlags.set( EnemyData::DAMAGED_BY_CONS_SHOT_GREEN + pPlayerShot->GetConsAttr() - 1 );
+		}
+		else{
+			m_Data.m_StatusFlags.reset( EnemyData::DAMAGED_BY_CONS_SHOT );
+			for( int i = 0; i < PLAYER_CONS_MODE_RED; ++i ){
+				m_Data.m_StatusFlags.reset( EnemyData::DAMAGED_BY_CONS_SHOT_GREEN + i );
+			}
 		}
 
 		// Œ‚”jŽž‚ÍI—¹

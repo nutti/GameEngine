@@ -44,6 +44,9 @@ namespace GameEngine
 		enum StatusFlag
 		{
 			DAMAGED_BY_CONS_SHOT		= 0,	// ‘®«UŒ‚‚ðŽó‚¯‚½‚©?
+			DAMAGED_BY_CONS_SHOT_GREEN	= 1,	// —Î‘®«‚ÌUŒ‚‚ðŽó‚¯‚½
+			DAMAGED_BY_CONS_SHOT_BLUE	= 2,	// Â‘®«‚ÌUŒ‚‚ðŽó‚¯‚½
+			DAMAGED_BY_CONS_SHOT_RED	= 3,	// Ô‘®«‚ÌUŒ‚‚ðŽó‚¯‚½
 			STATUS_FLAG_TOTAL,
 		};
 		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// ó‘ÔŠÇ—ƒtƒ‰ƒO

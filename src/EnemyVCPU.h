@@ -63,6 +63,7 @@ namespace GameEngine
 		void SysEnemyInvokeConsSkill();
 		void SysEnemyStopConsSkill();
 		void SysEnemyDamagedByConsShot();
+		void SysEnemyDamagedByConsShotIndex();
 		void SysSearchEnemyInSkillMode();
 		void SysSearchEnemyInSkillModeByName();
 

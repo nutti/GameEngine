@@ -36,8 +36,10 @@ namespace GameEngine
 		void DeleteShot( int id );
 		void SetReg( int reg );
 		void SetFReg( float reg );
+		void SetGReg( int no, GameUnit reg );
 		int GetReg() const;
 		float GetFReg() const;
+		GameUnit GetGReg( int no ) const;
 		void SetShotPos( int id, float x, float y );
 		void SetShotAngle( int id, float angle );
 		void SetShotSpeed( int id, float speed );
@@ -118,6 +120,11 @@ namespace GameEngine
 		m_EnemyShotGroupData.m_FReg = reg;
 	}
 
+	inline void EnemyShotGroup::Impl::SetGReg( int no, GameUnit reg )
+	{
+		m_EnemyShotGroupData.m_GUData.m_Reg[ no ] = reg;
+	}
+
 	inline int EnemyShotGroup::Impl::GetReg() const
 	{
 		return m_EnemyShotGroupData.m_Reg;
@@ -126,6 +133,11 @@ namespace GameEngine
 	inline float EnemyShotGroup::Impl::GetFReg() const
 	{
 		return m_EnemyShotGroupData.m_FReg;
+	}
+
+	inline GameUnit EnemyShotGroup::Impl::GetGReg( int no ) const
+	{
+		return m_EnemyShotGroupData.m_GUData.m_Reg[ no ];
 	}
 
 	inline void EnemyShotGroup::Impl::SetShotPos( int id, float x, float y )
@@ -249,6 +261,11 @@ namespace GameEngine
 		m_pImpl->SetFReg( reg );
 	}
 
+	void EnemyShotGroup::SetGReg( int no, GameUnit reg )
+	{
+		m_pImpl->SetGReg( no, reg );
+	}
+
 	int EnemyShotGroup::GetReg() const
 	{
 		return m_pImpl->GetReg();
@@ -257,6 +274,11 @@ namespace GameEngine
 	float EnemyShotGroup::GetFReg() const
 	{
 		return m_pImpl->GetFReg();
+	}
+
+	GameUnit EnemyShotGroup::GetGReg( int no ) const
+	{
+		return m_pImpl->GetGReg( no );
 	}
 
 	void EnemyShotGroup::SetShotPos( int id, float x, float y )

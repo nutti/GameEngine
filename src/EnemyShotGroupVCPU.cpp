@@ -207,6 +207,57 @@ namespace GameEngine
 		Push( id );
 	}
 
+	void EnemyShotGroupVCPU::SysCreateEnemyShotGroup()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			EnemyShotGroup* pNewGroup = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyShotGroupData->m_pEnemyData );
+			pNewGroup->Init();
+			m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysCreateEnemyShotGroupReg()
+	{
+		Pop();
+		int reg = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			EnemyShotGroup* pNewGroup = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyShotGroupData->m_pEnemyData );
+			pNewGroup->Init();
+			pNewGroup->SetReg( reg );
+			m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysCreateEnemyShotGroupGReg5()
+	{
+		GameUnit reg[ 5 ];
+
+		Pop();
+		for( int i = 4; i >= 0; --i ){
+			reg[ i ].SetRawValue( Top().m_Integer );
+			Pop();
+		}
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			EnemyShotGroup* pNewGroup = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyShotGroupData->m_pEnemyData );
+			pNewGroup->Init();
+			for( int i = 0; i < 5; ++i ){
+				pNewGroup->SetGReg( i, reg[ i ] );
+			}
+			m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
+		}
+	}
+
 	void EnemyShotGroupVCPU::SysSetEnemyShotPos()
 	{
 		Pop();
@@ -781,6 +832,15 @@ namespace GameEngine
 		Push( m_pEnemyShotGroupData->m_Reg );
 	}
 
+	void EnemyShotGroupVCPU::SysGetEnemyShotGroupGRegIndex()
+	{
+		Pop();
+		int idx = Top().m_Integer;
+		Pop();
+
+		Push( m_pEnemyShotGroupData->m_GUData.m_Reg[ idx ].GetRawValue() );
+	}
+
 	void EnemyShotGroupVCPU::SysEnemyShotSetLineStatusGU()
 	{
 		Pop();
@@ -935,6 +995,15 @@ namespace GameEngine
 			case VM::SYS_ENEMY_SHOT_GROUP_CREATE_CONS_SHOT:
 				SysCreateConsEnemyShot();
 				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_GROUP:
+				SysCreateEnemyShotGroup();
+				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_REG:
+				SysCreateEnemyShotGroupReg();
+				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_GREG5:
+				SysCreateEnemyShotGroupGReg5();
+				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_POS:
 				SysSetEnemyShotPos();
 				break;
@@ -1028,6 +1097,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_GREG:
 				SysGetEnemyShotGroupGReg();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_GREG_INDEX:
+				SysGetEnemyShotGroupGRegIndex();
 				break;
 			case VM::SYS_STAGE_GET_DIFFICULTY:
 				SysGetDifficulty();

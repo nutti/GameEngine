@@ -102,6 +102,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_ANGLE_PER_FRAME, TYPE_VOID, "SetEnemyShotImgRotAnglePerFrame", "if" );		// void SetImgAnglePerFrame( shot_id, angle );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_ALPHA_BLENDING_MODE, TYPE_VOID, "SetEnemyShotAlphaBlendingMode", "ii" );		// void SetImgAlphaBlendingMode( shot_id, mode );
 	AddFunction( VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT, TYPE_INTEGER, "EnemyDamagedByConsShot", "" );		// int EnemyDamagedByConsShot();
+	AddFunction( VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT_INDEX, TYPE_INTEGER, "EnemyDamagedByConsShotIndex", "i" );	// int EnemyDamagedByConsShotIndex( cons_idx );
 	AddFunction( VM::SYS_SEARCH_ENEMY_IN_SKILL_MODE, TYPE_INTEGER, "SearchEnemyInSkillMode", "" );		// int SearchEnemyInSkillMode();
 	AddFunction( VM::SYS_SEARCH_ENEMY_IN_SKILL_MODE_BY_NAME, TYPE_INTEGER, "SearchEnemyInSkillModeByName", "s" );		// int SearchEnemyInSkillModeByName( enemy_name );
 
@@ -117,6 +118,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP_REG, TYPE_VOID, "CreateEnemyShotGroupReg", "ii" );	// void CreateShotGroupReg( script_id, reg1 );
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP_FREG, TYPE_VOID, "CreateEnemyShotGroupFReg", "if" );	// void CreateShotGroupFReg( script_id, reg1 );
 	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP_GREG, TYPE_VOID, "CreateEnemyShotGroupGReg", "ig" );	// void CreateShotGroupGReg( script_id, reg1 );
+	AddFunction( VM::SYS_ENEMY_CREATE_SHOT_GROUP_GREG5, TYPE_VOID, "CreateEnemyShotGroupGReg5", "iggggg" );	// void CreateShotGroupGReg( script_id, reg1, reg2, reg3, reg4, reg5 );
 	AddFunction( VM::SYS_ENEMY_SEARCH_ITEM, TYPE_VOID, "SearchItem", "" );			// void SearchItem();
 	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_X, TYPE_FLOAT, "GetItemPosX", "" );		// float GetItemPosX();
 	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_Y, TYPE_FLOAT, "GetItemPosY", "" );		// float GetItemPosY();
@@ -155,6 +157,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_REG, TYPE_INTEGER, "GetEnemyShotGroupReg", "" );			// int GetEnemyShotGroupReg();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_FREG, TYPE_FLOAT, "GetEnemyShotGroupFReg", "" );			// float GetEnemyShotGroupFReg();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_GREG, TYPE_GU, "GetEnemyShotGroupGReg", "" );			// gu GetEnemyShotGroupGReg();
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_GREG_INDEX, TYPE_GU, "GetEnemyShotGroupGRegIndex", "i" );			// gu GetEnemyShotGroupGRegIndex( reg_index );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_ANGLE, TYPE_VOID, "EnemyShotAddAngle", "if" );			// void EnemyShotAddAngle( id, angle );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE, TYPE_VOID, "EnemyShotSetImgScale", "if" );	// void EnemyShotSetImgScale( id, scale );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ADD_POS, TYPE_VOID, "EnemyShotAddPos", "iff" );				// void EnemyShotAddPos( id, x, y );

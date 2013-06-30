@@ -110,6 +110,7 @@ namespace VM
 		SYS_ENEMY_GET_ITEM_POS_X,			// Get item position x.
 		SYS_ENEMY_GET_ITEM_POS_Y,			// Get item position y.
 		SYS_ENEMY_DAMAGED_BY_CONS_SHOT,		// Damaged by cons shot?
+		SYS_ENEMY_DAMAGED_BY_CONS_SHOT_INDEX,	// Damaged by cons shot? (index)
 		SYS_SEARCH_ENEMY_IN_SKILL_MODE,		// Search enemy in skill mode.
 		SYS_SEARCH_ENEMY_IN_SKILL_MODE_BY_NAME,		// Search enemy in skill mode by name.
 
@@ -126,6 +127,7 @@ namespace VM
 		SYS_ENEMY_CREATE_SHOT_GROUP_REG,	// Create shot group. (1 Register)
 		SYS_ENEMY_CREATE_SHOT_GROUP_FREG,	// Create shot group. (1 Floating-point register)
 		SYS_ENEMY_CREATE_SHOT_GROUP_GREG,	// Create shot group. (1 gameunit register)
+		SYS_ENEMY_CREATE_SHOT_GROUP_GREG5,	// Create shot group. (5 gameunit register)
 		SYS_CREATE_ITEM,		// Create item.
 		SYS_CREATE_ITEM_GU,		// Create item. (gameunit)
 
@@ -159,6 +161,7 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_GET_REG,
 		SYS_ENEMY_SHOT_GROUP_GET_FREG,
 		SYS_ENEMY_SHOT_GROUP_GET_GREG,
+		SYS_ENEMY_SHOT_GROUP_GET_GREG_INDEX,
 		SYS_ENEMY_SHOT_GROUP_ADD_ANGLE,
 		SYS_ENEMY_SHOT_GROUP_SET_IMAGE_SCALE,
 		SYS_ENEMY_SHOT_GROUP_ADD_POS,

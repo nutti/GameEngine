@@ -9,7 +9,7 @@
 
 namespace GameEngine
 {
-	static const int PERMITTED_STAGE_TOTAL		= 3;
+	static const int PERMITTED_STAGE_TOTAL		= 4;
 
 	class StageSelection::Impl
 	{

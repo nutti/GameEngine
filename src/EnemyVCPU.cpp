@@ -897,6 +897,20 @@ namespace GameEngine
 		Push( 0 );
 	}
 
+	void EnemyVCPU::SysEnemyDamagedByConsShotIndex()
+	{
+		Pop();
+		int idx = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyData->m_StatusFlags[ idx ] ){
+			Push( 1 );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -1044,6 +1058,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT:
 				SysEnemyDamagedByConsShot();
+				break;
+			case VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT_INDEX:
+				SysEnemyDamagedByConsShotIndex();
 				break;
 			case VM::SYS_SEARCH_ENEMY_IN_SKILL_MODE:
 				SysSearchEnemyInSkillMode();

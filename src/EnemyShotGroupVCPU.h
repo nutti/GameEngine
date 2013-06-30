@@ -46,6 +46,9 @@ namespace GameEngine
 
 		void SysCreateEnemyShot();
 		void SysCreateConsEnemyShot();
+		void SysCreateEnemyShotGroup();
+		void SysCreateEnemyShotGroupReg();
+		void SysCreateEnemyShotGroupGReg5();
 		void SysSetEnemyShotPos();
 		void SysSetEnemyShotPower();
 		void SysSetEnemyShotAngle();
@@ -78,6 +81,7 @@ namespace GameEngine
 		void SysGetEnemyShotGroupReg();
 		void SysGetEnemyShotGroupFReg();
 		void SysGetEnemyShotGroupGReg();
+		void SysGetEnemyShotGroupGRegIndex();
 
 		void SysGetDifficulty();
 
