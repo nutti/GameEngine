@@ -168,6 +168,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_DISABLE_INVISIBLE_MODE, TYPE_VOID, "DisableEnemyShotInvisibleMode", "i" );			// void DisableEnemyShotInvisibleMode( id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_ENABLE_INVINCIBLE_MODE, TYPE_VOID, "EnableEnemyShotInvincibleMode", "i" );			// void EnableEnemyShotInvincibleMode( id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_DISABLE_INVINCIBLE_MODE, TYPE_VOID, "DisableEnemyShotInvincibleMode", "i" );			// void DisableEnemyShotInvincibleMode( id );
+	AddFunction( VM::SYS_SEND_EVENT_TO_ENEMY_SHOT_GROUP, TYPE_VOID, "SendEventToEnemyShotGroup", "ii" );			// void SendEventToEnemyShotGroup( id, event );
+	AddFunction( VM::SYS_SET_ENEMY_SHOT_GROUP_SUB_ID, TYPE_VOID, "SetEnemyShotGroupSubID", "i" );			// void SetEnemyShotGroupSubID( id );
+	AddFunction( VM::SYS_GET_EVENT, TYPE_INTEGER, "GetEvent", "" );										// int GetEvent();
 	
 
 	// System call for stage.

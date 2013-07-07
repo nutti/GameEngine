@@ -75,6 +75,7 @@ namespace GameEngine
 		void SysCreateEnemyShotGroupReg();
 		void SysCreateEnemyShotGroupFReg();
 		void SysCreateEnemyShotGroupGReg();
+		void SysCreateEnemyShotGroupGReg5();
 		void SysCreateEnemyIniPosGU();
 		void SysCreateEnemyIniPosRegGU();
 

@@ -1394,7 +1394,7 @@ namespace GameEngine
 				return SCENE_TYPE_MENU;
 			}
 			else{
-				throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Invalid scene type." ), -1 );
+				throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Invalid scene type." ), -1 );
 			}
 		}
 

@@ -2,6 +2,7 @@
 #define INCLUDED_GAMEENGINE_ENEMYSHOTGROUP_H
 
 #include <memory>
+#include <queue>
 
 #include "Math.hpp"
 
@@ -33,6 +34,8 @@ namespace GameEngine
 		bool								m_EnemyControlled;	// 敵の管理下にあるか？
 		int									m_Reg;				// レジスタ
 		float								m_FReg;				// 浮動小数点レジスタ
+		int									m_SubID;			// ショットグループ判別用ID
+		std::queue < int >					m_EventQueue;		// イベント数
 	};
 	
 	class EnemyShotGroup
@@ -63,6 +66,8 @@ namespace GameEngine
 		void SetCollisionRadius( int id, float radius );
 		void SetShotMovement( int id, float angle, float speed );
 		void SetShotStatus( int id, float x, float y, float angle, float speed, float radius, int imgID );
+		void SendEvent( int id );
+		int GetSubID() const;
 		bool IsEmpty() const;			// 全部消去済みか？
 		void DetachEnemyControl();		// 敵の管理下でなくなるようにする。
 	};

@@ -900,6 +900,54 @@ namespace GameEngine
 		Push( m_pEnemyShotGroupData->m_pStageData->m_Difficulty );
 	}
 
+	void EnemyShotGroupVCPU::SysSendEventToEnemyShotGroup()
+	{
+		Pop();
+		int ev = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		// グローバルに割り当てられたものに、イベント送信
+		std::for_each(	m_pEnemyShotGroupData->m_pStageData->m_EnemyShotGroupList.begin(),
+						m_pEnemyShotGroupData->m_pStageData->m_EnemyShotGroupList.end(),
+						[id,ev]( EnemyShotGroup* pGroup ){
+							if( id == pGroup->GetSubID() ){
+								pGroup->SendEvent( ev );
+							} } );
+
+		// 敵に割り当てられているものに、イベント送信
+		std::for_each(	m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.begin(),
+						m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.end(),
+						[id,ev]( EnemyShotGroup* pGroup ){
+							if( id == pGroup->GetSubID() ){
+								pGroup->SendEvent( ev );
+							} } );
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotGroupSubID()
+	{
+		Pop();
+		int subID = Top().m_Integer;
+		Pop();
+
+		m_pEnemyShotGroupData->m_SubID = subID;
+	}
+
+	void EnemyShotGroupVCPU::SysGetEvent()
+	{
+		Pop();
+		
+		if( m_pEnemyShotGroupData->m_EventQueue.empty() ){
+			Push( -1 );
+		}
+		else{
+			int ev = m_pEnemyShotGroupData->m_EventQueue.front();
+			m_pEnemyShotGroupData->m_EventQueue.pop();
+			Push( ev );
+		}
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -1084,6 +1132,16 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_DISABLE_INVINCIBLE_MODE:
 				SysDisableEnemyShotInvincibleMode();
+				break;
+
+			case VM::SYS_SEND_EVENT_TO_ENEMY_SHOT_GROUP:
+				SysSendEventToEnemyShotGroup();
+				break;
+			case VM::SYS_SET_ENEMY_SHOT_GROUP_SUB_ID:
+				SysSetEnemyShotGroupSubID();
+				break;
+			case VM::SYS_GET_EVENT:
+				SysGetEvent();
 				break;
 
 			case VM::SYS_STAGE_GET_FRAME:

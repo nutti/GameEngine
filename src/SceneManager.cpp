@@ -22,6 +22,7 @@
 
 #include "ResourceID.h"
 
+#include "Timer.h"
 
 namespace GameEngine
 {
@@ -66,6 +67,8 @@ namespace GameEngine
 
 		bool									m_IsFirstStage;			// 最初のステージか？
 
+		Timer									m_PlayTime;				// プレイ時間
+
 		void SaveStageScoreData( int stageNo, const Stage& stage );	// ステージのスコアを保存
 		void SaveStageReplayData( int stageNo, const Stage& stage );	// ステージのリプレイ情報を保存
 		void SaveStageReplayData( int stageNo, const InitialGameData& data );
@@ -109,7 +112,8 @@ namespace GameEngine
 	};
 
 	SceneManager::Impl::Impl( std::shared_ptr < EventMediator > pEventMediator ) :	m_pSceneBuilder( new SceneBuilder ),
-																					m_pEventMediator( pEventMediator )
+																					m_pEventMediator( pEventMediator ),
+																					m_PlayTime()
 	{
 		m_pCurScene.reset( m_pSceneBuilder->CreateNextScene( SCENE_TYPE_UNKNOWN ) );
 		m_pNextScene.reset();
@@ -307,6 +311,8 @@ namespace GameEngine
 
 	SceneType SceneManager::Impl::Update()
 	{
+		static bool prevPaused = false;
+
 		// シーン更新
 		SceneType next = m_pCurScene->Update();
 		if( next == SCENE_TYPE_PAUSED ){
@@ -315,6 +321,18 @@ namespace GameEngine
 		else{
 			m_Paused = false;
 		}
+
+		if( prevPaused != m_Paused ){
+			if( m_Paused ){
+				m_PlayTime.Pause();
+			}
+			else{
+				m_PlayTime.Resume();
+			}
+		}
+
+		prevPaused = m_Paused;
+
 
 		// シーン遷移
 		if( next != SCENE_TYPE_NOT_CHANGE && m_CurSceneType != SCENE_TYPE_LOADING && next != SCENE_TYPE_PAUSED ){
@@ -374,7 +392,7 @@ namespace GameEngine
 							p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE, &m_CurStage );
 						}
 						else{
-							throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+							throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 						}
 					}
 					else{
@@ -386,6 +404,9 @@ namespace GameEngine
 							m_GameMode = GAME_MODE_NORMAL;
 							m_IsFirstStage = true;
 							m_CurStage = 1;
+							// プレイ時間の記録を開始
+							m_PlayTime.Init();
+							m_PlayTime.Start();
 							// 統計情報の更新
 							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_Play += 1;
 							// 初期データの設定
@@ -401,7 +422,7 @@ namespace GameEngine
 								m_CurStage = pScene->GetStageNo();
 							}
 							else{
-								throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+								throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 							}
 							// 統計情報の更新
 							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_Play += 1;
@@ -451,6 +472,9 @@ namespace GameEngine
 						// ステージからの遷移であることを確認
 						Stage* pStage = dynamic_cast < Stage* > ( m_pCurScene.get() );
 						if( pStage ){
+							// プレイ時間の記録
+							m_PlayTime.Stop();
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_PlayTime += m_PlayTime.GetInterval();
 							// 最終ステージの結果を更新
 							// 初期データの構築
 							SetupInitialData( *pStage );
@@ -463,7 +487,7 @@ namespace GameEngine
 							p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
 						}
 						else{
-							throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+							throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 						}
 					}
 					// ※最終的には新たな状態を作り、リプレイかどうかで分岐を行う。

@@ -5,6 +5,7 @@
 #include "ResourceID.h"
 #include "GameStateTypes.h"
 
+
 #include "Util.h"
 
 namespace GameEngine
@@ -51,15 +52,17 @@ namespace GameEngine
 
 	SceneType DifficultySelection::Impl::Update()
 	{
+		++m_Counter;
+
 		// 最初の時のカウンタ
 		if( m_Counter < 60 ){
-			++m_Counter;
+			//++m_Counter;
 			return SCENE_TYPE_NOT_CHANGE;
 		}
 
 		if( m_PrepareCounter > 0 ){
 			++m_PrepareCounter;
-			if( m_PrepareCounter == 20 ){
+			if( m_PrepareCounter == 60 ){
 				return SCENE_TYPE_STAGE;
 			}
 			else{
@@ -106,7 +109,7 @@ namespace GameEngine
 		}
 
 
-		++m_Counter;
+		
 
 		return SCENE_TYPE_NOT_CHANGE;
 	}
@@ -119,11 +122,11 @@ namespace GameEngine
 			weight = ( m_Counter * 6 ) & 0xFF;
 		}
 		else{
-			if( m_PrepareCounter == 0 ){
+			if( m_PrepareCounter <= 40 ){
 				weight = 0x78;		// 120
 			}
-			else if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
-				weight = 0x78 + 10 + m_PrepareCounter * 6;
+			else if( m_PrepareCounter > 40 && m_PrepareCounter <= 60 ){
+				weight = 0x78 + 10 + ( m_PrepareCounter - 40 ) * 6;
 			}
 			else{
 				weight = 0xFF;
@@ -132,6 +135,67 @@ namespace GameEngine
 		int color = weight << 16 | weight << 8 | weight;
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 							0.0f, 0.0f, false, 0xFF << 24 | color );
+
+
+
+		// 背景エフェクト
+		int alpha;
+		//int alpha2;
+		if( m_Counter < 60 ){
+			alpha = ( m_Counter ) & 0xFF;
+		//	alpha2 = ( m_Counter ) & 0xFF;
+		}
+		else{
+			if( m_PrepareCounter <= 20 ){
+				alpha = 0x3C;		// 60
+		//		alpha2 = 0x3C + 0x30 * sin( m_Counter * 0.03f );
+			}
+			else if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
+				alpha = 0x3C - ( m_PrepareCounter - 20 ) * 3;
+		//		alpha2 = 0x3C * sin( m_Counter * 0.03f ) * ( 30 - m_PrepareCounter );
+			}
+			else{
+				alpha = 0x00;
+		//		alpha2 = 0x00;
+			}
+		}
+
+		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
+		for( int i = 0; i < 100; ++i ){
+			int alpha2;
+			if( m_Counter < 120 ){
+				alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( m_Counter ) / 120;
+			}
+			else{
+				if( m_PrepareCounter <= 20 ){
+					alpha2 = 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 );
+				}
+				else if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
+					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( 40 - m_PrepareCounter ) / 20;
+				}
+				else{
+					alpha2 = 0x00;
+				}
+			}
+
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL + i % 3 ],
+								320.0f + ( i % 5 ) * 110.0f * cos( m_Counter * 0.005f + i * 123.1f ),
+								240.0f + ( i % 4 ) * 90.0f * sin( m_Counter * 0.005f + i * 123.1f ),
+								( i % 5 ) * 0.2f * cos( m_Counter * 0.005f + i * 123.1f ),
+								( i % 5 ) * 0.2f * cos( m_Counter * 0.005f + i * 123.1f ),
+								( i % 10 ) * m_Counter * 0.02f,
+								true,
+								alpha << 24 | alpha << 16 | alpha << 8 | alpha );
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL + i % 3 ],
+								320.0f + ( i % 5 ) * 110.0f * cos( m_Counter * 0.005f + i * 123.1f ),
+								240.0f + ( i % 4 ) * 90.0f * sin( m_Counter * 0.005f + i * 123.1f ),
+								( i % 5 ) * 0.2f * cos( m_Counter * 0.005f + i * 123.1f ),
+								( i % 5 ) * 0.2f * cos( m_Counter * 0.005f + i * 123.1f ),
+								( i % 10 ) * m_Counter * 0.02f,
+								true,
+								alpha2 << 24 | alpha2 << 16 | alpha2 << 8 | alpha2 );
+		}
+		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 	}
 
 	void DifficultySelection::Impl::DrawDifficultySelection() const
@@ -154,26 +218,40 @@ namespace GameEngine
 		float scale[ 5 ] = { 0.8f, 0.8f, 0.8f, 0.8f, 0.8f };
 
 		int alpha = 0xFF;
+		int alpha2 = 0xFF;
 		if( m_Counter < 60 ){
 			alpha = m_Counter * 4;
+			alpha2 = alpha;
 		}
 		else{
-			if( m_PrepareCounter == 0 ){
+			if( m_PrepareCounter <= 0 ){
 				alpha = 0xFF;
+				alpha2 = alpha;
 			}
-			else if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
-				alpha = ( 0xFF * ( 20 - m_PrepareCounter ) ) / 20;
+			else if( m_PrepareCounter > 0 && m_PrepareCounter <= 15 ){
+				alpha = 127 + static_cast < int > ( 127 * cos( MAPIL::DegToRad( m_PrepareCounter * 120.0f ) ) );
+				alpha2 = 0xFF;
+			}
+			else if( m_PrepareCounter > 15 && m_PrepareCounter <= 20 ){
+				alpha = 0xFF;
+				alpha2 = 0xFF;
+			}
+			else if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
+				alpha = ( 0xFF * ( 40 - m_PrepareCounter ) ) / 20;
+				alpha2 = alpha;
 			}
 			else{
 				alpha = 0x00;
+				alpha2 = alpha;
 			}
 		}
-		int color = 0xAAAAAA | alpha << 24;
+		int color = 0xAAAAAA | alpha2 << 24;
 		int selColor = 0xFFFFFF | alpha << 24;
 		if( m_SelectCounter > 0 ){
 			selColor = 0xAAAAAA | alpha << 24;
 		}
 		int color2 = 0xFFFFFF | alpha << 24;
+		int color3 = 0xFFFFFF | alpha2 << 24;
 
 		for( int i = 0; i < sizeof( texture ) / sizeof( texture[ 0 ] ); ++i ){
 			int prev2;
@@ -212,9 +290,19 @@ namespace GameEngine
 			scale[ 3 ] = 0.6f - SCALE_FACTOR * m_SelectCounter;
 			scale[ 4 ] = 0.4f - SCALE_FACTOR * m_SelectCounter;
 
+			float offsetX = 0.0f;
+
+			if( m_PrepareCounter >= 20 && m_PrepareCounter < 60 ){
+				offsetX = ( m_PrepareCounter - 20 ) * 20.0f;
+			}
+
+			if( m_Counter < 60 ){
+				offsetX = ( 60 - m_Counter ) * 40.0f;
+			}
+
 			if( i == m_MenuPointed ){
 				MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ texture[ i ] ],
-									x[ 2 ] + m_SelectCounter * MOVE_X, y[ 0 ], scale[ 2 ], scale[ 2 ], true, selColor );
+									x[ 2 ] + m_SelectCounter * MOVE_X - offsetX, y[ 0 ], scale[ 2 ], scale[ 2 ], true, selColor );
 			}
 			else if( i == prev2 ){
 				MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ texture[ i ] ],
@@ -222,11 +310,11 @@ namespace GameEngine
 			}
 			else if( i == prev ){
 				MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ texture[ i ] ],
-									x[ 1 ] + m_SelectCounter * MOVE_X, y[ 0 ], scale[ 1 ], scale[ 1 ], true, color );
+									x[ 1 ] + m_SelectCounter * MOVE_X - offsetX, y[ 0 ], scale[ 1 ], scale[ 1 ], true, color );
 			}
 			else if( i == next ){
 				MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ texture[ i ] ],
-									x[ 3 ] + m_SelectCounter * MOVE_X, y[ 0 ], scale[ 3 ], scale[ 3 ], true, color );
+									x[ 3 ] + m_SelectCounter * MOVE_X + offsetX, y[ 0 ], scale[ 3 ], scale[ 3 ], true, color );
 			}
 			else if( i == next2 ){
 				MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ texture[ i ] ],
@@ -235,7 +323,7 @@ namespace GameEngine
 		}
 
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_TITLE ],
-							320.0f, 100.0f, 0.7f, 0.7f, true, color2 );
+							320.0f, 100.0f, 0.7f, 0.7f, true, color3 );
 	}
 
 	void DifficultySelection::Impl::DrawDifficultyInfo() const
@@ -245,11 +333,11 @@ namespace GameEngine
 			alpha = ( ( m_Counter - 20 ) * 6 + 10 ) & 0xFF;
 		}
 		else if( m_Counter >= 60 ){
-			if( m_PrepareCounter == 0 ){
+			if( m_PrepareCounter <= 20 ){
 				alpha = 0xFF;
 			}
-			else if( m_PrepareCounter > 0 && m_PrepareCounter <= 20 ){
-				alpha = ( 0xFF * ( 20 - m_PrepareCounter ) ) / 20;
+			else if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
+				alpha = ( 0xFF * ( 40 - m_PrepareCounter ) ) / 20;
 			}
 			else{
 				alpha = 0x00;

@@ -83,6 +83,10 @@ namespace GameEngine
 		void SysGetEnemyShotGroupGReg();
 		void SysGetEnemyShotGroupGRegIndex();
 
+		void SysSendEventToEnemyShotGroup();
+		void SysSetEnemyShotGroupSubID();
+		void SysGetEvent();
+
 		void SysGetDifficulty();
 
 		void SysPlaySE();

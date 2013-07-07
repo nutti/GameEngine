@@ -47,6 +47,8 @@ namespace GameEngine
 		void SetCollisionRadius( int id, float radius );
 		void SetShotMovement( int id, float angle, float speed );
 		void SetShotStatus( int id, float x, float y, float angle, float speed, float radius, int imgID );
+		void SendEvent( int id );
+		int GetSubID() const;
 		bool IsEmpty() const;
 		void DetachEnemyControl();
 	};
@@ -68,6 +70,7 @@ namespace GameEngine
 		m_EnemyShotGroupData.m_EnemyControlled = true;
 		m_EnemyShotGroupData.m_Reg = 0;
 		m_EnemyShotGroupData.m_FReg = 0.0f;
+		m_EnemyShotGroupData.m_SubID = -1;
 		MAPIL::ZeroObject( m_EnemyShotGroupData.m_pShots, sizeof( m_EnemyShotGroupData.m_pShots ) );
 	}
 
@@ -194,6 +197,16 @@ namespace GameEngine
 		}
 	}
 
+	inline void EnemyShotGroup::Impl::SendEvent( int id )
+	{
+		m_EnemyShotGroupData.m_EventQueue.push( id );
+	}
+
+	inline int EnemyShotGroup::Impl::GetSubID() const
+	{
+		return m_EnemyShotGroupData.m_SubID;
+	}
+
 	inline bool EnemyShotGroup::Impl::IsEmpty() const
 	{
 		if( m_EnemyShotGroupData.m_IsNew ){
@@ -314,6 +327,16 @@ namespace GameEngine
 	void EnemyShotGroup::SetShotStatus( int id, float x, float y, float angle, float speed, float radius, int imgID )
 	{
 		m_pImpl->SetShotStatus( id, x, y, angle, speed, radius, imgID );
+	}
+
+	void EnemyShotGroup::SendEvent( int id )
+	{
+		m_pImpl->SendEvent( id );
+	}
+
+	int EnemyShotGroup::GetSubID() const
+	{
+		return m_pImpl->GetSubID();
 	}
 
 	bool EnemyShotGroup::IsEmpty() const

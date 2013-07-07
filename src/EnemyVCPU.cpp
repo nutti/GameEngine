@@ -757,6 +757,26 @@ namespace GameEngine
 		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 	}
 
+	void EnemyVCPU::SysCreateEnemyShotGroupGReg5()
+	{
+		GameUnit reg[ 5 ];
+
+		Pop();
+		for( int i = 4; i >= 0; --i ){
+			reg[ i ].SetRawValue( Top().m_Integer );
+			Pop();
+		}
+		int id = Top().m_Integer;
+		Pop();
+
+		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
+		pNewGroup->Init();
+		for( int i = 0; i < 5; ++i ){
+			pNewGroup->SetGReg( i, reg[ i ] );
+		}
+		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
+	}
+
 	void EnemyVCPU::SysGetItemPosXGU()
 	{
 		Pop();
@@ -1092,6 +1112,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_GREG:
 				SysCreateEnemyShotGroupGReg();
+				break;
+			case VM::SYS_ENEMY_CREATE_SHOT_GROUP_GREG5:
+				SysCreateEnemyShotGroupGReg5();
 				break;
 			case VM::SYS_CREATE_ENEMY_INI_POS_REG_GU:
 				SysCreateEnemyIniPosRegGU();
