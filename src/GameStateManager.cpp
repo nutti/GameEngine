@@ -43,6 +43,7 @@ namespace GameEngine
 		GameConfigData GetConfigData() const;
 		void LoadConfigData();
 		DisplayedNormalPlayStat GetDisplayedNormalPlayStat() const;
+		DisplayedStageSelectionPlayStat GetDisplayedStageSelectionPlayStat() const;
 		GameStat GetGameStat() const;
 		void SetGameStat( const GameStat& stat );
 	};
@@ -225,10 +226,22 @@ namespace GameEngine
 		DisplayedNormalPlayStat stat;
 		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
 			stat.m_HIScore[ i ] = m_GameDataHolder.GetHIScore( i );
-			stat.m_Stat[ i ].m_Play = m_GameDataHolder.GetPlayCount( i );
-			stat.m_Stat[ i ].m_AllClear = m_GameDataHolder.GetAllClearCount( i );
-			stat.m_Stat[ i ].m_PlayTime = m_GameDataHolder.GetPlayTime( i );
-			stat.m_Stat[ i ].m_Progress = m_GameDataHolder.GetProgress( i );
+			stat.m_Stat[ i ] = m_GameDataHolder.GetNormalPlayStat( i );
+			//stat.m_Stat[ i ].m_Play = m_GameDataHolder.GetPlayCount( i );
+			//stat.m_Stat[ i ].m_AllClear = m_GameDataHolder.GetAllClearCount( i );
+			//stat.m_Stat[ i ].m_PlayTime = m_GameDataHolder.GetPlayTime( i );
+			//stat.m_Stat[ i ].m_Progress = m_GameDataHolder.GetProgress( i );
+		}
+
+		return stat;
+	}
+
+	DisplayedStageSelectionPlayStat GameStateManager::Impl::GetDisplayedStageSelectionPlayStat() const
+	{
+		DisplayedStageSelectionPlayStat stat;
+
+		for( int i = 0; i < GAME_DIFFICULTY_TOTAL; ++i ){
+			stat.m_Stat[ i ] = m_GameDataHolder.GetStageSelectionPlayStat( i );
 		}
 
 		return stat;
@@ -363,6 +376,11 @@ namespace GameEngine
 	DisplayedNormalPlayStat GameStateManager::GetDisplayedNormalPlayStat() const
 	{
 		return m_pImpl->GetDisplayedNormalPlayStat();
+	}
+
+	DisplayedStageSelectionPlayStat GameStateManager::GetDisplayedStageSelectionPlayStat() const
+	{
+		return m_pImpl->GetDisplayedStageSelectionPlayStat();
 	}
 
 	GameStat GameStateManager::GetGameStat() const

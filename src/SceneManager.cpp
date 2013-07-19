@@ -48,6 +48,7 @@ namespace GameEngine
 		DisplayedReplayInfo						m_DisplayedReplayInfo;	// 表示用リプレイ情報
 		DisplayedReplayInfo::Entry				m_ReplayInfo;			// 現在プレイ中の情報
 		DisplayedNormalPlayStat					m_DispNormalPlayStat;	// 表示用の通常プレイ情報
+		DisplayedStageSelectionPlayStat			m_DispStagePlayStat;	// 表示用のステージ選択プレイ情報
 
 		// コンフィグデータ
 		GameConfigData							m_ConfigData;			// 設定データ
@@ -88,6 +89,7 @@ namespace GameEngine
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
 		void AttachDisplayedNormalPlayStat( const DisplayedNormalPlayStat& stat );
+		void AttachDisplayedStageSelectionPlayStat( const DisplayedStageSelectionPlayStat& stat );
 		void AttachGameStat( const GameStat& stat );
 		void AttachConfigData( const GameConfigData& data );
 		void AttachInitialGameData( const InitialGameData& data );
@@ -258,15 +260,16 @@ namespace GameEngine
 		m_IniGameData.m_PosX = 300;
 		m_IniGameData.m_PosY = 400;
 		m_IniGameData.m_HP = 10;
-#if defined ( MAKE_MODE_DEBUG )
-		m_IniGameData.m_HP = 10;
-#endif
 		for( int i = 0; i < 3; ++i ){
 			m_IniGameData.m_ConsGauge[ i ] = 1000;
 			m_IniGameData.m_ConsLevel[ i ] = 1000;
 		};
 		m_IniGameData.m_ShotPower = 0;
 		m_IniGameData.m_Cons = 0;			// PLAYER_CONS_NORMAL
+#if defined ( MAKE_MODE_DEBUG )
+		m_IniGameData.m_HP = 10;
+		m_IniGameData.m_ShotPower = 40;
+#endif
 	}
 
 	void SceneManager::Impl::DrawLoading()
@@ -360,7 +363,7 @@ namespace GameEngine
 					}
 				}
 				else if( next == SCENE_TYPE_STAGE_SELECTION ){
-					if( m_CurSceneType == SCENE_TYPE_DIFFICULTY_SELECTION ){
+					/*if( m_CurSceneType == SCENE_TYPE_DIFFICULTY_SELECTION ){
 						DifficultySelection* pScene = dynamic_cast < DifficultySelection* > ( m_pCurScene.get() );
 						if( pScene ){
 							m_GameDifficulty = pScene->GetDifficulty();
@@ -368,17 +371,18 @@ namespace GameEngine
 						else{
 							throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 						}
-					}
+					}*/
+					m_GameMode = GAME_MODE_ONE_STAGE;
 					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE_SELECTION );
 				}
 				else if( next == SCENE_TYPE_DIFFICULTY_SELECTION ){
 					m_GameMode = GAME_MODE_NORMAL;
 					p->SendEvent( EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION );
 				}
-				else if( next == SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE ){
-					m_GameMode = GAME_MODE_ONE_STAGE;
-					p->SendEvent( EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION_IN_STAGE );
-				}
+				//else if( next == SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE ){
+				//	m_GameMode = GAME_MODE_ONE_STAGE;
+				//	p->SendEvent( EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION_IN_STAGE );
+				//}
 				else if( next == SCENE_TYPE_STAGE ){
 					if( m_CurSceneType == SCENE_TYPE_REPLAY ){
 						m_GameMode = GAME_MODE_REPLAY;
@@ -420,6 +424,7 @@ namespace GameEngine
 							StageSelection* pScene = dynamic_cast < StageSelection* > ( m_pCurScene.get() );
 							if( pScene ){
 								m_CurStage = pScene->GetStageNo();
+								m_GameDifficulty = pScene->GetDifficulty();
 							}
 							else{
 								throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
@@ -573,6 +578,11 @@ namespace GameEngine
 		m_DispNormalPlayStat = stat;
 	}
 
+	void SceneManager::Impl::AttachDisplayedStageSelectionPlayStat( const DisplayedStageSelectionPlayStat& stat )
+	{
+		m_DispStagePlayStat = stat;
+	}
+
 	void SceneManager::Impl::AttachGameStat( const GameStat& stat )
 	{
 		m_GameStat = stat;
@@ -694,11 +704,12 @@ namespace GameEngine
 			m_CurSceneType = SCENE_TYPE_REPLAY_ENTRY;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( DifficultySelection ) ){
-			( (DifficultySelection*) m_pCurScene.get() )->SetGameMode( m_GameMode );
+			//( (DifficultySelection*) m_pCurScene.get() )->SetGameMode( m_GameMode );
 			( (DifficultySelection*) m_pCurScene.get() )->AttachNormalPlayStat( m_DispNormalPlayStat );
 			m_CurSceneType = SCENE_TYPE_DIFFICULTY_SELECTION;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( StageSelection ) ){
+			( (StageSelection*) m_pCurScene.get() )->AttachStageSelectionStat( m_DispStagePlayStat );
 			m_CurSceneType = SCENE_TYPE_STAGE_SELECTION;
 		}
 		m_pCurScene->AttachResourceMap( m_ResourceMap );
@@ -786,6 +797,11 @@ namespace GameEngine
 	void SceneManager::AttachDisplayedNormalPlayStat( const DisplayedNormalPlayStat& stat )
 	{
 		m_pImpl->AttachDisplayedNormalPlayStat( stat );
+	}
+
+	void SceneManager::AttachDisplayedStageSelectionPlayStat( const DisplayedStageSelectionPlayStat& stat )
+	{
+		m_pImpl->AttachDisplayedStageSelectionPlayStat( stat );
 	}
 
 	const DisplayedSaveData& SceneManager::GetDisplayedSaveData() const

@@ -19,7 +19,9 @@ namespace GameEngine
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
+		void AttachStageSelectionStat( const DisplayedStageSelectionPlayStat& stat );
 		int GetStageNo() const;
+		int GetDifficulty() const;
 	};
 }
 

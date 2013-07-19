@@ -37,6 +37,7 @@ namespace GameEngine
 		GameConfigData GetConfigData() const;
 		void LoadConfigData();
 		DisplayedNormalPlayStat GetDisplayedNormalPlayStat() const;
+		DisplayedStageSelectionPlayStat GetDisplayedStageSelectionPlayStat() const;
 		GameStat GetGameStat() const;
 		void SetGameStat( const GameStat& stat );
 	};

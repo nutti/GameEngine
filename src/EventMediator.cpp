@@ -319,6 +319,24 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_TITLE,
 											"archive/resource/texture/difficulty_selection/title.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_1,
+											"archive/resource/texture/stage_selection/stage_1_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_2,
+											"archive/resource/texture/stage_selection/stage_2_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_3,
+											"archive/resource/texture/stage_selection/stage_3_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_4,
+											"archive/resource/texture/stage_selection/stage_4_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_5,
+											"archive/resource/texture/stage_selection/stage_5_selection.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_TITLE,
+											"archive/resource/texture/stage_selection/title.png", false );
 		m_Loading.Start();
 	}
 
@@ -373,6 +391,7 @@ namespace GameEngine
 			// 難易度選択画面（ステージ選択あり）移行要求
 			case EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION_IN_STAGE:{
 				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->AttachDisplayedStageSelectionPlayStat( m_pGameStateManager->GetDisplayedStageSelectionPlayStat() );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_DIFFICULTY_SELECTION );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
@@ -512,7 +531,7 @@ namespace GameEngine
 				m_Loading.AddStageResourceItem( stage, false );
 #elif defined ( MAKE_MODE_DEBUG )
 				//m_Loading.AddStageResourceItem( stage, false );
-				m_Loading.AddStageResourceItem( 3, false );
+				m_Loading.AddStageResourceItem( 4, false );
 #endif
 #endif
 				m_Loading.Start();

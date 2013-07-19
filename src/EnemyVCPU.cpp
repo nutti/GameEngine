@@ -453,6 +453,37 @@ namespace GameEngine
 		m_pEnemyData->m_pStageData->m_EffectList.push_back( pNewEffect );
 	}
 
+	void EnemyVCPU::SysSendEventToEnemyShotGroup()
+	{
+		Pop();
+		int ev = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		// グローバルに割り当てられたものに、イベント送信
+		std::for_each(	m_pEnemyData->m_pStageData->m_EnemyShotGroupList.begin(),
+						m_pEnemyData->m_pStageData->m_EnemyShotGroupList.end(),
+						[id,ev]( EnemyShotGroup* pGroup ){
+							if( pGroup == 0 ){
+								return;
+							}
+							if( id == pGroup->GetSubID() ){
+								pGroup->SendEvent( ev );
+							} } );
+
+		// 敵に割り当てられているものに、イベント送信
+		std::for_each(	m_pEnemyData->m_ShotGroupList.begin(),
+						m_pEnemyData->m_ShotGroupList.end(),
+						[id,ev]( EnemyShotGroup* pGroup ){
+							if( pGroup == 0 ){
+								return;
+							}
+							if( id == pGroup->GetSubID() ){
+								pGroup->SendEvent( ev );
+							} } );
+	}
+
 	void EnemyVCPU::SysCreateItem()
 	{
 		Pop();
@@ -1141,7 +1172,9 @@ namespace GameEngine
 			case VM::SYS_STOP_SE:
 				SysStopSE();
 				break;
-
+			case VM::SYS_SEND_EVENT_TO_ENEMY_SHOT_GROUP:
+				SysSendEventToEnemyShotGroup();
+				break;
 			case VM::SYS_STAGE_SET_BOSS_FLAG:
 				SysStageSetBossFlag();
 				break;

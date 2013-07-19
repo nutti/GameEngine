@@ -154,6 +154,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y, TYPE_FLOAT, "GetEnemyShotPosY", "i" );				// float GetEnemyShotPosY( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POWER, TYPE_INTEGER, "GetEnemyShotPower", "i" );			// int GetEnemyShotPower( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_ANGLE, TYPE_FLOAT, "GetEnemyShotAngle", "i" );			// int GetEnemyShotAngle( shot_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_SPEED_GU, TYPE_GU, "GetEnemyShotSpeedGU", "i" );			// gu GetEnemyShotSpeedGU( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_REG, TYPE_INTEGER, "GetEnemyShotGroupReg", "" );			// int GetEnemyShotGroupReg();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_FREG, TYPE_FLOAT, "GetEnemyShotGroupFReg", "" );			// float GetEnemyShotGroupFReg();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_GREG, TYPE_GU, "GetEnemyShotGroupGReg", "" );			// gu GetEnemyShotGroupGReg();

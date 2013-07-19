@@ -22,7 +22,7 @@ namespace GameEngine
 		int							m_Counter;
 		int							m_MenuPointed;
 		bool						m_PlayBGM;
-		int							m_GameMode;
+	//	int							m_GameMode;
 		int							m_PrepareCounter;
 
 		int							m_SelectCounter;
@@ -39,7 +39,7 @@ namespace GameEngine
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachNormalPlayStat( const DisplayedNormalPlayStat& stat );
 		int GetDifficulty() const;
-		void SetGameMode( int mode );
+		//void SetGameMode( int mode );
 	};
 
 	DifficultySelection::Impl::Impl()
@@ -80,14 +80,14 @@ namespace GameEngine
 		}
 
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			if( m_GameMode == GAME_MODE_NORMAL ){
+		//	if( m_GameMode == GAME_MODE_NORMAL ){
 				MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
 				MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
 				m_PrepareCounter = 1;
-			}
-			else{
-				return SCENE_TYPE_STAGE_SELECTION;
-			}
+		//	}
+		//	else{
+		//		return SCENE_TYPE_STAGE_SELECTION;
+		//	}
 		}
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
 			return SCENE_TYPE_MENU;
@@ -143,20 +143,16 @@ namespace GameEngine
 		//int alpha2;
 		if( m_Counter < 60 ){
 			alpha = ( m_Counter ) & 0xFF;
-		//	alpha2 = ( m_Counter ) & 0xFF;
 		}
 		else{
 			if( m_PrepareCounter <= 20 ){
 				alpha = 0x3C;		// 60
-		//		alpha2 = 0x3C + 0x30 * sin( m_Counter * 0.03f );
 			}
 			else if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
 				alpha = 0x3C - ( m_PrepareCounter - 20 ) * 3;
-		//		alpha2 = 0x3C * sin( m_Counter * 0.03f ) * ( 30 - m_PrepareCounter );
 			}
 			else{
 				alpha = 0x00;
-		//		alpha2 = 0x00;
 			}
 		}
 
@@ -329,16 +325,20 @@ namespace GameEngine
 	void DifficultySelection::Impl::DrawDifficultyInfo() const
 	{
 		int alpha = 0;
+		// シーン開始時
 		if( m_Counter >= 20 && m_Counter < 60 ){
 			alpha = ( ( m_Counter - 20 ) * 6 + 10 ) & 0xFF;
 		}
 		else if( m_Counter >= 60 ){
+			// 選択時遷移1
 			if( m_PrepareCounter <= 20 ){
 				alpha = 0xFF;
 			}
+			// 選択時遷移2
 			else if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
 				alpha = ( 0xFF * ( 40 - m_PrepareCounter ) ) / 20;
 			}
+			// 通常時
 			else{
 				alpha = 0x00;
 			}
@@ -406,10 +406,10 @@ namespace GameEngine
 		return m_MenuPointed;
 	}
 
-	void DifficultySelection::Impl::SetGameMode( int mode )
-	{
-		m_GameMode = mode;
-	}
+	//void DifficultySelection::Impl::SetGameMode( int mode )
+	//{
+	//	m_GameMode = mode;
+	//}
 
 	// ----------------------------------
 	// 実装クラスの呼び出し
@@ -457,8 +457,8 @@ namespace GameEngine
 		return m_pImpl->GetDifficulty();
 	}
 
-	void DifficultySelection::SetGameMode( int mode )
-	{
-		m_pImpl->SetGameMode( mode );
-	}
+	//void DifficultySelection::SetGameMode( int mode )
+	//{
+	//	m_pImpl->SetGameMode( mode );
+	//}
 }

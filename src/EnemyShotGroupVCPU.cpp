@@ -881,6 +881,20 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysGetEnemyShotSpeedGU()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			Push( m_pEnemyShotGroupData->m_pShots[ id ]->GetSpeed().GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
 	void EnemyShotGroupVCPU::SysEnemyShotAddSpeedGU()
 	{
 		Pop();
@@ -912,6 +926,9 @@ namespace GameEngine
 		std::for_each(	m_pEnemyShotGroupData->m_pStageData->m_EnemyShotGroupList.begin(),
 						m_pEnemyShotGroupData->m_pStageData->m_EnemyShotGroupList.end(),
 						[id,ev]( EnemyShotGroup* pGroup ){
+							if( pGroup == 0 ){
+								return;
+							}
 							if( id == pGroup->GetSubID() ){
 								pGroup->SendEvent( ev );
 							} } );
@@ -920,6 +937,9 @@ namespace GameEngine
 		std::for_each(	m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.begin(),
 						m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.end(),
 						[id,ev]( EnemyShotGroup* pGroup ){
+							if( pGroup == 0 ){
+								return;
+							}
 							if( id == pGroup->GetSubID() ){
 								pGroup->SendEvent( ev );
 							} } );
@@ -1035,6 +1055,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_ADD_SPEED_GU:
 				SysEnemyShotAddSpeedGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_GET_SPEED_GU:
+				SysGetEnemyShotSpeedGU();
 				break;
 
 			case VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT:

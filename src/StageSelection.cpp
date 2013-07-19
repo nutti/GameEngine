@@ -24,19 +24,20 @@ namespace GameEngine
 	class StageSelection::Impl
 	{
 	private:
-		ButtonStatusHolder			m_ButtonStatus;
-		ResourceMap					m_ResourceMap;
-		int							m_Counter;
-		int							m_SelectedDifficulty;
-		int							m_SelectedStage;
-		bool						m_PlayBGM;
-		int							m_PrepareCounter;
+		ButtonStatusHolder					m_ButtonStatus;
+		ResourceMap							m_ResourceMap;
+		DisplayedStageSelectionPlayStat		m_DispStagePlayStat;
+		int									m_Counter;
+		int									m_SelectedDifficulty;
+		int									m_SelectedStage;
+		bool								m_PlayBGM;
+		int									m_PrepareCounter;
 
-		int							m_SelectionMode;
+		int									m_SelectionMode;
+		
+		int									m_TransitionCounter;
 
-		int							m_TransitionCounter;
-
-		int							m_DifficultySelectCounter;
+		int									m_DifficultySelectCounter;
 
 		std::list < std::shared_ptr < StageSelectionView > >		m_ViewList;
 
@@ -47,10 +48,13 @@ namespace GameEngine
 		Impl();
 		~Impl();
 		SceneType Update();
+		void Init();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
+		void AttachStageSelectionStat( const DisplayedStageSelectionPlayStat& stat );
 		int GetStageNo() const;
+		int GetDifficulty() const;
 	};
 
 	StageSelection::Impl::Impl() : m_ViewList()
@@ -64,14 +68,39 @@ namespace GameEngine
 		m_TransitionCounter = 0;
 
 		m_ViewList.clear();
-		StageView* pStageView = new StageView();
-		pStageView->SetPermittedStage( PERMITTED_STAGE_TOTAL );
-		m_ViewList.push_back( std::shared_ptr < StageSelectionView > ( pStageView ) );
 	}
 
 	StageSelection::Impl::~Impl()
 	{
 		m_ViewList.clear();
+	}
+
+	void StageSelection::Impl::Init()
+	{
+		// ステージ選択画像の追加
+		StageView* pStageView = new StageView();
+		pStageView->SetPermittedStage( PERMITTED_STAGE_TOTAL );
+		pStageView->AttachResourceMap( m_ResourceMap );
+		pStageView->Init();
+		m_ViewList.push_back( std::shared_ptr < StageSelectionView > ( pStageView ) );
+
+		// ステージ選択タイトル画像の追加
+		StageSelectionTitleView* pStageSelectionTitleView = new StageSelectionTitleView();
+		pStageSelectionTitleView->AttachResourceMap( m_ResourceMap );
+		pStageSelectionTitleView->Init();
+		m_ViewList.push_back( std::shared_ptr < StageSelectionTitleView > ( pStageSelectionTitleView ) );
+
+		// 背景エフェクトの追加
+		StageSelectionBackgroundView* pStageSelectionBGView = new StageSelectionBackgroundView();
+		pStageSelectionBGView->AttachResourceMap( m_ResourceMap );
+		pStageSelectionBGView->Init();
+		m_ViewList.push_back( std::shared_ptr < StageSelectionBackgroundView > ( pStageSelectionBGView ) );
+
+		// 統計情報の追加
+		StageSelectionStatView* pStageSelectionStatView = new StageSelectionStatView();
+		pStageSelectionStatView->AttachResourceMap( m_ResourceMap );
+		pStageSelectionBGView->Init();
+		m_ViewList.push_back( std::shared_ptr < StageSelectionStatView > ( pStageSelectionStatView ) );
 	}
 
 	SceneType StageSelection::Impl::Update()
@@ -83,7 +112,7 @@ namespace GameEngine
 
 		if( m_PrepareCounter > 0 ){
 			++m_PrepareCounter;
-			if( m_PrepareCounter == 20 ){
+			if( m_PrepareCounter == 60 ){
 				return SCENE_TYPE_STAGE;
 			}
 			else{
@@ -128,18 +157,16 @@ namespace GameEngine
 				std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < StageSelectionView > view ){ view->CancelStage(); } );
 			}
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
-				++m_SelectedStage;
-				if( m_SelectedStage > PERMITTED_STAGE_TOTAL - 1 ){
-					m_SelectedStage = 0;
+				if( m_SelectedStage < PERMITTED_STAGE_TOTAL - 1 ){
+					++m_SelectedStage;
+					std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < StageSelectionView > view ){ view->ChangeStage( m_SelectedStage ); } );
 				}
-				std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < StageSelectionView > view ){ view->ChangeStage( m_SelectedStage ); } );
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
-				--m_SelectedStage;
-				if( m_SelectedStage < 0 ){
-					m_SelectedStage = PERMITTED_STAGE_TOTAL - 1;
+				if( m_SelectedStage > 0 ){
+					--m_SelectedStage;
+					std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < StageSelectionView > view ){ view->ChangeStage( m_SelectedStage ); } );
 				}
-				std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < StageSelectionView > view ){ view->ChangeStage( m_SelectedStage ); } );
 			}
 		}
 		else if( m_SelectionMode == SELECTION_MODE_DIFFICULTY ){
@@ -150,7 +177,7 @@ namespace GameEngine
 				std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < StageSelectionView > view ){ view->SelectDifficulty(); } );
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
-				return SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE;
+				return SCENE_TYPE_MENU;
 			}
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_RIGHT ) ){
 				++m_SelectedDifficulty;
@@ -158,7 +185,7 @@ namespace GameEngine
 					m_SelectedDifficulty = GAME_DIFFICULTY_CALM;
 				}
 				m_DifficultySelectCounter = SELECTION_INTERVAL;
-				std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < StageSelectionView > view ){ view->ChangeDifficulty( m_DifficultySelectCounter ); } );
+				std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < StageSelectionView > view ){ view->ChangeDifficulty( m_SelectedDifficulty ); } );
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_LEFT ) ){
 				--m_SelectedDifficulty;
@@ -166,7 +193,7 @@ namespace GameEngine
 					m_SelectedDifficulty = GAME_DIFFICULTY_TOTAL - 1;
 				}
 				m_DifficultySelectCounter = -SELECTION_INTERVAL;
-				std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < StageSelectionView > view ){ view->ChangeDifficulty( m_DifficultySelectCounter ); } );
+				std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < StageSelectionView > view ){ view->ChangeDifficulty( m_SelectedDifficulty ); } );
 			}
 		}
 
@@ -199,7 +226,6 @@ namespace GameEngine
 
 		// 背景エフェクト
 		int alpha;
-		//int alpha2;
 		if( m_Counter < 60 ){
 			alpha = ( m_Counter ) & 0xFF;
 		}
@@ -262,34 +288,69 @@ namespace GameEngine
 								GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_HAZARD };
 
 		const float BASE_OFFSET_X = 450.0f;
-		float offsetX = -m_SelectedDifficulty * BASE_OFFSET_X;
+		float offsetX = 0.0f;
 		float offsetY = 0.0f;
-		if( m_TransitionCounter > 20 ){
-			offsetY = ( m_TransitionCounter - 20 ) * ( -10.0f );
-		}
-		float x[ 5 ];
-		x[ 0 ] = -560.0f;
-		x[ 1 ] = -120.0f;
-		x[ 2 ] = 320.0f;
-		x[ 3 ] = 760.0f;
-		x[ 4 ] = 1200.0f;
+		float x[ 5 ] = { -560.0f, -120.0f, 320.0f, 760.0f, 1200.0f };
 		float y[ 5 ] = { 250.0f, 100.0f, 100.0f, 100.0f, 100.0f };
 		float scale[ 5 ] = { 0.8f, 0.8f, 0.8f, 0.8f, 0.8f };
-
 		int alpha = 0xFF;
 		int alpha2 = 0xFF;
 		int alpha3 = 0xFF;
+		const float MOVE_X = 440.0f / SELECTION_INTERVAL;
+		const float SCALE_FACTOR = 0.01f;
+
+		// 拡大率の設定
+		float scaleOffset = 1.0f;		// ステージ選択時の拡大率
+		if( m_TransitionCounter >= 20 && m_TransitionCounter < 30 ){
+			scaleOffset = 0.7f + ( 30 - m_TransitionCounter ) * 0.3f / 10.0f;
+		}
+		else if( m_TransitionCounter >= 30 ){
+			scaleOffset = 0.7f;
+		}
+		scale[ 0 ] = 0.4f + SCALE_FACTOR * m_DifficultySelectCounter;
+		scale[ 1 ] = 0.6f + SCALE_FACTOR * m_DifficultySelectCounter;
+		if( m_DifficultySelectCounter > 0 ){
+			scale[ 2 ] = 0.8f - SCALE_FACTOR * m_DifficultySelectCounter;
+		}
+		else{
+			scale[ 2 ] = 0.8f + SCALE_FACTOR * m_DifficultySelectCounter;
+		}
+		scale[ 3 ] = 0.6f - SCALE_FACTOR * m_DifficultySelectCounter;
+		scale[ 4 ] = 0.4f - SCALE_FACTOR * m_DifficultySelectCounter;
+		for( int i = 0; i < sizeof( scale ) / sizeof( scale[ 0 ] ); ++i ){
+			scale[ i ] *= scaleOffset;
+		}
+
+
+		// オフセットX座標の決定
+		if( m_Counter < 60 ){
+			offsetX = ( 60 - m_Counter ) * 40.0f;
+		}
+		else{
+			if( m_PrepareCounter >= 20 /*&& m_PrepareCounter < 60*/ ){
+				offsetX = ( m_PrepareCounter - 20 ) * 20.0f;
+			}
+		}
+
+		// オフセットY座標の決定
+		if( m_TransitionCounter > 20 && m_TransitionCounter <= 30 ){
+			offsetY = ( m_TransitionCounter - 20 ) * ( -5.0f );
+		}
+
+		// α値の設定
 		if( m_Counter < 60 ){
 			alpha = m_Counter * 4;
 			alpha2 = alpha;
 			alpha3 = alpha;
 		}
 		else{
+			// 通常時
 			if( m_TransitionCounter <= 0 ){
 				alpha = 0xFF;
 				alpha2 = alpha;
 				alpha3 = alpha;
 			}
+			// 選択時の点滅処理
 			else if( m_TransitionCounter > 0 && m_TransitionCounter <= 15 ){
 				alpha = 127 + static_cast < int > ( 127 * cos( MAPIL::DegToRad( m_TransitionCounter * 120.0f ) ) );
 				alpha2 = 0xFF;
@@ -299,16 +360,29 @@ namespace GameEngine
 				alpha = 0xFF;
 				alpha2 = 0xFF;
 			}
+			// 選択時の上に上がるときの処理
 			else if( m_TransitionCounter > 20 && m_TransitionCounter <= 30 ){
 				alpha2 = ( 0xFF * ( 30 - m_TransitionCounter ) ) / 10;
 				alpha3 = ( 0xFF * ( 30 - m_TransitionCounter ) ) / 10;
 			}
 			else{
-				alpha = 0x00;
 				alpha2 = alpha;
+				alpha3 = alpha;
 			}
-			
+
+			// ステージへ移行する時
+			if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
+				alpha = ( 0xFF * ( 40 - m_TransitionCounter ) ) / 20;
+				alpha2 = alpha;
+				alpha3 = alpha;
+			}
+			else if( m_PrepareCounter > 40 ){
+				alpha = 0.0f;
+				alpha2 = alpha;
+				alpha3 = alpha;
+			}
 		}
+
 		int color = 0xAAAAAA | alpha3 << 24;
 		int selColor = 0xFFFFFF | alpha << 24;
 		if( m_DifficultySelectCounter > 0 ){
@@ -338,31 +412,6 @@ namespace GameEngine
 			if( next2 >= GAME_DIFFICULTY_TOTAL ){
 				next2 -= GAME_DIFFICULTY_TOTAL;
 			}
-			
-
-			const float MOVE_X = 440.0f / SELECTION_INTERVAL;
-			const float SCALE_FACTOR = 0.01f;
-
-			scale[ 0 ] = 0.4f + SCALE_FACTOR * m_DifficultySelectCounter;
-			scale[ 1 ] = 0.6f + SCALE_FACTOR * m_DifficultySelectCounter;
-			if( m_DifficultySelectCounter > 0 ){
-				scale[ 2 ] = 0.8f - SCALE_FACTOR * m_DifficultySelectCounter;
-			}
-			else{
-				scale[ 2 ] = 0.8f + SCALE_FACTOR * m_DifficultySelectCounter;
-			}
-			scale[ 3 ] = 0.6f - SCALE_FACTOR * m_DifficultySelectCounter;
-			scale[ 4 ] = 0.4f - SCALE_FACTOR * m_DifficultySelectCounter;
-
-			float offsetX = 0.0f;
-
-			if( m_PrepareCounter >= 20 && m_PrepareCounter < 60 ){
-				offsetX = ( m_PrepareCounter - 20 ) * 20.0f;
-			}
-
-			if( m_Counter < 60 ){
-				offsetX = ( 60 - m_Counter ) * 40.0f;
-			}
 
 			if( i == m_SelectedDifficulty ){
 				MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ texture[ i ] ],
@@ -385,65 +434,11 @@ namespace GameEngine
 									x[ 4 ] + m_DifficultySelectCounter * MOVE_X, y[ 0 ] + offsetY, scale[ 4 ], scale[ 4 ], true, color );
 			}
 		}
-
-		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_TITLE ],
-							320.0f, 100.0f, 0.7f, 0.7f, true, color3 );
 	}
 
 	void StageSelection::Impl::DrawStageSelection() const
 	{
-		
-
 		std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < StageSelectionView > view ){ view->Draw(); } );
-
-		/*int alpha = 0xFF;
-		int alpha2 = 0xFF;
-		int alpha3 = 0xFF;
-		if( m_TransitionCounter > 20 && m_TransitionCounter <= 30 ){
-			alpha = 0xFF * ( m_TransitionCounter - 20 ) / 10;
-		}
-		else{
-			if( m_PrepareCounter <= 0 ){
-				alpha = 0xFF;
-				alpha2 = alpha;
-				alpha3 = alpha;
-			}
-			else if( m_PrepareCounter > 0 && m_PrepareCounter <= 15 ){
-				alpha = 127 + static_cast < int > ( 127 * cos( MAPIL::DegToRad( m_PrepareCounter * 120.0f ) ) );
-				alpha2 = 0xFF;
-				alpha3 = 0xFF;
-			}
-			else if( m_PrepareCounter > 15 && m_PrepareCounter <= 20 ){
-				alpha = 0xFF;
-				alpha2 = 0xFF;
-			}
-			else if( m_PrepareCounter > 20 && m_PrepareCounter <= 30 ){
-				alpha2 = ( 0xFF * ( 30 - m_PrepareCounter ) ) / 10;
-				alpha3 = ( 0xFF * ( 30 - m_PrepareCounter ) ) / 10;
-			}
-			else{
-				alpha = 0x00;
-				alpha2 = alpha;
-				alpha3 = alpha;
-			}
-			
-		}
-
-		for( int i = 0; i < STAGE_TOTAL; ++i ){
-			std::string str = "stage";
-			str += ( i + 1 ) + '0';
-			if( i == m_SelectedStage ){
-				DrawFontString( m_ResourceMap, 20.0f, 250.0f + m_SelectedStage * 30.0f, 0.5f, 0xFFFFFF00, str.c_str() );
-			}
-			else{
-				if( i <= PERMITTED_STAGE_TOTAL - 1 ){
-					DrawFontString( m_ResourceMap, 20.0f, 250.0f + i * 30.0f, 0.5f, 0xFFFFFFFF, str.c_str() );
-				}
-				else{
-					DrawFontString( m_ResourceMap, 20.0f, 250.0f + i * 30.0f, 0.5f, 0xFFAAAAAA, str.c_str() );
-				}
-			}
-		}*/
 	}
 
 	void StageSelection::Impl::Draw()
@@ -468,9 +463,19 @@ namespace GameEngine
 		std::for_each( m_ViewList.begin(), m_ViewList.end(), [map]( std::shared_ptr < StageSelectionView > view ){ view->AttachResourceMap( map ); } );
 	}
 
+	void StageSelection::Impl::AttachStageSelectionStat( const DisplayedStageSelectionPlayStat& stat )
+	{
+		m_DispStagePlayStat = stat;
+	}
+
 	int StageSelection::Impl::GetStageNo() const
 	{
 		return m_SelectedStage + 1;
+	}
+
+	int StageSelection::Impl::GetDifficulty() const
+	{
+		return m_SelectedDifficulty;
 	}
 
 	// ----------------------------------
@@ -487,6 +492,7 @@ namespace GameEngine
 
 	void StageSelection::Init()
 	{
+		m_pImpl->Init();
 	}
 
 	SceneType StageSelection::Update()
@@ -509,8 +515,18 @@ namespace GameEngine
 		m_pImpl->AttachResourceMap( map );
 	}
 
+	void StageSelection::AttachStageSelectionStat( const DisplayedStageSelectionPlayStat& stat )
+	{
+		m_pImpl->AttachStageSelectionStat( stat );
+	}
+
 	int StageSelection::GetStageNo() const
 	{
 		return m_pImpl->GetStageNo();
+	}
+
+	int StageSelection::GetDifficulty() const
+	{
+		return m_pImpl->GetDifficulty();
 	}
 }

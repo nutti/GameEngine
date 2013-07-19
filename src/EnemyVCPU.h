@@ -86,6 +86,7 @@ namespace GameEngine
 		void SysSetBossPhaseTotal();
 		void SysSetBossPhaseShiftHP();
 
+		void SysSendEventToEnemyShotGroup();
 		void SysCreateItem();
 		void SysCreateItemGU();
 

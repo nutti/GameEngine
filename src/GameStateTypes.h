@@ -106,8 +106,12 @@ namespace GameEngine
 	struct StageStat
 	{
 		typedef std::map < std::string, EnemyStat >		EnemyStatMap;
-		EnemyStatMap				m_EnemyStat;	// 敵の統計情報
+		EnemyStatMap				m_EnemyStat;		// 敵の統計情報
 		int							m_ConsTime[ 4 ];	// 属性時間
+		int							m_Play;				// プレイ回数
+		int							m_Clear;			// クリア回数
+		int							m_PlayTime;			// プレイ時間
+		int							m_HIScore;			// ハイスコア
 		StageStat();
 		~StageStat();
 	};
@@ -158,6 +162,12 @@ namespace GameEngine
 	{
 		NormalPlayStat		m_Stat[ GAME_DIFFICULTY_TOTAL ];
 		int					m_HIScore[ GAME_DIFFICULTY_TOTAL ];
+	};
+
+	// 表示用のステージ選択プレイの統計情報
+	struct DisplayedStageSelectionPlayStat
+	{
+		StageSelectionPlayStat		m_Stat[ GAME_DIFFICULTY_TOTAL ];
 	};
 
 	// リプレイデータ

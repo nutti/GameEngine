@@ -313,6 +313,7 @@ namespace GameEngine
 		bool DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius );
 		GameUnit GetCollisionRadius() const;
 		GameUnit GetAngle() const;
+		GameUnit GetSpeed() const;
 #endif
 		int GetCounter() const;
 		void ProcessMessages();								// 溜まっていたメッセージの処理
@@ -937,6 +938,11 @@ namespace GameEngine
 		m_StatusFlags.reset( INVISIBLE );
 	}
 
+	inline GameUnit EnemyShot::Impl::GetSpeed() const
+	{
+		return m_GUData.m_Speed;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -1201,6 +1207,11 @@ namespace GameEngine
 	GameUnit EnemyShot::GetAngle() const
 	{
 		return m_pImpl->GetAngle();
+	}
+
+	GameUnit EnemyShot::GetSpeed() const
+	{
+		return m_pImpl->GetSpeed();
 	}
 
 #endif

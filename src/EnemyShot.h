@@ -86,6 +86,7 @@ namespace GameEngine
 		bool DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius );	// プレイヤーとの衝突判定
 		GameUnit GetCollisionRadius();
 		GameUnit GetAngle() const;
+		GameUnit GetSpeed() const;
 #endif
 		int GetCounter() const;
 		void PostMessage( int msgID );						// メッセージの追加

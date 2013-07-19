@@ -15,7 +15,11 @@ namespace GameEngine
 		m_KO = 0;
 	}
 
-	StageStat::StageStat() : m_EnemyStat()
+	StageStat::StageStat() :	m_EnemyStat(),
+								m_Play( 0 ),
+								m_Clear( 0 ),
+								m_PlayTime( 0 ),
+								m_HIScore( 0 )
 	{
 		m_EnemyStat.clear();
 		MAPIL::ZeroObject( m_ConsTime, sizeof( m_ConsTime ) );
@@ -25,6 +29,10 @@ namespace GameEngine
 	{
 		m_EnemyStat.clear();
 		MAPIL::ZeroObject( m_ConsTime, sizeof( m_ConsTime ) );
+		m_Play = 0;
+		m_Clear = 0;
+		m_PlayTime = 0;
+		m_HIScore = 0;
 	}
 
 	NormalPlayStat::NormalPlayStat() :	m_Play( 0 ),

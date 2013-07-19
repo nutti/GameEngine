@@ -51,7 +51,7 @@ namespace GameEngine
 
 		m_ResourceMap.m_pGlobalResourceMap.reset( new ResourceMap::GlobalResourceMapElm );
 
-		const int INITIAL_TEXTURE_MAP_RESERVE_CAP = 100;			// 初期のテクスチャMAP許容量
+		const int INITIAL_TEXTURE_MAP_RESERVE_CAP = 150;			// 初期のテクスチャMAP許容量
 		const int INITIAL_SE_MAP_RESERVE_CAP = 50;				// 初期のSEMAP許容量
 		const int INITIAL_BGM_MAP_RESERVE_CAP = 50;				// 初期のBGMMAP許容量
 		const int INITIAL_MODEL_MAP_RESERVE_CAP = 50;			// 初期のモデルMAP許容量

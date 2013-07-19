@@ -29,6 +29,7 @@ namespace GameEngine
 		void AttachConfigData( const GameConfigData& data );
 		void AttachInitialGameData( const InitialGameData& data );
 		void AttachDisplayedNormalPlayStat( const DisplayedNormalPlayStat& stat );
+		void AttachDisplayedStageSelectionPlayStat( const DisplayedStageSelectionPlayStat& stat );
 		void AttachGameStat( const GameStat& stat );
 		const DisplayedSaveData& GetDisplayedSaveData() const;
 		void ChangeScene( SceneType scene );

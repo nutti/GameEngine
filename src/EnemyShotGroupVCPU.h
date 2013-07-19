@@ -62,6 +62,7 @@ namespace GameEngine
 		void SysGetEnemyShotPosY();
 		void SysGetEnemyShotPower();
 		void SysGetEnemyShotAngle();
+		void SysGetEnemyShotSpeedGU();
 		void SysSetEnemyShotImgRotMode();
 		void SysSetEnemyShotImgRotAnglePerFrame();
 		void SysSetEnemyShotAlphaBlendingMode();
