@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <bitset>
+#include <queue>
 
 #include "CollisionObject.h"
 #include "EnemyVCPU.h"
@@ -52,6 +53,7 @@ namespace GameEngine
 		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
 
 		std::string			m_Name;				// 敵の名前
+		int					m_SubID;			// サブID
 		
 		float				m_ScaleX;			// 拡大率（X）
 		float				m_ScaleY;			// 拡大率（Y）
@@ -84,6 +86,7 @@ namespace GameEngine
 		std::vector < EnemyShotGroup* >		m_ShotGroupList;		// 現在保持しているショットグループ
 		int					m_Regs[ MAX_ENEMY_REGS ];			// 汎用レジスタ
 		std::weak_ptr < Item >		m_RefItem;			// 現在参照しているアイテム
+		std::queue < int >					m_EventQueue;		// イベントキュー
 	};
 
 	// 速度向上のため、pimplイディオムは使用しない。
@@ -142,6 +145,8 @@ namespace GameEngine
 		void SetReg( int regNo, int val );					// レジスタに値をセット
 
 		std::string GetName() const;						// 敵の名前を取得
+		void SendEvent( int id );
+		int GetSubID() const;
 		bool IsInSkillMode() const;							// スキル使用中の場合true
 	};
 

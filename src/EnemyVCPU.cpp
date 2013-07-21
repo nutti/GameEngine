@@ -912,6 +912,33 @@ namespace GameEngine
 		m_pEnemyData->m_pStageData->m_EnemyList.push_back( pNewEnemy );
 	}
 
+	void EnemyVCPU::SysCreateEnemyIniPosReg5GU()
+	{
+		GameUnit x;
+		GameUnit y;
+		int id;
+		int reg[ 5 ];
+
+		Pop();
+		for( int i = 4; i >= 0; --i ){
+			reg[ i ] = Top().m_Integer;
+			Pop();
+		}
+		y.SetRawValue( Top().m_Integer );
+		Pop();
+		x.SetRawValue( Top().m_Integer );
+		Pop();
+		id = Top().m_Integer;
+		Pop();
+
+		Enemy* pNewEnemy = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemy( id );
+		pNewEnemy->Init( x, y );
+		for( int i = 0; i < 5; ++i ){
+			pNewEnemy->SetReg( i, reg[ i ] );
+		}
+		m_pEnemyData->m_pStageData->m_EnemyList.push_back( pNewEnemy );
+	}
+
 	void EnemyVCPU::SysSearchEnemyInSkillMode()
 	{
 		Pop();
@@ -962,6 +989,74 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyVCPU::SysGetPlayerCurCons()
+	{
+		Pop();
+		
+		Push( m_pEnemyData->m_pStageData->m_pPlayer->GetCurCons() );
+	}
+
+	void EnemyVCPU::SysGetPlayerConsGauge()
+	{
+		Pop();
+		int cons = Top().m_Integer;
+		Pop();
+
+		Push( m_pEnemyData->m_pStageData->m_pPlayer->GetConsGauge( cons ) );
+	}
+
+	void EnemyVCPU::SysSetEnemySubID()
+	{
+		Pop();
+		int subID = Top().m_Integer;
+		Pop();
+
+		m_pEnemyData->m_SubID = subID;
+	}
+
+	void EnemyVCPU::SysSendEventToEnemy()
+	{
+		Pop();
+		int ev = Top().m_Integer;
+		Pop();
+		int subID = Top().m_Integer;
+		Pop();
+		std::string name = Top().m_pString->m_Str;
+
+		// イベント送信
+		std::for_each(	m_pEnemyData->m_pStageData->m_EnemyList.begin(),
+						m_pEnemyData->m_pStageData->m_EnemyList.end(),
+						[name,subID,ev]( Enemy* pEnemy ){
+							// null check
+							if( pEnemy == 0 ){
+								return;
+							}
+							// 名前一致チェック
+							if( name != pEnemy->GetName() ){
+								return;
+							}
+							// サブIDチェック
+							if( subID != pEnemy->GetSubID() ){
+								return;
+							}
+							pEnemy->SendEvent( ev );
+						} );
+	}
+
+	void EnemyVCPU::SysGetEvent()
+	{
+		Pop();
+
+		if( m_pEnemyData->m_EventQueue.empty() ){
+			Push( -10000 );
+		}
+		else{
+			int ev = m_pEnemyData->m_EventQueue.front();
+			m_pEnemyData->m_EventQueue.pop();
+			Push( ev );
+		}
+	}
+
 	void EnemyVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -985,6 +1080,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_GET_PLAYER_HP:
 				SysGetPlayerHP();
+				break;
+			case VM::SYS_GET_PLAYER_CUR_CONS:
+				SysGetPlayerCurCons();
+				break;
+			case VM::SYS_GET_PLAYER_CONS_GAUGE:
+				SysGetPlayerConsGauge();
 				break;
 
 			case VM::SYS_ENEMY_GET_POSX_GU:
@@ -1153,6 +1254,9 @@ namespace GameEngine
 			case VM::SYS_CREATE_ENEMY_INI_POS_GU:
 				SysCreateEnemyIniPosGU();
 				break;
+			case VM::SYS_CREATE_ENEMY_INI_POS_REG5_GU:
+				SysCreateEnemyIniPosReg5GU();
+				break;
 			case VM::SYS_ENEMY_SHIFT_NEXT_MODE:
 				SysEnemyShiftNextMode();
 				break;
@@ -1164,6 +1268,16 @@ namespace GameEngine
 				break;
 			case VM::SYS_STAGE_SET_BOSS_PHASE_SHIFT_HP:
 				SysSetBossPhaseShiftHP();
+				break;
+			
+			case VM::SYS_SET_ENEMY_SUB_ID:
+				SysSetEnemySubID();
+				break;
+			case VM::SYS_SEND_EVENT_TO_ENEMY:
+				SysSendEventToEnemy();
+				break;
+			case VM::SYS_GET_EVENT:
+				SysGetEvent();
 				break;
 
 			case VM::SYS_PLAY_SE:

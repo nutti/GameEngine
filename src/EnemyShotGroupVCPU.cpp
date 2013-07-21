@@ -959,7 +959,7 @@ namespace GameEngine
 		Pop();
 		
 		if( m_pEnemyShotGroupData->m_EventQueue.empty() ){
-			Push( -1 );
+			Push( -10000 );
 		}
 		else{
 			int ev = m_pEnemyShotGroupData->m_EventQueue.front();

@@ -25,6 +25,8 @@ namespace GameEngine
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();
 
+		void SysSetStageBaseConsLevel();
+
 		void SysPlayBGM();
 		void SysStopBGM();
 	public:

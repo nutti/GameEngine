@@ -154,6 +154,15 @@ namespace GameEngine
 		m_pStageData->m_MsgQueue.push( msg );
 	}
 
+	void StageVCPU::SysSetStageBaseConsLevel()
+	{
+		Pop();
+		int level = Top().m_Integer;
+		Pop();
+
+		m_pStageData->m_ConsLevel = level;
+	}
+
 	void StageVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -191,6 +200,10 @@ namespace GameEngine
 				break;
 			case VM::SYS_STOP_BGM:
 				SysStopBGM();
+				break;
+
+			case VM::SYS_SET_STAGE_BASE_CONS_LEVEL:
+				SysSetStageBaseConsLevel();
 				break;
 
 			case VM::SYS_STAGE_SET_BOSS_FLAG:

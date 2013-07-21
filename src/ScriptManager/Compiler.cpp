@@ -48,6 +48,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_GET_PLAYER_POSX, TYPE_FLOAT, "GetPlayerPosX", "" );				// float GetPlayerPosX();
 	AddFunction( VM::SYS_GET_PLAYER_POSY, TYPE_FLOAT, "GetPlayerPosY", "" );				// float GetPlayerPosY();
 	AddFunction( VM::SYS_GET_PLAYER_HP, TYPE_INTEGER, "GetPlayerHP", "" );					// int GetPlayerHP();
+	AddFunction( VM::SYS_GET_PLAYER_CUR_CONS, TYPE_INTEGER, "GetPlayerCurCons", "" );		// int GetPlayerCurCons();
+	AddFunction( VM::SYS_GET_PLAYER_CONS_GAUGE, TYPE_INTEGER, "GetPlayerConsGauge", "i" );	// int GetPlayerConsGauge( cons );
+
 	AddFunction( VM::SYS_GET_RANDOM_F, TYPE_FLOAT, "GetRandF", "" );							// float GatRand();
 	AddFunction( VM::SYS_GET_RANDOM_GU, TYPE_GU, "GetRandGU", "" );						// gu GetRandGU();
 	AddFunction( VM::SYS_ADD_SCORE, TYPE_VOID, "AddScore", "i" );							// void AddScore( score );
@@ -125,6 +128,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_X_GU, TYPE_GU, "GetItemPosXGU", "" );		// gu GetItemPosXGU();
 	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_Y_GU, TYPE_GU, "GetItemPosYGU", "" );		// gu GetItemPosYGU();
 
+	AddFunction( VM::SYS_SET_ENEMY_SUB_ID, TYPE_VOID, "SetEnemySubID", "i" );			// void SetEnemySubID( sub_id );
+	AddFunction( VM::SYS_SEND_EVENT_TO_ENEMY, TYPE_VOID, "SendEventToEnemy", "sii" );	// void SetEventToEnemy( name, sub_id, event );
+
 	// System call for enemy shot group.
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU, TYPE_VOID, "SetEnemyShotStatusGU", "igggggi" );	// void SetEnemyShotStatusGU( shot_id, x, y, angle, speed, radius, texture_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X_GU, TYPE_GU, "GetEnemyShotPosXGU", "i" );		// gu GetEnemyShotPosXGU( shot_id );
@@ -139,6 +145,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	
 	AddFunction( VM::SYS_CREATE_ENEMY_INI_POS_GU, TYPE_VOID, "CreateEnemyIniPosGU", "igg" );	// void CreateEnemyIniPosGU( id, x, y );
 	AddFunction( VM::SYS_CREATE_ENEMY_INI_POS_REG_GU, TYPE_VOID, "CreateEnemyIniPosRegGU", "iggi" );	// void CreateEnemyIniPosRegGU( id, x, y, reg1 );
+	AddFunction( VM::SYS_CREATE_ENEMY_INI_POS_REG5_GU, TYPE_VOID, "CreateEnemyIniPosReg5GU", "iggiiiii" );	// void CreateEnemyIniPosReg5GU( script_id, x, y, r1, r2, r3, r4, r5 );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_SHOT, TYPE_INTEGER, "CreateEnemyShot", "" );	// int CreateEnemyShot();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_CREATE_CONS_SHOT, TYPE_INTEGER, "CreateConsEnemyShot", "i" );	// int CreateConsEnemyShot( shot_attr );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_POS, TYPE_VOID, "SetEnemyShotPos", "iff" );		// void SetEnemyShotPos( shot_id, x, y );
@@ -189,6 +196,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_STAGE_GET_DIFFICULTY, TYPE_INTEGER, "GetDifficulty", "" );		// int GetDifficulty();
 	AddFunction( VM::SYS_STAGE_SET_BOSS_PHASE_TOTAL, TYPE_VOID, "SetBossPhaseTotal", "i" );		// void SetBossPhaseTotal( phase_total );
 	AddFunction( VM::SYS_STAGE_SET_BOSS_PHASE_SHIFT_HP, TYPE_VOID, "SetBossPhaseShiftHP", "ii" );		// void SetBossPhaseShiftHP( phase, hp );
+	AddFunction( VM::SYS_SET_STAGE_BASE_CONS_LEVEL, TYPE_VOID, "SetStageBaseConsLevel", "i" );			// void SetStageBaseConsLevel( level );
 
 	// System call for stage background.
 	AddFunction( VM::SYS_STAGE_BACKGROUND_GET_COUNTER, TYPE_INTEGER, "StageBackgroundGetCounter", "" );	// int StageBackgroundGetCounter();

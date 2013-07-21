@@ -843,6 +843,16 @@ void Enemy::Draw()
 		}
 	}
 
+	void Enemy::SendEvent( int id )
+	{
+		m_Data.m_EventQueue.push( id );
+	}
+
+	int Enemy::GetSubID() const
+	{
+		return m_Data.m_SubID;
+	}
+
 	std::string Enemy::GetName() const
 	{
 		return m_Data.m_Name;

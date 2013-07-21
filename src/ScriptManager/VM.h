@@ -60,6 +60,9 @@ namespace VM
 		SYS_GET_PLAYER_POSX,		// Get player position. ( X )
 		SYS_GET_PLAYER_POSY,		// Get player position. ( Y )
 		SYS_GET_PLAYER_HP,			// Get player HP.
+		SYS_GET_PLAYER_CUR_CONS,	// Get current cons.
+		SYS_GET_PLAYER_CONS_GAUGE,	// Get cons gauge.
+
 		SYS_GET_RANDOM_F,			// Get random. (float)
 		SYS_GET_RANDOM_GU,			// Get random. (gameunit)
 		SYS_ADD_SCORE,				// Add score.
@@ -119,6 +122,7 @@ namespace VM
 
 		SYS_CREATE_ENEMY_INI_POS_GU,		// Create enemy. (Initial position with gu.)
 		SYS_CREATE_ENEMY_INI_POS_REG_GU,	// Create enemy. (Initial position with gu. 1 register.)
+		SYS_CREATE_ENEMY_INI_POS_REG5_GU,	// Create enemy. (Initial position with gu. 5 register.)
 		SYS_ENEMY_CREATE_SHOT_1,			// Create enemy shot. (Linear)
 		SYS_ENEMY_CREATE_SHOT_1_GU,			// Create enemy shot. (Linear. gameunit)
 		SYS_ENEMY_CREATE_EFFECT_1,			// Create effect. (Bombbed Effect.)
@@ -130,6 +134,9 @@ namespace VM
 		SYS_ENEMY_CREATE_SHOT_GROUP_GREG5,	// Create shot group. (5 gameunit register)
 		SYS_CREATE_ITEM,		// Create item.
 		SYS_CREATE_ITEM_GU,		// Create item. (gameunit)
+		
+		SYS_SET_ENEMY_SUB_ID,		// Set enemy sub ID.
+		SYS_SEND_EVENT_TO_ENEMY,	// Send event to enemy
 
 		// For enemy shot group.
 		SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU,
@@ -194,6 +201,7 @@ namespace VM
 		SYS_STAGE_GET_DIFFICULTY,			// Get difficulty.
 		SYS_STAGE_SET_BOSS_PHASE_TOTAL,		// Set boss phase total.
 		SYS_STAGE_SET_BOSS_PHASE_SHIFT_HP,	// Set boss phase shift hp.
+		SYS_SET_STAGE_BASE_CONS_LEVEL,		// Set stage base cons level.
 
 		// For stage background.
 		SYS_STAGE_BACKGROUND_GET_COUNTER,	// Get count.

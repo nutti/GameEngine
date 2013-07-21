@@ -35,7 +35,7 @@ namespace GameEngine
 		int									m_Reg;				// レジスタ
 		float								m_FReg;				// 浮動小数点レジスタ
 		int									m_SubID;			// ショットグループ判別用ID
-		std::queue < int >					m_EventQueue;		// イベント数
+		std::queue < int >					m_EventQueue;		// イベントキュー
 	};
 	
 	class EnemyShotGroup

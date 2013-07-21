@@ -1580,6 +1580,11 @@ namespace GameEngine
 			DrawBombModeEffect();
 		}
 
+		// アイテムの描画
+		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){
+			( *it )->Draw();
+		}
+
 		// プレイヤーショットの描画
 		for( PlayerShotList::iterator it = m_Data.m_PlayerShotList.begin(); it != m_Data.m_PlayerShotList.end(); ++it ){
 			( *it )->Draw();
@@ -1592,10 +1597,7 @@ namespace GameEngine
 
 		ProcAllBatchWorks();
 		
-		// アイテムの描画
-		for( ItemList::iterator it = m_Data.m_ItemList.begin(); it != m_Data.m_ItemList.end(); ++it ){
-			( *it )->Draw();
-		}
+		
 		// エフェクトの描画
 		for( EffectList::iterator it = m_Data.m_EffectList.begin(); it != m_Data.m_EffectList.end(); ++it ){
 			( *it )->Draw();

@@ -16,6 +16,8 @@ namespace GameEngine
 		void SysGetPlayerPosX();
 		void SysGetPlayerPosY();
 		void SysGetPlayerHP();
+		void SysGetPlayerCurCons();
+		void SysGetPlayerConsGauge();
 		
 		void SysGetRandF();
 		void SysGetRandGU();
@@ -78,6 +80,7 @@ namespace GameEngine
 		void SysCreateEnemyShotGroupGReg5();
 		void SysCreateEnemyIniPosGU();
 		void SysCreateEnemyIniPosRegGU();
+		void SysCreateEnemyIniPosReg5GU();
 
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();
@@ -85,6 +88,10 @@ namespace GameEngine
 		void SysGetDifficulty();
 		void SysSetBossPhaseTotal();
 		void SysSetBossPhaseShiftHP();
+
+		void SysSetEnemySubID();
+		void SysSendEventToEnemy();
+		void SysGetEvent();
 
 		void SysSendEventToEnemyShotGroup();
 		void SysCreateItem();
