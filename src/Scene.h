@@ -14,12 +14,17 @@ namespace GameEngine
 	class Scene
 	{
 	private:
+	protected:
+		bool			m_Initialized;		// ‰Šú‰»‚³‚ê‚½‚çtrue
+		virtual void InitImpl() = 0;		// ‹ï‘Ì“I‚È‰Šú‰»ˆ—
 	public:
 		Scene();
 		virtual ~Scene();
-		virtual void Init() = 0;
+		//virtual void Init() = 0;
+		void Init();
 		virtual SceneType Update() = 0;
 		virtual void Draw() = 0;
+		virtual void Reflesh(){}		// “à•”ó‘Ô‚ğ•Û‚µ‚½‰Šú‰»
 		void IsLoading();
 		void SetLoadingState();
 		void SetButtonState();

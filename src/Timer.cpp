@@ -2,7 +2,7 @@
 
 namespace GameEngine
 {
-	Timer::Timer() : m_Begin( 0 ), m_End( 0 ), m_PauseBegin( 0 ), m_PauseEnd( 0 )
+	Timer::Timer() : m_Begin( 0 ), m_End( 0 ), m_PauseBegin( 0 ), m_PauseEnd( 0 ), m_PausedTime( 0 )
 	{
 	}
 
@@ -12,6 +12,7 @@ namespace GameEngine
 		m_End = 0;
 		m_PauseBegin = 0;
 		m_PauseEnd = 0;
+		m_PausedTime = 0;
 	}
 
 	void Timer::Init()
@@ -20,6 +21,7 @@ namespace GameEngine
 		m_End = 0;
 		m_PauseBegin = 0;
 		m_PauseEnd = 0;
+		m_PausedTime = 0;
 	}
 
 	void Timer::Start()

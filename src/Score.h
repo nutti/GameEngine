@@ -11,10 +11,12 @@ namespace GameEngine
 	private:
 		class Impl;
 		std::auto_ptr < Score::Impl >		m_pImpl;
+
+		void InitImpl();
 	public:
 		Score();
 		~Score();
-		void Init();
+		//void Init();
 		SceneType Update();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );

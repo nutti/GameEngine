@@ -103,6 +103,8 @@ namespace GameEngine
 		void DisableInvincibleMode();			// 消えるモードへ移行
 		void EnableInvisibleMode();				// 見えないモードへ移行
 		void DisableInvisibleMode();			// 見えるモードへ移行
+
+		std::string GetMasterEnemyName() const;		// マスタとなる敵の名前を取得
 	};
 }
 

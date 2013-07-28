@@ -9,6 +9,8 @@
 
 namespace GameEngine
 {
+#define NUM_OF( x ) ( sizeof( x ) / sizeof( x[ 0 ] ) )
+
 	bool IsKeepPushed( const ButtonStatusHolder& holder, GeneralButton button );
 
 	bool IsPushed( const ButtonStatusHolder& holder, GeneralButton button );
@@ -45,6 +47,8 @@ namespace GameEngine
 	const char* GetStringFromButton( int button );
 
 	int GetButtonFromString( const std::string& button );
+
+	
 }
 
 #endif

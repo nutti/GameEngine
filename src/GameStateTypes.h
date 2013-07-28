@@ -6,6 +6,7 @@
 
 #include "Date.h"
 #include "InputTypes.h"
+#include "Math.hpp"
 
 namespace GameEngine
 {
@@ -90,16 +91,26 @@ namespace GameEngine
 	// スキルの統計情報
 	struct SkillStat
 	{
+		int		m_Used;			// 使用回数
+		SkillStat();
+		~SkillStat();
+		SkillStat& operator=( const SkillStat& stat );
+		SkillStat& operator+=( const SkillStat& stat );
+		SkillStat( const SkillStat& stat );
 	};
 
 	// 敵の統計情報
 	struct EnemyStat
 	{
-		int		m_Destroy;		// 撃破回数
-		int		m_Damaged;		// 被ダメージ回数
-		int		m_KO;			// 撃破された回数
+		int										m_Destroy;			// 撃破回数
+		int										m_Damaged;			// 被ダメージ回数
+		int										m_KO;				// 撃破された回数
+		std::map < std::string, SkillStat >		m_SkillStat;		// 意識技統計情報
 		EnemyStat();
 		~EnemyStat();
+		EnemyStat& operator=( const EnemyStat& stat );
+		EnemyStat& operator+=( const EnemyStat& stat );
+		EnemyStat( const EnemyStat& stat );
 	};
 
 	// ステージ毎の統計情報
@@ -107,13 +118,15 @@ namespace GameEngine
 	{
 		typedef std::map < std::string, EnemyStat >		EnemyStatMap;
 		EnemyStatMap				m_EnemyStat;		// 敵の統計情報
-		int							m_ConsTime[ 4 ];	// 属性時間
+		Int64						m_ConsTime[ 4 ];	// 属性時間（秒単位）
 		int							m_Play;				// プレイ回数
 		int							m_Clear;			// クリア回数
 		int							m_PlayTime;			// プレイ時間
 		int							m_HIScore;			// ハイスコア
 		StageStat();
 		~StageStat();
+		StageStat& operator=( const StageStat& stat );
+		StageStat( const StageStat& stat );
 	};
 
 	// 通しプレイの統計情報

@@ -22,10 +22,10 @@ namespace GameEngine
 		int							m_Counter;
 		int							m_MenuPointed;
 		bool						m_PlayBGM;
-	//	int							m_GameMode;
 		int							m_PrepareCounter;
 
 		int							m_SelectCounter;
+		int							m_ReturnCounter;
 
 		void DrawBackGround() const;
 		void DrawDifficultySelection() const;
@@ -39,7 +39,7 @@ namespace GameEngine
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachNormalPlayStat( const DisplayedNormalPlayStat& stat );
 		int GetDifficulty() const;
-		//void SetGameMode( int mode );
+		void Reflesh();
 	};
 
 	DifficultySelection::Impl::Impl()
@@ -48,6 +48,7 @@ namespace GameEngine
 		m_PrepareCounter = 0;
 		m_MenuPointed = GAME_DIFFICULTY_CALM;
 		m_SelectCounter = 0;
+		m_ReturnCounter = 0;
 	}
 
 	SceneType DifficultySelection::Impl::Update()
@@ -56,7 +57,6 @@ namespace GameEngine
 
 		// 最初の時のカウンタ
 		if( m_Counter < 60 ){
-			//++m_Counter;
 			return SCENE_TYPE_NOT_CHANGE;
 		}
 
@@ -79,18 +79,26 @@ namespace GameEngine
 			return SCENE_TYPE_NOT_CHANGE;
 		}
 
+		if( m_ReturnCounter > 0 ){
+			if( m_ReturnCounter < 15 ){
+				++m_ReturnCounter;
+			}
+			if( m_ReturnCounter == 15 ){
+				return SCENE_TYPE_MENU;
+			}
+			else{
+				return SCENE_TYPE_NOT_CHANGE;
+			}
+		}
+
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-		//	if( m_GameMode == GAME_MODE_NORMAL ){
-				MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
-				MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
-				m_PrepareCounter = 1;
-		//	}
-		//	else{
-		//		return SCENE_TYPE_STAGE_SELECTION;
-		//	}
+			MAPIL::PlayStaticBuffer( m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_MENU_SELECTED ] );
+			MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
+			m_PrepareCounter = 1;
 		}
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
-			return SCENE_TYPE_MENU;
+			m_ReturnCounter = 1;
+			//return SCENE_TYPE_MENU;
 		}
 
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_RIGHT ) ){
@@ -131,6 +139,9 @@ namespace GameEngine
 			else{
 				weight = 0xFF;
 			}
+			if( m_ReturnCounter > 0 ){
+				weight = ( 15 - m_ReturnCounter ) * 8;
+			}
 		}
 		int color = weight << 16 | weight << 8 | weight;
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
@@ -154,6 +165,9 @@ namespace GameEngine
 			else{
 				alpha = 0x00;
 			}
+			if( m_ReturnCounter > 0 ){
+				alpha = ( 15 - m_ReturnCounter ) * 4;
+			}
 		}
 
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
@@ -161,6 +175,9 @@ namespace GameEngine
 			int alpha2;
 			if( m_Counter < 120 ){
 				alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( m_Counter ) / 120;
+				if( m_ReturnCounter > 0 ){
+					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( 15 - m_ReturnCounter ) / 15;
+				}
 			}
 			else{
 				if( m_PrepareCounter <= 20 ){
@@ -171,6 +188,9 @@ namespace GameEngine
 				}
 				else{
 					alpha2 = 0x00;
+				}
+				if( m_ReturnCounter > 0 ){
+					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( 15 - m_ReturnCounter ) / 15;
 				}
 			}
 
@@ -240,6 +260,10 @@ namespace GameEngine
 				alpha = 0x00;
 				alpha2 = alpha;
 			}
+			if( m_ReturnCounter > 0 ){
+				alpha = ( 0xFF * ( 15 - m_ReturnCounter ) ) / 15;
+				alpha2 = alpha;
+			}
 		}
 		int color = 0xAAAAAA | alpha2 << 24;
 		int selColor = 0xFFFFFF | alpha << 24;
@@ -296,6 +320,11 @@ namespace GameEngine
 				offsetX = ( 60 - m_Counter ) * 40.0f;
 			}
 
+			if( m_ReturnCounter > 0 ){
+				offsetX = m_ReturnCounter * 80.0f;
+			}
+
+
 			if( i == m_MenuPointed ){
 				MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ texture[ i ] ],
 									x[ 2 ] + m_SelectCounter * MOVE_X - offsetX, y[ 0 ], scale[ 2 ], scale[ 2 ], true, selColor );
@@ -341,6 +370,9 @@ namespace GameEngine
 			// 通常時
 			else{
 				alpha = 0x00;
+			}
+			if( m_ReturnCounter > 0 ){
+				alpha = ( 0xFF * ( 15 - m_ReturnCounter ) ) / 15;
 			}
 		}
 
@@ -406,10 +438,13 @@ namespace GameEngine
 		return m_MenuPointed;
 	}
 
-	//void DifficultySelection::Impl::SetGameMode( int mode )
-	//{
-	//	m_GameMode = mode;
-	//}
+	void DifficultySelection::Impl::Reflesh()
+	{
+		m_Counter = 0;
+		m_SelectCounter = 0;
+		m_ReturnCounter = 0;
+		m_PrepareCounter = 0;
+	}
 
 	// ----------------------------------
 	// 実装クラスの呼び出し
@@ -423,7 +458,7 @@ namespace GameEngine
 	{
 	}
 
-	void DifficultySelection::Init()
+	void DifficultySelection::InitImpl()
 	{
 	}
 
@@ -457,8 +492,8 @@ namespace GameEngine
 		return m_pImpl->GetDifficulty();
 	}
 
-	//void DifficultySelection::SetGameMode( int mode )
-	//{
-	//	m_pImpl->SetGameMode( mode );
-	//}
+	void DifficultySelection::Reflesh()
+	{
+		m_pImpl->Reflesh();
+	}
 }

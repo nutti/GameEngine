@@ -99,6 +99,7 @@ namespace GameEngine
 		m_Data.m_ConsCur = PLAYER_CONS_MODE_NORMAL;
 #if defined ( MAKE_MODE_RELEASE )
 		m_Data.m_RestInvincibleTime = 0;
+		//m_Data.m_RestInvincibleTime = 10000;
 #else
 		m_Data.m_RestInvincibleTime = 10000;
 		//m_Data.m_RestInvincibleTime = 0;
@@ -1046,6 +1047,9 @@ namespace GameEngine
 			++it;
 		}
 
+		// 統計情報の更新
+		++m_pStageData->m_StageStat.m_ConsTime[ m_Data.m_ConsCur ];
+
 		--m_Data.m_RestInvincibleTime;
 		++m_Data.m_Counter;
 		
@@ -1084,8 +1088,22 @@ namespace GameEngine
 			else{
 				m_pStageData->m_FrameGameData.m_CrystalUsed += m_pStageData->m_TotalGameData.m_CrystalTotal - m_pStageData->m_TotalGameData.m_CrystalUsed;
 			}
+			// 統計情報の更新
+			auto it = m_pStageData->m_StageStat.m_EnemyStat.find( pEnemy->GetName() );
+			if( it == m_pStageData->m_StageStat.m_EnemyStat.end() ){
+				EnemyStat stat;
+				m_pStageData->m_StageStat.m_EnemyStat[ pEnemy->GetName() ] = stat;
+			}
+			++m_pStageData->m_StageStat.m_EnemyStat[ pEnemy->GetName() ].m_Damaged;
 			// ゲームオーバー処理
 			if( m_Data.m_HP <= 0 ){
+				// 統計情報の更新
+				auto it = m_pStageData->m_StageStat.m_EnemyStat.find( pEnemy->GetName() );
+				if( it == m_pStageData->m_StageStat.m_EnemyStat.end() ){
+					EnemyStat stat;
+					m_pStageData->m_StageStat.m_EnemyStat[ pEnemy->GetName() ] = stat;
+				}
+				++m_pStageData->m_StageStat.m_EnemyStat[ pEnemy->GetName() ].m_KO;
 				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED ] );
 				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED;
 				StageMessage::StageMessageData data;
@@ -1183,8 +1201,22 @@ namespace GameEngine
 			else{
 				m_pStageData->m_FrameGameData.m_CrystalUsed += m_pStageData->m_TotalGameData.m_CrystalTotal - m_pStageData->m_TotalGameData.m_CrystalUsed;
 			}
+			// 統計情報の更新
+			auto it = m_pStageData->m_StageStat.m_EnemyStat.find( pEnemyShot->GetMasterEnemyName() );
+			if( it == m_pStageData->m_StageStat.m_EnemyStat.end() ){
+				EnemyStat stat;
+				m_pStageData->m_StageStat.m_EnemyStat[ pEnemyShot->GetMasterEnemyName() ] = stat;
+			}
+			++m_pStageData->m_StageStat.m_EnemyStat[ pEnemyShot->GetMasterEnemyName() ].m_Damaged;
 			// ゲームオーバー処理
 			if( m_Data.m_HP <= 0 ){
+				// 統計情報の更新
+				auto it = m_pStageData->m_StageStat.m_EnemyStat.find( pEnemyShot->GetMasterEnemyName() );
+				if( it == m_pStageData->m_StageStat.m_EnemyStat.end() ){
+					EnemyStat stat;
+					m_pStageData->m_StageStat.m_EnemyStat[ pEnemyShot->GetMasterEnemyName() ] = stat;
+				}
+				++m_pStageData->m_StageStat.m_EnemyStat[ pEnemyShot->GetMasterEnemyName() ].m_KO;
 				MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DESTROYED ] );
 				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_DESTORYED;
 				StageMessage::StageMessageData data;

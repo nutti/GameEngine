@@ -2,6 +2,7 @@
 #define INCLUDED_GAMEENGINE_MATH_HPP
 
 #include <cmath>
+#include <climits>
 
 namespace GameEngine
 {
@@ -90,7 +91,68 @@ namespace GameEngine
 		return lhs <= rhs;
 	}
 
+	class Int64
+	{
+	private:
+		int			m_Hi;
+		int			m_Lo;
+	public:
+		Int64() : m_Hi( 0 ), m_Lo( 0 )
+		{
+		}
+		Int64( int i ) : m_Hi( 0 ), m_Lo( i )
+		{
+		}
+		Int64( const Int64& i )
+		{
+			m_Hi = i.m_Hi;
+			m_Lo = i.m_Lo;
+		}
+		~Int64()
+		{
+			m_Hi = 0;
+			m_Lo = 0;
+		}
+		Int64& operator=( const Int64& i )
+		{
+			m_Hi = i.m_Hi;
+			m_Lo = i.m_Lo;
 
+			return *this;
+		}
+		Int64& operator+=( const Int64& i )
+		{
+			m_Hi += i.m_Hi;
+			m_Lo += i.m_Lo;
+
+			return *this;
+		}
+		Int64& operator++()
+		{
+			if( m_Lo == INT_MAX ){
+				++m_Hi;
+				m_Lo = 0;
+			}
+			else{
+				++m_Lo;
+			}
+
+			return *this;
+		}
+		Int64 operator++( int i )
+		{
+			Int64 i64 = *this;
+			if( m_Lo == INT_MAX ){
+				++m_Hi;
+				m_Lo = 0;
+			}
+			else{
+				++m_Lo;
+			}
+
+			return i64;
+		}
+	};
 
 	/*struct ScriptGU
 	{

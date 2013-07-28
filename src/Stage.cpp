@@ -208,6 +208,7 @@ namespace GameEngine
 		void GetPlayerConsGauge( int* pGauge ) const;
 		void GetPlayerConsLevel( int* pLevel ) const;
 		ReplayDataRecord::StageKeyStates GetKeyStates() const;
+		StageStat& GetStageStat();
 
 		void SetInitialData( const InitialGameData& data );
 		void SetDifficulty( int difficulty );
@@ -244,6 +245,16 @@ namespace GameEngine
 		m_Data.m_FrameTotal = 100000;
 		m_Data.m_BossPhaseTotal = 4;
 
+		// ステージの統計情報のクリア
+		//m_Data.m_StageStat.m_EnemyStat.clear();
+		//m_Data.m_StageStat.m_Clear = 0;
+		//MAPIL::ZeroObject( m_Data.m_StageStat.m_ConsTime, sizeof( m_Data.m_StageStat.m_ConsTime ) );
+		//m_Data.m_StageStat.m_EnemyStat.clear();
+		//m_Data.m_StageStat.m_HIScore = 0;
+		//m_Data.m_StageStat.m_Play = 0;
+		//m_Data.m_StageStat.m_PlayTime = 0;
+
+		// 内部データのクリア
 		m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode = false;
 		m_PrivData.m_ConsSkillModeData.m_Counter = 0;
 		m_PrivData.m_ConsSkillModeData.m_PostCounter = 100;
@@ -1988,6 +1999,10 @@ namespace GameEngine
 		return m_KeyStateList;
 	}
 
+	StageStat& Stage::Impl::GetStageStat()
+	{
+		return m_Data.m_StageStat;
+	}
 
 	void Stage::Impl::SetInitialData( const InitialGameData& data )
 	{
@@ -2026,7 +2041,7 @@ namespace GameEngine
 	{
 	}
 
-	void Stage::Init()
+	void Stage::InitImpl()
 	{
 		m_pImpl->Init();
 	}
@@ -2121,6 +2136,10 @@ namespace GameEngine
 		return m_pImpl->GetKeyStates();
 	}
 
+	StageStat& Stage::GetStageStat()
+	{
+		return m_pImpl->GetStageStat();
+	}
 
 	void Stage::SetInitialData( const InitialGameData& data )
 	{

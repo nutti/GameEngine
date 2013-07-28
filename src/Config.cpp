@@ -370,7 +370,7 @@ namespace GameEngine
 	{
 	}
 
-	void Config::Init()
+	void Config::InitImpl()
 	{
 	}
 

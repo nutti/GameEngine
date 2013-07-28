@@ -90,6 +90,8 @@ namespace GameEngine
 
 		GameDataMsg			m_TotalGameData;		// 現フレームにおける全てのステージゲームデータ
 
+		StageStat			m_StageStat;			// ステージの統計情報
+
 		StageMessageQueue	m_MsgQueue;				// ステージ用メッセージキュー
 
 		bool				m_HasTermSig;
@@ -109,10 +111,12 @@ namespace GameEngine
 	private:
 		class Impl;
 		std::auto_ptr < Stage::Impl >		m_pImpl;
+
+		void InitImpl();
 	public:
 		Stage( int stageNo, bool isReplay );
 		~Stage();
-		void Init();
+		//void Init();
 		SceneType Update();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
@@ -132,6 +136,8 @@ namespace GameEngine
 		int GetPlayerCons() const;
 		void GetPlayerConsGauge( int* pGauge ) const;
 		void GetPlayerConsLevel( int* pLevel ) const;
+
+		StageStat& GetStageStat();
 
 		ReplayDataRecord::StageKeyStates GetKeyStates() const;
 

@@ -69,8 +69,9 @@ namespace GameEngine
 			MODE_INITIALIZE				= 1,
 			MODE_STAGE_CANCELED			= 2,
 			MODE_DIFFICULTY_SELECTED	= 3,
-			MODE_FINALIZE				= 4,
-			MODE_NORMAL					= 5,
+			MODE_DIFFICULTY_CANCELED	= 4,
+			MODE_FINALIZE				= 5,
+			MODE_NORMAL					= 6,
 			MODE_TOTAL,
 		};
 
@@ -84,6 +85,7 @@ namespace GameEngine
 		void Update();
 		void CancelStage();
 		void SelectDifficulty();
+		void CancelDifficulty();
 		void Init();
 		void Finalize();
 	};
@@ -96,7 +98,8 @@ namespace GameEngine
 			MODE_INVISIBLE				= 0,
 			MODE_INITIALIZE				= 1,
 			MODE_FINALIZE				= 2,
-			MODE_NORMAL					= 3,
+			MODE_DIFFICULTY_CANCELED	= 3,
+			MODE_NORMAL					= 4,
 			MODE_TOTAL,
 		};
 
@@ -108,6 +111,7 @@ namespace GameEngine
 		~StageSelectionBackgroundView();
 		void Draw() const;
 		void Update();
+		void CancelDifficulty();
 		void Init();
 		void Finalize();
 	};
@@ -131,11 +135,11 @@ namespace GameEngine
 		int									m_TransitionCounter;
 		int									m_SelectedStage;
 		int									m_SelectedDifficulty;
-		DisplayedStageSelectionPlayStat		m_DispStagePlayStat;
+		DisplayedStageSelectionPlayStat*	m_pDispStagePlayStat;
 	public:
 		StageSelectionStatView();
 		~StageSelectionStatView();
-		void AttachDisplayedStagePlayStat( const DisplayedStageSelectionPlayStat& stat );
+		void AttachDisplayedStagePlayStat( DisplayedStageSelectionPlayStat* pStat );
 		void Draw() const;
 		void Update();
 		void CancelStage();

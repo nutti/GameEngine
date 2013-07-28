@@ -14,6 +14,7 @@ namespace GameEngine
 		SceneBuilder();
 		~SceneBuilder();
 		Scene* CreateNextScene( int scene );
+		void SaveScene( int type, Scene* scene );		// ƒV[ƒ“‚Ì•Û‘¶
 	};
 }
 

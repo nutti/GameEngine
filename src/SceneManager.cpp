@@ -24,6 +24,8 @@
 
 #include "Timer.h"
 
+#include "Util.h"
+
 namespace GameEngine
 {
 	// SceneManager実装クラス
@@ -267,7 +269,7 @@ namespace GameEngine
 		m_IniGameData.m_ShotPower = 0;
 		m_IniGameData.m_Cons = 0;			// PLAYER_CONS_NORMAL
 #if defined ( MAKE_MODE_DEBUG )
-		m_IniGameData.m_HP = 10;
+		m_IniGameData.m_HP = 1;
 		m_IniGameData.m_ShotPower = 40;
 #endif
 	}
@@ -363,15 +365,6 @@ namespace GameEngine
 					}
 				}
 				else if( next == SCENE_TYPE_STAGE_SELECTION ){
-					/*if( m_CurSceneType == SCENE_TYPE_DIFFICULTY_SELECTION ){
-						DifficultySelection* pScene = dynamic_cast < DifficultySelection* > ( m_pCurScene.get() );
-						if( pScene ){
-							m_GameDifficulty = pScene->GetDifficulty();
-						}
-						else{
-							throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
-						}
-					}*/
 					m_GameMode = GAME_MODE_ONE_STAGE;
 					p->SendEvent( EVENT_TYPE_MOVE_TO_STAGE_SELECTION );
 				}
@@ -379,10 +372,6 @@ namespace GameEngine
 					m_GameMode = GAME_MODE_NORMAL;
 					p->SendEvent( EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION );
 				}
-				//else if( next == SCENE_TYPE_DIFFICULTY_SELECTION_IN_STAGE ){
-				//	m_GameMode = GAME_MODE_ONE_STAGE;
-				//	p->SendEvent( EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION_IN_STAGE );
-				//}
 				else if( next == SCENE_TYPE_STAGE ){
 					if( m_CurSceneType == SCENE_TYPE_REPLAY ){
 						m_GameMode = GAME_MODE_REPLAY;
@@ -413,6 +402,7 @@ namespace GameEngine
 							m_PlayTime.Start();
 							// 統計情報の更新
 							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_Play += 1;
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_Play += 1;
 							// 初期データの設定
 							InitializeIniGameData();
 							SaveStageReplayData( m_CurStage - 1, m_IniGameData );
@@ -429,8 +419,12 @@ namespace GameEngine
 							else{
 								throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 							}
+							// プレイ時間の記録を開始
+							m_PlayTime.Init();
+							m_PlayTime.Start();
 							// 統計情報の更新
 							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_Play += 1;
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_StageStat[ m_CurStage - 1 ].m_Play += 1;
 							// 初期データの設定
 							InitializeIniGameData();
 							// ※ステージごとにリプレイを保存する場合、バグが生じる↓
@@ -440,24 +434,61 @@ namespace GameEngine
 						else if( m_CurSceneType == SCENE_TYPE_STAGE ){
 							m_IsFirstStage = false;
 							Stage* pStage = dynamic_cast < Stage* > ( m_pCurScene.get() );
-							if( pStage ){
-								// 初期データの構築
-								SetupInitialData( *pStage );
-								// ステージ別のスコア情報を保存
-								SaveStageScoreData( m_CurStage, *pStage );
-								// ステージ別のリプレイ情報を保存
-								SaveStageReplayData( m_CurStage, *pStage );
-								// 次のステージ番号を取得し、遷移する
-								m_CurStage = pStage->GetNextStageNo();
-								if( m_GameMode == GAME_MODE_NORMAL || m_GameMode == GAME_MODE_REPLAY ){
-									p->SendEvent( EVENT_TYPE_MOVE_TO_NEXT_STAGE, &m_CurStage );
-								}
-								else{
-									p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
-								}
+							if( pStage == NULL ){
+								throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+							}
+
+							//-------------------------------
+							// 統計情報の更新
+							//-------------------------------
+							// プレイ時間の更新
+							m_PlayTime.Stop();
+							if( m_GameMode == GAME_MODE_NORMAL ){
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_PlayTime += m_PlayTime.GetInterval();
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_Clear += 1;
+							}
+							// プレイ時間の記録
+							if( m_CurStage == 1 ){
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_PlayTime += m_PlayTime.GetInterval();
 							}
 							else{
-								throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_PlayTime +=
+									m_PlayTime.GetInterval() -
+									m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 2 ].m_PlayTime;
+							}
+							// 意識時間の取得
+							for( int i = 0; i < NUM_OF( m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_ConsTime ); ++i ){
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_ConsTime[ i ] += pStage->GetStageStat().m_ConsTime[ i ];
+							}
+							// 敵情報の更新
+							StageStat& stat = pStage->GetStageStat();
+							for(	auto it = stat.m_EnemyStat.begin();
+									it != stat.m_EnemyStat.end();
+									++it ){
+								if( m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat.find( it->first )
+									== m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat.end() ){
+									EnemyStat s;
+									m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat[ it->first ] = s;
+								}
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat[ it->first ] += stat.m_EnemyStat[ it->first ];
+							}
+
+
+							// 初期データの構築
+							SetupInitialData( *pStage );
+							// ステージ別のスコア情報を保存
+							SaveStageScoreData( m_CurStage, *pStage );
+							// ステージ別のリプレイ情報を保存
+							SaveStageReplayData( m_CurStage, *pStage );
+							// 次のステージ番号を取得し、遷移する
+							m_CurStage = pStage->GetNextStageNo();
+							// 統計情報の更新
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_Play += 1;
+							if( m_GameMode == GAME_MODE_NORMAL || m_GameMode == GAME_MODE_REPLAY ){
+								p->SendEvent( EVENT_TYPE_MOVE_TO_NEXT_STAGE, &m_CurStage );
+							}
+							else{
+								p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
 							}
 						}
 					}
@@ -476,27 +507,96 @@ namespace GameEngine
 					if( m_GameMode == GAME_MODE_NORMAL ){
 						// ステージからの遷移であることを確認
 						Stage* pStage = dynamic_cast < Stage* > ( m_pCurScene.get() );
-						if( pStage ){
-							// プレイ時間の記録
-							m_PlayTime.Stop();
-							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_PlayTime += m_PlayTime.GetInterval();
-							// 最終ステージの結果を更新
-							// 初期データの構築
-							SetupInitialData( *pStage );
-							// ステージ別のスコア情報を保存
-							SaveStageScoreData( m_CurStage, *pStage );
-							PrepareScoreEntry();
-							// ステージ別のリプレイ情報を保存
-							SaveStageReplayData( m_CurStage, *pStage );
-							PrepareReplayEntry();
-							p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
-						}
-						else{
+						if( pStage == NULL ){
 							throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
 						}
+
+						//-------------------------------
+						// 統計情報の更新
+						//-------------------------------
+						// 全体情報の更新
+						// プレイ時間の記録
+						m_PlayTime.Stop();
+						m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_PlayTime += m_PlayTime.GetInterval();
+						// ステージ個別情報の更新
+						// プレイ時間の記録
+						if( m_CurStage == 1 ){
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_PlayTime += m_PlayTime.GetInterval();
+						}
+						else{
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_PlayTime +=
+								m_PlayTime.GetInterval() -
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 2 ].m_PlayTime;
+						}
+						// 意識時間の取得
+						for( int i = 0; i < NUM_OF( m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_ConsTime ); ++i ){
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_ConsTime[ i ] += pStage->GetStageStat().m_ConsTime[ i ];
+						}
+						// 敵情報の更新
+						StageStat& stat = pStage->GetStageStat();
+						for(	auto it = stat.m_EnemyStat.begin();
+								it != stat.m_EnemyStat.end();
+								++it ){
+							if( m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat.find( it->first )
+								== m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat.end() ){
+								EnemyStat s;
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat[ it->first ] = s;
+							}
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_NormalPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat[ it->first ] += stat.m_EnemyStat[ it->first ];
+						}
+						
+						//-------------------------------
+						// 最終ステージの結果を更新
+						//-------------------------------
+						// 初期データの構築
+						SetupInitialData( *pStage );
+						// ステージ別のスコア情報を保存
+						SaveStageScoreData( m_CurStage, *pStage );
+						PrepareScoreEntry();
+						// ステージ別のリプレイ情報を保存
+						SaveStageReplayData( m_CurStage, *pStage );
+						PrepareReplayEntry();
+						p->SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
 					}
-					// ※最終的には新たな状態を作り、リプレイかどうかで分岐を行う。
-					else if( m_GameMode == GAME_MODE_REPLAY || m_GameMode == GAME_MODE_ONE_STAGE ){
+					else if( m_GameMode == GAME_MODE_ONE_STAGE ){
+						// ステージからの遷移であることを確認
+						Stage* pStage = dynamic_cast < Stage* > ( m_pCurScene.get() );
+						if( pStage == NULL ){
+							throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Called from invalid scene." ), -1 );
+						}
+
+						//-------------------------------
+						// 統計情報の更新
+						//-------------------------------
+						// 全体情報の更新
+						// プレイ時間の記録
+						m_PlayTime.Stop();
+						m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_PlayTime += m_PlayTime.GetInterval();
+						// ステージ個別情報の更新
+						// プレイ時間の記録
+						m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_StageStat[ m_CurStage - 1 ].m_PlayTime += m_PlayTime.GetInterval();
+						// 意識時間の取得
+						for( int i = 0; i < NUM_OF( m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_StageStat[ m_CurStage - 1 ].m_ConsTime ); ++i ){
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_StageStat[ m_CurStage - 1 ].m_ConsTime[ i ] += pStage->GetStageStat().m_ConsTime[ i ];
+						}
+						// 敵情報の更新
+						StageStat& stat = pStage->GetStageStat();
+						for(	auto it = stat.m_EnemyStat.begin();
+								it != stat.m_EnemyStat.end();
+								++it ){
+							if( m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat.find( it->first )
+								== m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat.end() ){
+								EnemyStat s;
+								m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat[ it->first ] = s;
+							}
+							m_GameStat.m_Difficulty[ m_GameDifficulty ].m_StageSelPlayStat.m_StageStat[ m_CurStage - 1 ].m_EnemyStat[ it->first ] += stat.m_EnemyStat[ it->first ];
+						}
+
+
+						// イベント送信
+						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU_FROM_SCORE_ENTRY );
+					}
+					else if( m_GameMode == GAME_MODE_REPLAY ){
 						p->SendEvent( EVENT_TYPE_MOVE_TO_MENU );
 					}
 				}
@@ -662,7 +762,29 @@ namespace GameEngine
 
 	void SceneManager::Impl::SwitchToNextScene()
 	{
+		// シーンの保存
+		try{
+			if( typeid( *m_pCurScene.get() ) == typeid( Menu ) ){
+				m_pSceneBuilder->SaveScene( SCENE_TYPE_MENU, m_pCurScene.release() );
+			}
+			else if( typeid( *m_pCurScene.get() ) == typeid( StageSelection ) ){
+				m_pSceneBuilder->SaveScene( SCENE_TYPE_STAGE_SELECTION, m_pCurScene.release() );
+			}
+			else if( typeid( *m_pCurScene.get() ) == typeid( DifficultySelection ) ){
+				m_pSceneBuilder->SaveScene( SCENE_TYPE_DIFFICULTY_SELECTION, m_pCurScene.release() );
+			}
+		}
+		// m_pCurSceneがぬるぽだったら、無視する。
+		catch( const std::bad_typeid& e ){
+			// 何もしない
+			std::string s = e.what();
+			s += "\n";
+			::OutputDebugStringA( s.c_str() );
+		}
+		
+		// シーン遷移
 		m_pCurScene.reset( m_pNextScene.release() );
+
 		if( typeid( *m_pCurScene.get() ) == typeid( Initialize ) ){
 			m_CurSceneType = SCENE_TYPE_INITIALIZE;
 		}
@@ -704,7 +826,6 @@ namespace GameEngine
 			m_CurSceneType = SCENE_TYPE_REPLAY_ENTRY;
 		}
 		else if( typeid( *m_pCurScene.get() ) == typeid( DifficultySelection ) ){
-			//( (DifficultySelection*) m_pCurScene.get() )->SetGameMode( m_GameMode );
 			( (DifficultySelection*) m_pCurScene.get() )->AttachNormalPlayStat( m_DispNormalPlayStat );
 			m_CurSceneType = SCENE_TYPE_DIFFICULTY_SELECTION;
 		}

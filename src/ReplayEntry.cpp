@@ -366,7 +366,7 @@ namespace GameEngine
 	{
 	}
 
-	void ReplayEntry::Init()
+	void ReplayEntry::InitImpl()
 	{
 	}
 

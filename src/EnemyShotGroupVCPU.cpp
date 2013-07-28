@@ -216,6 +216,7 @@ namespace GameEngine
 		if( m_pEnemyShotGroupData->m_EnemyControlled ){
 			EnemyShotGroup* pNewGroup = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyShotGroupData->m_pEnemyData );
 			pNewGroup->Init();
+			pNewGroup->SetMasterEnemyName( m_pEnemyShotGroupData->m_pEnemyData->m_Name );
 			m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 		}
 	}
@@ -232,6 +233,7 @@ namespace GameEngine
 			EnemyShotGroup* pNewGroup = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyShotGroupData->m_pEnemyData );
 			pNewGroup->Init();
 			pNewGroup->SetReg( reg );
+			pNewGroup->SetMasterEnemyName( m_pEnemyShotGroupData->m_pEnemyData->m_Name );
 			m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 		}
 	}
@@ -254,6 +256,7 @@ namespace GameEngine
 			for( int i = 0; i < 5; ++i ){
 				pNewGroup->SetGReg( i, reg[ i ] );
 			}
+			pNewGroup->SetMasterEnemyName( m_pEnemyShotGroupData->m_pEnemyData->m_Name );
 			m_pEnemyShotGroupData->m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 		}
 	}

@@ -51,6 +51,8 @@ namespace GameEngine
 		int GetSubID() const;
 		bool IsEmpty() const;
 		void DetachEnemyControl();
+		std::string GetMasterEnemyName() const;		// マスタとなる敵の名前を取得
+		void SetMasterEnemyName( const std::string& name );
 	};
 
 	EnemyShotGroup::Impl::Impl(	std::shared_ptr < ResourceMap > pMap,
@@ -228,6 +230,16 @@ namespace GameEngine
 		m_EnemyShotGroupData.m_pStageData->m_EnemyShotGroupList.push_back( m_EnemyShotGroupData.m_pShotGroup );
 	}
 
+	inline std::string EnemyShotGroup::Impl::GetMasterEnemyName() const
+	{
+		return m_EnemyShotGroupData.m_MasterEnemyName;
+	}
+
+	inline void EnemyShotGroup::Impl::SetMasterEnemyName( const std::string& name )
+	{
+		m_EnemyShotGroupData.m_MasterEnemyName = name;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -347,5 +359,15 @@ namespace GameEngine
 	void EnemyShotGroup::DetachEnemyControl()
 	{
 		m_pImpl->DetachEnemyControl();
+	}
+
+	std::string EnemyShotGroup::GetMasterEnemyName() const
+	{
+		return m_pImpl->GetMasterEnemyName();
+	}
+
+	void EnemyShotGroup::SetMasterEnemyName( const std::string& name )
+	{
+		m_pImpl->SetMasterEnemyName( name );
 	}
 }

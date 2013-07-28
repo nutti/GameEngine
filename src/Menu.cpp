@@ -46,6 +46,7 @@ namespace GameEngine
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
+		void Reflesh();
 	};
 
 	Menu::Impl::Impl()
@@ -270,6 +271,10 @@ namespace GameEngine
 		m_ResourceMap = map;
 	}
 
+	void Menu::Impl::Reflesh()
+	{
+	}
+
 	// ----------------------------------
 	// ŽÀ‘•ƒNƒ‰ƒX‚ÌŒÄ‚Ño‚µ
 	// ----------------------------------
@@ -282,7 +287,7 @@ namespace GameEngine
 	{
 	}
 
-	void Menu::Init()
+	void Menu::InitImpl()
 	{
 	}
 
@@ -304,5 +309,10 @@ namespace GameEngine
 	void Menu::AttachResourceMap( const ResourceMap& map )
 	{
 		m_pImpl->AttachResourceMap( map );
+	}
+
+	void Menu::Reflesh()
+	{
+		m_pImpl->Reflesh();
 	}
 }

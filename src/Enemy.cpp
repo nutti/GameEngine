@@ -595,7 +595,9 @@ void Enemy::Draw()
 				// 属性が一致している時
 				if( m_Data.m_ConsSkillAttr == pPlayerShot->GetConsAttr() ){
 					damage = 0;			// ダメージ無効化
-					gaugeDelta += 1;	// ゲージ1回復
+					if( m_Data.m_ConsSkillAttr != PLAYER_CONS_MODE_NORMAL ){
+						gaugeDelta += 1;	// ゲージ1回復
+					}
 					scoreDelta = 0;		// スコアボーナス変更なし
 				}
 				// 属性勝ちしている時
@@ -716,6 +718,13 @@ void Enemy::Draw()
 			// スコア加算
 			int addScore = ( ( m_Data.m_Score * ( 1000 + m_Data.m_ScoreBonus ) ) / 10000 ) * 10;
 			m_Data.m_pStageData->m_FrameGameData.m_Score += addScore;
+			// 統計情報の更新
+			auto it = m_Data.m_pStageData->m_StageStat.m_EnemyStat.find( m_Data.m_Name );
+			if( it == m_Data.m_pStageData->m_StageStat.m_EnemyStat.end() ){
+				EnemyStat stat;
+				m_Data.m_pStageData->m_StageStat.m_EnemyStat[ m_Data.m_Name ] = stat;
+			}
+			++m_Data.m_pStageData->m_StageStat.m_EnemyStat[ m_Data.m_Name ].m_Destroy;
 			// 減少させた分のゲージのクリスタルを取得
 			if( m_Data.m_DamagedConsGauge >= 5 ){
 				std::shared_ptr < Item > pNewItem;

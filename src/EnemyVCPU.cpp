@@ -310,6 +310,21 @@ namespace GameEngine
 		*pStr = Top().m_pString->m_Str;
 		Pop();
 
+		// 統計情報の更新
+		if( m_pEnemyData->m_pStageData->m_StageStat.m_EnemyStat.find( m_pEnemyData->m_Name )
+			== m_pEnemyData->m_pStageData->m_StageStat.m_EnemyStat.end() ){
+			EnemyStat s;
+			m_pEnemyData->m_pStageData->m_StageStat.m_EnemyStat[ m_pEnemyData->m_Name ] = s;
+		}
+		if( m_pEnemyData->m_pStageData->m_StageStat.m_EnemyStat[ m_pEnemyData->m_Name ].m_SkillStat.find( *pStr )
+			== m_pEnemyData->m_pStageData->m_StageStat.m_EnemyStat[ m_pEnemyData->m_Name ].m_SkillStat.end() ){
+			SkillStat s;
+			m_pEnemyData->m_pStageData->m_StageStat.m_EnemyStat[ m_pEnemyData->m_Name ].m_SkillStat[ *pStr ] = s;
+		}
+		else{
+			++m_pEnemyData->m_pStageData->m_StageStat.m_EnemyStat[ m_pEnemyData->m_Name ].m_SkillStat[ *pStr ].m_Used;
+		}
+
 		// 技を使用したのが、ボスの場合
 		if( m_pEnemyData->m_IsBoss ){
 			// メッセージ構築
@@ -512,6 +527,7 @@ namespace GameEngine
 
 		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
 		pNewGroup->Init();
+		pNewGroup->SetMasterEnemyName( m_pEnemyData->m_Name );
 		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 	}
 
@@ -542,6 +558,7 @@ namespace GameEngine
 		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
 		pNewGroup->Init();
 		pNewGroup->SetReg( reg );
+		pNewGroup->SetMasterEnemyName( m_pEnemyData->m_Name );
 		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 	}
 
@@ -639,6 +656,7 @@ namespace GameEngine
 		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
 		pNewGroup->Init();
 		pNewGroup->SetFReg( reg );
+		pNewGroup->SetMasterEnemyName( m_pEnemyData->m_Name );
 		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 	}
 
@@ -785,6 +803,7 @@ namespace GameEngine
 		EnemyShotGroup* pNewGroup = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemyShotGroup( id, m_pEnemyData );
 		pNewGroup->Init();
 		pNewGroup->SetReg( reg );
+		pNewGroup->SetMasterEnemyName( m_pEnemyData->m_Name );
 		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 	}
 
@@ -805,6 +824,7 @@ namespace GameEngine
 		for( int i = 0; i < 5; ++i ){
 			pNewGroup->SetGReg( i, reg[ i ] );
 		}
+		pNewGroup->SetMasterEnemyName( m_pEnemyData->m_Name );
 		m_pEnemyData->m_ShotGroupList.push_back( pNewGroup );
 	}
 

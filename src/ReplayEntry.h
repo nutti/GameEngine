@@ -11,10 +11,11 @@ namespace GameEngine
 	private:
 		class Impl;
 		std::auto_ptr < ReplayEntry::Impl >		m_pImpl;
+		void InitImpl();
 	public:
 		ReplayEntry();
 		~ReplayEntry();
-		void Init();
+		//void Init();
 		SceneType Update();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );

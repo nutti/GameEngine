@@ -306,7 +306,7 @@ namespace GameEngine
 	{
 	}
 
-	void ScoreEntry::Init()
+	void ScoreEntry::InitImpl()
 	{
 	}
 

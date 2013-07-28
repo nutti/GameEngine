@@ -389,20 +389,20 @@ namespace GameEngine
 				break;
 			}
 			// 難易度選択画面（ステージ選択あり）移行要求
-			case EVENT_TYPE_MOVE_TO_DIFFICULTY_SELECTION_IN_STAGE:{
-				m_pResourceManager->ReleaseStageResources();
-				m_pSceneManager->AttachDisplayedStageSelectionPlayStat( m_pGameStateManager->GetDisplayedStageSelectionPlayStat() );
-				m_pSceneManager->ChangeScene( SCENE_TYPE_DIFFICULTY_SELECTION );
-				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
-				break;
-			}
-			// ステージ選択画面移行要求
 			case EVENT_TYPE_MOVE_TO_STAGE_SELECTION:{
 				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->AttachDisplayedStageSelectionPlayStat( m_pGameStateManager->GetDisplayedStageSelectionPlayStat() );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_STAGE_SELECTION );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
+			// ステージ選択画面移行要求
+			/*case EVENT_TYPE_MOVE_TO_STAGE_SELECTION:{
+				m_pResourceManager->ReleaseStageResources();
+				m_pSceneManager->ChangeScene( SCENE_TYPE_STAGE_SELECTION );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}*/
 			// コンフィグ画面移行要求
 			case EVENT_TYPE_MOVE_TO_CONFIG:{
 				m_pResourceManager->ReleaseStageResources();
@@ -483,6 +483,13 @@ namespace GameEngine
 				break;
 			}
 			case EVENT_TYPE_MOVE_TO_MENU_FROM_REPLAY_ENTRY:{
+				m_pResourceManager->ReleaseStageResources();
+				m_pGameStateManager->SetGameStat( m_pSceneManager->GetGameStat() );
+				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );
+				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				break;
+			}
+			case EVENT_TYPE_MOVE_TO_MENU_FROM_SCORE_ENTRY:{
 				m_pResourceManager->ReleaseStageResources();
 				m_pGameStateManager->SetGameStat( m_pSceneManager->GetGameStat() );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_MENU );

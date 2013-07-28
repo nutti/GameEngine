@@ -59,13 +59,13 @@ namespace GameEngine
 		
 
 		const float STAGE_BASE_POS_X = 200.0f;
-		const float STAGE_BASE_POS_Y = 370.0f;
+		const float STAGE_BASE_POS_Y = 377.0f;
 		const float STAGE_OFFSET_POS_Y = 20.0f;
 
 		float offsetY = 0.0f;
 		float offsetX = 0.0f;
 
-		const float SCALE_FACTOR = 0.6f;
+		const float SCALE_FACTOR = 0.8f;
 
 		float imgScale[ 2 ] = { 0.0f, SCALE_FACTOR };
 
@@ -296,6 +296,12 @@ namespace GameEngine
 				scaleX = SCALE_FACTOR;
 			}
 		}
+		// 難易度キャンセル時
+		else if( m_CurMode == MODE_DIFFICULTY_CANCELED ){
+			if( m_TransitionCounter <= 15 ){
+				alpha = ( 15 - m_TransitionCounter ) * 16;
+			}
+		}
 
 		int color = 0xFFFFFF | alpha << 24;
 
@@ -348,6 +354,13 @@ namespace GameEngine
 					m_TransitionCounter = 0;
 				}
 				break;
+			case MODE_DIFFICULTY_CANCELED:
+				++m_TransitionCounter;
+				if( m_TransitionCounter > 15 ){
+					m_CurMode = MODE_INVISIBLE;
+					m_TransitionCounter = 0;
+				}
+				break;
 			case MODE_STAGE_CANCELED:
 				++m_TransitionCounter;
 				if( m_TransitionCounter > 30 ){
@@ -375,6 +388,12 @@ namespace GameEngine
 		m_CurMode = MODE_DIFFICULTY_SELECTED;
 		m_TransitionCounter = 0;
 		m_IsStageSelectionMode = true;
+	}
+
+	void StageSelectionTitleView::CancelDifficulty()
+	{
+		m_CurMode = MODE_DIFFICULTY_CANCELED;
+		m_TransitionCounter = 0;
 	}
 
 	void StageSelectionTitleView::Init()
@@ -410,8 +429,8 @@ namespace GameEngine
 
 	void StageSelectionBackgroundView::Draw() const
 	{
-		int alpha = 0x00;
-		int alpha2 = 0x00;
+		int alpha = 0x3C;
+		
 
 		if( m_CurMode == MODE_INITIALIZE ){
 			if( m_TransitionCounter < 60 ){
@@ -429,13 +448,19 @@ namespace GameEngine
 				alpha = 0x00;
 			}
 		}
+		// 難易度選択キャンセル時
+		else if( m_CurMode == MODE_DIFFICULTY_CANCELED ){
+			if( m_TransitionCounter <= 15 ){
+				alpha = 0x3C - ( 15 - m_TransitionCounter ) * 4;
+			}
+		}
 
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
 		for( int i = 0; i < 100; ++i ){
-
+			int alpha2 = 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 );
 			if( m_CurMode == MODE_INITIALIZE ){
 				if( m_TransitionCounter < 120 ){
-					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( m_Counter ) / 120;
+					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( m_TransitionCounter ) / 120;
 				}
 			}
 			else if( m_CurMode == MODE_FINALIZE ){
@@ -446,7 +471,13 @@ namespace GameEngine
 					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( 40 - m_TransitionCounter ) / 20;
 				}
 				else{
-					alpha = 0x00;
+					alpha2 = 0x00;
+				}
+			}
+			// 難易度選択キャンセル時
+			else if( m_CurMode == MODE_DIFFICULTY_CANCELED ){
+				if( m_TransitionCounter <= 15 ){
+					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( 15 - m_TransitionCounter ) / 15;
 				}
 			}
 
@@ -458,6 +489,7 @@ namespace GameEngine
 								( i % 10 ) * m_Counter * 0.02f,
 								true,
 								alpha << 24 | alpha << 16 | alpha << 8 | alpha );
+								
 			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL + i % 3 ],
 								320.0f + ( i % 5 ) * 110.0f * cos( m_Counter * 0.005f + i * 123.1f ),
 								240.0f + ( i % 4 ) * 90.0f * sin( m_Counter * 0.005f + i * 123.1f ),
@@ -466,6 +498,7 @@ namespace GameEngine
 								( i % 10 ) * m_Counter * 0.02f,
 								true,
 								alpha2 << 24 | alpha2 << 16 | alpha2 << 8 | alpha2 );
+								
 		}
 		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 	}
@@ -473,6 +506,13 @@ namespace GameEngine
 	void StageSelectionBackgroundView::Update()
 	{
 		switch( m_CurMode ){
+			case MODE_DIFFICULTY_CANCELED:
+				++m_TransitionCounter;
+				if( m_TransitionCounter > 15 ){
+					m_CurMode = MODE_INVISIBLE;
+					m_TransitionCounter = 0;
+				}
+				break;
 			case MODE_INITIALIZE:
 				++m_TransitionCounter;
 				if( m_TransitionCounter > 120 ){
@@ -490,10 +530,17 @@ namespace GameEngine
 		++m_Counter;
 	}
 
+	void StageSelectionBackgroundView::CancelDifficulty()
+	{
+		m_CurMode = MODE_DIFFICULTY_CANCELED;
+		m_TransitionCounter = 0;
+	}
+
 	void StageSelectionBackgroundView::Init()
 	{
 		m_CurMode = MODE_INITIALIZE;
 		m_TransitionCounter = 0;
+		m_Counter = 0;
 	}
 
 	void StageSelectionBackgroundView::Finalize()
@@ -511,7 +558,7 @@ namespace GameEngine
 														m_TransitionCounter( 0 ),
 														m_SelectedDifficulty( GAME_DIFFICULTY_CALM ),
 														m_SelectedStage( 0 ),
-														m_DispStagePlayStat()
+														m_pDispStagePlayStat( NULL )
 	{
 	}
 
@@ -523,9 +570,9 @@ namespace GameEngine
 		m_SelectedStage = 0;
 	}
 
-	void StageSelectionStatView::AttachDisplayedStagePlayStat( const DisplayedStageSelectionPlayStat& stat )
+	void StageSelectionStatView::AttachDisplayedStagePlayStat(  DisplayedStageSelectionPlayStat* pStat )
 	{
-		m_DispStagePlayStat = stat;
+		m_pDispStagePlayStat = pStat;
 	}
 
 	void StageSelectionStatView::Draw() const
@@ -590,28 +637,31 @@ namespace GameEngine
 		int color1 = alpha2 << 24 | 0xAAFFAA;
 		int color2 = alpha << 24 | 0xFFFFFF;
 
-		float fontScale = 0.40f;
+		float fontScale = 0.50f;
 
-		float x = 375.0f;
+		float x[ 4 ];
 		float y[ 4 ];
-		float offsetX = 130.0f;
-		y[ 0 ] = 340.0f;
+		float offsetX = 40.0f;
+		float offsetY = 20.0f;
+		x[ 0 ] = 415.0f;
+		y[ 0 ] = 305.0f;
 		for( int i = 0; i < 3; ++i ){
-			y[ i + 1 ] = y[ i ] + 20.0f;
+			x[ i + 1 ] = x[ i ] + 17.0f;
+			y[ i + 1 ] = y[ i ] + 40.0f;
 		}
 
-		DrawFontString( m_ResourceMap, x, y[ 0 ], fontScale, color1, "hi score" );
-		DrawFontString( m_ResourceMap, x, y[ 1 ], fontScale, color1, "play" );
-		DrawFontString( m_ResourceMap, x, y[ 2 ], fontScale, color1, "clear" );
-		DrawFontString( m_ResourceMap, x, y[ 3 ], fontScale, color1, "play time" );
+		DrawFontString( m_ResourceMap, x[ 0 ], y[ 0 ], fontScale, color1, "hi score" );
+		DrawFontString( m_ResourceMap, x[ 1 ], y[ 1 ], fontScale, color1, "play" );
+		DrawFontString( m_ResourceMap, x[ 2 ], y[ 2 ], fontScale, color1, "clear" );
+		DrawFontString( m_ResourceMap, x[ 3 ], y[ 3 ], fontScale, color1, "play time" );
 
-		DrawFontString( m_ResourceMap, x + offsetX, y[ 0 ], fontScale, color2, "%d", m_DispStagePlayStat.m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_HIScore );
-		DrawFontString( m_ResourceMap, x + offsetX, y[ 1 ], fontScale, color2, "%d", m_DispStagePlayStat.m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_Play );
-		DrawFontString( m_ResourceMap, x + offsetX, y[ 2 ], fontScale, color2, "%d", m_DispStagePlayStat.m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_Clear );
-		DrawFontString(	m_ResourceMap, x + offsetX, y[ 3 ], fontScale, color2, "%d:%02d:%02d",
-						m_DispStagePlayStat.m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_PlayTime / ( 60 * 60 ),
-						( m_DispStagePlayStat.m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_PlayTime / 60 ) % 60,
-						m_DispStagePlayStat.m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_PlayTime % 60 );
+		DrawFontString( m_ResourceMap, x[ 0 ] + offsetX, y[ 0 ] + offsetY, fontScale, color2, "%d", m_pDispStagePlayStat->m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_HIScore );
+		DrawFontString( m_ResourceMap, x[ 1 ] + offsetX, y[ 1 ] + offsetY, fontScale, color2, "%d", m_pDispStagePlayStat->m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_Play );
+		DrawFontString( m_ResourceMap, x[ 2 ] + offsetX, y[ 2 ] + offsetY, fontScale, color2, "%d", m_pDispStagePlayStat->m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_Clear );
+		DrawFontString(	m_ResourceMap, x[ 3 ] + offsetX, y[ 3 ] + offsetY, fontScale, color2, "%d:%02d:%02d",
+						m_pDispStagePlayStat->m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_PlayTime / ( 60 * 60 ),
+						( m_pDispStagePlayStat->m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_PlayTime / 60 ) % 60,
+						m_pDispStagePlayStat->m_Stat[ m_SelectedDifficulty ].m_StageStat[ m_SelectedStage ].m_PlayTime % 60 );
 	}
 
 	void StageSelectionStatView::Update()

@@ -11,14 +11,16 @@ namespace GameEngine
 	private:
 		class Impl;
 		std::auto_ptr < Menu::Impl >		m_pImpl;
+		void InitImpl();
 	public:
 		Menu();
 		~Menu();
-		void Init();
+		//void Init();
 		SceneType Update();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
+		void Reflesh();
 	};
 }
 

@@ -36,6 +36,7 @@ namespace GameEngine
 		float								m_FReg;				// 浮動小数点レジスタ
 		int									m_SubID;			// ショットグループ判別用ID
 		std::queue < int >					m_EventQueue;		// イベントキュー
+		std::string							m_MasterEnemyName;	// マスタとなる敵の名前
 	};
 	
 	class EnemyShotGroup
@@ -70,6 +71,8 @@ namespace GameEngine
 		int GetSubID() const;
 		bool IsEmpty() const;			// 全部消去済みか？
 		void DetachEnemyControl();		// 敵の管理下でなくなるようにする。
+		std::string GetMasterEnemyName() const;		// マスタとなる敵の名前を取得
+		void SetMasterEnemyName( const std::string& name );
 	};
 }
 

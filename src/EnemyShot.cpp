@@ -332,6 +332,7 @@ namespace GameEngine
 		void DisableInvincibleMode();			// 消えるモードへ移行
 		void EnableInvisibleMode();				// 見えないモードへ移行
 		void DisableInvisibleMode();			// 見えるモードへ移行
+		std::string GetMasterEnemyName() const;
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -943,6 +944,11 @@ namespace GameEngine
 		return m_GUData.m_Speed;
 	}
 
+	inline std::string EnemyShot::Impl::GetMasterEnemyName() const
+	{
+		return m_ShotGroupData.m_pShotGroup->GetMasterEnemyName();
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -1241,5 +1247,10 @@ namespace GameEngine
 	void EnemyShot::DisableInvisibleMode()
 	{
 		m_pImpl->DisableInvisibleMode();
+	}
+
+	std::string EnemyShot::GetMasterEnemyName() const
+	{
+		return m_pImpl->GetMasterEnemyName();
 	}
 }

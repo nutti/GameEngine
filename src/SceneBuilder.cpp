@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "SceneBuilder.h"
 #include "SceneTypes.h"
 #include "Menu.h"
@@ -16,15 +18,22 @@ namespace GameEngine
 	// SceneBuilder実装クラス
 	class SceneBuilder::Impl
 	{
+		std::map < int, std::unique_ptr < Scene > >			m_SceneStroge;		// シーンの一時保存場所
 	public:
 		Impl();
-		~Impl(){}
+		~Impl();
 		Scene* CreateNextScene( int scene );
+		void SaveScene( int type, Scene* scene );		// シーンの保存
 	};
 
-
-	SceneBuilder::Impl::Impl()
+	SceneBuilder::Impl::Impl() : m_SceneStroge()
 	{
+		m_SceneStroge.clear();
+	}
+
+	SceneBuilder::Impl::~Impl()
+	{
+		m_SceneStroge.clear();
 	}
 
 	Scene* SceneBuilder::Impl::CreateNextScene( int scene )
@@ -33,7 +42,14 @@ namespace GameEngine
 			case SCENE_TYPE_INITIALIZE:
 				return new Initialize;
 			case SCENE_TYPE_MENU:
-				return new Menu;
+				if( m_SceneStroge[ SCENE_TYPE_MENU ] != NULL ){
+					m_SceneStroge[ SCENE_TYPE_MENU ]->Reflesh();
+					return m_SceneStroge[ SCENE_TYPE_MENU ].release();
+				}
+				else{
+					return new Menu;
+				}
+				break;
 			case SCENE_TYPE_CONFIG:
 				return new Config;
 			case SCENE_TYPE_SCORE:
@@ -47,12 +63,31 @@ namespace GameEngine
 			case SCENE_TYPE_REPLAY_ENTRY:
 				return new ReplayEntry;
 			case SCENE_TYPE_DIFFICULTY_SELECTION:
-				return new DifficultySelection;
+				if( m_SceneStroge[ SCENE_TYPE_DIFFICULTY_SELECTION ] != NULL ){
+					m_SceneStroge[ SCENE_TYPE_DIFFICULTY_SELECTION ]->Reflesh();
+					return m_SceneStroge[ SCENE_TYPE_DIFFICULTY_SELECTION ].release();
+				}
+				else{
+					return new DifficultySelection;
+				}
+				break;
 			case SCENE_TYPE_STAGE_SELECTION:
-				return new StageSelection;
+				if( m_SceneStroge[ SCENE_TYPE_STAGE_SELECTION ] != NULL ){
+					m_SceneStroge[ SCENE_TYPE_STAGE_SELECTION ]->Reflesh();
+					return m_SceneStroge[ SCENE_TYPE_STAGE_SELECTION ].release();
+				}
+				else{
+					return new StageSelection;
+				}
+				break;
 			default:
 				return NULL;
 		}
+	}
+
+	void SceneBuilder::Impl::SaveScene( int type, Scene* scene )
+	{
+		m_SceneStroge[ type ].reset( scene );
 	}
 
 
@@ -71,5 +106,10 @@ namespace GameEngine
 	Scene* SceneBuilder::CreateNextScene( int scene )
 	{
 		return m_pImpl->CreateNextScene( scene );
+	}
+
+	void SceneBuilder::SaveScene( int type, Scene* scene )
+	{
+		m_pImpl->SaveScene( type, scene );
 	}
 }

@@ -70,7 +70,7 @@ namespace GameEngine
 	{
 	}
 
-	void Initialize::Init()
+	void Initialize::InitImpl()
 	{
 	}
 

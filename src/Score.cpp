@@ -274,7 +274,7 @@ namespace GameEngine
 	{
 	}
 
-	void Score::Init()
+	void Score::InitImpl()
 	{
 	}
 

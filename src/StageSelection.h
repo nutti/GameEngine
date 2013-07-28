@@ -11,10 +11,12 @@ namespace GameEngine
 	private:
 		class Impl;
 		std::auto_ptr < StageSelection::Impl >		m_pImpl;
+
+		void InitImpl();
 	public:
 		StageSelection();
 		~StageSelection();
-		void Init();
+		//void Init();
 		SceneType Update();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
@@ -22,6 +24,7 @@ namespace GameEngine
 		void AttachStageSelectionStat( const DisplayedStageSelectionPlayStat& stat );
 		int GetStageNo() const;
 		int GetDifficulty() const;
+		void Reflesh();
 	};
 }
 
