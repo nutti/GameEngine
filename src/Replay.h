@@ -24,6 +24,7 @@ namespace GameEngine
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
 		int GetReplayStage() const;
 		int GetReplayNo() const;
+		void Reflesh();
 	};
 }
 

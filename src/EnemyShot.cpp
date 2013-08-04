@@ -513,13 +513,13 @@ namespace GameEngine
 									length / texSizeY,
 									angle,
 									false );
-				MAPIL::DrawTexture( m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE ],
+				/*MAPIL::DrawTexture( m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE ],
 									m_Line.GetStartX(),
 									m_Line.GetStartY(),
 									0.3f,
 									0.3f,
 									0.0f,
-									false );
+									false );*/
 			}
 		}
 	}

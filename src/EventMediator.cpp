@@ -337,6 +337,27 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_TITLE,
 											"archive/resource/texture/stage_selection/title.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_CALM,
+											"archive/resource/texture/score/calm.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_EASY,
+											"archive/resource/texture/score/easy.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_NORMAL,
+											"archive/resource/texture/score/normal.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_HARD,
+											"archive/resource/texture/score/hard.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_HAZARD,
+											"archive/resource/texture/score/hazard.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_TITLE,
+											"archive/resource/texture/score/title.png", false );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_REPLAY_TITLE,
+											"archive/resource/texture/replay/title.png", false );
 		m_Loading.Start();
 	}
 

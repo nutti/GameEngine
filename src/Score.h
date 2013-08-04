@@ -22,6 +22,7 @@ namespace GameEngine
 		void AttachButtonState( ButtonStatusHolder* pHolder );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachDisplayedSaveData( const DisplayedSaveData& data );
+		void Reflesh();
 	};
 }
 

@@ -126,6 +126,10 @@ namespace GameEngine
 
 		std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < StageSelectionView > view ){ view->Update(); } );
 
+		if( m_Counter < 60 ){
+			return SCENE_TYPE_NOT_CHANGE;
+		}
+
 		if( m_PrepareCounter > 0 ){
 			++m_PrepareCounter;
 			if( m_PrepareCounter == 60 ){
@@ -255,69 +259,6 @@ namespace GameEngine
 		int color = weight << 16 | weight << 8 | weight;
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 							0.0f, 0.0f, false, 0xFF << 24 | color );
-
-		/*
-
-		// 背景エフェクト
-		int alpha;
-		if( m_Counter < 60 ){
-			alpha = ( m_Counter ) & 0xFF;
-		}
-		else{
-			if( m_PrepareCounter <= 20 ){
-				alpha = 0x3C;		// 60
-			}
-			else if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
-				alpha = 0x3C - ( m_PrepareCounter - 20 ) * 3;
-			}
-			else{
-				alpha = 0x00;
-			}
-			if( m_ReturnCounter > 0 ){
-				alpha = ( ( 15 - m_ReturnCounter ) * 4 ) & 0xFF;
-			}
-		}
-
-		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
-		for( int i = 0; i < 100; ++i ){
-			int alpha2;
-			if( m_Counter < 120 ){
-				alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( m_Counter ) / 120;
-			}
-			else{
-				if( m_PrepareCounter <= 20 ){
-					alpha2 = 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 );
-				}
-				else if( m_PrepareCounter > 20 && m_PrepareCounter <= 40 ){
-					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( 40 - m_PrepareCounter ) / 20;
-				}
-				else{
-					alpha2 = 0x00;
-				}
-				if( m_ReturnCounter > 0 ){
-					alpha2 = ( 0x78 + 0x60 * sin( m_Counter * 0.03f + i * 360 / 100 ) ) * ( 15 - m_PrepareCounter ) / 15;
-				}
-			}
-
-			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL + i % 3 ],
-								320.0f + ( i % 5 ) * 110.0f * cos( m_Counter * 0.005f + i * 123.1f ),
-								240.0f + ( i % 4 ) * 90.0f * sin( m_Counter * 0.005f + i * 123.1f ),
-								( i % 5 ) * 0.2f * cos( m_Counter * 0.005f + i * 123.1f ),
-								( i % 5 ) * 0.2f * cos( m_Counter * 0.005f + i * 123.1f ),
-								( i % 10 ) * m_Counter * 0.02f,
-								true,
-								alpha << 24 | alpha << 16 | alpha << 8 | alpha );
-			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_CONS_RED_SYMBOL + i % 3 ],
-								320.0f + ( i % 5 ) * 110.0f * cos( m_Counter * 0.005f + i * 123.1f ),
-								240.0f + ( i % 4 ) * 90.0f * sin( m_Counter * 0.005f + i * 123.1f ),
-								( i % 5 ) * 0.2f * cos( m_Counter * 0.005f + i * 123.1f ),
-								( i % 5 ) * 0.2f * cos( m_Counter * 0.005f + i * 123.1f ),
-								( i % 10 ) * m_Counter * 0.02f,
-								true,
-								alpha2 << 24 | alpha2 << 16 | alpha2 << 8 | alpha2 );
-		}
-		MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
-		*/
 	}
 
 	void StageSelection::Impl::DrawDifficultySelection() const

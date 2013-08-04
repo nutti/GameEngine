@@ -262,11 +262,13 @@ namespace GameEngine
 		m_IniGameData.m_PosX = 300;
 		m_IniGameData.m_PosY = 400;
 		m_IniGameData.m_HP = 10;
+		//m_IniGameData.m_HP = 30;
 		for( int i = 0; i < 3; ++i ){
 			m_IniGameData.m_ConsGauge[ i ] = 1000;
 			m_IniGameData.m_ConsLevel[ i ] = 1000;
 		};
 		m_IniGameData.m_ShotPower = 0;
+		//m_IniGameData.m_ShotPower = 40;
 		m_IniGameData.m_Cons = 0;			// PLAYER_CONS_NORMAL
 #if defined ( MAKE_MODE_DEBUG )
 		m_IniGameData.m_HP = 1;

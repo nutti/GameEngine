@@ -2,6 +2,8 @@
 
 #include "Replay.h"
 
+#include "SceneManager/Replay/ReplayView.h"
+
 #include "ResourceID.h"
 
 #include "Util.h"
@@ -27,9 +29,13 @@ namespace GameEngine
 		int							m_PrepareCounter;
 		int							m_SelectCounter;		// 選択時の準備用カウンタ
 		int							m_StageSelectCounter;	// ステージ選択時のカウンタ
+		int							m_ReturnCounter;		// メニュー画面へ移行カウンタ
+
+		std::list < std::shared_ptr < ReplayView > >		m_ViewList;
 	public:
 		Impl();
-		~Impl(){}
+		~Impl();
+		void Init();
 		SceneType Update();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );
@@ -37,6 +43,7 @@ namespace GameEngine
 		void AttachDisplayedReplayInfo( const DisplayedReplayInfo& info );
 		int GetReplayStage() const;
 		int GetReplayNo() const;
+		void Reflesh();
 	};
 
 	Replay::Impl::Impl()
@@ -48,10 +55,45 @@ namespace GameEngine
 		m_PrepareCounter = 0;
 		m_SelectCounter = 0;
 		m_StageSelectCounter = 0;
+		m_ReturnCounter = 0;
+
+		m_ViewList.clear();
+	}
+
+	Replay::Impl::~Impl()
+	{
+		m_ViewList.clear();
+	}
+
+	void Replay::Impl::Init()
+	{
+		// 背景エフェクトの追加
+		ReplayBackgroundView* pReplayBGView = new ReplayBackgroundView();
+		pReplayBGView->AttachResourceMap( m_ResourceMap );
+		pReplayBGView->Init();
+		m_ViewList.push_back( std::shared_ptr < ReplayView > ( pReplayBGView ) );
+
+		// タイトル画像の追加
+		ReplayTitleView* pTitleView = new ReplayTitleView();
+		pTitleView->AttachResourceMap( m_ResourceMap );
+		pTitleView->Init();
+		m_ViewList.push_back( std::shared_ptr < ReplayTitleView > ( pTitleView ) );
+	}
+
+	void Replay::Impl::Reflesh()
+	{
+		std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < ReplayView > view ){ view->Init(); } );
+		m_Counter = 0;
+		m_SelectCounter = 0;
+		m_PrepareCounter = 0;
+		m_StageSelectCounter = 0;
+		m_ReturnCounter = 0;
 	}
 
 	SceneType Replay::Impl::Update()
 	{
+		std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < ReplayView > view ){ view->Update(); } );
+
 		if( m_Counter < 60 ){
 			++m_Counter;
 			return SCENE_TYPE_NOT_CHANGE;
@@ -75,6 +117,18 @@ namespace GameEngine
 			--m_StageSelectCounter;
 		}
 
+		if( m_ReturnCounter > 0 ){
+			if( m_ReturnCounter < 15 ){
+				++m_ReturnCounter;
+			}
+			if( m_ReturnCounter == 15 ){
+				return SCENE_TYPE_MENU;
+			}
+			else{
+				return SCENE_TYPE_NOT_CHANGE;
+			}
+		}
+
 		if( m_CurSelectState == REPLAY_SELECT_NO ){
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
 				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress != -1 ){
@@ -82,7 +136,9 @@ namespace GameEngine
 				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
-				return SCENE_TYPE_MENU;
+				std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < ReplayView > view ){ view->BackToMenu(); } );
+				m_ReturnCounter = 1;
+				//return SCENE_TYPE_MENU;
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
 				++m_SelectedReplayNo;
@@ -104,6 +160,7 @@ namespace GameEngine
 				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress >= m_SelectedStage + 1 ){
 					MAPIL::StopStreamingBuffer( GLOBAL_RESOURCE_BGM_ID_MENU );
 					m_PrepareCounter = 1;
+					std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < ReplayView > view ){ view->Finalize(); } );
 				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
@@ -154,6 +211,8 @@ namespace GameEngine
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
 							0.0f, 0.0f, false, 0xFF << 24 | color );
 
+		std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < ReplayView > view ){ view->Draw(); } );
+
 
 		// リプレイデータ一覧表示
 		char* rankStr[] = { "calm", "easy", "normal", "hard", "hazard" };
@@ -198,8 +257,6 @@ namespace GameEngine
 		startX[ ITEM_ID_PROG ] = startX[ ITEM_ID_RANK ] + 100.0f;
 		startX[ ITEM_ID_SCORE ] = startX[ ITEM_ID_PROG ] + 70.0f;
 		startX[ ITEM_ID_DATE ] = startX[ ITEM_ID_SCORE ] + 110.0f;
-
-		DrawFontString( m_ResourceMap, startX[ ITEM_ID_NO ], 10.0f, 0.7f, color1, "Please select past conscious" );
 
 		DrawFontString( m_ResourceMap, startX[ ITEM_ID_NO ], 85.0f, titleFont, color1, "no" );
 		DrawFontString( m_ResourceMap, startX[ ITEM_ID_NAME ], 85.0f, titleFont, color1, "name" );
@@ -333,6 +390,12 @@ namespace GameEngine
 
 	void Replay::InitImpl()
 	{
+		m_pImpl->Init();
+	}
+
+	void Replay::Reflesh()
+	{
+		m_pImpl->Reflesh();
 	}
 
 	SceneType Replay::Update()
