@@ -11,6 +11,7 @@
 #include "Effect.h"
 #include "PlayerShot.h"
 #include "EnemyShotGroup.h"
+#include "ScriptEffect.h"
 #include "ResourceID.h"
 
 #include "Util.h"
@@ -607,7 +608,7 @@ void Enemy::Draw()
 							m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ){
 					damage = 0;			// ダメージ無効化
 					gaugeDelta = 0;		// ゲージ変更なし
-					scoreDelta += 2;	// スコアボーナス増加（スキル中は2倍）
+					scoreDelta += 2 * pPlayerShot->GetShotPower();	// スコアボーナス増加（スキル中は2倍）
 				}
 				// 属性負けしている時
 				// (青->緑, 赤->青, 緑->赤)
@@ -616,7 +617,7 @@ void Enemy::Draw()
 							m_Data.m_ConsSkillAttr == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ){
 					damage = pPlayerShot->GetShotPower() * 2;		// ダメージ2倍
 					gaugeDelta -= 1;		// ゲージ1減少
-					scoreDelta -= 1;		// スコアボーナス減少
+					scoreDelta -= pPlayerShot->GetShotPower();		// スコアボーナス減少
 					m_Data.m_DamagedConsGauge += 1;
 				}
 			}
@@ -626,7 +627,7 @@ void Enemy::Draw()
 				if( m_Data.m_ConsType == pPlayerShot->GetConsAttr() ){
 					damage = pPlayerShot->GetShotPower();		// 通常ダメージ
 					gaugeDelta = 0;		// ゲージ変更なし
-					scoreDelta = 0;		// スコアボーナス変更なし
+					scoreDelta -= pPlayerShot->GetShotPower();		// スコアボーナス変更なし
 				}
 				// 属性勝ちしている時
 				// (緑->青, 青->赤, 赤->緑)
@@ -635,7 +636,7 @@ void Enemy::Draw()
 							m_Data.m_ConsType == PLAYER_CONS_MODE_RED && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_GREEN ){
 					damage = pPlayerShot->GetShotPower();		// 通常ダメージ
 					gaugeDelta = 0;		// ゲージ変更なし
-					scoreDelta += 1;	// スコアボーナス増加
+					scoreDelta = 0;	// スコアボーナス増加
 				}
 				// 属性負けしている時
 				// (青->緑, 赤->青, 緑->赤)
@@ -644,7 +645,13 @@ void Enemy::Draw()
 							m_Data.m_ConsType == PLAYER_CONS_MODE_GREEN && pPlayerShot->GetConsAttr() == PLAYER_CONS_MODE_RED ){
 					damage = pPlayerShot->GetShotPower();		// 通常ダメージ
 					gaugeDelta = 0;								// ゲージ変更なし
-					scoreDelta -= 1;							// スコアボーナス減少
+					scoreDelta = pPlayerShot->GetShotPower();	// スコアボーナス減少
+				}
+				// 属性が無い時
+				else if( pPlayerShot->GetConsAttr() == 0 ){
+					damage = pPlayerShot->GetShotPower();		// 通常ダメージ
+					gaugeDelta = 0;								// ゲージ変更なし
+					scoreDelta = 0;							// スコアボーナス減少
 				}
 			}
 			// 属性が無い場合
@@ -658,9 +665,9 @@ void Enemy::Draw()
 			m_Data.m_HP -= damage;
 			m_Data.m_ScoreBonus += scoreDelta;
 			m_Data.m_ConsGauge += gaugeDelta;
-			if( m_Data.m_ScoreBonus < 0 ){
+			/*if( m_Data.m_ScoreBonus < 0 ){
 				m_Data.m_ScoreBonus = 0;
-			}
+			}*/
 
 			if( m_Data.m_IsBoss ){
 				StageMessage msg;
@@ -715,9 +722,19 @@ void Enemy::Draw()
 		// 撃破時の処理
 		if( m_Data.m_HP <= 0 ){
 			m_Data.m_HP = 0;
-			// スコア加算
-			int addScore = ( ( m_Data.m_Score * ( 1000 + m_Data.m_ScoreBonus ) ) / 10000 ) * 10;
+			// スコア倍率を10倍したもの（難易度倍率*蓄積ポイント/最大HP）
+			int scoreFact = 10 + ( ( m_Data.m_pStageData->m_Difficulty + 1 ) * 10 * m_Data.m_ScoreBonus ) / m_Data.m_MaxHP;
+			if( scoreFact > ( m_Data.m_pStageData->m_Difficulty + 1 ) * 10 ){
+				scoreFact = ( m_Data.m_pStageData->m_Difficulty + 1 ) * 10;
+			}
+			if( scoreFact < 5 ){
+				scoreFact = 5;
+			}
+			// 獲得スコア
+			int addScore = ( m_Data.m_Score * scoreFact ) / 10;
+
 			m_Data.m_pStageData->m_FrameGameData.m_Score += addScore;
+			
 			// 統計情報の更新
 			auto it = m_Data.m_pStageData->m_StageStat.m_EnemyStat.find( m_Data.m_Name );
 			if( it == m_Data.m_pStageData->m_StageStat.m_EnemyStat.end() ){
@@ -735,6 +752,14 @@ void Enemy::Draw()
 			// 撃破数加算
 			++m_Data.m_pStageData->m_FrameGameData.m_Killed;
 			m_Data.m_Destroyed = true;
+
+			// 撃破エフェクトの作成
+			Effect* pEffect = m_Data.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_ENEMY_DESTORYED, 0 );
+			pEffect->SetPos( m_Data.m_GUData.m_PosX.GetFloat(), m_Data.m_GUData.m_PosY.GetFloat() );
+			pEffect->SetReg( 0, 1 );
+			pEffect->SetReg( 1, scoreFact );
+			pEffect->SetReg( 2, addScore );
+			m_Data.m_pStageData->m_EffectList.push_back( pEffect );
 		}
 
 		// 撃破エフェクトの作成

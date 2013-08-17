@@ -22,6 +22,9 @@ namespace GameEngine
 		void SysSetFrameTotal();
 		void SysStageSwitchToNextStage();
 
+		void SysGetPlayerCrystalUsedTotal();
+		void SysGetPlayerCrystalTotal();
+
 		void SysStageGetBossFlag();
 		void SysStageSetBossFlag();
 

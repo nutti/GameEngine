@@ -8,6 +8,7 @@
 
 #include "../../ResourceID.h"
 
+
 namespace GameEngine
 {
 	ReplayView::ReplayView()
@@ -266,4 +267,216 @@ namespace GameEngine
 		m_TransitionCounter = 0;
 	}
 
+	//-------------------------------------------
+	// ReplayStageView
+	//-------------------------------------------
+
+
+	ReplayStageView::ReplayStageView() :	ReplayView(),
+											m_CurMode( MODE_INVISIBLE ),
+											m_TransitionCounter( 0 ),
+											m_Counter( 0 ),
+											m_SelectedStage( 0 ),
+											m_SelectedReplayNo( 0 ),
+											m_pDispReplayInfo( NULL )
+	{
+	}
+
+	ReplayStageView::~ReplayStageView()
+	{
+	}
+
+	void ReplayStageView::Draw() const
+	{
+		if( m_CurMode == MODE_INVISIBLE ){
+			return;
+		}
+
+		int alpha[ STAGE_TOTAL ] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+		float baseX = 270.0f;
+		float baseY = 380.0f;
+		float offsetX[ STAGE_TOTAL ] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+		float offsetY[ STAGE_TOTAL ] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+		offsetX[ m_SelectedStage ] = -2.0f;
+		
+
+		if( m_CurMode == MODE_FINALIZE ){
+			for( int i = 0; i < STAGE_TOTAL; ++i ){
+				if( m_TransitionCounter == 0 ){
+					alpha[ i ] = 0xFF;
+				}
+				else if( m_TransitionCounter > 0 && m_TransitionCounter <= 20 ){
+					alpha[ i ] = ( 0xFF * ( 20 - m_TransitionCounter ) ) / 20;
+				}
+				else{
+					alpha [ i ]= 0x00;
+				}
+			}
+		}
+		else if( m_CurMode == MODE_REPLAY_SELECTED ){
+			const int INTERVAL = 10;
+			const int STAGE_INTERVAL = 2;
+
+			for( int i = 0; i < STAGE_TOTAL; ++i ){
+				if( m_TransitionCounter > i * STAGE_INTERVAL && m_TransitionCounter < INTERVAL + i * STAGE_INTERVAL ){
+					offsetX[ i ] = ( ( INTERVAL + i * STAGE_INTERVAL ) - m_TransitionCounter ) * 5.0f;
+					offsetY[ i ] = 0.0f;
+					alpha[ i ] = ( 0xFF * ( m_TransitionCounter - i * STAGE_INTERVAL ) ) / INTERVAL;
+				}
+				else if( m_TransitionCounter <= i * STAGE_INTERVAL ){
+					offsetX[ i ] = 150.0f;
+					offsetY[ i ] = 0.0f;
+					alpha[ i ] = 0x00;
+				}
+			}
+		}
+		else if( m_CurMode == MODE_STAGE_CHANGED ){
+			offsetX[ m_SelectedStage ] = -2.0f * sin( MAPIL::DegToRad( m_TransitionCounter * 45.0 ) );
+		}
+		else if( m_CurMode == MODE_STAGE_CANCELED ){
+			const int INTERVAL = 10;
+			const int STAGE_INTERVAL = 2;
+
+			for( int i = 0; i < STAGE_TOTAL; ++i ){
+				if( m_TransitionCounter > i * STAGE_INTERVAL && m_TransitionCounter < INTERVAL + i * STAGE_INTERVAL ){
+					offsetX[ i ] = ( m_TransitionCounter - i * STAGE_INTERVAL ) * 5.0f;
+					offsetY[ i ] = 0.0f;
+					alpha[ i ] = ( 0xFF * ( i * STAGE_INTERVAL + INTERVAL - m_TransitionCounter ) ) / INTERVAL;
+				}
+				else if( m_TransitionCounter >= i * STAGE_INTERVAL + INTERVAL ){
+					offsetX[ i ] = 500.0f;
+					offsetY[ i ] = 0.0f;
+					alpha[ i ] = 0x00;
+				}
+			}
+		}
+
+		int color1[ STAGE_TOTAL ];
+		int color2[ STAGE_TOTAL ];
+		int selColor[ STAGE_TOTAL ];
+		int c[ STAGE_TOTAL ];
+		
+		for( int i = 0; i < STAGE_TOTAL; ++i ){
+			color1[ i ] = alpha[ i ] << 24 | 0xAAFFAA;
+			color2[ i ] = alpha[ i ] << 24 | 0xAAAAAA;
+			selColor[ i ] = alpha[ i ] << 24 | 0xFFFFFF;
+			if( i == m_SelectedStage ){
+				c[ i ] = selColor[ i ];
+			}
+			else{
+				c[ i ] = color2[ i ];
+			}
+		}
+		
+		// ステージ情報の表示
+		for( int i = 0; i < STAGE_TOTAL; ++i ){
+			std::string str;
+			if( m_pDispReplayInfo->m_Entries[ m_SelectedReplayNo ].m_Progress > i ){
+				str = "stage";
+				str += i + '1';
+			}
+			else{
+				str = "no entry";
+			}
+			DrawFontString( m_ResourceMap, baseX + offsetX[ i ], baseY + i * 17.0f + offsetY[ i ], 0.5f, c[ i ], str.c_str() );
+		}
+
+		// 詳細情報の表示
+		float fontScale = 0.4f;
+
+		float x[ 3 ];
+		float y[ 3 ];
+		float ox = 100.0f;
+		float oy = 0.0f;
+		x[ 0 ] = 415.0f;
+		y[ 0 ] = 395.0f;
+		for( int i = 0; i < 2; ++i ){
+			//x[ i + 1 ] = x[ i ] + 15.0f;
+			y[ i + 1 ] = y[ i ] + 17.0f;
+			x[ i + 1 ] = x[ i ];
+		}
+
+		DrawFontString( m_ResourceMap, x[ 0 ], y[ 0 ], fontScale, color1[ 0 ], "score" );
+		DrawFontString( m_ResourceMap, x[ 1 ], y[ 1 ], fontScale, color1[ 0 ], "killed" );
+		DrawFontString( m_ResourceMap, x[ 2 ], y[ 2 ], fontScale, color1[ 0 ], "crystal" );
+
+		int color3;
+
+		if( m_CurMode == MODE_STAGE_CHANGED ){
+			color3 = ( ( m_TransitionCounter ) * 25 ) << 24 | 0xFFFFFF;
+		}
+		else{
+			color3 = selColor[ 0 ];
+		}
+		DrawFontString( m_ResourceMap, x[ 0 ] + ox, y[ 0 ] + oy, fontScale, color3, "%d", m_pDispReplayInfo->m_Entries[ m_SelectedReplayNo ].m_StageInfo[ m_SelectedStage ].m_Score );
+		DrawFontString( m_ResourceMap, x[ 1 ] + ox, y[ 1 ] + oy, fontScale, color3, "%d", m_pDispReplayInfo->m_Entries[ m_SelectedReplayNo ].m_StageInfo[ m_SelectedStage ].m_Killed );
+		DrawFontString( m_ResourceMap, x[ 2 ] + ox, y[ 2 ] + oy, fontScale, color3, "%d", m_pDispReplayInfo->m_Entries[ m_SelectedReplayNo ].m_StageInfo[ m_SelectedStage ].m_Crystal );
+	}
+
+	void ReplayStageView::Update()
+	{
+		switch( m_CurMode ){
+				case MODE_REPLAY_SELECTED:
+				++m_TransitionCounter;
+				if( m_TransitionCounter > 20 ){
+					m_CurMode = MODE_NORMAL;
+					m_TransitionCounter = 0;
+				}
+				break;
+			case MODE_STAGE_CANCELED:
+				++m_TransitionCounter;
+				if( m_TransitionCounter > 20 ){
+					m_CurMode = MODE_INVISIBLE;
+					m_TransitionCounter = 0;
+				}
+				break;
+			case MODE_STAGE_CHANGED:
+				++m_TransitionCounter;
+				if( m_TransitionCounter > 10 ){
+					m_CurMode = MODE_NORMAL;
+					m_TransitionCounter = 0;
+				}
+				break;
+			case MODE_FINALIZE:
+				++m_TransitionCounter;
+				break;
+			default:
+				break;
+		}
+
+		++m_Counter;
+	}
+
+	void ReplayStageView::AttachDisplayedReplayInfo( DisplayedReplayInfo* pInfo )
+	{
+		m_pDispReplayInfo = pInfo;
+	}
+
+	void ReplayStageView::Finalize()
+	{
+		m_CurMode = MODE_FINALIZE;
+		m_TransitionCounter = 0;
+	}
+
+	void ReplayStageView::SelectReplay( int replayNo, int stage )
+	{
+		m_SelectedReplayNo = replayNo;
+		m_SelectedStage = stage;
+		m_CurMode = MODE_REPLAY_SELECTED;
+		m_TransitionCounter = 0;
+	}
+
+	void ReplayStageView::CancelStage()
+	{
+		m_CurMode = MODE_STAGE_CANCELED;
+		m_TransitionCounter = 0;
+	}
+
+	void ReplayStageView::ChangeStage( int stage )
+	{
+		m_CurMode = MODE_STAGE_CHANGED;
+		m_TransitionCounter = 0;
+		m_SelectedStage = stage;
+	}
 }

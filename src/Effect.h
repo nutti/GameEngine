@@ -18,6 +18,7 @@ namespace GameEngine
 		float		m_PosY;
 		std::shared_ptr < ResourceMap >		m_pResourceMap;
 		int			m_PointSprite;
+		int			m_Regs[ 10 ];
 	};
 
 	enum EffectID
@@ -40,6 +41,7 @@ namespace GameEngine
 		void SetPos( float posX, float posY );				// ˆÊ’u‚ğİ’è
 		void Draw();										// •`‰æ
 		bool Update();										// XV
+		void SetReg( int no, int val );
 	};
 }
 

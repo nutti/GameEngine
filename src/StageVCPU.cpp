@@ -28,7 +28,7 @@ namespace GameEngine
 		Pop();
 		Enemy* pNewEnemy = m_pStageData->m_ObjBuilder.CreateEnemy( 0 );
 		pNewEnemy->Init( 0.0f, 0.0f );
-		m_pStageData->m_EnemyList.push_back( pNewEnemy );
+		m_pStageData->m_EnemyList.push_back( std::shared_ptr < Enemy > ( pNewEnemy ) );
 	}
 
 	void StageVCPU::SysAddEnemyIniPos()
@@ -42,7 +42,7 @@ namespace GameEngine
 		Pop();
 		Enemy* pNewEnemy = m_pStageData->m_ObjBuilder.CreateEnemy( id );
 		pNewEnemy->Init( x, y );
-		m_pStageData->m_EnemyList.push_back( pNewEnemy );
+		m_pStageData->m_EnemyList.push_back( std::shared_ptr < Enemy > ( pNewEnemy ) );
 	}
 
 	void StageVCPU::SysGetFrame()
@@ -81,7 +81,7 @@ namespace GameEngine
 				for( int j = 0; j < MAX_ENEMY_REGS; ++j ){
 					pNewEnemy->SetReg( j, pattern.m_InfoList[ i ].m_Regs[ j ] );
 				}
-				m_pStageData->m_EnemyList.push_back( pNewEnemy );
+				m_pStageData->m_EnemyList.push_back( std::shared_ptr < Enemy > ( pNewEnemy ) );
 			}
 		}
 	}
@@ -130,6 +130,13 @@ namespace GameEngine
 			m_pStageData->m_MsgQueue.push( msg );
 			m_pStageData->m_pBoss = pNewEnemy;
 		}
+		else{
+			MAPIL::SafeDelete( m_pStageData->m_pBoss );
+			StageMessage msg;
+			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_STARTED;
+			m_pStageData->m_MsgQueue.push( msg );
+			m_pStageData->m_pBoss = pNewEnemy;
+		}
 	}
 
 	void StageVCPU::SysSetFrameTotal()
@@ -161,6 +168,20 @@ namespace GameEngine
 		Pop();
 
 		m_pStageData->m_ConsLevel = level;
+	}
+
+	void StageVCPU::SysGetPlayerCrystalUsedTotal()
+	{
+		Pop();
+
+		Push( m_pStageData->m_TotalGameData.m_CrystalUsed );
+	}
+
+	void StageVCPU::SysGetPlayerCrystalTotal()
+	{
+		Pop();
+
+		Push( m_pStageData->m_TotalGameData.m_CrystalTotal );
 	}
 
 	void StageVCPU::OpSysCall( int val )
@@ -211,6 +232,13 @@ namespace GameEngine
 				break;
 			case VM::SYS_STAGE_GET_BOSS_FLAG:
 				SysStageGetBossFlag();
+				break;
+
+			case VM::SYS_GET_PLAYER_CRYSTAL_USED_TOTAL:
+				SysGetPlayerCrystalUsedTotal();
+				break;
+			case VM::SYS_GET_PLAYER_CRYSTAL_TOTAL:
+				SysGetPlayerCrystalTotal();
 				break;
 
 			default:

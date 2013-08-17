@@ -101,7 +101,7 @@ namespace GameEngine
 		m_Data.m_RestInvincibleTime = 0;
 		//m_Data.m_RestInvincibleTime = 10000;
 #else
-		m_Data.m_RestInvincibleTime = 10000;
+		m_Data.m_RestInvincibleTime = 30000;
 		//m_Data.m_RestInvincibleTime = 0;
 #endif
 

@@ -906,7 +906,7 @@ namespace GameEngine
 
 		Enemy* pNewEnemy = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemy( id );
 		pNewEnemy->Init( x, y );
-		m_pEnemyData->m_pStageData->m_EnemyList.push_back( pNewEnemy );
+		m_pEnemyData->m_pStageData->m_EnemyList.push_back( std::shared_ptr < Enemy > ( pNewEnemy ) );
 	}
 
 	void EnemyVCPU::SysCreateEnemyIniPosRegGU()
@@ -929,7 +929,7 @@ namespace GameEngine
 		Enemy* pNewEnemy = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateEnemy( id );
 		pNewEnemy->Init( x, y );
 		pNewEnemy->SetReg( 0, reg );
-		m_pEnemyData->m_pStageData->m_EnemyList.push_back( pNewEnemy );
+		m_pEnemyData->m_pStageData->m_EnemyList.push_back( std::shared_ptr < Enemy > ( pNewEnemy ) );
 	}
 
 	void EnemyVCPU::SysCreateEnemyIniPosReg5GU()
@@ -956,7 +956,7 @@ namespace GameEngine
 		for( int i = 0; i < 5; ++i ){
 			pNewEnemy->SetReg( i, reg[ i ] );
 		}
-		m_pEnemyData->m_pStageData->m_EnemyList.push_back( pNewEnemy );
+		m_pEnemyData->m_pStageData->m_EnemyList.push_back( std::shared_ptr < Enemy > ( pNewEnemy ) );
 	}
 
 	void EnemyVCPU::SysSearchEnemyInSkillMode()
@@ -1046,7 +1046,7 @@ namespace GameEngine
 		// イベント送信
 		std::for_each(	m_pEnemyData->m_pStageData->m_EnemyList.begin(),
 						m_pEnemyData->m_pStageData->m_EnemyList.end(),
-						[name,subID,ev]( Enemy* pEnemy ){
+						[name,subID,ev]( const std::shared_ptr < Enemy >& pEnemy ){
 							// null check
 							if( pEnemy == 0 ){
 								return;
@@ -1075,6 +1075,45 @@ namespace GameEngine
 			m_pEnemyData->m_EventQueue.pop();
 			Push( ev );
 		}
+	}
+
+	void EnemyVCPU::SysGetPlayerScoreTotal()
+	{
+		Pop();
+
+		Push( m_pEnemyData->m_pStageData->m_TotalGameData.m_Score );
+	}
+
+	void EnemyVCPU::SysGetPlayerCrystalTotal()
+	{
+		Pop();
+
+		Push( m_pEnemyData->m_pStageData->m_TotalGameData.m_CrystalTotal );
+	}
+
+	void EnemyVCPU::SysGetPlayerKilledTotal()
+	{
+		Pop();
+
+		Push( m_pEnemyData->m_pStageData->m_TotalGameData.m_Killed );
+	}
+
+	void EnemyVCPU::SysDamageEnemy()
+	{
+		Pop();
+		int damage = Top().m_Integer;
+		Pop();
+
+		m_pEnemyData->m_HP -= damage;
+	}
+
+	void EnemyVCPU::SysSetEnemyConsAttr()
+	{
+		Pop();
+		int attr = Top().m_Integer;
+		Pop();
+
+		m_pEnemyData->m_ConsType = attr;
 	}
 
 	void EnemyVCPU::OpSysCall( int val )
@@ -1106,6 +1145,15 @@ namespace GameEngine
 				break;
 			case VM::SYS_GET_PLAYER_CONS_GAUGE:
 				SysGetPlayerConsGauge();
+				break;
+			case VM::SYS_GET_PLAYER_SCORE_TOTAL:
+				SysGetPlayerScoreTotal();
+				break;
+			case VM::SYS_GET_PLAYER_CRYSTAL_TOTAL:
+				SysGetPlayerCrystalTotal();
+				break;
+			case VM::SYS_GET_PLAYER_KILLED_TOTAL:
+				SysGetPlayerKilledTotal();
 				break;
 
 			case VM::SYS_ENEMY_GET_POSX_GU:
@@ -1165,6 +1213,10 @@ namespace GameEngine
 				SysGetItemPosYGU();
 				break;
 
+			case VM::SYS_DAMAGE_ENEMY:
+				SysDamageEnemy();
+				break;
+
 			case VM::SYS_ENEMY_SET_NAME:
 				SysSetEnemyName();
 				break;
@@ -1209,6 +1261,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SET_CONS_GAUGE:
 				SysSetEnemyConsGauge();
+				break;
+			case VM::SYS_ENEMY_SET_CONS_ATTR:
+				SysSetEnemyConsAttr();
 				break;
 			case VM::SYS_ENEMY_ENABLE_INVINCIBLE:
 				SysEnemyEnableInvincible();

@@ -28,6 +28,7 @@ namespace GameEngine
 									int width,
 									int height,
 									const std::string& fileName );
+		void AddGlobalTextureAtlasItem( int index, int texID, int x, int y, int width, int height );
 		// アーカイバ
 		void OpenArchive( const std::string& fileName );
 		void LoadStageResourcesFromArchive( const ScriptData& data );
@@ -55,10 +56,12 @@ namespace GameEngine
 		const int INITIAL_SE_MAP_RESERVE_CAP = 50;				// 初期のSEMAP許容量
 		const int INITIAL_BGM_MAP_RESERVE_CAP = 50;				// 初期のBGMMAP許容量
 		const int INITIAL_MODEL_MAP_RESERVE_CAP = 50;			// 初期のモデルMAP許容量
+		const int INITIAL_TEXTURE_ATLAS_MAP_RESERVE_CAP = 50;	// 初期のテクスチャアトラスMAP許容量
 		m_ResourceMap.m_pGlobalResourceMap->m_TextureMap.resize( INITIAL_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_SEMap.resize( INITIAL_SE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_BGMMap.resize( INITIAL_BGM_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_ModelMap.resize( INITIAL_MODEL_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap.resize( INITIAL_TEXTURE_ATLAS_MAP_RESERVE_CAP );
 		
 
 		m_ResourceMap.m_pStageResourceMap.reset( new ResourceMap::StageResourceMapElm );
@@ -70,18 +73,21 @@ namespace GameEngine
 		const int INITIAL_STAGE_MODEL_MAP_RESERVE_CAP = 50;					// 初期のモデルMAP許容量
 		const int INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP = 10;	// 初期の敵出現パターンファイルMAP許容量
 		const int INITIAL_STAGE_POINT_SPRITE_MAP_RESERVE_CAP = 50;			// 初期のポイントスプライトMAP許容量
+		const int INITIAL_STAGE_TEXTURE_ATLAS_MAP_RESERVE_CAP = 50;			// 初期のテクスチャアトラスMAP許容量
 		m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( INITIAL_STAGE_SE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( INITIAL_STAGE_BGM_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_ModelMap.resize( INITIAL_STAGE_MODEL_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_PointSpriteMap.resize( INITIAL_STAGE_POINT_SPRITE_MAP_RESERVE_CAP, -1 );
+		m_ResourceMap.m_pStageResourceMap->m_TexAtlasMap.resize( INITIAL_STAGE_TEXTURE_ATLAS_MAP_RESERVE_CAP );
 		m_pNextLocalResourceMap->m_TextureMap.resize( INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_SEMap.resize( INITIAL_STAGE_SE_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_BGMMap.resize( INITIAL_STAGE_BGM_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_ModelMap.resize( INITIAL_STAGE_MODEL_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_EnemyPatternFileMap.resize( INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_PointSpriteMap.resize( INITIAL_STAGE_POINT_SPRITE_MAP_RESERVE_CAP, -1 );	
+		m_pNextLocalResourceMap->m_TexAtlasMap.resize( INITIAL_STAGE_TEXTURE_ATLAS_MAP_RESERVE_CAP );
 
 		for( int i = 0; i < 8; ++i ){
 			m_ResourceMap.m_pStageResourceMap->m_LightTypeMap[ i ] = ( LIGHT_TYPE_NONE << 16 ) | 0;
@@ -148,6 +154,15 @@ namespace GameEngine
 			int id = CreateStageEnemyPattern( it->second );
 			m_pNextLocalResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
 		}
+		// テクスチャアトラスの読み込み
+		std::for_each(	pScriptData->m_TexAtlasList.begin(),
+						pScriptData->m_TexAtlasList.end(),
+						[this]( const std::pair < int, ResourceMap::TextureAtlas >& pair ){
+			if( pair.first > m_pNextLocalResourceMap->m_TexAtlasMap.size() ){
+				m_pNextLocalResourceMap->m_TexAtlasMap.resize( pair.first * 2 );
+			}
+			m_pNextLocalResourceMap->m_TexAtlasMap[ pair.first ] = pair.second;
+		} );
 	}
 
 	void ResourceManager::Impl::ReleaseStageResources()
@@ -193,6 +208,7 @@ namespace GameEngine
 		m_ResourceMap.m_pStageResourceMap->m_BGMMap.swap( m_pNextLocalResourceMap->m_BGMMap );
 		m_ResourceMap.m_pStageResourceMap->m_ModelMap.swap( m_pNextLocalResourceMap->m_ModelMap );
 		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.swap( m_pNextLocalResourceMap->m_EnemyPatternFileMap );
+		m_ResourceMap.m_pStageResourceMap->m_TexAtlasMap.swap( m_pNextLocalResourceMap->m_TexAtlasMap );
 
 		MAPIL::RefleshResources();
 	}
@@ -322,6 +338,15 @@ namespace GameEngine
 			int id = CreateStageEnemyPattern( m_ArchiveHandle, it->second );
 			m_pNextLocalResourceMap->m_EnemyPatternFileMap[ it->first ] = id;
 		}
+		// テクスチャアトラスの読み込み
+		std::for_each(	pScriptData->m_TexAtlasList.begin(),
+						pScriptData->m_TexAtlasList.end(),
+						[this]( const std::pair < int, ResourceMap::TextureAtlas >& pair ){
+			if( pair.first > m_pNextLocalResourceMap->m_TexAtlasMap.size() ){
+				m_pNextLocalResourceMap->m_TexAtlasMap.resize( pair.first * 2 );
+			}
+			m_pNextLocalResourceMap->m_TexAtlasMap[ pair.first ] = pair.second;
+		} );
 	}
 
 	void ResourceManager::Impl::LoadGlobalResourceFromArchive( int resourceType, int index, const std::string& fileName )
@@ -333,21 +358,25 @@ namespace GameEngine
 		switch( resourceType ){
 			case RESOURCE_TYPE_BGM:{
 				int id = MAPIL::CreateStreamingBuffer( m_ArchiveHandle, fileName.c_str() );
+				MAPIL::Assert( index < m_ResourceMap.m_pGlobalResourceMap->m_BGMMap.size(), -1 );
 				m_ResourceMap.m_pGlobalResourceMap->m_BGMMap[ index ] = id;
 				break;
 			}
 			case RESOURCE_TYPE_SE:{
 				int id = MAPIL::CreateStaticBuffer( m_ArchiveHandle, fileName.c_str() );
+				MAPIL::Assert( index < m_ResourceMap.m_pGlobalResourceMap->m_SEMap.size(), -1 );
 				m_ResourceMap.m_pGlobalResourceMap->m_SEMap[ index ] = id;
 				break;
 			}
 			case RESOURCE_TYPE_TEXTURE:{
 				int id = MAPIL::CreateTexture( m_ArchiveHandle, fileName.c_str() );
+				MAPIL::Assert( index < m_ResourceMap.m_pGlobalResourceMap->m_TextureMap.size(), -1 );
 				m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ index ] = id;
 				break;
 			}
 			case RESOURCE_TYPE_MODEL:{
 				int id = MAPIL::CreateModel( m_ArchiveHandle, fileName.c_str(), fileName.c_str() );
+				MAPIL::Assert( index < m_ResourceMap.m_pGlobalResourceMap->m_ModelMap.size(), -1 );
 				m_ResourceMap.m_pGlobalResourceMap->m_ModelMap[ index ] = id;
 				break;
 			}
@@ -420,6 +449,22 @@ namespace GameEngine
 			}
 		}
 	}
+
+	void ResourceManager::Impl::AddGlobalTextureAtlasItem( int index, int texID, int x, int y, int width, int height )
+	{
+		MAPIL::Assert( index < m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap.size(), -1 );
+
+		ResourceMap::TextureAtlas atlas;
+		atlas.m_TexID = texID;
+		atlas.m_X = x;
+		atlas.m_Y = y;
+		atlas.m_Width = width;
+		atlas.m_Height = height;
+
+		m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap[ index ] = atlas;
+	}
+
+
 
 	// ----------------------------------
 	// 実装クラスの呼び出し
@@ -506,6 +551,11 @@ namespace GameEngine
 	void ResourceManager::SetSEVolume( int volume )
 	{
 		m_pImpl->SetSEVolume( volume );
+	}
+
+	void ResourceManager::AddGlobalTextureAtlasItem( int index, int texID, int x, int y, int width, int height )
+	{
+		m_pImpl->AddGlobalTextureAtlasItem( index, texID, x, y, width, height );
 	}
 
 }

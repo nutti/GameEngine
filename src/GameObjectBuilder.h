@@ -15,6 +15,7 @@ namespace GameEngine
 	class Item;
 	class Effect;
 	class EnemyShotGroup;
+	class ScriptEffect;
 
 	struct ResourceMap;
 	struct ScriptData;
@@ -38,6 +39,7 @@ namespace GameEngine
 		Effect* CreateEffect( int id, int subID );
 		Item* CreateItem( int id, int subID );
 		EnemyShotGroup* CreateEnemyShotGroup( int id, EnemyData* pData );
+		ScriptEffect* CreateScriptEffect( int id, std::shared_ptr < Enemy > pEnemy );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachStageData( StageData* pData );

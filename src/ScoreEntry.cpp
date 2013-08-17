@@ -25,7 +25,6 @@ namespace GameEngine
 		SaveDataRecord				m_NewRecord;			// 新しいゲームデータ
 		int							m_Difficulty;
 		int							m_NewEntryRank;			// 新しくエントリされるランク（ランク外の場合は-1）
-		//int							m_EntryName[ 10 ];		// エントリ名（9文字まで）
 		int							m_NameInputPos;			// 名前入力の場所
 		int							m_NameSelectPosX;		// 名前選択の場所
 		int							m_NameSelectPosY;
@@ -52,7 +51,6 @@ namespace GameEngine
 		m_Counter = 0;
 		m_Difficulty = GAME_DIFFICULTY_EASY;
 		m_NewEntryRank = -1;
-		//MAPIL::ZeroObject( m_EntryName, sizeof( m_EntryName ) );
 		m_NameInputPos = -1;
 		m_NameSelectPosX = 0;
 		m_NameSelectPosY = 0;

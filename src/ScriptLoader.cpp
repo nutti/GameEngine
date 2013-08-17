@@ -4,6 +4,8 @@
 
 #include "Util.h"
 
+#include "TextureAtlasPatternFileLoader.h"
+
 namespace GameEngine
 {
 	// 個別のスクリプトファイルのための構造体
@@ -21,6 +23,7 @@ namespace GameEngine
 		SCRIPT_TYPE_STAGE				= 2,
 		SCRIPT_TYPE_STAGE_BACKGROUND	= 3,
 		SCRIPT_TYPE_RESOURCE			= 4,
+		SCRIPT_TYPE_EFFECT				= 5,
 	};
 
 	// リソーススクリプトのリソースの種類
@@ -31,6 +34,7 @@ namespace GameEngine
 		SCRIPT_RESOURCE_TYPE_TEXTURE				= 2,
 		SCRIPT_RESOURCE_TYPE_MODEL					= 3,
 		SCRIPT_RESOURCE_TYPE_ENEMY_PATTERN_FILE		= 4,
+		SCRIPT_RESOURCE_TYPE_TEXTURE_ATLAS			= 5,
 	};
 
 	// ScriptCompiler実装クラス
@@ -42,9 +46,11 @@ namespace GameEngine
 		std::shared_ptr < ResourceScriptData >				m_pResourceScriptData;	// リソーススクリプトデータ
 		std::shared_ptr < EnemyScriptData >					m_pEnemyScriptData;		// 敵スクリプトデータ
 		std::shared_ptr < EnemyShotGroupScriptData >		m_pEnemyShotGroupScriptData;	// 敵ショットスクリプトデータ
+		std::shared_ptr < EffectScriptData >				m_pEffectScriptData;	// エフェクトスクリプトデータ
 
 		int GetID( const char* pStr );					// データ列から、IDを取得する
 		char* GetFileName( char* pStr, int column );	// データ列から、ファイル名を取得する
+		int GetValue( const char* pStr, int column );
 
 		void LoadScript( const std::string& fileName, VM::Data* pVMData );
 		void LoadScript( int archiveHandle, const std::string& filePath, VM::Data* pVMData );
@@ -59,6 +65,8 @@ namespace GameEngine
 		void LoadEnemyScript( int archiveHandle, int id, const std::string& fileName );
 		void LoadEnemyShotGroupScript( int id, const std::string& fileName );	// 敵弾のスクリプトの読み込み
 		void LoadEnemyShotGroupScript( int archiveHandle, int id, const std::string& fileName );
+		void LoadEffectScript( int id, const std::string& fileName );	// エフェクトスクリプトの読み込み
+		void LoadEffectScript( int archiveHandle, int id, const std::string& fileName );
 		
 	public:
 		Impl();
@@ -106,6 +114,31 @@ namespace GameEngine
 		str[ count ] = '\0';
 
 		return str;
+	}
+
+	int ScriptLoader::Impl::GetValue( const char* pStr, int column )
+	{
+		char buf[ 5 ];		// 1000まで格納可能
+		int pos = 0;
+		int col = 0;
+
+		while( col < column ){
+			MAPIL::Assert( *pStr != '\0', -1 );
+			if( *pStr == ' ' ){
+				++col;
+			}
+			++pStr;
+		}
+
+		while( *pStr ){
+			if( *pStr == ' ' || pos > 3 ){
+				break;
+			}
+			buf[ pos++ ] = *pStr++;
+		}
+		buf[ pos ] = '\0';
+
+		return ::atoi( buf );
 	}
 
 	void ScriptLoader::Impl::LoadScript( const std::string& fileName, VM::Data* pVMData )
@@ -207,6 +240,9 @@ namespace GameEngine
 			else if( !strcmp( buf, "[EnemyPatternFile]" ) ){
 				type = SCRIPT_RESOURCE_TYPE_ENEMY_PATTERN_FILE;
 			}
+			else if( !strcmp( buf, "[Texture Atlas]" ) ){
+				type = SCRIPT_RESOURCE_TYPE_TEXTURE_ATLAS;
+			}
 			else if( !strcmp( buf, "" ) ){
 				// 無視
 			}
@@ -220,6 +256,22 @@ namespace GameEngine
 				}
 				else if( type == SCRIPT_RESOURCE_TYPE_TEXTURE ){
 					m_pResourceScriptData->m_TextureList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf, 1 ) ) );
+				}
+				else if( type == SCRIPT_RESOURCE_TYPE_TEXTURE_ATLAS ){
+					TextureAtlasPatternFileLoader loader;
+					std::string str = GetFileName( buf, 0 );
+					loader.Load( str );
+					int atlasTotal = loader.GetAtlasTotal();
+					for( int i = 0; i < atlasTotal; ++i ){
+						int id = loader.GetID( i );
+						ResourceMap::TextureAtlas atlas;
+						atlas.m_TexID = loader.GetTexID( i );
+						atlas.m_X = loader.GetStartX( i );
+						atlas.m_Y = loader.GetStartY( i );
+						atlas.m_Width = loader.GetWidth( i );
+						atlas.m_Height = loader.GetHeight( i );
+						m_pResourceScriptData->m_TexAtlasList.insert( std::pair < int, ResourceMap::TextureAtlas > ( id, atlas ) );
+					}
 				}
 				else if( type == SCRIPT_RESOURCE_TYPE_MODEL ){
 					ResourceScriptData::ModelResourceData data;
@@ -263,6 +315,9 @@ namespace GameEngine
 			else if( !strcmp( buf, "[EnemyPatternFile]" ) ){
 				type = SCRIPT_RESOURCE_TYPE_ENEMY_PATTERN_FILE;
 			}
+			else if( !strcmp( buf, "[Texture Atlas]" ) ){
+				type = SCRIPT_RESOURCE_TYPE_TEXTURE_ATLAS;
+			}
 			else if( !strcmp( buf, "" ) ){
 				// 無視
 			}
@@ -276,6 +331,22 @@ namespace GameEngine
 				}
 				else if( type == SCRIPT_RESOURCE_TYPE_TEXTURE ){
 					m_pResourceScriptData->m_TextureList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf, 1 ) ) );
+				}
+				else if( type == SCRIPT_RESOURCE_TYPE_TEXTURE_ATLAS ){
+					TextureAtlasPatternFileLoader loader;
+					std::string str = GetFileName( buf, 0 );
+					loader.Load( str );
+					int atlasTotal = loader.GetAtlasTotal();
+					for( int i = 0; i < atlasTotal; ++i ){
+						int id = loader.GetID( i );
+						ResourceMap::TextureAtlas atlas;
+						atlas.m_TexID = loader.GetTexID( i );
+						atlas.m_X = loader.GetStartX( i );
+						atlas.m_Y = loader.GetStartY( i );
+						atlas.m_Width = loader.GetWidth( i );
+						atlas.m_Height = loader.GetHeight( i );
+						m_pResourceScriptData->m_TexAtlasList.insert( std::pair < int, ResourceMap::TextureAtlas > ( id, atlas ) );
+					}
 				}
 				else if( type == SCRIPT_RESOURCE_TYPE_MODEL ){
 					ResourceScriptData::ModelResourceData data;
@@ -316,6 +387,18 @@ namespace GameEngine
 		LoadScript( archiveHandle, fileName, &m_pEnemyShotGroupScriptData->m_pElm[ id ].m_Data );
 	}
 
+	void ScriptLoader::Impl::LoadEffectScript( int id, const std::string& fileName )
+	{
+		m_pEffectScriptData->m_pElm[ id ].m_ID = id;
+		LoadScript( fileName, &m_pEffectScriptData->m_pElm[ id ].m_Data );
+	}
+
+	void ScriptLoader::Impl::LoadEffectScript( int archiveHandle, int id, const std::string& fileName )
+	{
+		m_pEffectScriptData->m_pElm[ id ].m_ID = id;
+		LoadScript( archiveHandle, fileName, &m_pEffectScriptData->m_pElm[ id ].m_Data );
+	}
+
 	ScriptLoader::Impl::Impl()
 	{
 	}
@@ -330,6 +413,7 @@ namespace GameEngine
 		// ファイル構成スクリプトからスクリプトファイル名を取得する
 		std::vector < ScriptFileTag > enemyScriptList;		// 敵のスクリプトファイルリスト
 		std::vector < ScriptFileTag > enemyShotScriptList;	// 敵弾のスクリプトファイルリスト
+		std::vector < ScriptFileTag > effectScriptList;		// エフェクトのスクリプトファイルリスト
 		std::string stageScriptFileName;					// ステージスクリプトのファイル名
 		std::string stageScriptBGFileName;					// ステージ背景スクリプトのファイル名
 		std::string resourceScriptFileName;					// リソーススクリプトのファイル名
@@ -351,6 +435,9 @@ namespace GameEngine
 			}
 			else if( !strcmp( buf, "[Resource]" ) ){
 				type = SCRIPT_TYPE_RESOURCE;
+			}
+			else if( !strcmp( buf, "[Effect]" ) ){
+				type = SCRIPT_TYPE_EFFECT;
 			}
 			else if( !strcmp( buf, "" ) ){
 				// 無視
@@ -375,6 +462,9 @@ namespace GameEngine
 					}
 					else if( type == SCRIPT_TYPE_ENEMY_SHOT ){
 						enemyShotScriptList.push_back( tag );
+					}
+					else if( type == SCRIPT_TYPE_EFFECT ){
+						effectScriptList.push_back( tag );
 					}
 				}
 			}
@@ -402,6 +492,13 @@ namespace GameEngine
 		for( unsigned int i = 0; i < enemyShotScriptList.size(); ++i ){
 			LoadEnemyShotGroupScript( i, enemyShotScriptList[ i ].m_FileName );
 		}
+
+		// エフェクトのスクリプトの読み込み
+		m_pEffectScriptData.reset( new EffectScriptData );
+		m_pEffectScriptData->m_pElm = new EffectScriptData::EffectScriptDataElm[ effectScriptList.size() ];
+		for( unsigned int i = 0; i < effectScriptList.size(); ++i ){
+			LoadEffectScript( i, effectScriptList[ i ].m_FileName );
+		}
 	}
 
 	void ScriptLoader::Impl::Load( int archiveHandle, const std::string& filePath )
@@ -415,6 +512,7 @@ namespace GameEngine
 		// ファイル構成スクリプトからスクリプトファイル名を取得する
 		std::vector < ScriptFileTag > enemyScriptList;		// 敵のスクリプト
 		std::vector < ScriptFileTag > enemyShotScriptList;	// 敵弾のスクリプト
+		std::vector < ScriptFileTag > effectScriptList;		// エフェクトのスクリプトファイルリスト
 		char stageScriptFileName[ 1024 ];					// ステージスクリプトのファイル名
 		char stageScriptBGFileName[ 1024 ];					// ステージ背景スクリプトのファイル名
 		char resourceScriptFileName[ 1024 ];				// リソーススクリプトのファイル名
@@ -436,6 +534,9 @@ namespace GameEngine
 			}
 			else if( !strcmp( buf, "[Resource]" ) ){
 				type = SCRIPT_TYPE_RESOURCE;
+			}
+			else if( !strcmp( buf, "[Effect]" ) ){
+				type = SCRIPT_TYPE_EFFECT;
 			}
 			else if( !strcmp( buf, "" ) ){
 				// 無視
@@ -460,6 +561,9 @@ namespace GameEngine
 					}
 					else if( type == SCRIPT_TYPE_ENEMY_SHOT ){
 						enemyShotScriptList.push_back( tag );
+					}
+					else if( type == SCRIPT_TYPE_EFFECT ){
+						effectScriptList.push_back( tag );
 					}
 				}
 			}
@@ -490,6 +594,13 @@ namespace GameEngine
 			LoadEnemyShotGroupScript( archiveHandle, i, enemyShotScriptList[ i ].m_FileName );
 		}
 
+		// エフェクトのスクリプトの読み込み
+		m_pEffectScriptData.reset( new EffectScriptData );
+		m_pEffectScriptData->m_pElm = new EffectScriptData::EffectScriptDataElm[ effectScriptList.size() ];
+		for( unsigned int i = 0; i < effectScriptList.size(); ++i ){
+			LoadEffectScript( archiveHandle, i, effectScriptList[ i ].m_FileName );
+		}
+
 		MAPIL::SafeDeleteArray( pBegin );
 	}
 
@@ -502,6 +613,7 @@ namespace GameEngine
 		data.m_pEnemyScriptData = m_pEnemyScriptData;
 		data.m_pEnemyShotGroupScriptData = m_pEnemyShotGroupScriptData;
 		data.m_pResourceScriptData = m_pResourceScriptData;
+		data.m_pEffectScriptData = m_pEffectScriptData;
 
 		return data;
 	}

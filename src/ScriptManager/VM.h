@@ -53,15 +53,19 @@ namespace VM
 		SYS_FABS_GU,
 		SYS_SQRT_GU,
 
-		SYS_DEG_TO_RAD,				// Convert degree to radius.
+		SYS_DEG_TO_RAD,					// Convert degree to radius.
 
-		SYS_GET_PLAYER_POSX_GU,		// Get player position. (X, gameunit)
-		SYS_GET_PLAYER_POSY_GU,		// Get player position. (Y, gameunit)
-		SYS_GET_PLAYER_POSX,		// Get player position. ( X )
-		SYS_GET_PLAYER_POSY,		// Get player position. ( Y )
-		SYS_GET_PLAYER_HP,			// Get player HP.
-		SYS_GET_PLAYER_CUR_CONS,	// Get current cons.
-		SYS_GET_PLAYER_CONS_GAUGE,	// Get cons gauge.
+		SYS_GET_PLAYER_POSX_GU,			// Get player position. (X, gameunit)
+		SYS_GET_PLAYER_POSY_GU,			// Get player position. (Y, gameunit)
+		SYS_GET_PLAYER_POSX,			// Get player position. ( X )
+		SYS_GET_PLAYER_POSY,			// Get player position. ( Y )
+		SYS_GET_PLAYER_HP,				// Get player HP.
+		SYS_GET_PLAYER_CUR_CONS,		// Get current cons.
+		SYS_GET_PLAYER_CONS_GAUGE,		// Get cons gauge.
+		SYS_GET_PLAYER_SCORE_TOTAL,		// Get total score.
+		SYS_GET_PLAYER_CRYSTAL_TOTAL,	// Get total crystal.
+		SYS_GET_PLAYER_CRYSTAL_USED_TOTAL,	// Get used total crystal.
+		SYS_GET_PLAYER_KILLED_TOTAL,	// Get total killed.
 
 		SYS_GET_RANDOM_F,			// Get random. (float)
 		SYS_GET_RANDOM_GU,			// Get random. (gameunit)
@@ -100,6 +104,7 @@ namespace VM
 		SYS_ENEMY_SET_SCORE,				// Set score.
 		SYS_ENEMY_SET_BOSS_FLAG,			// Set boss flag.
 		SYS_ENEMY_SET_CONS_GAUGE,			// Set conscious gauge.
+		SYS_ENEMY_SET_CONS_ATTR,			// Set conscious attr.
 		SYS_ENEMY_ENABLE_INVINCIBLE,		// Enable invincible mode.
 		SYS_ENEMY_DISABLE_INVINCIBLE,			// Disable invincible mode.
 		SYS_ENEMY_ENABLE_NON_COLLISION_MODE,	// Enable non collision mode.
@@ -116,6 +121,7 @@ namespace VM
 		SYS_ENEMY_DAMAGED_BY_CONS_SHOT_INDEX,	// Damaged by cons shot? (index)
 		SYS_SEARCH_ENEMY_IN_SKILL_MODE,		// Search enemy in skill mode.
 		SYS_SEARCH_ENEMY_IN_SKILL_MODE_BY_NAME,		// Search enemy in skill mode by name.
+		SYS_DAMAGE_ENEMY,					// Damage enemy.
 
 		SYS_ENEMY_GET_ITEM_POS_X_GU,		// Get item position x. (gameunit)
 		SYS_ENEMY_GET_ITEM_POS_Y_GU,		// Get item position y. (gameunit)
@@ -140,6 +146,7 @@ namespace VM
 
 		// For enemy shot group.
 		SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU,
+		SYS_ENEMY_SHOT_GROUP_SET_STATUS_ATLAS_GU,
 		SYS_ENEMY_SHOT_GROUP_GET_POS_X_GU,
 		SYS_ENEMY_SHOT_GROUP_GET_POS_Y_GU,
 		SYS_ENEMY_SHOT_GROUP_SET_SPEED_GU,
@@ -157,7 +164,9 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_SET_ANGLE,
 		SYS_ENEMY_SHOT_GROUP_SET_SPEED,
 		SYS_ENEMY_SHOT_GROUP_SET_IMAGE,
+		SYS_ENEMY_SHOT_GROUP_SET_IMAGE_ATLAS,
 		SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS,
+		SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS_GU,
 		SYS_ENEMY_SHOT_GROUP_SET_STATUS,
 		SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT,
 		SYS_ENEMY_SHOT_GROUP_GET_COUNTER,
@@ -229,6 +238,17 @@ namespace VM
 		SYS_END_2D_GRAPHICS,							// End 2D Graphics.
 		SYS_DRAW_TEXTURE_FIXED_ROT,						// Draw 2D texture (with texture).
 		SYS_COLOR_ARGB,									// Get ARGB color.
+
+		// For effect.
+		SYS_CREATE_SCRIPT_EFFECT,						// Create script effect.
+		SYS_CREATE_SCRIPT_EFFECT_REG,					// Create script effect. (1 reg)
+		SYS_CREATE_SCRIPT_EFFECT_FREG5,					// Create script effect. (5 reg, float)
+		SYS_DRAW_TEXTURE_ATLAS_PSR,						// Draw texture atlas (pos/scale/rot)
+		SYS_GET_SCRIPT_EFFECT_REG,						// Get script effect register.
+		SYS_GET_SCRIPT_EFFECT_COUNTER,					// Get script effect counter.
+		SYS_TERMINATE_SCRIPT_EFFECT,					// Terminate script effect.
+		SYS_GET_SCRIPT_EFFECT_POS_X,					// Get script effect position X. (float)
+		SYS_GET_SCRIPT_EFFECT_POS_Y,					// Get script effect position Y. (float)
 	};
 
 	class Data

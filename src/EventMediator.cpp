@@ -148,10 +148,19 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE, "archive/resource/texture/hpbar.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE, "archive/resource/texture/consbar.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_BACKGROUND_TEXTURE, "archive/resource/texture/background.png", true );
-		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_MULTI_TEXTURE,
+		/*m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_MULTI_TEXTURE,
 											GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST,
 											GLOBAL_RESOURCE_ID_FONT_TEXTURE_LAST,
-											5, 8, 32, 32, "archive/resource/texture/game_font.png", true );
+											5, 8, 32, 32, "archive/resource/texture/game_font.png", true );*/
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_FONT_TEXTURE, "archive/resource/texture/common/game_font_2.84pt.png", true );
+		for( int i = 0; i < 4; i = i + 1 ){
+			for( int j = 0; j < 10; j = j + 1 ){
+				m_pResourceManager->AddGlobalTextureAtlasItem(	GLOBAL_TEX_ATLAS_ID_FONT_FIRST + i * 10 + j,
+																GLOBAL_RESOURCE_ID_FONT_TEXTURE,
+																24 * j, 24 * i,
+																24, 24 );
+			}
+		}
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_1_TEXTURE, "archive/resource/texture/powerup_item_1.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_2_TEXTURE, "archive/resource/texture/powerup_item_2.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE, "archive/resource/texture/crystal.png", true );
@@ -303,61 +312,61 @@ namespace GameEngine
 											"archive/resource/texture/eriKs_background_small.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_CALM,
-											"archive/resource/texture/difficulty_selection/calm_rank_selection.png", false );
+											"archive/resource/texture/difficulty_selection/calm_rank_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_EASY,
-											"archive/resource/texture/difficulty_selection/easy_rank_selection.png", false );
+											"archive/resource/texture/difficulty_selection/easy_rank_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_NORMAL,
-											"archive/resource/texture/difficulty_selection/normal_rank_selection.png", false );
+											"archive/resource/texture/difficulty_selection/normal_rank_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_HARD,
-											"archive/resource/texture/difficulty_selection/hard_rank_selection.png", false );
+											"archive/resource/texture/difficulty_selection/hard_rank_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_HAZARD,
-											"archive/resource/texture/difficulty_selection/hazard_rank_selection.png", false );
+											"archive/resource/texture/difficulty_selection/hazard_rank_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_DIFFICULTY_SELECTION_TITLE,
-											"archive/resource/texture/difficulty_selection/title.png", false );
+											"archive/resource/texture/difficulty_selection/title.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_1,
-											"archive/resource/texture/stage_selection/stage_1_selection.png", false );
+											"archive/resource/texture/stage_selection/stage_1_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_2,
-											"archive/resource/texture/stage_selection/stage_2_selection.png", false );
+											"archive/resource/texture/stage_selection/stage_2_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_3,
-											"archive/resource/texture/stage_selection/stage_3_selection.png", false );
+											"archive/resource/texture/stage_selection/stage_3_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_4,
-											"archive/resource/texture/stage_selection/stage_4_selection.png", false );
+											"archive/resource/texture/stage_selection/stage_4_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_STAGE_5,
-											"archive/resource/texture/stage_selection/stage_5_selection.png", false );
+											"archive/resource/texture/stage_selection/stage_5_selection.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_STAGE_SELECTION_TITLE,
-											"archive/resource/texture/stage_selection/title.png", false );
+											"archive/resource/texture/stage_selection/title.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_CALM,
-											"archive/resource/texture/score/calm.png", false );
+											"archive/resource/texture/score/calm.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_EASY,
-											"archive/resource/texture/score/easy.png", false );
+											"archive/resource/texture/score/easy.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_NORMAL,
-											"archive/resource/texture/score/normal.png", false );
+											"archive/resource/texture/score/normal.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_HARD,
-											"archive/resource/texture/score/hard.png", false );
+											"archive/resource/texture/score/hard.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_HAZARD,
-											"archive/resource/texture/score/hazard.png", false );
+											"archive/resource/texture/score/hazard.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_SCORE_TITLE,
-											"archive/resource/texture/score/title.png", false );
+											"archive/resource/texture/score/title.png", true );
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_REPLAY_TITLE,
-											"archive/resource/texture/replay/title.png", false );
+											"archive/resource/texture/replay/title.png", true );
 		m_Loading.Start();
 	}
 
@@ -407,6 +416,7 @@ namespace GameEngine
 				m_pSceneManager->AttachDisplayedNormalPlayStat( m_pGameStateManager->GetDisplayedNormalPlayStat() );
 				m_pSceneManager->ChangeScene( SCENE_TYPE_DIFFICULTY_SELECTION );
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
+				//SendEvent( EVENT_TYPE_MOVE_TO_SCORE_ENTRY );
 				break;
 			}
 			// 難易度選択画面（ステージ選択あり）移行要求
@@ -417,13 +427,6 @@ namespace GameEngine
 				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
 				break;
 			}
-			// ステージ選択画面移行要求
-			/*case EVENT_TYPE_MOVE_TO_STAGE_SELECTION:{
-				m_pResourceManager->ReleaseStageResources();
-				m_pSceneManager->ChangeScene( SCENE_TYPE_STAGE_SELECTION );
-				m_pButtonManager->ChangeDevice( INPUT_DEVICE_KEYBOARD );
-				break;
-			}*/
 			// コンフィグ画面移行要求
 			case EVENT_TYPE_MOVE_TO_CONFIG:{
 				m_pResourceManager->ReleaseStageResources();
@@ -558,8 +561,8 @@ namespace GameEngine
 				//m_Loading.AddStageResourceItem( 2, false );
 				m_Loading.AddStageResourceItem( stage, false );
 #elif defined ( MAKE_MODE_DEBUG )
-				//m_Loading.AddStageResourceItem( stage, false );
-				m_Loading.AddStageResourceItem( 4, false );
+				m_Loading.AddStageResourceItem( stage, false );
+				//m_Loading.AddStageResourceItem( 5, false );
 #endif
 #endif
 				m_Loading.Start();

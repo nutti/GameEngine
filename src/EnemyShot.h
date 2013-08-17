@@ -45,6 +45,7 @@ namespace GameEngine
 		bool Update();										// 更新
 		void SetPower( int power );							// 弾の攻撃力を設定
 		void SetImage( int id );							// 画像を設定
+		void SetAtlasImage( int id );						// アトラス画像を設定
 		void SetImageScale( float scale );					// 画像の拡大率を設定
 		void SetConsAttr( int attr );						// 意識技専用弾に設定
 		void JoinShotGroup( int id, EnemyShotGroup* pGroup );

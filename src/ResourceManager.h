@@ -27,6 +27,7 @@ namespace GameEngine
 									int width,
 									int height,
 									const std::string& fileName );
+		void AddGlobalTextureAtlasItem( int index, int texID, int x, int y, int width, int height );
 		// アーカイバ
 		void OpenArchive( const std::string& fileName );
 		void LoadStageResourcesFromArchive( const ScriptData& data );

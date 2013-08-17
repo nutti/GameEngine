@@ -255,7 +255,13 @@ namespace GameEngine
 			}
 		}
 		
-
+		ResourceMap::TextureAtlas atlas;
+		for( int i = 0; i < 12; i = i + 1 ){
+		atlas = m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap[ GLOBAL_TEX_ATLAS_ID_FONT_FIRST + 'A' + i - 'A' + 10 ];
+		int id = m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ];
+		MAPIL::DrawClipedTexture( m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
+			120.0f+ 20.0f * i, 120.0f, 0.5f, 0.5f, 0.0f, atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height );
+		}			
 
 
 		MAPIL::EndRendering2DGraphics();

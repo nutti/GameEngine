@@ -8,6 +8,7 @@
 #include "EnemyShot.h"
 #include "Item.h"
 #include "Effect.h"
+#include "ScriptEffect.h"
 
 #include "EnemyShotGroup.h"
 
@@ -184,6 +185,7 @@ namespace GameEngine
 		void DeleteBoss();
 		void DeleteAllEffects();
 		void DeleteAllItems();
+		void DeleteAllScriptEffects();
 
 	public:
 		Impl( int stageNo, bool isReplay );
@@ -293,6 +295,7 @@ namespace GameEngine
 		DeleteAllEnemyShots();
 		DeleteAllItems();
 		DeleteAllEffects();
+		DeleteAllScriptEffects();
 		for( EnemyShotGroupList::iterator it = m_Data.m_EnemyShotGroupList.begin(); it != m_Data.m_EnemyShotGroupList.end(); ++it ){
 			delete ( *it );
 		}
@@ -448,7 +451,7 @@ namespace GameEngine
 				GameUnit distance = ( eX - psX ) * ( eX - psX ) + ( eY - psY ) * ( eY - psY );
 				GameUnit radius = ( psRad + eRad ) * ( psRad + eRad );
 				if( distance < radius ){
-					( *itShot )->Colided( *itEnemy );
+					( *itShot )->Colided( ( *itEnemy ).get() );
 					( *itEnemy )->Colided( *itShot );
 				}
 			}
@@ -529,7 +532,7 @@ namespace GameEngine
 			GameUnit distance = ( eX - pX ) * ( eX - pX ) + ( eY - pY ) * ( eY - pY );
 			GameUnit radius = ( pRad + eRad ) * ( pRad + eRad );
 			if( distance < radius ){
-				m_Data.m_pPlayer->Colided( *itEnemy );
+				m_Data.m_pPlayer->Colided( ( *itEnemy ).get() );
 				( *itEnemy )->Colided( m_Data.m_pPlayer );
 			}
 			// 敵-アイテム
@@ -543,7 +546,7 @@ namespace GameEngine
 				GameUnit radius = ( iRad + eRad ) * ( iRad + eRad );
 				if( distance < radius ){
 					( *itEnemy )->Colided( ( *itItem ).get() );
-					( *itItem )->Colided( *itEnemy );
+					( *itItem )->Colided( ( *itEnemy ).get() );
 				}
 			}
 		}			
@@ -568,7 +571,7 @@ namespace GameEngine
 		// 敵の更新
 		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ){
 			if( !( *it )->Update() ){
-				delete ( *it );
+				//delete ( *it );
 				it = m_Data.m_EnemyList.erase( it );
 				continue;
 			}
@@ -619,6 +622,15 @@ namespace GameEngine
 			}
 			++it;
 		}
+		// スクリプトエフェクトの更新
+		for( ScriptEffectList::iterator it = m_Data.m_ScriptEffectList.begin(); it != m_Data.m_ScriptEffectList.end(); ){
+			if( !( *it )->Update() ){
+				delete( *it );
+				it = m_Data.m_ScriptEffectList.erase( it );
+				continue;
+			}
+			++it;
+		}
 	}
 
 	void Stage::Impl::ProcessMessage()
@@ -654,9 +666,14 @@ namespace GameEngine
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_STARTED:
 					m_PrivData.m_BossModeData.m_IsBossMode = true;
+					MAPIL::ZeroObject( m_PrivData.m_BossModeData.m_ShiftFrame, sizeof( m_PrivData.m_BossModeData.m_ShiftFrame ) );
 					m_PrivData.m_BossModeData.m_ShiftFrame[ 0 ] = m_Data.m_Frame;
+					m_PrivData.m_BossModeData.m_CurPhase = 0;
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_MODE_ENDED:
+					m_PrivData.m_ConsSkillModeData.m_IsConsSkillMode = false;
+					m_PrivData.m_ConsSkillModeData.m_Counter = 0;
+					m_PrivData.m_ConsSkillModeData.m_PostCounter = 100;
 					break;
 				case StageMessage::STAGE_MESSAGE_ID_BOSS_SHIFT_NEXT_MODE:
 					m_PrivData.m_BossModeData.m_PhaseInterval = 0;
@@ -715,9 +732,9 @@ namespace GameEngine
 
 	void Stage::Impl::DeleteAllEnemies()
 	{
-		for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){
-			delete ( *it );
-		}
+		//for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){
+			//delete ( *it );
+		//}
 		m_Data.m_EnemyList.clear();
 	}
 
@@ -737,6 +754,14 @@ namespace GameEngine
 	void Stage::Impl::DeleteAllItems()
 	{
 		m_Data.m_ItemList.clear();
+	}
+
+	void Stage::Impl::DeleteAllScriptEffects()
+	{
+		for( ScriptEffectList::iterator it = m_Data.m_ScriptEffectList.begin(); it != m_Data.m_ScriptEffectList.end(); ++it ){
+			delete ( *it );
+		}
+		m_Data.m_ScriptEffectList.clear();
 	}
 
 	void Stage::Impl::UpdateConsSkillEffect()
@@ -1581,7 +1606,7 @@ namespace GameEngine
 		MAPIL::EnableLighting();
 		MAPIL::BeginRendering2DGraphics();
 
-		ProcAllBatchWorks();
+		ProcAllBatchWorks( m_Data.m_ResourceMap );
 
 		// スキル使用時のエフェクトを描画
 		DrawConsSkillEffect();
@@ -1606,11 +1631,16 @@ namespace GameEngine
 			( *it )->Draw();
 		}
 
-		ProcAllBatchWorks();
+		ProcAllBatchWorks( m_Data.m_ResourceMap );
 		
 		
 		// エフェクトの描画
 		for( EffectList::iterator it = m_Data.m_EffectList.begin(); it != m_Data.m_EffectList.end(); ++it ){
+			( *it )->Draw();
+		}
+
+		// スクリプトエフェクトの描画
+		for( ScriptEffectList::iterator it = m_Data.m_ScriptEffectList.begin(); it != m_Data.m_ScriptEffectList.end(); ++it ){
 			( *it )->Draw();
 		}
 
@@ -1873,7 +1903,7 @@ namespace GameEngine
 			MAPIL::DrawString( 250.0f, 50.0f, "Frame : %d", m_Data.m_Frame );
 			MAPIL::DrawString( 250.0f, 70.0f, "EnemyShot : %d", m_Data.m_EnemyShotList.size() );
 			MAPIL::DrawString( 250.0f, 90.0f, "Item : %d", m_Data.m_ItemList.size() );
-			MAPIL::DrawString( 250.0f, 110.0f, "Effect : %d", m_Data.m_EffectList.size() );
+			MAPIL::DrawString( 250.0f, 110.0f, "Effect : %d", m_Data.m_EffectList.size() + m_Data.m_ScriptEffectList.size() );
 			MAPIL::DrawString( 250.0f, 130.0f, "PlayerShot : %d", m_Data.m_PlayerShotList.size() );
 			MAPIL::DrawString( 250.0f, 150.0f, "EnemyShotGroup : %d", m_Data.m_EnemyShotGroupList.size() );
 		

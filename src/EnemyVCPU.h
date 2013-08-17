@@ -18,6 +18,9 @@ namespace GameEngine
 		void SysGetPlayerHP();
 		void SysGetPlayerCurCons();
 		void SysGetPlayerConsGauge();
+		void SysGetPlayerScoreTotal();
+		void SysGetPlayerCrystalTotal();
+		void SysGetPlayerKilledTotal();
 		
 		void SysGetRandF();
 		void SysGetRandGU();
@@ -44,6 +47,8 @@ namespace GameEngine
 		void SysGetItemPosXGU();
 		void SysGetItemPosYGU();
 
+		void SysDamageEnemy();
+
 		void SysSetEnemyName();
 		void SysSetEnemyPos();
 		void SysSetEnemyPos3D();
@@ -58,6 +63,7 @@ namespace GameEngine
 		void SysSetEnemyScore();
 		void SysSetEnemyBossFlag();
 		void SysSetEnemyConsGauge();
+		void SysSetEnemyConsAttr();
 		void SysEnemyEnableInvincible();
 		void SysEnemyDisableInvincible();
 		void SysEnemyEnableNonCollisionMode();

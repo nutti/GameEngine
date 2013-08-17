@@ -16,6 +16,7 @@ namespace GameEngine
 	struct StageData;
 	struct ResourceMap;
 	class EnemyShotGroup;
+	class ScriptEffect;
 
 	struct EnemyData
 	{

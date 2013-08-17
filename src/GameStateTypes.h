@@ -75,6 +75,13 @@ namespace GameEngine
 	{
 		struct Entry
 		{
+			struct Stage
+			{
+				int		m_Score;
+				int		m_Crystal;
+				int		m_Killed;
+			};
+
 			int						m_EntryNo;				// エントリ番号
 			char					m_Name[ 10 ];			// 名前
 			int						m_Progress;				// 進行度
@@ -84,6 +91,7 @@ namespace GameEngine
 			int						m_Killed;				// 撃破数
 			int						m_Difficulty;			// 難易度
 			Date					m_Date;					// 作成日時
+			Stage					m_StageInfo[ 5 ];		// ステージ情報
 		};
 		Entry		m_Entries[ MAX_REPLAY_ENTRY ];
 	};

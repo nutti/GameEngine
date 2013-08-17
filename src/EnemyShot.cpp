@@ -240,6 +240,7 @@ namespace GameEngine
 		// ó‘ÔŠÖ˜A
 		int									m_ShotID;					// ƒVƒ‡ƒbƒgID
 		int									m_ImgID;					// ‰æ‘œID
+		int									m_AtlasImgID;				// ƒAƒgƒ‰ƒXID(-1‚ª•W€)
 		float								m_ImgScale;					// ‰æ‘œŠg‘å—¦
 		int									m_Counter;					// ƒJƒEƒ“ƒ^
 		int									m_DeadCounter;				// Ž€–SƒJƒEƒ“ƒ^
@@ -280,6 +281,7 @@ namespace GameEngine
 		int GetPower() const;								// ’e‚ÌUŒ‚—Í‚ðŽæ“¾
 		void SetPower( int power );							// ’e‚ÌUŒ‚—Í‚ðÝ’è
 		void SetImage( int id );							// ‰æ‘œ‚ðÝ’è
+		void SetAtlasImage( int id );
 		void SetImageScale( float scale );					// ‰æ‘œ‚ÌŠg‘å—¦‚ðÝ’è
 		void SetConsAttr( int attr );						// ˆÓŽ¯‹Zê—p’e‚ÉÝ’è
 		void JoinShotGroup( int id, EnemyShotGroup* pGroup );
@@ -353,6 +355,7 @@ namespace GameEngine
 		m_ImgRotAngle = 0.0f;
 		m_ImgRotAnglePerFrame = 0.0f;
 		m_ImgScale = 1.0f;
+		m_AtlasImgID = -1;
 	}
 
 	EnemyShot::Impl::~Impl()
@@ -443,57 +446,69 @@ namespace GameEngine
 		float posY = m_GUData.m_PosY.GetFloat();
 
 		if( m_StatusFlags[ DEAD ] ){
-			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-								posX, posY,
-								m_DeadCounter * 0.05f + m_ImgScale, m_DeadCounter * 0.05f + m_ImgScale,
-								m_ImgRotAngle,
-								true, ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
+			if( m_AtlasImgID == -1 ){
+				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+									posX, posY,
+									m_DeadCounter * 0.05f + m_ImgScale, m_DeadCounter * 0.05f + m_ImgScale,
+									m_ImgRotAngle,
+									true, ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
+			}
+			else{
+				ResourceMap::TextureAtlas atlas;
+				atlas = m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
+				MAPIL::DrawClipedTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+											posX, posY, m_DeadCounter * 0.05f + m_ImgScale, m_DeadCounter * 0.05f + m_ImgScale, m_ImgRotAngle,
+											atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height, true,
+											( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
+			}
 		}
 		else{
-			//if( m_Counter >= 6 ){
 			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
 				if( m_StatusFlags[ HAS_CONS_ATTR ] ){
-					if( m_StatusFlags[ IMG_SCALE_CHANGED ] ){
+					if( m_AtlasImgID == -1 ){
 						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
 											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
 						if( ( m_Counter / 4 ) % 2 == 0 ){
 							AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
+												m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
 						}
 					}
 					else{
-						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgRotAngle );
+						AddToAtlasSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+												m_AtlasImgID,
+												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
 						if( ( m_Counter / 4 ) % 2 == 0 ){
-							AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgRotAngle );
+							AddToAtlasSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+													m_AtlasImgID,
+													posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
 						}
 					}
 				}
 				else if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
-					if( m_StatusFlags[ IMG_SCALE_CHANGED ] ){
+					if( m_AtlasImgID == -1 ){
 						AddToSpriteBatch(	m_AlphaBlendingMode,
 											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
 					}
 					else{
-						AddToSpriteBatch(	m_AlphaBlendingMode,
-											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgRotAngle );
+						AddToAtlasSpriteBatch(	m_AlphaBlendingMode,
+												m_AtlasImgID,
+												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
 					}
 				}
 				else{
-					if( m_StatusFlags[ IMG_SCALE_CHANGED ] ){
+					if( m_AtlasImgID == -1 ){
 						MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
 					}
 					else{
-						MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgRotAngle );
+						ResourceMap::TextureAtlas atlas;
+						atlas = m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
+						MAPIL::DrawClipedTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+													posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle,
+													atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height );
 					}
 				}
 			}
@@ -503,23 +518,30 @@ namespace GameEngine
 											( m_Line.GetEndY() - m_Line.GetStartY() ) * ( m_Line.GetEndY() - m_Line.GetStartY() ) );
 				unsigned int texSizeX;
 				unsigned int texSizeY;
-				MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
-				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-									//m_Line.GetStartX() - texSizeX / 2,
-									//m_Line.GetStartY(),
-									m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
-									m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
-									1.0f,
-									length / texSizeY,
-									angle,
-									false );
-				/*MAPIL::DrawTexture( m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE ],
-									m_Line.GetStartX(),
-									m_Line.GetStartY(),
-									0.3f,
-									0.3f,
-									0.0f,
-									false );*/
+				if( m_AtlasImgID == -1 ){
+					MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
+					MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+										m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
+										m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
+										1.0f,
+										length / texSizeY,
+										angle,
+										false );
+				}
+				else{
+					ResourceMap::TextureAtlas atlas;
+					atlas = m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
+					texSizeX = atlas.m_Width;
+					texSizeY = atlas.m_Height;
+					MAPIL::DrawClipedTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+												m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
+												m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
+												1.0f,
+												length / texSizeY,
+												angle,
+												atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height,
+												false );
+				}
 			}
 		}
 	}
@@ -642,6 +664,11 @@ namespace GameEngine
 	inline void EnemyShot::Impl::SetImage( int id )
 	{
 		m_ImgID = id;
+	}
+
+	inline void EnemyShot::Impl::SetAtlasImage( int id )
+	{
+		m_AtlasImgID = id;
 	}
 
 	inline void EnemyShot::Impl::SetImageScale( float scale )
@@ -1024,6 +1051,11 @@ namespace GameEngine
 	void EnemyShot::SetImage( int id )
 	{
 		m_pImpl->SetImage( id );
+	}
+
+	void EnemyShot::SetAtlasImage( int id )
+	{
+		m_pImpl->SetAtlasImage( id );
 	}
 
 	void EnemyShot::SetImageScale( float scale )

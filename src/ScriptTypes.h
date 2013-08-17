@@ -2,6 +2,7 @@
 #define INCLUDED_GAMEENGINE_SCRIPTTYPES_H
 
 #include "ScriptManager/VM.h"
+#include "ResourceTypes.h"
 
 #include <MAPIL/MAPIL.h>
 #include <vector>
@@ -46,6 +47,20 @@ namespace GameEngine
 		}
 	};
 	
+	struct EffectScriptData
+	{
+		struct EffectScriptDataElm
+		{
+			int			m_ID;		// 識別番号
+			VM::Data	m_Data;		// スクリプトデータ本体
+		};
+		EffectScriptDataElm*		m_pElm;
+		~EffectScriptData()
+		{
+			MAPIL::SafeDeleteArray( m_pElm );
+		}
+	};
+
 	struct StageBackgroundScriptData
 	{
 		int				m_ID;		// 識別番号
@@ -64,6 +79,7 @@ namespace GameEngine
 		std::map < int, std::string >			m_TextureList;
 		std::map < int, ModelResourceData >		m_ModelList;
 		std::map < int, std::string >			m_EnemyPatternList;
+		std::map < int, ResourceMap::TextureAtlas >		m_TexAtlasList;
 	};
 
 	// メッセージ通信用スクリプトデータ
@@ -74,6 +90,7 @@ namespace GameEngine
 		std::shared_ptr < EnemyScriptData >					m_pEnemyScriptData;
 		std::shared_ptr < EnemyShotGroupScriptData >		m_pEnemyShotGroupScriptData;
 		std::shared_ptr < ResourceScriptData >				m_pResourceScriptData;
+		std::shared_ptr < EffectScriptData >				m_pEffectScriptData;
 	};
 
 	// スクリプトのファイル形式

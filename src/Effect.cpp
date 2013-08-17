@@ -8,7 +8,9 @@
 
 namespace GameEngine
 {
-	Effect::Effect( std::shared_ptr < ResourceMap > pMap, int id, int subID )
+	Effect::Effect(	std::shared_ptr < ResourceMap > pMap,
+					int id,
+					int subID )
 	{
 		m_EffectData.m_EffectID = id;
 		m_EffectData.m_EffectSubID = subID;
@@ -16,6 +18,7 @@ namespace GameEngine
 		m_EffectData.m_pResourceMap = pMap;
 		m_EffectData.m_PosX = 0.0f;
 		m_EffectData.m_PosY = 0.0f;
+		MAPIL::ZeroObject( m_EffectData.m_Regs, sizeof( m_EffectData.m_Regs ) );
 		//m_EffectData.m_PointSprite = MAPIL::CreatePointSprite( 100,
 		//m_EffectData.m_pResourceMap->m_pStageResourceMap->m_TextureMap[ subID ] );
 	}
@@ -72,6 +75,12 @@ namespace GameEngine
 						}
 					}
 				}
+			}
+			if( m_EffectData.m_Regs[ 0 ] == 1 ){
+				DrawFontString(	*m_EffectData.m_pResourceMap,
+								m_EffectData.m_PosX, m_EffectData.m_PosY, 0.50f,
+								( ( 30 - m_EffectData.m_Counter ) * 8 ) << 24 | 0x33FFFF,
+								"%.1f %d", m_EffectData.m_Regs[ 1 ] / 10.0f, m_EffectData.m_Regs[ 2 ] );
 			}
 		}
 		else if( m_EffectData.m_EffectID == EFFECT_ID_SPRAY ){
@@ -142,5 +151,10 @@ namespace GameEngine
 		++m_EffectData.m_Counter;
 
 		return true;
+	}
+
+	void Effect::SetReg( int no, int val )
+	{
+		m_EffectData.m_Regs[ no ] = val;
 	}
 }

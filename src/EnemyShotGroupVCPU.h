@@ -34,6 +34,7 @@ namespace GameEngine
 		void SysGetEnemyConsGauge();
 
 		void SysSetEnemyShotStatusGU();
+		void SysSetEnemyShotStatusAtlasGU();
 		void SysGetEnemyShotPosXGU();
 		void SysGetEnemyShotPosYGU();
 		void SysSetEnemyShotSpeedGU();
@@ -54,7 +55,9 @@ namespace GameEngine
 		void SysSetEnemyShotAngle();
 		void SysSetEnemyShotSpeed();
 		void SysSetEnemyShotImage();
+		void SysSetEnemyShotImageAtlas();
 		void SysSetEnemyShotCollisionRadius();
+		void SysSetEnemyShotCollisionRadiusGU();
 		void SysSetEnemyShotStatus();
 		void SysSetEnemyShotMovement();
 		void SysGetEnemyShotCounter();
@@ -83,6 +86,9 @@ namespace GameEngine
 		void SysGetEnemyShotGroupFReg();
 		void SysGetEnemyShotGroupGReg();
 		void SysGetEnemyShotGroupGRegIndex();
+
+		void SysCreateScriptEffectReg();
+		void SysCreateScriptEffectFReg5();
 
 		void SysSendEventToEnemyShotGroup();
 		void SysSetEnemyShotGroupSubID();

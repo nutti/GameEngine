@@ -30,6 +30,7 @@ namespace GameEngine
 		int							m_SelectCounter;		// 選択時の準備用カウンタ
 		int							m_StageSelectCounter;	// ステージ選択時のカウンタ
 		int							m_ReturnCounter;		// メニュー画面へ移行カウンタ
+		int							m_WaitTimer;			// 待機時間
 
 		std::list < std::shared_ptr < ReplayView > >		m_ViewList;
 	public:
@@ -56,6 +57,7 @@ namespace GameEngine
 		m_SelectCounter = 0;
 		m_StageSelectCounter = 0;
 		m_ReturnCounter = 0;
+		m_WaitTimer = 0;
 
 		m_ViewList.clear();
 	}
@@ -78,6 +80,12 @@ namespace GameEngine
 		pTitleView->AttachResourceMap( m_ResourceMap );
 		pTitleView->Init();
 		m_ViewList.push_back( std::shared_ptr < ReplayTitleView > ( pTitleView ) );
+
+		// ステージの追加
+		ReplayStageView* pStageView = new ReplayStageView();
+		pStageView->AttachResourceMap( m_ResourceMap );
+		pStageView->AttachDisplayedReplayInfo( &m_DisplayedReplayInfo );
+		m_ViewList.push_back( std::shared_ptr < ReplayStageView > ( pStageView ) );
 	}
 
 	void Replay::Impl::Reflesh()
@@ -88,6 +96,7 @@ namespace GameEngine
 		m_PrepareCounter = 0;
 		m_StageSelectCounter = 0;
 		m_ReturnCounter = 0;
+		m_WaitTimer = 0;
 	}
 
 	SceneType Replay::Impl::Update()
@@ -129,16 +138,25 @@ namespace GameEngine
 			}
 		}
 
+		if( m_WaitTimer > 0 ){
+			--m_WaitTimer;
+			return SCENE_TYPE_NOT_CHANGE;
+		}
+
 		if( m_CurSelectState == REPLAY_SELECT_NO ){
 			if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
 				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress != -1 ){
+					m_WaitTimer = 20;
+					if( m_SelectedStage > m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress - 1 ){
+						m_SelectedStage = STAGE_ID_STAGE_1;
+					}
 					m_CurSelectState = REPLAY_SELECT_STAGE;
+					std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < ReplayView > view ){ view->SelectReplay( m_SelectedReplayNo, m_SelectedStage ); } );
 				}
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
 				std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < ReplayView > view ){ view->BackToMenu(); } );
 				m_ReturnCounter = 1;
-				//return SCENE_TYPE_MENU;
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
 				++m_SelectedReplayNo;
@@ -165,6 +183,8 @@ namespace GameEngine
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
 				m_CurSelectState = REPLAY_SELECT_NO;
+				m_WaitTimer = 20;
+				std::for_each( m_ViewList.begin(), m_ViewList.end(), []( std::shared_ptr < ReplayView > view ){ view->CancelStage(); } );
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
 				++m_SelectedStage;
@@ -172,6 +192,7 @@ namespace GameEngine
 					m_SelectedStage = STAGE_ID_STAGE_1;
 				}
 				m_StageSelectCounter = 10;
+				std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < ReplayView > view ){ view->ChangeStage( m_SelectedStage ); } );
 			}
 			else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
 				--m_SelectedStage;
@@ -179,6 +200,7 @@ namespace GameEngine
 					m_SelectedStage = m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress - 1;
 				}
 				m_StageSelectCounter = 10;
+				std::for_each( m_ViewList.begin(), m_ViewList.end(), [this]( std::shared_ptr < ReplayView > view ){ view->ChangeStage( m_SelectedStage ); } );
 			}
 		}
 
@@ -206,6 +228,9 @@ namespace GameEngine
 			else{
 				weight = 0xFF;
 			}
+			if( m_ReturnCounter > 0 ){
+				weight = ( 15 - m_ReturnCounter ) * 8;
+			}
 		}
 		int color = weight << 16 | weight << 8 | weight;
 		MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_GENERAL_BACKGROUND ],
@@ -230,6 +255,9 @@ namespace GameEngine
 			}
 			else{
 				alpha = 0x00;
+			}
+			if( m_ReturnCounter > 0 ){
+				alpha = ( 15 - m_ReturnCounter ) * 17;
 			}
 		}
 		int color1 = alpha << 24 | 0xAAFFAA;
@@ -311,42 +339,18 @@ namespace GameEngine
 			else{
 				color3 = selColor;
 			}
+			if( m_ReturnCounter > 0 ){
+				color3 = ( ( 15 - m_ReturnCounter ) * 17 ) << 24 | 0xFFFFFF;
+			}
 		}
+		else if( m_Counter >= 20 && m_Counter <= 60 ){
+			color3 = ( ( m_Counter- 20 ) * 6 ) << 24 | 0xFFFFFF;
+		}
+
 		DrawFontString( m_ResourceMap, 160.0f, 380.0f, itemFont, color3,
 						"%d", m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Killed );
 		DrawFontString( m_ResourceMap, 160.0f, 400.0f, itemFont, color3,
 						"%d", m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Crystal );
-
-
-		// ステージ情報の表示
-		if( m_CurSelectState == REPLAY_SELECT_STAGE ){
-			for( int i = 0; i < STAGE_TOTAL; ++i ){
-				std::string str;
-				if( m_DisplayedReplayInfo.m_Entries[ m_SelectedReplayNo ].m_Progress > i ){
-					str = "stage";
-					str += i + '1';
-				}
-				else{
-					str = "-----";
-				}
-
-				int c = color2;
-				float offsetX = 0.0f;
-				float offsetY = 0.0f;
-				if( m_SelectedStage == ( STAGE_ID_STAGE_1 + i ) ){
-					if( m_StageSelectCounter > 0 ){
-						offsetX = -2.0f * sin( MAPIL::DegToRad( m_StageSelectCounter * 45.0 ) );
-					}
-					else{
-						offsetX = -2.0f;
-					}
-					offsetY = 0.0f;
-					c = selColor;
-				}
-
-				DrawFontString( m_ResourceMap, 300.0f + offsetX, 380.0f + i * 17.0f + offsetY, 0.5f, c, str.c_str() );
-			}
-		}
 
 		MAPIL::EndRendering2DGraphics();
 	}

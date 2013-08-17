@@ -261,7 +261,7 @@ namespace GameEngine
 		
 		m_IniGameData.m_PosX = 300;
 		m_IniGameData.m_PosY = 400;
-		m_IniGameData.m_HP = 10;
+		m_IniGameData.m_HP = 50;
 		//m_IniGameData.m_HP = 30;
 		for( int i = 0; i < 3; ++i ){
 			m_IniGameData.m_ConsGauge[ i ] = 1000;
@@ -269,10 +269,20 @@ namespace GameEngine
 		};
 		m_IniGameData.m_ShotPower = 0;
 		//m_IniGameData.m_ShotPower = 40;
+		/*m_IniGameData.m_ShotPower = 40;
+		m_IniGameData.m_Crystal = 54000;
+		m_IniGameData.m_CrystalUsed = 3000;
+		m_IniGameData.m_Killed = 2500;
+		m_IniGameData.m_Score = 23456578;*/
+
 		m_IniGameData.m_Cons = 0;			// PLAYER_CONS_NORMAL
 #if defined ( MAKE_MODE_DEBUG )
 		m_IniGameData.m_HP = 1;
-		m_IniGameData.m_ShotPower = 40;
+		//m_IniGameData.m_ShotPower = 40;
+		/*m_IniGameData.m_Crystal = 54000;
+		m_IniGameData.m_CrystalUsed = 3000;
+		m_IniGameData.m_Killed = 2500;
+		m_IniGameData.m_Score = 23456578;*/
 #endif
 	}
 

@@ -18,15 +18,17 @@ namespace GameEngine
 	class Item;
 	class Effect;
 	class EnemyShotGroup;
+	class ScriptEffect;
 
 	typedef Enemy Boss;
 
-	typedef std::list < Enemy* >			EnemyList;
+	typedef std::list < std::shared_ptr < Enemy > >			EnemyList;
 	typedef std::list < PlayerShot*	>		PlayerShotList;
 	typedef std::list < EnemyShot* >		EnemyShotList;
 	typedef std::list < std::shared_ptr < Item > >		ItemList;
 	typedef std::list < Effect* >			EffectList;
 	typedef std::list < EnemyShotGroup* >	EnemyShotGroupList;
+	typedef std::list < ScriptEffect* >		ScriptEffectList;
 
 	struct StageMessage
 	{
@@ -84,6 +86,7 @@ namespace GameEngine
 		ItemList			m_ItemList;				// アイテムリスト
 		EffectList			m_EffectList;			// エフェクトリスト
 		EnemyShotGroupList	m_EnemyShotGroupList;	// 敵ショットグループリスト
+		ScriptEffectList	m_ScriptEffectList;		// スクリプトエフェクトリスト
 		
 		GameDataMsg			m_GameData;				// 現フレームにおけるゲームデータ
 		GameDataMsg			m_FrameGameData;		// 現フレームで更新されるゲームデータ

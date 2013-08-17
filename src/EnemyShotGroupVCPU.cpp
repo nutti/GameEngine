@@ -7,6 +7,7 @@
 #include "EnemyShot.h"
 #include "Stage.h"
 #include "Player.h"
+#include "ScriptEffect.h"
 
 namespace GameEngine
 {
@@ -336,6 +337,20 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetCollisionRadius( radius );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotCollisionRadiusGU()
+	{
+		Pop();
+		GameUnit radius;
+		radius.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		
 		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetCollisionRadius( radius );
 		}
@@ -971,6 +986,98 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysSetEnemyShotImageAtlas()
+	{
+		Pop();
+		int imgID = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetAtlasImage( imgID );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotStatusAtlasGU()
+	{
+		GameUnit x;
+		GameUnit y;
+		GameUnit angle;
+		GameUnit speed;
+		GameUnit radius;
+
+		Pop();
+		int imgID = Top().m_Integer;
+		Pop();
+		radius.SetRawValue( Top().m_Integer );
+		Pop();
+		speed.SetRawValue( Top().m_Integer );
+		Pop();
+		angle.SetRawValue( Top().m_Integer );
+		Pop();
+		y.SetRawValue( Top().m_Integer );
+		Pop();
+		x.SetRawValue( Top().m_Integer );
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetPos( x, y );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetAngle( angle );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetSpeed( speed );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetCollisionRadius( radius );
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetAtlasImage( imgID );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysCreateScriptEffectReg()
+	{
+		Pop();
+		int reg = Top().m_Integer;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ScriptEffect* pNewEffect = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		pNewEffect->Init( x, y );
+		pNewEffect->SetReg( 0, reg );
+		m_pEnemyShotGroupData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+
+		Push( -1 );
+	}
+
+	void EnemyShotGroupVCPU::SysCreateScriptEffectFReg5()
+	{
+		float reg[ 5 ];
+
+		Pop();
+		for( int i = 4; i >= 0; --i ){
+			reg[ i ] = Top().m_Float;
+			Pop();
+		}
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ScriptEffect* pNewEffect = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		pNewEffect->Init( x, y );
+		for( int i = 0; i < 5; ++i ){
+			pNewEffect->SetReg( i, reg[ i ] );
+		}
+		m_pEnemyShotGroupData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+
+		Push( -1 );
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -1031,6 +1138,9 @@ namespace GameEngine
 
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU:
 				SysSetEnemyShotStatusGU();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_ATLAS_GU:
+				SysSetEnemyShotStatusAtlasGU();
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X_GU:
 				SysGetEnemyShotPosXGU();
@@ -1093,9 +1203,16 @@ namespace GameEngine
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE:
 				SysSetEnemyShotImage();
 				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_ATLAS:
+				SysSetEnemyShotImageAtlas();
+				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS:
 				SysSetEnemyShotCollisionRadius();
 				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS_GU:
+				SysSetEnemyShotCollisionRadiusGU();
+				break;
+
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS:
 				SysSetEnemyShotStatus();
 				break;
@@ -1168,6 +1285,13 @@ namespace GameEngine
 				break;
 			case VM::SYS_GET_EVENT:
 				SysGetEvent();
+				break;
+
+			case VM::SYS_CREATE_SCRIPT_EFFECT_REG:
+				SysCreateScriptEffectReg();
+				break;
+			case VM::SYS_CREATE_SCRIPT_EFFECT_FREG5:
+				SysCreateScriptEffectFReg5();
 				break;
 
 			case VM::SYS_STAGE_GET_FRAME:

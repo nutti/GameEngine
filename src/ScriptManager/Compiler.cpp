@@ -50,6 +50,10 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_GET_PLAYER_HP, TYPE_INTEGER, "GetPlayerHP", "" );					// int GetPlayerHP();
 	AddFunction( VM::SYS_GET_PLAYER_CUR_CONS, TYPE_INTEGER, "GetPlayerCurCons", "" );		// int GetPlayerCurCons();
 	AddFunction( VM::SYS_GET_PLAYER_CONS_GAUGE, TYPE_INTEGER, "GetPlayerConsGauge", "i" );	// int GetPlayerConsGauge( cons );
+	AddFunction( VM::SYS_GET_PLAYER_SCORE_TOTAL, TYPE_INTEGER, "GetPlayerScoreTotal", "" );	// int GetPlayerScoreTotal();
+	AddFunction( VM::SYS_GET_PLAYER_CRYSTAL_TOTAL, TYPE_INTEGER, "GetPlayerCrystalTotal", "" );		// int GetPlayerCrystalTotal();
+	AddFunction( VM::SYS_GET_PLAYER_CRYSTAL_USED_TOTAL, TYPE_INTEGER, "GetPlayerCrystalUsedTotal", "" );	// int GetPlayerCrystalUsedTotal();
+	AddFunction( VM::SYS_GET_PLAYER_KILLED_TOTAL, TYPE_INTEGER, "GetPlayerKilledTotal", "" );		// int GetPlayerKilledTotal();
 
 	AddFunction( VM::SYS_GET_RANDOM_F, TYPE_FLOAT, "GetRandF", "" );							// float GatRand();
 	AddFunction( VM::SYS_GET_RANDOM_GU, TYPE_GU, "GetRandGU", "" );						// gu GetRandGU();
@@ -89,11 +93,13 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_SCALE_3D, TYPE_VOID, "SetEnemyScale3D", "fff" );			// void SetEnemyScale3D( sx, sy, sz );
 	AddFunction( VM::SYS_ENEMY_SET_SPEED, TYPE_VOID, "SetEnemySpeed", "i" );	//integerƒoƒO			// void SetEnemySpeed( speed );
 	AddFunction( VM::SYS_ENEMY_SET_HP, TYPE_VOID, "SetEnemyHP", "i" );						// void SetEnemyHP( hp );
+	AddFunction( VM::SYS_DAMAGE_ENEMY, TYPE_VOID, "DamageEnemy", "i" );						// void DamageEnemy( hp );
 	AddFunction( VM::SYS_ENEMY_SET_IMAGE, TYPE_VOID, "SetEnemyImgID", "i" );				// void SetEnemyImage( texture_id );
 	AddFunction( VM::SYS_ENEMY_SET_MODEL, TYPE_VOID, "SetEnemyModelID", "i" );				// void SetEnemyModel( model_id );
 	AddFunction( VM::SYS_ENEMY_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyCollisionRadius", "f" );		// void SetEnemyCollisionRadius( radius );
 	AddFunction( VM::SYS_ENEMY_SET_SCORE, TYPE_VOID, "SetEnemyScore", "i" );							// void SetEnemyScore( score );
 	AddFunction( VM::SYS_ENEMY_SET_CONS_GAUGE, TYPE_VOID, "SetEnemyConsGauge", "i" );					// void SetEnemyConsGauge( gauge );
+	AddFunction( VM::SYS_ENEMY_SET_CONS_ATTR, TYPE_VOID, "SetEnemyConsAttr", "i" );						// void SetEnemyConsAttr( attr );
 	AddFunction( VM::SYS_ENEMY_ENABLE_INVINCIBLE, TYPE_VOID, "EnemyEnableInvincible", "" );				// void EnemyEnableInvincible();
 	AddFunction( VM::SYS_ENEMY_DISABLE_INVINCIBLE, TYPE_VOID, "EnemyDisableInvincible", "" );			// void EnemyDisableInvincible();
 	AddFunction( VM::SYS_ENEMY_ENABLE_NON_COLLISION_MODE, TYPE_VOID, "EnemyEnableNonCollisionMode", "" );	// void EnemyEnableNonCollisionMode();
@@ -133,6 +139,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 
 	// System call for enemy shot group.
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU, TYPE_VOID, "SetEnemyShotStatusGU", "igggggi" );	// void SetEnemyShotStatusGU( shot_id, x, y, angle, speed, radius, texture_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_ATLAS_GU, TYPE_VOID, "SetEnemyShotStatusAtlasGU", "igggggi" );		// void SetEnemyShotStatusAtlasGU( shot_id, x, y, angle, speed, radius, texture_atlas_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_X_GU, TYPE_GU, "GetEnemyShotPosXGU", "i" );		// gu GetEnemyShotPosXGU( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_POS_Y_GU, TYPE_GU, "GetEnemyShotPosYGU", "i" );		// gu GetEnemyShotPosYGU( shot_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_SPEED_GU, TYPE_VOID, "SetEnemyShotSpeedGU", "ig" );	// void SetEnemyShotSetSpeedGU( shot_id, speed );
@@ -153,7 +160,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_ANGLE, TYPE_VOID, "SetEnemyShotAngle", "if" );		// void SetEnemyShotAngle( shot_id, angle );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_SPEED, TYPE_VOID, "SetEnemyShotSpeed", "if" );		// void SetEnemyShotSpeed( shot_id, speed );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE, TYPE_VOID, "SetEnemyShotImage", "ii" );		// void SetEnemyShotImage( shot_id, texture_id );
-	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyShotCollisionRadius", "if" );	// void SetEnemyShotCollisionRadius( radius );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_ATLAS, TYPE_VOID, "SysEnemyShotImageAtlas", "ii" );		// void SetEnemyShotImageAtlas( shot_id, texture_atlas_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyShotCollisionRadius", "if" );	// void SetEnemyShotCollisionRadius( id, radius );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS_GU, TYPE_VOID, "SetEnemyShotCollisionRadiusGU", "ig" );	// void SetEnemyShotCollisionRadiusGU( id, radius );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS, TYPE_VOID, "SetEnemyShotStatus", "ifffffi" );		// void SetEnemyShotStatus( shot_id, x, y, angle, speed, radius, texture_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT, TYPE_VOID, "SetEnemyShotMovement", "iff" );		// void SetEnemyShotMovement( shot_id, angle, speed );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_GET_COUNTER, TYPE_INTEGER, "GetEnemyShotCounter", "i" );		// int GetEnemyShotCounter( shot_id );
@@ -225,6 +234,17 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_END_2D_GRAPHICS, TYPE_VOID, "End2DGraphics", "" );					// void End2DGraphics();
 	AddFunction( VM::SYS_DRAW_TEXTURE_FIXED_ROT, TYPE_VOID, "DrawTexturePS", "iffffii" );	// void DrawTexture( index, x, y, sx, sy, centerize, color );
 	AddFunction( VM::SYS_COLOR_ARGB, TYPE_INTEGER, "ColorARGB", "iiii" );					// int ColorARGB( a, r, g, b );
+
+	// For effect.
+	AddFunction( VM::SYS_CREATE_SCRIPT_EFFECT, TYPE_INTEGER, "CreateScriptEffect", "iff" );	// int CreateScriptEffect( id, x, y );
+	AddFunction( VM::SYS_CREATE_SCRIPT_EFFECT_REG, TYPE_INTEGER, "CreateScriptEffectReg", "iffi" );		// int CreateScriptEffectReg( id, x, y, reg );
+	AddFunction( VM::SYS_CREATE_SCRIPT_EFFECT_FREG5, TYPE_INTEGER, "CreateScriptEffectFReg5", "ifffffff" );	// int CreateScriptEffectFReg5( id, x, y, reg1, reg2, reg3, reg4, reg5 );
+	AddFunction( VM::SYS_DRAW_TEXTURE_ATLAS_PSR, TYPE_VOID, "DrawTextureAtlasPSR", "ifffff" );	// void DrawTextureAtlasPSR( id, x, y, sx, sy, angle );
+	AddFunction( VM::SYS_GET_SCRIPT_EFFECT_REG, TYPE_INTEGER, "GetScriptEffectReg", "i" );		// int GetScriptEffectReg( no );
+	AddFunction( VM::SYS_GET_SCRIPT_EFFECT_COUNTER, TYPE_INTEGER, "GetScriptEffectCounter", "" );	// int GetScriptEffectCounter();
+	AddFunction( VM::SYS_TERMINATE_SCRIPT_EFFECT, TYPE_VOID, "TerminateScriptEffect", "" );		// void TerminateScriptEffect();
+	AddFunction( VM::SYS_GET_SCRIPT_EFFECT_POS_X, TYPE_FLOAT, "GetScriptEffectPosX", "" );		// float GetScriptEffectPosX();
+	AddFunction( VM::SYS_GET_SCRIPT_EFFECT_POS_Y, TYPE_FLOAT, "GetScriptEffectPosY", "" );		// float GetScriptEffectPosY();
 
 	// Global variables.
 	m_Variables.push_back( ValueTable() );

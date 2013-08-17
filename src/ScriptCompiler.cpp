@@ -25,14 +25,14 @@ namespace GameEngine
 	};
 
 	// リソーススクリプトのリソースの種類
-	enum ResourceType
+	/*enum ResourceType_
 	{
 		RESOURCE_TYPE_BGM					= 0,
 		RESOURCE_TYPE_SE					= 1,
 		RESOURCE_TYPE_TEXTURE				= 2,
 		RESOURCE_TYPE_MODEL					= 3,
 		RESOURCE_TYPE_ENEMY_PATTERN_FILE	= 4,
-	};
+	};*/
 
 	// ScriptCompiler実装クラス
 	class ScriptCompiler::Impl

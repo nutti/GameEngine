@@ -7,6 +7,7 @@
 #include "Item.h"
 #include "Effect.h"
 #include "EnemyShotGroup.h"
+#include "ScriptEffect.h"
 
 #include "ResourceTypes.h"
 #include "ScriptTypes.h"
@@ -32,6 +33,7 @@ namespace GameEngine
 		Effect* CreateEffect( int id, int subID );
 		Item* CreateItem( int id, int subID );
 		EnemyShotGroup* CreateEnemyShotGroup( int id, EnemyData* pData );
+		ScriptEffect* CreateScriptEffect( int id, std::shared_ptr < Enemy > pEnemy );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachStageData( StageData* pData );
@@ -108,6 +110,11 @@ namespace GameEngine
 		return new EnemyShotGroup( m_pResourceMap, m_pScriptData->m_pEnemyShotGroupScriptData, id, pData );
 	}
 
+	inline ScriptEffect* GameObjectBuilder::Impl::CreateScriptEffect( int id, std::shared_ptr < Enemy > pEnemy )
+	{
+		return new ScriptEffect( m_pResourceMap, m_pScriptData->m_pEffectScriptData, pEnemy, id );
+	}
+
 	inline void GameObjectBuilder::Impl::AttachResourceMap( const ResourceMap& map )
 	{
 		m_pResourceMap.reset( new ResourceMap );
@@ -180,6 +187,11 @@ namespace GameEngine
 	EnemyShotGroup* GameObjectBuilder::CreateEnemyShotGroup( int id, EnemyData* pData )
 	{
 		return m_pImpl->CreateEnemyShotGroup( id, pData );
+	}
+
+	ScriptEffect* GameObjectBuilder::CreateScriptEffect( int id, std::shared_ptr < Enemy > pEnemy )
+	{
+		return m_pImpl->CreateScriptEffect( id, pEnemy );
 	}
 
 	void GameObjectBuilder::AttachResourceMap( const ResourceMap& map )

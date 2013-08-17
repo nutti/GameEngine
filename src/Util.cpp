@@ -30,14 +30,43 @@ namespace GameEngine
 		char* p = str;
 		int pos = 0;
 
+		int interval = 13;
+
+		scale = 1.0f;
+
 		while( *p ){
 			if( ::isalpha( *p ) ){
-				MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + ::toupper( *p ) - 'A' + 10 ],
-									x + pos * 32 * scale, y, scale, scale );
+				ResourceMap::TextureAtlas atlas;
+				atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ GLOBAL_TEX_ATLAS_ID_FONT_FIRST + ::toupper( *p ) - 'A' + 10 ];
+				MAPIL::DrawClipedTexture(	map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
+											x + pos * interval * scale,
+											y,
+											scale,
+											scale,
+											0.0f,
+											atlas.m_X,
+											atlas.m_Y,
+											atlas.m_X + atlas.m_Width,
+											atlas.m_Y + atlas.m_Height );
+				//MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + ::toupper( *p ) - 'A' + 10 ],
+				//					x + pos * 32 * scale, y, scale, scale );
 			}
 			else if( ::isdigit( *p ) ){
-				MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + *p - '0' ],
-									x + pos * 32 * scale, y, scale, scale );
+				ResourceMap::TextureAtlas atlas;
+				int d = GLOBAL_TEX_ATLAS_ID_FONT_FIRST + *p - '0';
+				atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ GLOBAL_TEX_ATLAS_ID_FONT_FIRST + *p - '0' ];
+				MAPIL::DrawClipedTexture(	map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
+											x + pos * interval * scale,
+											y,
+											scale,
+											scale,
+											0.0f,
+											atlas.m_X,
+											atlas.m_Y,
+											atlas.m_X + atlas.m_Width,
+											atlas.m_Y + atlas.m_Height );
+				//MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + *p - '0' ],
+				//					x + pos * 32 * scale, y, scale, scale );
 			}
 			++p;
 			++pos;
@@ -56,14 +85,44 @@ namespace GameEngine
 		char* p = str;
 		int pos = 0;
 
+		int interval = 13;
+
+		scale = 1.0f;
+
 		while( *p ){
 			if( ::isalpha( *p ) ){
-				MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + ::toupper( *p ) - 'A' + 10 ],
-									x + pos * 32 * scale, y, scale, scale, true, color );
+				ResourceMap::TextureAtlas atlas;
+				atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ GLOBAL_TEX_ATLAS_ID_FONT_FIRST + ::toupper( *p ) - 'A' + 10 ];
+				MAPIL::DrawClipedTexture(	map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
+											x + pos * interval * scale,
+											y,
+											scale,
+											scale,
+											0.0f,
+											atlas.m_X,
+											atlas.m_Y,
+											atlas.m_X + atlas.m_Width,
+											atlas.m_Y + atlas.m_Height,
+											true, color );
+				//MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + ::toupper( *p ) - 'A' + 10 ],
+				//					x + pos * 32 * scale, y, scale, scale, true, color );
 			}
 			else if( ::isdigit( *p ) ){
-				MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + *p - '0' ],
-									x + pos * 32 * scale, y, scale, scale, true, color );
+				ResourceMap::TextureAtlas atlas;
+				atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ GLOBAL_TEX_ATLAS_ID_FONT_FIRST + *p - '0' ];
+				MAPIL::DrawClipedTexture(	map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
+											x + pos * interval * scale,
+											y,
+											scale,
+											scale,
+											0.0f,
+											atlas.m_X,
+											atlas.m_Y,
+											atlas.m_X + atlas.m_Width,
+											atlas.m_Y + atlas.m_Height,
+											true, color );
+				//MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + *p - '0' ],
+				//					x + pos * 32 * scale, y, scale, scale, true, color );
 			}
 			++p;
 			++pos;

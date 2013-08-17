@@ -100,6 +100,39 @@ namespace GameEngine
 		entry.m_Date.m_Hour = *p++;
 		entry.m_Date.m_Min = *p++;
 		entry.m_Date.m_Sec = *p++;
+		// 各ステージデータ開始時のデータを取得
+		ReplayDataRecord::StageDataInfo stage[ STAGE_TOTAL ];
+		MAPIL::ZeroObject( stage, sizeof( stage ) );
+		for( int i = 0; i < STAGE_TOTAL; ++i ){
+			stage[ i ].m_IniPosX = GetInt( &p );
+			stage[ i ].m_IniPosY = GetInt( &p );
+			stage[ i ].m_IniHP = GetInt( &p );
+			stage[ i ].m_IniShotPower = GetInt( &p );
+			stage[ i ].m_IniScore = GetInt( &p );
+			stage[ i ].m_IniKilled = GetInt( &p );
+			stage[ i ].m_IniCrystal = GetInt( &p );
+			stage[ i ].m_IniCrystalUsed = GetInt( &p );
+			stage[ i ].m_IniCons = GetInt( &p );
+			for( int j = 0; j < 3; ++j ){
+				stage[ i ].m_IniConsGauge[ j ] = GetInt( &p );
+			}
+			for( int j = 0; j < 3; ++j ){
+				stage[ i ].m_IniConsLevel[ j ] = GetInt( &p );
+			}
+			
+			int frameTotal = GetInt( &p );
+			// 入力ボタンのロード
+			for( unsigned int j = 0; j < frameTotal; ++j ){
+				int lo = *p++;
+				int hi = *p++;
+			}
+		}
+
+		for( int i = 0; i < STAGE_TOTAL; ++i ){
+			entry.m_StageInfo[ i ].m_Score = stage[ i + 1 ].m_IniScore;
+			entry.m_StageInfo[ i ].m_Crystal = stage[ i + 1 ].m_IniCrystal;
+			entry.m_StageInfo[ i ].m_Killed = stage[ i + 1 ].m_IniKilled;
+		}
 
 		MAPIL::SafeDeleteArray( pData );
 
