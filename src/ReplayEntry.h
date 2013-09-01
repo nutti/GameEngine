@@ -15,7 +15,7 @@ namespace GameEngine
 	public:
 		ReplayEntry();
 		~ReplayEntry();
-		//void Init();
+		void Reflesh();
 		SceneType Update();
 		void Draw();
 		void AttachButtonState( ButtonStatusHolder* pHolder );

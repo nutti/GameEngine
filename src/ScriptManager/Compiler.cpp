@@ -96,6 +96,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_DAMAGE_ENEMY, TYPE_VOID, "DamageEnemy", "i" );						// void DamageEnemy( hp );
 	AddFunction( VM::SYS_ENEMY_SET_IMAGE, TYPE_VOID, "SetEnemyImgID", "i" );				// void SetEnemyImage( texture_id );
 	AddFunction( VM::SYS_ENEMY_SET_MODEL, TYPE_VOID, "SetEnemyModelID", "i" );				// void SetEnemyModel( model_id );
+	AddFunction( VM::SYS_ENEMY_SET_SKIN_MODEL, TYPE_VOID, "SetEnemySkinModelID", "i" );		// void SetEnemySkinModel( model_id );
+	AddFunction( VM::SYS_ENEMY_SET_MODEL_ANIM_TIME, TYPE_VOID, "SetEnemyModelAnimTime", "f" );		// void SetEnemyModelAnimTime( time );
 	AddFunction( VM::SYS_ENEMY_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyCollisionRadius", "f" );		// void SetEnemyCollisionRadius( radius );
 	AddFunction( VM::SYS_ENEMY_SET_SCORE, TYPE_VOID, "SetEnemyScore", "i" );							// void SetEnemyScore( score );
 	AddFunction( VM::SYS_ENEMY_SET_CONS_GAUGE, TYPE_VOID, "SetEnemyConsGauge", "i" );					// void SetEnemyConsGauge( gauge );
@@ -160,7 +162,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_ANGLE, TYPE_VOID, "SetEnemyShotAngle", "if" );		// void SetEnemyShotAngle( shot_id, angle );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_SPEED, TYPE_VOID, "SetEnemyShotSpeed", "if" );		// void SetEnemyShotSpeed( shot_id, speed );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE, TYPE_VOID, "SetEnemyShotImage", "ii" );		// void SetEnemyShotImage( shot_id, texture_id );
-	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_ATLAS, TYPE_VOID, "SysEnemyShotImageAtlas", "ii" );		// void SetEnemyShotImageAtlas( shot_id, texture_atlas_id );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMAGE_ATLAS, TYPE_VOID, "SetEnemyShotImageAtlas", "ii" );		// void SetEnemyShotImageAtlas( shot_id, texture_atlas_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS, TYPE_VOID, "SetEnemyShotCollisionRadius", "if" );	// void SetEnemyShotCollisionRadius( id, radius );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_COLLISION_RADIUS_GU, TYPE_VOID, "SetEnemyShotCollisionRadiusGU", "ig" );	// void SetEnemyShotCollisionRadiusGU( id, radius );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS, TYPE_VOID, "SetEnemyShotStatus", "ifffffi" );		// void SetEnemyShotStatus( shot_id, x, y, angle, speed, radius, texture_id );

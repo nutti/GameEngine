@@ -35,6 +35,7 @@ namespace GameEngine
 		SCRIPT_RESOURCE_TYPE_MODEL					= 3,
 		SCRIPT_RESOURCE_TYPE_ENEMY_PATTERN_FILE		= 4,
 		SCRIPT_RESOURCE_TYPE_TEXTURE_ATLAS			= 5,
+		SCRIPT_RESOURCE_TYPE_SKIN_MODEL				= 6,
 	};
 
 	// ScriptCompilerÀ‘•ƒNƒ‰ƒX
@@ -243,6 +244,9 @@ namespace GameEngine
 			else if( !strcmp( buf, "[Texture Atlas]" ) ){
 				type = SCRIPT_RESOURCE_TYPE_TEXTURE_ATLAS;
 			}
+			else if( !strcmp( buf, "[Skin Model]" ) ){
+				type = SCRIPT_RESOURCE_TYPE_SKIN_MODEL;
+			}
 			else if( !strcmp( buf, "" ) ){
 				// –³‹
 			}
@@ -281,6 +285,12 @@ namespace GameEngine
 				}
 				else if( type == SCRIPT_RESOURCE_TYPE_ENEMY_PATTERN_FILE ){
 					m_pResourceScriptData->m_EnemyPatternList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf, 1 ) ) );
+				}
+				else if( type == SCRIPT_RESOURCE_TYPE_SKIN_MODEL ){
+					ResourceScriptData::SkinModelResourceData data;
+					data.m_ModelFileName = GetFileName( buf, 1 );
+					data.m_TextureFileName = GetFileName( buf, 2 );
+					m_pResourceScriptData->m_SkinModelList.insert( std::pair < int, ResourceScriptData::SkinModelResourceData > ( GetID( buf ), data ) );
 				}
 			}
 		}
@@ -318,6 +328,9 @@ namespace GameEngine
 			else if( !strcmp( buf, "[Texture Atlas]" ) ){
 				type = SCRIPT_RESOURCE_TYPE_TEXTURE_ATLAS;
 			}
+			else if( !strcmp( buf, "[Skin Model]" ) ){
+				type = SCRIPT_RESOURCE_TYPE_SKIN_MODEL;
+			}
 			else if( !strcmp( buf, "" ) ){
 				// –³‹
 			}
@@ -356,6 +369,12 @@ namespace GameEngine
 				}
 				else if( type == SCRIPT_RESOURCE_TYPE_ENEMY_PATTERN_FILE ){
 					m_pResourceScriptData->m_EnemyPatternList.insert( std::pair < int, std::string > ( GetID( buf ), GetFileName( buf, 1 ) ) );
+				}
+				else if( type == SCRIPT_RESOURCE_TYPE_SKIN_MODEL ){
+					ResourceScriptData::SkinModelResourceData data;
+					data.m_ModelFileName = GetFileName( buf, 1 );
+					data.m_TextureFileName = GetFileName( buf, 2 );
+					m_pResourceScriptData->m_SkinModelList.insert( std::pair < int, ResourceScriptData::SkinModelResourceData > ( GetID( buf ), data ) );
 				}
 			}
 		}

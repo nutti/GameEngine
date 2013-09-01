@@ -42,6 +42,14 @@ namespace GameEngine
 		GameUnitData		m_GUData;
 #endif
 
+		// 敵の表示方法
+		enum DisplayMode
+		{
+			DISPLAY_MODE_2D			= 0,		// 2Dテクスチャ表示
+			DISPLAY_MODE_3D			= 1,		// 3Dモデル表示
+			DISPLAY_MODE_3D_ANIM	= 2,		// 3Dアニメーションモデル表示
+		};
+
 		// フラグ管理
 		enum StatusFlag
 		{
@@ -62,6 +70,7 @@ namespace GameEngine
 		float				m_RotX;				// 回転角度（X軸中心）
 		float				m_RotY;				// 回転角度（Y軸中心）
 		float				m_RotZ;				// 回転角度（Z軸中心）
+		double				m_Time;				// 時間（モデル専用データ）
 		int					m_ImgID;			// 敵画像
 		int					m_HP;				// HP
 		int					m_MaxHP;			// MaxHP
@@ -78,7 +87,7 @@ namespace GameEngine
 		bool				m_IsNonCollisionMode;	// 衝突しない時の場合はtrue
 		bool				m_IsConsSkillMode;	// 意識技を使用している場合はtrue
 		bool				m_Paused;			// 行動停止中の場合true
-		bool				m_Is3D;				// 3D表示か？
+		DisplayMode			m_DispMode;			// 3D表示か？
 		int					m_ConsSkillAttr;	// 意識技の属性
 		std::string			m_ConsSkillName;	// 意識技名
 		StageData*			m_pStageData;		// ステージデータ
@@ -144,6 +153,7 @@ namespace GameEngine
 		static void ClearLastDamagedMsg();
 		bool IsNonCollisionMode() const;
 		void SetReg( int regNo, int val );					// レジスタに値をセット
+		void SetTime( double time );
 
 		std::string GetName() const;						// 敵の名前を取得
 		void SendEvent( int id );

@@ -59,6 +59,8 @@ namespace GameEngine
 		void SysSetEnemyHP();
 		void SysSetEnemyImgID();
 		void SysSetEnemyModelID();
+		void SysSetEnemySkinModelID();
+		void SysSetEnemyModelAnimTime();
 		void SysSetEnemyCollisionRadius();
 		void SysSetEnemyScore();
 		void SysSetEnemyBossFlag();

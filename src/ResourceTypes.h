@@ -43,6 +43,7 @@ namespace GameEngine
 		RESOURCE_TYPE_POINT_SPRITE			= 6,
 		RESOURCE_TYPE_ENEMY_PATTERN_FILE	= 7,
 		RESOURCE_TYPE_TEXTURE_ATLAS			= 8,
+		RESOURCE_TYPE_SKIN_MODEL			= 9,
 	};
 
 	// ライトのタイプ
@@ -78,6 +79,7 @@ namespace GameEngine
 			int						m_LightTypeMap[ 8 ];	// ライト(上位16バイトがライトタイプ、下位16バイトがハンドル)
 			std::vector < int >		m_PointSpriteMap;		// ポイントスプライト
 			std::vector < TextureAtlas >	m_TexAtlasMap;	// テクスチャアトラス
+			std::vector < int >		m_SkinModelMap;			// スキンメッシュモデル
 		};
 		// グローバルリソース
 		struct GlobalResourceMapElm
@@ -87,6 +89,7 @@ namespace GameEngine
 			std::vector < int >		m_TextureMap;	// テクスチャ
 			std::vector < int >		m_ModelMap;		// 3Dモデル
 			std::vector < TextureAtlas >	m_TexAtlasMap;	// テクスチャアトラス
+			std::vector < int >		m_SkinModelMap;
 		};
 		std::shared_ptr < StageResourceMapElm >		m_pStageResourceMap;
 		std::shared_ptr < GlobalResourceMapElm >	m_pGlobalResourceMap;

@@ -60,7 +60,8 @@ namespace GameEngine
 		m_Data.m_IsNonCollisionMode = false;
 		m_Data.m_IsConsSkillMode = false;
 		m_Data.m_Paused = false;
-		m_Data.m_Is3D = false;
+		m_Data.m_DispMode = EnemyData::DISPLAY_MODE_2D;
+		//m_Data.m_Is3D = false;
 		m_Data.m_ConsSkillName.clear();
 		m_Data.m_ConsType = 0;
 		m_Data.m_ShotGroupList.clear();
@@ -381,16 +382,25 @@ void Enemy::Draw()
 			MAPIL::DrawString( posX, posY, "Бе" );
 		}
 		else{
-			if( !m_Data.m_Is3D ){
+			if( m_Data.m_DispMode == EnemyData::DISPLAY_MODE_2D ){
 				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pStageResourceMap->m_TextureMap[ m_Data.m_ImgID ],
 									posX, posY );
 			}
-			else{
+			else if( m_Data.m_DispMode == EnemyData::DISPLAY_MODE_3D ){
 				MAPIL::EndRendering2DGraphics();
 				MAPIL::AddModelOn2DBatchWork(	m_Data.m_pResouceMap->m_pStageResourceMap->m_ModelMap[ m_Data.m_ImgID ],
 												posX, posY, posZ,
 												m_Data.m_ScaleX, m_Data.m_ScaleY, m_Data.m_ScaleZ,
 												m_Data.m_RotX, m_Data.m_RotY, m_Data.m_RotZ );
+				MAPIL::BeginRendering2DGraphics();
+			}
+			else if( m_Data.m_DispMode == EnemyData::DISPLAY_MODE_3D_ANIM ){
+				MAPIL::EndRendering2DGraphics();
+				MAPIL::AddSkinMeshModelOn2DBatchWork(	m_Data.m_pResouceMap->m_pStageResourceMap->m_SkinModelMap[ m_Data.m_ImgID ],
+														posX, posY, posZ,
+														m_Data.m_ScaleX, m_Data.m_ScaleY, m_Data.m_ScaleZ,
+														m_Data.m_RotX, m_Data.m_RotY, m_Data.m_RotZ,
+														m_Data.m_Time );
 				MAPIL::BeginRendering2DGraphics();
 			}
 		}
@@ -895,6 +905,11 @@ void Enemy::Draw()
 	bool Enemy::IsInSkillMode() const
 	{
 		return m_Data.m_IsConsSkillMode;
+	}
+
+	void Enemy::SetTime( double time )
+	{
+		m_Data.m_Time = time;
 	}
 
 	bool Enemy::m_SentLastDamagedMsg = false;

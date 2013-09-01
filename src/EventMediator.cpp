@@ -367,6 +367,9 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
 											GLOBAL_RESOURCE_TEXTURE_ID_REPLAY_TITLE,
 											"archive/resource/texture/replay/title.png", true );
+		m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_TEXTURE,
+											GLOBAL_RESOURCE_TEXTURE_ID_REPLAY_ENTRY_TITLE,
+											"archive/resource/texture/replay_entry/title.png", false );
 		m_Loading.Start();
 	}
 

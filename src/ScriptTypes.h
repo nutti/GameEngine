@@ -74,12 +74,14 @@ namespace GameEngine
 			std::string				m_ModelFileName;
 			std::string				m_TextureFileName;
 		};
+		typedef ModelResourceData	SkinModelResourceData;
 		std::map < int, std::string >			m_BGMList;
 		std::map < int, std::string >			m_SEList;
 		std::map < int, std::string >			m_TextureList;
 		std::map < int, ModelResourceData >		m_ModelList;
 		std::map < int, std::string >			m_EnemyPatternList;
 		std::map < int, ResourceMap::TextureAtlas >		m_TexAtlasList;
+		std::map < int, SkinModelResourceData >		m_SkinModelList;
 	};
 
 	// メッセージ通信用スクリプトデータ

@@ -269,11 +269,11 @@ namespace GameEngine
 		};
 		m_IniGameData.m_ShotPower = 0;
 		//m_IniGameData.m_ShotPower = 40;
-		/*m_IniGameData.m_ShotPower = 40;
+		m_IniGameData.m_ShotPower = 40;
 		m_IniGameData.m_Crystal = 54000;
 		m_IniGameData.m_CrystalUsed = 3000;
 		m_IniGameData.m_Killed = 2500;
-		m_IniGameData.m_Score = 23456578;*/
+		m_IniGameData.m_Score = 23456578;
 
 		m_IniGameData.m_Cons = 0;			// PLAYER_CONS_NORMAL
 #if defined ( MAKE_MODE_DEBUG )

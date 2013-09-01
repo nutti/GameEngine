@@ -57,11 +57,13 @@ namespace GameEngine
 		const int INITIAL_BGM_MAP_RESERVE_CAP = 50;				// 初期のBGMMAP許容量
 		const int INITIAL_MODEL_MAP_RESERVE_CAP = 50;			// 初期のモデルMAP許容量
 		const int INITIAL_TEXTURE_ATLAS_MAP_RESERVE_CAP = 50;	// 初期のテクスチャアトラスMAP許容量
+		const int INITIAL_SKIN_MODEL_MAP_RESERVE_CAP = 50;			// 初期のスキンメッシュモデルMAP許容量
 		m_ResourceMap.m_pGlobalResourceMap->m_TextureMap.resize( INITIAL_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_SEMap.resize( INITIAL_SE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_BGMMap.resize( INITIAL_BGM_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_ModelMap.resize( INITIAL_MODEL_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap.resize( INITIAL_TEXTURE_ATLAS_MAP_RESERVE_CAP );
+		m_ResourceMap.m_pGlobalResourceMap->m_SkinModelMap.resize( INITIAL_SKIN_MODEL_MAP_RESERVE_CAP, -1 );
 		
 
 		m_ResourceMap.m_pStageResourceMap.reset( new ResourceMap::StageResourceMapElm );
@@ -74,6 +76,7 @@ namespace GameEngine
 		const int INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP = 10;	// 初期の敵出現パターンファイルMAP許容量
 		const int INITIAL_STAGE_POINT_SPRITE_MAP_RESERVE_CAP = 50;			// 初期のポイントスプライトMAP許容量
 		const int INITIAL_STAGE_TEXTURE_ATLAS_MAP_RESERVE_CAP = 50;			// 初期のテクスチャアトラスMAP許容量
+		const int INITIAL_STAGE_SKIN_MODEL_MAP_RESERVE_CAP = 50;			// 初期のスキンメッシュモデルMAP許容量	
 		m_ResourceMap.m_pStageResourceMap->m_TextureMap.resize( INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_SEMap.resize( INITIAL_STAGE_SE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_BGMMap.resize( INITIAL_STAGE_BGM_MAP_RESERVE_CAP, -1 );
@@ -81,6 +84,7 @@ namespace GameEngine
 		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.resize( INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_PointSpriteMap.resize( INITIAL_STAGE_POINT_SPRITE_MAP_RESERVE_CAP, -1 );
 		m_ResourceMap.m_pStageResourceMap->m_TexAtlasMap.resize( INITIAL_STAGE_TEXTURE_ATLAS_MAP_RESERVE_CAP );
+		m_ResourceMap.m_pStageResourceMap->m_SkinModelMap.resize( INITIAL_STAGE_SKIN_MODEL_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_TextureMap.resize( INITIAL_STAGE_TEXTURE_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_SEMap.resize( INITIAL_STAGE_SE_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_BGMMap.resize( INITIAL_STAGE_BGM_MAP_RESERVE_CAP, -1 );
@@ -88,6 +92,7 @@ namespace GameEngine
 		m_pNextLocalResourceMap->m_EnemyPatternFileMap.resize( INITIAL_STAGE_ENEMY_PATTERN_FILE_MAP_RESERVE_CAP, -1 );
 		m_pNextLocalResourceMap->m_PointSpriteMap.resize( INITIAL_STAGE_POINT_SPRITE_MAP_RESERVE_CAP, -1 );	
 		m_pNextLocalResourceMap->m_TexAtlasMap.resize( INITIAL_STAGE_TEXTURE_ATLAS_MAP_RESERVE_CAP );
+		m_pNextLocalResourceMap->m_SkinModelMap.resize( INITIAL_STAGE_SKIN_MODEL_MAP_RESERVE_CAP, -1 );
 
 		for( int i = 0; i < 8; ++i ){
 			m_ResourceMap.m_pStageResourceMap->m_LightTypeMap[ i ] = ( LIGHT_TYPE_NONE << 16 ) | 0;
@@ -163,6 +168,16 @@ namespace GameEngine
 			}
 			m_pNextLocalResourceMap->m_TexAtlasMap[ pair.first ] = pair.second;
 		} );
+		// スキンメッシュモデルの読み込み
+		std::for_each(	pScriptData->m_SkinModelList.begin(),
+						pScriptData->m_SkinModelList.end(),
+						[this]( const std::pair < int, ResourceScriptData::SkinModelResourceData >& pair ){
+			if( pair.first > m_pNextLocalResourceMap->m_SkinModelMap.size() ){
+				m_pNextLocalResourceMap->m_SkinModelMap.resize( pair.first * 2 );
+			}
+			int id = MAPIL::CreateSkinMeshModel( pair.second.m_ModelFileName.c_str() );
+			m_pNextLocalResourceMap->m_SkinModelMap[ pair.first ] = id;
+		} );
 	}
 
 	void ResourceManager::Impl::ReleaseStageResources()
@@ -203,12 +218,21 @@ namespace GameEngine
 			}
 		}
 
+		// スキンメッシュモデルの読み込み
+		for( int i = 0; i < m_ResourceMap.m_pStageResourceMap->m_SkinModelMap.size(); ++i ){
+			if( m_ResourceMap.m_pStageResourceMap->m_SkinModelMap[ i ] != -1 ){
+				MAPIL::DeleteSkinMeshModel( m_ResourceMap.m_pStageResourceMap->m_SkinModelMap[ i ] );
+				m_ResourceMap.m_pStageResourceMap->m_SkinModelMap[ i ] = -1;
+			}
+		}
+
 		m_ResourceMap.m_pStageResourceMap->m_TextureMap.swap( m_pNextLocalResourceMap->m_TextureMap );
 		m_ResourceMap.m_pStageResourceMap->m_SEMap.swap( m_pNextLocalResourceMap->m_SEMap );
 		m_ResourceMap.m_pStageResourceMap->m_BGMMap.swap( m_pNextLocalResourceMap->m_BGMMap );
 		m_ResourceMap.m_pStageResourceMap->m_ModelMap.swap( m_pNextLocalResourceMap->m_ModelMap );
 		m_ResourceMap.m_pStageResourceMap->m_EnemyPatternFileMap.swap( m_pNextLocalResourceMap->m_EnemyPatternFileMap );
 		m_ResourceMap.m_pStageResourceMap->m_TexAtlasMap.swap( m_pNextLocalResourceMap->m_TexAtlasMap );
+		m_ResourceMap.m_pStageResourceMap->m_SkinModelMap.swap( m_pNextLocalResourceMap->m_SkinModelMap );
 
 		MAPIL::RefleshResources();
 	}
@@ -238,6 +262,11 @@ namespace GameEngine
 			}
 			case RESOURCE_TYPE_MODEL:{
 				int id = MAPIL::CreateModel( fileName.c_str() );
+				m_ResourceMap.m_pGlobalResourceMap->m_ModelMap[ index ] = id;
+				break;
+			}
+			case RESOURCE_TYPE_SKIN_MODEL:{
+				int id = MAPIL::CreateSkinMeshModel( fileName.c_str() );
 				m_ResourceMap.m_pGlobalResourceMap->m_ModelMap[ index ] = id;
 				break;
 			}
@@ -347,6 +376,16 @@ namespace GameEngine
 			}
 			m_pNextLocalResourceMap->m_TexAtlasMap[ pair.first ] = pair.second;
 		} );
+		// スキンメッシュモデルの読み込み
+		std::for_each(	pScriptData->m_SkinModelList.begin(),
+						pScriptData->m_SkinModelList.end(),
+						[this]( const std::pair < int, ResourceScriptData::SkinModelResourceData >& pair ){
+			if( pair.first > m_pNextLocalResourceMap->m_SkinModelMap.size() ){
+				m_pNextLocalResourceMap->m_SkinModelMap.resize( pair.first * 2 );
+			}
+			int id = MAPIL::CreateSkinMeshModel( m_ArchiveHandle, pair.second.m_ModelFileName.c_str(), pair.second.m_TextureFileName.c_str() );
+			m_pNextLocalResourceMap->m_SkinModelMap[ pair.first ] = id;
+		} );
 	}
 
 	void ResourceManager::Impl::LoadGlobalResourceFromArchive( int resourceType, int index, const std::string& fileName )
@@ -379,6 +418,9 @@ namespace GameEngine
 				MAPIL::Assert( index < m_ResourceMap.m_pGlobalResourceMap->m_ModelMap.size(), -1 );
 				m_ResourceMap.m_pGlobalResourceMap->m_ModelMap[ index ] = id;
 				break;
+			}
+			case RESOURCE_TYPE_SKIN_MODEL:{
+				throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Skin mesh model is not supported" ), -1 );
 			}
 			default:
 				break;

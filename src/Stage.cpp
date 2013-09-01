@@ -1579,6 +1579,19 @@ namespace GameEngine
 		MAPIL::EnableLighting();
 		MAPIL::DisableBlending();
 
+		// ƒLƒƒƒbƒVƒ…‚Ö•Û‘¶
+		if( m_Data.m_Frame == 1 ){
+			for( int i = 0; i < m_Data.m_ResourceMap.m_pStageResourceMap->m_SkinModelMap.size(); ++i ){
+				if( m_Data.m_ResourceMap.m_pStageResourceMap->m_SkinModelMap[ i ] >= 0 ){
+					MAPIL::AddSkinMeshModelOn2DBatchWork(	m_Data.m_ResourceMap.m_pStageResourceMap->m_SkinModelMap[ i ],
+															-100.0f, -100.0f, -100.0f,
+															1.0f, 1.0f, 1.0f,
+															1.0f, 1.0f, 1.0f,
+															0.0 );
+				}
+			}
+		}
+
 		// ”wŒi‚Ì•`‰æ
 		m_Background.Draw();
 
@@ -1603,6 +1616,7 @@ namespace GameEngine
 		MAPIL::EndRendering2DGraphics();
 		MAPIL::DisableLighting();
 		MAPIL::DoAllModelOn2DBatchWorks();
+		MAPIL::DoAllSkinMeshModelOn2DBatchWorks();
 		MAPIL::EnableLighting();
 		MAPIL::BeginRendering2DGraphics();
 

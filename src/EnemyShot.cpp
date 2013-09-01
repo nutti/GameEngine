@@ -973,7 +973,13 @@ namespace GameEngine
 
 	inline std::string EnemyShot::Impl::GetMasterEnemyName() const
 	{
-		return m_ShotGroupData.m_pShotGroup->GetMasterEnemyName();
+		if( m_ShotGroupData.m_pShotGroup != NULL ){
+			return m_ShotGroupData.m_pShotGroup->GetMasterEnemyName();
+		}
+		else{
+			MAPIL::Assert( 0, CURRENT_POSITION, TSTR( "shot group is null pointer!!" ), -1 );
+			return "";
+		}
 	}
 
 	// ----------------------------------

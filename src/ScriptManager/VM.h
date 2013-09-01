@@ -100,6 +100,8 @@ namespace VM
 		SYS_ENEMY_SET_HP,			// Set HP.
 		SYS_ENEMY_SET_IMAGE,		// Set image.
 		SYS_ENEMY_SET_MODEL,		// Set model.
+		SYS_ENEMY_SET_SKIN_MODEL,	// Set skin model.
+		SYS_ENEMY_SET_MODEL_ANIM_TIME,		// Set animation time of model.
 		SYS_ENEMY_SET_COLLISION_RADIUS,		// Set collision radius.
 		SYS_ENEMY_SET_SCORE,				// Set score.
 		SYS_ENEMY_SET_BOSS_FLAG,			// Set boss flag.

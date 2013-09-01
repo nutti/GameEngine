@@ -223,7 +223,7 @@ namespace GameEngine
 		Pop();
 
 		m_pEnemyData->m_ImgID = id;
-		m_pEnemyData->m_Is3D = false;
+		m_pEnemyData->m_DispMode = EnemyData::DISPLAY_MODE_2D;
 	}
 
 	void EnemyVCPU::SysSetEnemyModelID()
@@ -233,7 +233,26 @@ namespace GameEngine
 		Pop();
 
 		m_pEnemyData->m_ImgID = id;
-		m_pEnemyData->m_Is3D = true;
+		m_pEnemyData->m_DispMode = EnemyData::DISPLAY_MODE_3D;
+	}
+
+	void EnemyVCPU::SysSetEnemySkinModelID()
+	{
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		m_pEnemyData->m_ImgID = id;
+		m_pEnemyData->m_DispMode = EnemyData::DISPLAY_MODE_3D_ANIM;
+	}
+
+	void EnemyVCPU::SysSetEnemyModelAnimTime()
+	{
+		Pop();
+		float time = Top().m_Float;
+		Pop();
+
+		m_pEnemyData->m_Time = time;
 	}
 
 	void EnemyVCPU::SysSetEnemyCollisionRadius()
@@ -1249,6 +1268,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SET_MODEL:
 				SysSetEnemyModelID();
+				break;
+			case VM::SYS_ENEMY_SET_SKIN_MODEL:
+				SysSetEnemySkinModelID();
+				break;
+			case VM::SYS_ENEMY_SET_MODEL_ANIM_TIME:
+				SysSetEnemyModelAnimTime();
 				break;
 			case VM::SYS_ENEMY_SET_COLLISION_RADIUS:
 				SysSetEnemyCollisionRadius();
