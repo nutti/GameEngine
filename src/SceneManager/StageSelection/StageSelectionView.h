@@ -26,7 +26,7 @@ namespace GameEngine
 		virtual void Finalize(){}
 	};
 
-	class StageView : public StageSelectionView
+	class StageSelView : public StageSelectionView
 	{
 	private:
 		enum Mode
@@ -48,8 +48,8 @@ namespace GameEngine
 
 		int			m_TransitionCounter;
 	public:
-		StageView();
-		~StageView();
+		StageSelView();
+		~StageSelView();
 		void SetPermittedStage( int stage );
 		void Draw() const;
 		void Update();

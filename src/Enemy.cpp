@@ -770,15 +770,19 @@ void Enemy::Draw()
 			pEffect->SetReg( 1, scoreFact );
 			pEffect->SetReg( 2, addScore );
 			m_Data.m_pStageData->m_EffectList.push_back( pEffect );
+
+			// ビューリストへ通知
+			std::for_each(	m_Data.m_pStageData->m_ViewList.begin(), m_Data.m_pStageData->m_ViewList.end(),
+							[this]( std::shared_ptr < StageView > view ){ view->OnEnemyDestroyed( m_Data ); } );
 		}
 
-		// 撃破エフェクトの作成
+/*		// 撃破エフェクトの作成
 		Effect* pEffect = m_Data.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_PLAYER_SHOT_COLLIDED, 0 );
 		GameUnit x;
 		GameUnit y;
 		pPlayerShot->GetPos( &x, &y );
 		pEffect->SetPos( x.GetFloat(), y.GetFloat() );
-		m_Data.m_pStageData->m_EffectList.push_back( pEffect );
+		m_Data.m_pStageData->m_EffectList.push_back( pEffect );*/
 	}
 #endif
 
@@ -910,6 +914,20 @@ void Enemy::Draw()
 	void Enemy::SetTime( double time )
 	{
 		m_Data.m_Time = time;
+	}
+
+	float Enemy::GetRotAngle( int axis ) const
+	{
+		switch( axis ){
+			case 0:
+				return m_Data.m_RotX;
+			case 1:
+				return m_Data.m_RotY;
+			case 2:
+				return m_Data.m_RotZ;
+		}
+
+		return 0.0f;
 	}
 
 	bool Enemy::m_SentLastDamagedMsg = false;

@@ -106,6 +106,7 @@ namespace GameEngine
 		void DisableInvisibleMode();			// 見えるモードへ移行
 
 		std::string GetMasterEnemyName() const;		// マスタとなる敵の名前を取得
+		void SetDrawingMultiplicity( int num );		// 描画多重度を設定
 	};
 }
 

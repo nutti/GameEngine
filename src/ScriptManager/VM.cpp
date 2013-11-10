@@ -90,9 +90,16 @@ void VM::VCPU::OpSysCall( int val )
 		case SYS_GU_TO_FLOAT:
 			SysGUToFloat();
 			break;
+		case SYS_FLOAT_TO_GU:
+			SysFloatToGU();
+			break;
 		case SYS_ADD_SCORE:
 			SysAddScore();
 			break;
+		case SYS_COLOR_ARGB:
+			SysColorARGB();
+			break;
+
 		case SYS_SIN:
 			SysSin();
 			break;
@@ -131,6 +138,10 @@ void VM::VCPU::OpSysCall( int val )
 		case SYS_DEG_TO_RAD:
 			SysDegToRad();
 			break;
+		case SYS_RAD_TO_DEG:
+			SysRadToDeg();
+			break;
+
 		case SYS_PLAY_SE:
 			SysPlaySE();
 			break;
@@ -145,7 +156,7 @@ void VM::VCPU::OpSysCall( int val )
 			break;
 
 		default:
-			throw new MAPIL::MapilException( CURRENT_POSITION, TSTR( "Invalid system call." ), -1 );
+			throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Invalid system call." ), -1 );
 			break;
 	}
 }
@@ -214,6 +225,21 @@ void VM::VCPU::SysAddScore()
 	//RTG::ResourceHandler* p = RTG::ResourceHandler::GetInst();
 	//p->m_pScore->Add( score );
 }
+
+void VM::VCPU::SysColorARGB()
+{
+	int b = Top().m_Integer;
+	Pop();
+	int g = Top().m_Integer;
+	Pop();
+	int r = Top().m_Integer;
+	Pop();
+	int a = Top().m_Integer;
+	Pop();
+
+	Push( a << 24 | r << 16 | g << 8 | b );
+}
+
 
 void VM::VCPU::SysSin()
 {
@@ -307,6 +333,13 @@ void VM::VCPU::SysDegToRad()
 	float deg = Top().m_Float;
 	Pop();
 	Push( VM::Value( static_cast < float > ( MAPIL::DegToRad( deg ) ) ) );
+}
+
+void VM::VCPU::SysRadToDeg()
+{
+	float rad = Top().m_Float;
+	Pop();
+	Push( VM::Value( static_cast < float > ( MAPIL::RadToDeg( rad ) ) ) );
 }
 
 void VM::VCPU::SysPlaySE()

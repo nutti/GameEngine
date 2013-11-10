@@ -54,6 +54,7 @@ namespace VM
 		SYS_SQRT_GU,
 
 		SYS_DEG_TO_RAD,					// Convert degree to radius.
+		SYS_RAD_TO_DEG,					// Convert radius to degree.
 
 		SYS_GET_PLAYER_POSX_GU,			// Get player position. (X, gameunit)
 		SYS_GET_PLAYER_POSY_GU,			// Get player position. (Y, gameunit)
@@ -88,7 +89,7 @@ namespace VM
 		SYS_ENEMY_GET_SPEED,		// Get speed.
 		SYS_ENEMY_GET_COUNTER,		// Get counter.
 		SYS_ENEMY_GET_COUNTER_F,	// Get counter. ( float )
-		SYS_ENEMY_GET_ANGLE,		// Get angle.
+		SYS_ENEMY_GET_ROT_ANGLE,	// Get angle.
 		SYS_ENEMY_GET_CONS_GAUGE,	// Get conscious gauge.
 		SYS_ENEMY_SET_NAME,			// Set name.
 		SYS_ENEMY_SET_POS,			// Set position.
@@ -188,6 +189,7 @@ namespace VM
 		SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_MODE,
 		SYS_ENEMY_SHOT_GROUP_SET_ALPHA_BLENDING_MODE,
 		SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_ANGLE_PER_FRAME,
+		SYS_ENEMY_SHOT_GROUP_SET_DRAWING_MULTIPLICITY,
 		SYS_ENEMY_SHOT_GROUP_SET_SHAPE,
 		SYS_ENEMY_SHOT_SET_LINE_SHOT_STATUS,
 		SYS_ENEMY_SHOT_GROUP_ENABLE_INVISIBLE_MODE,
@@ -246,6 +248,16 @@ namespace VM
 		SYS_CREATE_SCRIPT_EFFECT_REG,					// Create script effect. (1 reg)
 		SYS_CREATE_SCRIPT_EFFECT_FREG5,					// Create script effect. (5 reg, float)
 		SYS_DRAW_TEXTURE_ATLAS_PSR,						// Draw texture atlas (pos/scale/rot)
+		SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSR,			// Draw texture atlas (pos/scale/rot, blending)
+
+		SYS_DRAW_CLIPED_TEXTURE_ATLAS_P,				// Draw cliped texture atlas (pos)
+		SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSR,				// Draw cliped texture atlas (pos/scale/rot)
+		SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSRC,				// Draw cliped texture atlas (pos/scale/rot/color)
+		SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_P,		// Draw cliped texture atlas (pos, blending)
+		SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_PSR,		// Draw cliped texture atlas (pos/sclae/rot, blending)
+		SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_PSRC,	// Draw cliped texture atlas (pos/sclae/rot/color, blending)
+
+
 		SYS_GET_SCRIPT_EFFECT_REG,						// Get script effect register.
 		SYS_GET_SCRIPT_EFFECT_COUNTER,					// Get script effect counter.
 		SYS_TERMINATE_SCRIPT_EFFECT,					// Terminate script effect.
@@ -706,6 +718,7 @@ namespace VM
 		void SysGUToFloat();
 		void SysFloatToGU();
 		void SysAddScore();
+		void SysColorARGB();
 
 		void SysSin();
 		void SysCos();
@@ -713,6 +726,7 @@ namespace VM
 		void SysAbs();
 		void SysFabs();
 		void SysDegToRad();
+		void SysRadToDeg();
 		void SysSqrt();
 
 		void SysSinGU();
@@ -813,6 +827,18 @@ namespace VM
 		VM::Value& Top()
 		{
 			return m_Stack.Top();
+		}
+		/*const VM::Value& RetPop()
+		{
+			const VM::Value& ret = m_Stack.Top();
+			m_Stack.Pop();
+			return ret;
+		}*/
+		VM::Value& RetPop()
+		{
+			VM::Value& ret = m_Stack.Top();
+			m_Stack.Pop();
+			return ret;
 		}
 		std::string Text( const VM::Value& v )
 		{

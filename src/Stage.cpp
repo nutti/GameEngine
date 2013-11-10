@@ -28,6 +28,7 @@
 #include "Util.h"
 #include "Profiler.h"
 
+
 #include <bitset>
 
 namespace GameEngine
@@ -246,6 +247,7 @@ namespace GameEngine
 		m_Data.m_pBoss = NULL;
 		m_Data.m_FrameTotal = 100000;
 		m_Data.m_BossPhaseTotal = 4;
+		m_Data.m_ViewList.clear();
 
 		// ステージの統計情報のクリア
 		//m_Data.m_StageStat.m_EnemyStat.clear();
@@ -1242,6 +1244,12 @@ namespace GameEngine
 			m_Data.m_pPlayer->SetConsLevel( i, m_PrivData.m_IniGameData.m_ConsLevel[ i ] );
 		}
 		m_Data.m_pPlayer->SetCons( m_PrivData.m_IniGameData.m_Cons );
+
+		// ステージビューのセットアップ
+		EnemyDestroyPointView* edpv = new EnemyDestroyPointView();
+		edpv->AttachResourceMap( m_Data.m_ResourceMap );
+		edpv->Init();
+		m_Data.m_ViewList.push_back( std::shared_ptr < StageView > ( edpv ) );
 	}
 
 	void Stage::Impl::DrawResult() const
@@ -1450,6 +1458,9 @@ namespace GameEngine
 		}
 
 		m_Profiler.Begin( "Update" );
+
+		// ビューリストの更新
+		std::for_each( m_Data.m_ViewList.begin(), m_Data.m_ViewList.end(), []( std::shared_ptr < StageView > view ){ view->Update(); } );
 		
 		// 現フレームでのスコアをリセット
 		MAPIL::ZeroObject( &m_Data.m_FrameGameData, sizeof( m_Data.m_FrameGameData ) );
@@ -1647,7 +1658,6 @@ namespace GameEngine
 
 		ProcAllBatchWorks( m_Data.m_ResourceMap );
 		
-		
 		// エフェクトの描画
 		for( EffectList::iterator it = m_Data.m_EffectList.begin(); it != m_Data.m_EffectList.end(); ++it ){
 			( *it )->Draw();
@@ -1667,6 +1677,9 @@ namespace GameEngine
 
 		// リザルト画面表示
 		DrawResult();
+
+		// ビューリストの描画
+		std::for_each( m_Data.m_ViewList.begin(), m_Data.m_ViewList.end(), []( std::shared_ptr < StageView > view ){ view->Draw(); } );
 
 		// ポーズ状態の時
 		if( m_PrivData.m_StatusFlags[ PAUSED ] ){

@@ -30,7 +30,7 @@ namespace GameEngine
 		void SysGetEnemySpeed();
 		void SysGetEnemyCounter();
 		void SysGetEnemyCounterF();
-		void SysGetEnemyAngle();
+		void SysGetEnemyRotAngle();
 		void SysGetEnemyConsGauge();
 
 		void SysSetEnemyShotStatusGU();
@@ -68,6 +68,7 @@ namespace GameEngine
 		void SysGetEnemyShotSpeedGU();
 		void SysSetEnemyShotImgRotMode();
 		void SysSetEnemyShotImgRotAnglePerFrame();
+		void SysSetEnemyShotDrawingMultiplicity();
 		void SysSetEnemyShotAlphaBlendingMode();
 
 		void SysEnemyShotAddAngle();

@@ -30,16 +30,33 @@ namespace GameEngine
 			bool	m_Centerized;
 			int		m_Color;
 		};
+		struct WorkCliped
+		{
+			int		m_TexID;
+			float	m_PosX;
+			float	m_PosY;
+			float	m_ScaleX;
+			float	m_ScaleY;
+			float	m_Angle;
+			bool	m_Centerized;
+			int		m_Color;
+			float	m_ClipedX1;
+			float	m_ClipedY1;
+			float	m_ClipedX2;
+			float	m_ClipedY2;
+		};
 
 		typedef std::map < int, std::vector < Work > >	WorkList;
 		typedef std::map < int, std::vector < WorkScale > > WorkScaleList;
 		typedef std::map < int, std::vector < Work > >	AtlasWorkList;
 		typedef std::map < int, std::vector < WorkScale > > AtlasWorkScaleList;
+		typedef std::map < int, std::vector < WorkCliped > > AtlasWorkClipedList;
 
 		WorkList m_WorkList;
 		WorkScaleList m_WorkScaleList;
 		AtlasWorkList m_AtlasWorkList;
 		AtlasWorkScaleList m_AtlasWorkScaleList;
+		AtlasWorkClipedList m_AtlasWorkClipedList;
 	public:
 		SpriteBatch();
 		~SpriteBatch();
@@ -50,6 +67,10 @@ namespace GameEngine
 		void AddAtlas(	int blendingMode, int atlasID, float posX, float posY, float angle,
 						bool centerized = true, int color = 0xFFFFFFFF );
 		void AddAtlas(	int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
+						bool centerized = true, int color = 0xFFFFFFFF );
+		void AddAtlas(	int blendingMode, int atlasID,
+						float cx1, float cy1, float cx2, float cy2,
+						float posX, float posY, float scaleX, float scaleY, float angle,
 						bool centerized = true, int color = 0xFFFFFFFF );
 		void ProcAllWorks( const ResourceMap& map );
 		void Cleanup();
@@ -123,7 +144,29 @@ namespace GameEngine
 		work.m_Centerized = centerized;
 		work.m_Color = color;
 
-		m_WorkScaleList[ blendingMode ].push_back( work );
+		m_AtlasWorkScaleList[ blendingMode ].push_back( work );
+	}
+
+	void SpriteBatch::AddAtlas(	int blendingMode, int atlasID,
+								float cx1, float cy1, float cx2, float cy2,
+								float posX, float posY, float scaleX, float scaleY, float angle,
+								bool centerized, int color )
+	{
+		SpriteBatch::WorkCliped work;
+		work.m_TexID = atlasID;
+		work.m_PosX = posX;
+		work.m_PosY = posY;
+		work.m_ScaleX = scaleX;
+		work.m_ScaleY = scaleY;
+		work.m_Angle = angle;
+		work.m_Centerized = centerized;
+		work.m_Color = color;
+		work.m_ClipedX1 = cx1;
+		work.m_ClipedY1 = cy1;
+		work.m_ClipedX2 = cx2;
+		work.m_ClipedY2 = cy2;
+		
+		m_AtlasWorkClipedList[ blendingMode ].push_back( work );
 	}
 
 	void SpriteBatch::ProcAllWorks( const ResourceMap& map )
@@ -178,9 +221,25 @@ namespace GameEngine
 				ResourceMap::TextureAtlas atlas;
 				atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
 				MAPIL::DrawClipedTexture(	map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
-											w.m_PosX, w.m_PosY, 1.0f, 1.0f, w.m_Angle,
+											w.m_PosX, w.m_PosY, w.m_ScaleX, w.m_ScaleY, w.m_Angle,
 											atlas.m_X, atlas.m_Y,
 											atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height,
+											w.m_Centerized, w.m_Color );
+			}
+		} );
+
+		std::for_each(	m_AtlasWorkClipedList.begin(), m_AtlasWorkClipedList.end(),
+						[this,map]( const std::pair < int, std::vector < SpriteBatch::WorkCliped > >& pair ){
+			const std::vector < SpriteBatch::WorkCliped >& works = pair.second;
+			MAPIL::Set2DAlphaBlendingMode( pair.first );
+			for( int i = 0; i < works.size(); ++i ){
+				const SpriteBatch::WorkCliped& w = works[ i ];
+				ResourceMap::TextureAtlas atlas;
+				atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				MAPIL::DrawClipedTexture(	map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+											w.m_PosX, w.m_PosY, w.m_ScaleX, w.m_ScaleY, w.m_Angle,
+											atlas.m_X + w.m_ClipedX1, atlas.m_Y + w.m_ClipedY1,
+											atlas.m_X + w.m_ClipedX2, atlas.m_Y + w.m_ClipedY2,
 											w.m_Centerized, w.m_Color );
 			}
 		} );
@@ -195,6 +254,7 @@ namespace GameEngine
 		m_WorkScaleList.clear();
 		m_AtlasWorkList.clear();
 		m_AtlasWorkScaleList.clear();
+		m_AtlasWorkClipedList.clear();
 	}
 
 
@@ -215,13 +275,23 @@ namespace GameEngine
 	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID, float posX, float posY, float angle,
 								bool centerized, int color )
 	{
-		g_Batch.Add( blendingMode, atlasID, posX, posY, angle, centerized, color );
+		g_Batch.AddAtlas( blendingMode, atlasID, posX, posY, angle, centerized, color );
 	}
 
 	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
 								bool centerized, int color )
 	{
-		g_Batch.Add( blendingMode, atlasID, posX, posY, scaleX, scaleY, angle, centerized, color );
+		g_Batch.AddAtlas( blendingMode, atlasID, posX, posY, scaleX, scaleY, angle, centerized, color );
+	}
+
+	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID,
+								float cx1, float cy1, float cx2, float cy2,
+								float posX, float posY, float scaleX, float scaleY, float angle,
+								bool centerized, int color )
+	{
+		g_Batch.AddAtlas(	blendingMode, atlasID,
+							cx1, cy1, cx2, cy2,
+							posX, posY, scaleX, scaleY, angle, centerized, color );
 	}
 
 	void ProcAllBatchWorks( const ResourceMap& map )

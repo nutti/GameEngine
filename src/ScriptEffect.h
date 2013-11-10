@@ -26,6 +26,7 @@ namespace GameEngine
 
 		int			m_EffectID;
 		int			m_EffectSubID;
+		int			m_AlphaBlendingMode;
 		int			m_Counter;
 		float		m_PosX;
 		float		m_PosY;
@@ -52,7 +53,8 @@ namespace GameEngine
 		void SetPos( float posX, float posY );				// 位置を設定
 		void Draw();										// 描画
 		bool Update();										// 更新
-		void SetReg( int no, int val );
+		void SetReg( int no, int val );						// レジスタ
+		void SetAlphaBlendingMode( int mode );				// アルファブレンドモードの変更
 	};
 }
 

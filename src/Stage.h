@@ -9,6 +9,8 @@
 #include "GameObjectBuilder.h"
 #include "RandomGenerator.h"
 
+#include "SceneManager/Stage/StageView.h"
+
 namespace GameEngine
 {
 	class Enemy;
@@ -106,6 +108,8 @@ namespace GameEngine
 
 		int					m_BossPhaseTotal;				// ボスの段階数の合計
 		int					m_BossPhaseStartHP[ 10 ];		// 段階を開始するHP
+
+		std::list < std::shared_ptr < StageView > >		m_ViewList;		// ステージビューリスト
 	};
 
 	struct ScriptData;

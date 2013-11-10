@@ -67,4 +67,9 @@ namespace GameEngine
 	{
 		m_EffectData.m_Regs[ no ] = val;
 	}
+
+	void ScriptEffect::SetAlphaBlendingMode( int mode )
+	{
+		m_EffectData.m_AlphaBlendingMode = mode;
+	}
 }

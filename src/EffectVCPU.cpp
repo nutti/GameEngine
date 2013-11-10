@@ -5,6 +5,7 @@
 #include "ScriptEffect.h"
 #include "Enemy.h"
 #include "Stage.h"
+#include "SpriteBatch.h"
 
 namespace GameEngine
 {
@@ -125,6 +126,170 @@ namespace GameEngine
 									atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height );
 	}
 
+	void EffectVCPU::SysDrawTextureAtlasBlendingPSR()
+	{
+		Pop();
+		float angle = Top().m_Float;
+		Pop();
+		float sy = Top().m_Float;
+		Pop();
+		float sx = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int alphaMode = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+	
+		AddToAtlasSpriteBatch( alphaMode, id, x, y, sx, sy, angle );
+	}
+
+	void EffectVCPU::SysDrawClipedTextureAtlasP()
+	{
+		Pop();
+		float cy2 = Top().m_Float;
+		Pop();
+		float cx2 = Top().m_Float;
+		Pop();
+		float cy1 = Top().m_Float;
+		Pop();
+		float cx1 = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+		MAPIL::DrawClipedTexture(	m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+									x, y, 1.0f, 1.0f, 0.0f,
+									atlas.m_X + cx1, atlas.m_Y + cy1, atlas.m_X + cx2, atlas.m_Y + cy2 );
+	}
+
+	void EffectVCPU::SysDrawClipedTextureAtlasPSR()
+	{
+		Pop();
+		float cy2 = Top().m_Float;
+		Pop();
+		float cx2 = Top().m_Float;
+		Pop();
+		float cy1 = Top().m_Float;
+		Pop();
+		float cx1 = Top().m_Float;
+		Pop();
+		float angle = Top().m_Float;
+		Pop();
+		float sy = Top().m_Float;
+		Pop();
+		float sx = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+		MAPIL::DrawClipedTexture(	m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+									x, y, sx, sy, angle,
+									atlas.m_X + cx1, atlas.m_Y + cy1, atlas.m_X + cx2, atlas.m_Y + cy2 );
+	}
+
+	void EffectVCPU::SysDrawClipedTextureAtlasPSRC()
+	{
+		Pop();
+		float cy2 = RetPop().m_Float;
+		float cx2 = RetPop().m_Float;
+		float cy1 = RetPop().m_Float;
+		float cx1 = RetPop().m_Float;
+		int color = RetPop().m_Integer;
+		float angle = RetPop().m_Float;
+		float sy = RetPop().m_Float;
+		float sx = RetPop().m_Float;
+		float y = RetPop().m_Float;
+		float x = RetPop().m_Float;
+		int id = RetPop().m_Integer;
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+		MAPIL::DrawClipedTexture(	m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+									x, y, sx, sy, angle,
+									atlas.m_X + cx1, atlas.m_Y + cy1, atlas.m_X + cx2, atlas.m_Y + cy2, true, color );
+	}
+
+	void EffectVCPU::SysDrawClipedTextureAtlasBlendingP()
+	{
+		Pop();
+		float cy2 = Top().m_Float;
+		Pop();
+		float cx2 = Top().m_Float;
+		Pop();
+		float cy1 = Top().m_Float;
+		Pop();
+		float cx1 = Top().m_Float;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int alphaMode = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+	
+		AddToAtlasSpriteBatch( alphaMode, id, x, y, 0.0f, 0.0f, 0.0f );
+	}
+
+	void EffectVCPU::SysDrawClipedTextureAtlasBlendingPSR()
+	{
+		Pop();
+		float cy2 = RetPop().m_Float;
+		float cx2 = RetPop().m_Float;
+		float cy1 = RetPop().m_Float;
+		float cx1 = RetPop().m_Float;
+		float angle = RetPop().m_Float;
+		float sy = RetPop().m_Float;
+		float sx = RetPop().m_Float;
+		float y = RetPop().m_Float;
+		float x = RetPop().m_Float;
+		int alphaMode = RetPop().m_Integer;
+		int id = RetPop().m_Integer;
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+	
+		AddToAtlasSpriteBatch( alphaMode, id, x, y, sx, sy, angle );
+	}
+
+	void EffectVCPU::SysDrawClipedTextureAtlasBlendingPSRC()
+	{
+		Pop();
+		float cy2 = RetPop().m_Float;
+		float cx2 = RetPop().m_Float;
+		float cy1 = RetPop().m_Float;
+		float cx1 = RetPop().m_Float;
+		int color = RetPop().m_Integer;
+		float angle = RetPop().m_Float;
+		float sy = RetPop().m_Float;
+		float sx = RetPop().m_Float;
+		float y = RetPop().m_Float;
+		float x = RetPop().m_Float;
+		int alphaMode = RetPop().m_Integer;
+		int id = RetPop().m_Integer;
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+	
+		AddToAtlasSpriteBatch( alphaMode, id, cx1, cy1, cx2, cy2, x, y, sx, sy, angle, true, color );
+	}
+
 	void EffectVCPU::SysTerminateScriptEffect()
 	{
 		Pop();
@@ -164,6 +329,27 @@ namespace GameEngine
 
 			case VM::SYS_DRAW_TEXTURE_ATLAS_PSR:
 				SysDrawTextureAtlasPSR();
+				break;
+			case VM::SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSR:
+				SysDrawTextureAtlasBlendingPSR();
+				break;
+			case VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_P:
+				SysDrawClipedTextureAtlasP();
+				break;
+			case VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSR:
+				SysDrawClipedTextureAtlasPSR();
+				break;
+			case VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSRC:
+				SysDrawClipedTextureAtlasPSRC();
+				break;
+			case VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_P:
+				SysDrawClipedTextureAtlasBlendingP();
+				break;
+			case VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_PSR:
+				SysDrawClipedTextureAtlasBlendingPSR();
+				break;
+			case VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_PSRC:
+				SysDrawClipedTextureAtlasBlendingPSRC();
 				break;
 
 			case VM::SYS_TERMINATE_SCRIPT_EFFECT:

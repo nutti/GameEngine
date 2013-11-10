@@ -88,7 +88,7 @@ namespace GameEngine
 		m_ViewList.push_back( std::shared_ptr < StageSelectionBackgroundView > ( pStageSelectionBGView ) );
 
 		// ステージ選択画像の追加
-		StageView* pStageView = new StageView();
+		StageSelView* pStageView = new StageSelView();
 		pStageView->SetPermittedStage( PERMITTED_STAGE_TOTAL );
 		pStageView->AttachResourceMap( m_ResourceMap );
 		pStageView->Init();

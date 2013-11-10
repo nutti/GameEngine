@@ -159,6 +159,8 @@ namespace GameEngine
 		void SendEvent( int id );
 		int GetSubID() const;
 		bool IsInSkillMode() const;							// スキル使用中の場合true
+
+		float GetRotAngle( int axis ) const;				// 回転角度を取得
 	};
 
 	

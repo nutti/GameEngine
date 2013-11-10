@@ -100,14 +100,30 @@ namespace GameEngine
 		}
 	}
 
-	void EnemyShotGroupVCPU::SysGetEnemyAngle()
+	void EnemyShotGroupVCPU::SysGetEnemyRotAngle()
 	{
 		Pop();
+		int axis = Top().m_Integer;
+		Pop();
+
 		if( m_pEnemyShotGroupData->m_EnemyControlled ){
-			Push( 0 );
+			switch( axis ){
+				case 0:
+					Push( m_pEnemyShotGroupData->m_pEnemyData->m_RotX );
+					break;
+				case 1:
+					Push( m_pEnemyShotGroupData->m_pEnemyData->m_RotY );
+					break;
+				case 2:
+					Push( m_pEnemyShotGroupData->m_pEnemyData->m_RotZ );
+					break;
+				default:
+					throw MAPIL::MapilException( CURRENT_POSITION, TSTR( "Axis must be 0-2" ), -1 );
+					break;
+			}
 		}
 		else{
-			Push( 0 );
+			Push( 0.0f );
 		}
 	}
 
@@ -310,8 +326,12 @@ namespace GameEngine
 		Pop();
 		int id = Top().m_Integer;
 		Pop();
+		
+		if( id < 0 ){
+			return;
+		}
 
-		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetSpeed( speed );
 		}
 	}
@@ -404,7 +424,10 @@ namespace GameEngine
 		Pop();
 		int id = Top().m_Integer;
 		Pop();
-		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+		if( id < 0 ){
+			Push( 0 );
+		}
+		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
 			Push( m_pEnemyShotGroupData->m_pShots[ id ]->GetCounter() );
 		}
 		else{
@@ -795,7 +818,11 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		if( m_pEnemyShotGroupData->m_pShots[ id ] && id >= 0 ){
+		if( id < 0 ){
+			return;
+		}
+
+		if( m_pEnemyShotGroupData->m_pShots[ id ] ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetSpeed( speed );
 		}
 	}
@@ -1078,6 +1105,18 @@ namespace GameEngine
 		Push( -1 );
 	}
 
+	void EnemyShotGroupVCPU::SysSetEnemyShotDrawingMultiplicity()
+	{
+		Pop();
+		int num = Top().m_Integer;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetDrawingMultiplicity( num );
+		}
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -1118,6 +1157,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_GET_SPEED:
 				SysGetEnemySpeed();
+				break;
+			case VM::SYS_ENEMY_GET_ROT_ANGLE:
+				SysGetEnemyRotAngle();
 				break;
 			case VM::SYS_ENEMY_GET_COUNTER:
 				SysGetEnemyCounter();
@@ -1218,6 +1260,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_MOVEMENT:
 				SysSetEnemyShotMovement();
+				break;
+			case VM::SYS_ENEMY_SHOT_GROUP_SET_DRAWING_MULTIPLICITY:
+				SysSetEnemyShotDrawingMultiplicity();
 				break;
 			case VM::SYS_ENEMY_SHOT_GROUP_SET_ALPHA_BLENDING_MODE:
 				SysSetEnemyShotAlphaBlendingMode();

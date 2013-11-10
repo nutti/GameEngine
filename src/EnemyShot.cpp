@@ -250,6 +250,7 @@ namespace GameEngine
 		int									m_AlphaBlendingMode;		// αブレンディングモード
 		float								m_ImgRotAnglePerFrame;		// 毎フレーム増加する回転角度
 		float								m_ImgRotAngle;				// 画像の向き
+		int									m_DrawingMultiplicity;		// 描画多重度
 
 		int				m_ShotShape;	// ショットの形
 		Circle			m_Circle;
@@ -335,6 +336,7 @@ namespace GameEngine
 		void EnableInvisibleMode();				// 見えないモードへ移行
 		void DisableInvisibleMode();			// 見えるモードへ移行
 		std::string GetMasterEnemyName() const;
+		void SetDrawingMultiplicity( int num );
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -356,6 +358,7 @@ namespace GameEngine
 		m_ImgRotAnglePerFrame = 0.0f;
 		m_ImgScale = 1.0f;
 		m_AtlasImgID = -1;
+		m_DrawingMultiplicity = 1;
 	}
 
 	EnemyShot::Impl::~Impl()
@@ -444,103 +447,99 @@ namespace GameEngine
 
 		float posX = m_GUData.m_PosX.GetFloat();
 		float posY = m_GUData.m_PosY.GetFloat();
+		int color = 0xFFFFFFFF;
+		int scale = m_ImgScale;
 
 		if( m_StatusFlags[ DEAD ] ){
-			if( m_AtlasImgID == -1 ){
-				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-									posX, posY,
-									m_DeadCounter * 0.05f + m_ImgScale, m_DeadCounter * 0.05f + m_ImgScale,
-									m_ImgRotAngle,
-									true, ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
-			}
-			else{
-				ResourceMap::TextureAtlas atlas;
-				atlas = m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
-				MAPIL::DrawClipedTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
-											posX, posY, m_DeadCounter * 0.05f + m_ImgScale, m_DeadCounter * 0.05f + m_ImgScale, m_ImgRotAngle,
-											atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height, true,
-											( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
-			}
+			color = ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF;
+			scale += m_DeadCounter * 0.05f;
 		}
-		else{
-			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
-				if( m_StatusFlags[ HAS_CONS_ATTR ] ){
-					if( m_AtlasImgID == -1 ){
+
+		if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
+			/*if( m_StatusFlags[ HAS_CONS_ATTR ] ){
+				if( m_AtlasImgID == -1 ){
+					AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+										posX, posY, scale, scale, m_ImgRotAngle, true, color );
+					if( ( m_Counter / 4 ) % 2 == 0 ){
 						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
 											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
-						if( ( m_Counter / 4 ) % 2 == 0 ){
-							AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-												m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
-						}
-					}
-					else{
-						AddToAtlasSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-												m_AtlasImgID,
-												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
-						if( ( m_Counter / 4 ) % 2 == 0 ){
-							AddToAtlasSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-													m_AtlasImgID,
-													posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
-						}
+											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
 					}
 				}
-				else if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
+				else{
+					AddToAtlasSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+											m_AtlasImgID,
+											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
+					if( ( m_Counter / 4 ) % 2 == 0 ){
+						AddToAtlasSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+												m_AtlasImgID,
+												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
+					}
+				}
+			}
+			else */if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
+				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 					if( m_AtlasImgID == -1 ){
 						AddToSpriteBatch(	m_AlphaBlendingMode,
 											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
+											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
 					}
 					else{
 						AddToAtlasSpriteBatch(	m_AlphaBlendingMode,
 												m_AtlasImgID,
-												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
+												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
 					}
 				}
-				else{
+			}
+			else{
+				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 					if( m_AtlasImgID == -1 ){
 						MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
+											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
 					}
 					else{
 						ResourceMap::TextureAtlas atlas;
 						atlas = m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
 						MAPIL::DrawClipedTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
 													posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle,
-													atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height );
+													atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height, true, color );
 					}
 				}
 			}
-			else if( m_ShotShape == SHOT_SHAPE_LINE ){
-				float angle = ::atan2( m_Line.GetEndY() - m_Line.GetStartY(), -m_Line.GetEndX() + m_Line.GetStartX() ) - MAPIL::DegToRad( 90.0f );
-				float length = std::sqrt(	( m_Line.GetEndX() - m_Line.GetStartX() ) * ( m_Line.GetEndX() - m_Line.GetStartX() ) + 
-											( m_Line.GetEndY() - m_Line.GetStartY() ) * ( m_Line.GetEndY() - m_Line.GetStartY() ) );
-				unsigned int texSizeX;
-				unsigned int texSizeY;
-				if( m_AtlasImgID == -1 ){
-					MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
+		}
+		else if( m_ShotShape == SHOT_SHAPE_LINE ){
+			float angle = ::atan2( m_Line.GetEndY() - m_Line.GetStartY(), -m_Line.GetEndX() + m_Line.GetStartX() ) - MAPIL::DegToRad( 90.0f );
+			float length = std::sqrt(	( m_Line.GetEndX() - m_Line.GetStartX() ) * ( m_Line.GetEndX() - m_Line.GetStartX() ) + 
+										( m_Line.GetEndY() - m_Line.GetStartY() ) * ( m_Line.GetEndY() - m_Line.GetStartY() ) );
+			unsigned int texSizeX;
+			unsigned int texSizeY;
+			if( m_AtlasImgID == -1 ){
+				MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
+				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 					MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
 										m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
 										m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
 										1.0f,
 										length / texSizeY,
 										angle,
-										false );
+										false, color );
 				}
-				else{
-					ResourceMap::TextureAtlas atlas;
-					atlas = m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
-					texSizeX = atlas.m_Width;
-					texSizeY = atlas.m_Height;
-					MAPIL::DrawClipedTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
-												m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
-												m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
-												1.0f,
-												length / texSizeY,
-												angle,
-												atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height,
-												false );
+			}
+			else{
+				ResourceMap::TextureAtlas atlas;
+				atlas = m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
+				texSizeX = atlas.m_Width;
+				texSizeY = atlas.m_Height;
+
+				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
+					AddToAtlasSpriteBatch(	m_AlphaBlendingMode,
+											m_AtlasImgID,
+											m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
+											m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
+											1.0f,
+											length / texSizeY, 
+											angle, false, color );
 				}
 			}
 		}
@@ -982,6 +981,11 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShot::Impl::SetDrawingMultiplicity( int num )
+	{
+		m_DrawingMultiplicity = num;
+	}
+
 	// ----------------------------------
 	// 実装クラスの呼び出し
 	// ----------------------------------
@@ -1290,5 +1294,10 @@ namespace GameEngine
 	std::string EnemyShot::GetMasterEnemyName() const
 	{
 		return m_pImpl->GetMasterEnemyName();
+	}
+
+	void EnemyShot::SetDrawingMultiplicity( int num )
+	{
+		m_pImpl->SetDrawingMultiplicity( num );
 	}
 }

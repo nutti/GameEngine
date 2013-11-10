@@ -110,7 +110,7 @@ namespace GameEngine
 				it != pScriptData->m_TextureList.end();
 				++it ){
 			// 許容値を超えたインデックスが必要な場合は、指定されたインデックスの2倍のサイズのresizeする。
-			if( it->first > m_pNextLocalResourceMap->m_TextureMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_TextureMap.size() ){
 				m_pNextLocalResourceMap->m_TextureMap.resize( it->first * 2 );
 			}
 			m_pNextLocalResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( it->second.c_str() );
@@ -120,7 +120,7 @@ namespace GameEngine
 		for(	SEIter it = pScriptData->m_SEList.begin();
 				it != pScriptData->m_SEList.end();
 				++it ){
-			if( it->first > m_pNextLocalResourceMap->m_SEMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_SEMap.size() ){
 				m_pNextLocalResourceMap->m_SEMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateStaticBuffer( it->second.c_str() );
@@ -131,7 +131,7 @@ namespace GameEngine
 		for(	BGMIter it = pScriptData->m_BGMList.begin();
 				it != pScriptData->m_BGMList.end();
 				++it ){
-			if( it->first > m_pNextLocalResourceMap->m_BGMMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_BGMMap.size() ){
 				m_pNextLocalResourceMap->m_BGMMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateStreamingBuffer( it->second.c_str() );
@@ -142,7 +142,7 @@ namespace GameEngine
 		for(	ModelIter it = pScriptData->m_ModelList.begin();
 				it != pScriptData->m_ModelList.end();
 				++it ){
-			if( it->first > m_pNextLocalResourceMap->m_ModelMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_ModelMap.size() ){
 				m_pNextLocalResourceMap->m_ModelMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateModel( it->second.m_ModelFileName.c_str() );
@@ -153,7 +153,7 @@ namespace GameEngine
 		for(	PatternIter it = pScriptData->m_EnemyPatternList.begin();
 				it != pScriptData->m_EnemyPatternList.end();
 				++it ){
-			if( it->first > m_pNextLocalResourceMap->m_EnemyPatternFileMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_EnemyPatternFileMap.size() ){
 				m_pNextLocalResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
 			}
 			int id = CreateStageEnemyPattern( it->second );
@@ -163,7 +163,7 @@ namespace GameEngine
 		std::for_each(	pScriptData->m_TexAtlasList.begin(),
 						pScriptData->m_TexAtlasList.end(),
 						[this]( const std::pair < int, ResourceMap::TextureAtlas >& pair ){
-			if( pair.first > m_pNextLocalResourceMap->m_TexAtlasMap.size() ){
+			if( pair.first >= m_pNextLocalResourceMap->m_TexAtlasMap.size() ){
 				m_pNextLocalResourceMap->m_TexAtlasMap.resize( pair.first * 2 );
 			}
 			m_pNextLocalResourceMap->m_TexAtlasMap[ pair.first ] = pair.second;
@@ -172,7 +172,7 @@ namespace GameEngine
 		std::for_each(	pScriptData->m_SkinModelList.begin(),
 						pScriptData->m_SkinModelList.end(),
 						[this]( const std::pair < int, ResourceScriptData::SkinModelResourceData >& pair ){
-			if( pair.first > m_pNextLocalResourceMap->m_SkinModelMap.size() ){
+			if( pair.first >= m_pNextLocalResourceMap->m_SkinModelMap.size() ){
 				m_pNextLocalResourceMap->m_SkinModelMap.resize( pair.first * 2 );
 			}
 			int id = MAPIL::CreateSkinMeshModel( pair.second.m_ModelFileName.c_str() );
@@ -318,7 +318,7 @@ namespace GameEngine
 				it != pScriptData->m_TextureList.end();
 				++it ){
 			// 許容値を超えたインデックスが必要な場合は、指定されたインデックスの2倍のサイズのresizeする。
-			if( it->first > m_pNextLocalResourceMap->m_TextureMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_TextureMap.size() ){
 				m_pNextLocalResourceMap->m_TextureMap.resize( it->first * 2 );
 			}
 			m_pNextLocalResourceMap->m_TextureMap[ it->first ] = MAPIL::CreateTexture( m_ArchiveHandle, it->second.c_str() );
@@ -328,7 +328,7 @@ namespace GameEngine
 		for(	SEIter it = pScriptData->m_SEList.begin();
 				it != pScriptData->m_SEList.end();
 				++it ){
-			if( it->first > m_pNextLocalResourceMap->m_SEMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_SEMap.size() ){
 				m_pNextLocalResourceMap->m_SEMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateStaticBuffer( m_ArchiveHandle, it->second.c_str() );
@@ -339,7 +339,7 @@ namespace GameEngine
 		for(	BGMIter it = pScriptData->m_BGMList.begin();
 				it != pScriptData->m_BGMList.end();
 				++it ){
-			if( it->first > m_pNextLocalResourceMap->m_BGMMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_BGMMap.size() ){
 				m_pNextLocalResourceMap->m_BGMMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateStreamingBuffer( m_ArchiveHandle, it->second.c_str() );
@@ -350,7 +350,7 @@ namespace GameEngine
 		for(	ModelIter it = pScriptData->m_ModelList.begin();
 				it != pScriptData->m_ModelList.end();
 				++it ){
-			if( it->first > m_pNextLocalResourceMap->m_ModelMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_ModelMap.size() ){
 				m_pNextLocalResourceMap->m_ModelMap.resize( it->first * 2 );
 			}
 			int id = MAPIL::CreateModel( m_ArchiveHandle, it->second.m_ModelFileName.c_str(), it->second.m_TextureFileName.c_str() );
@@ -361,7 +361,7 @@ namespace GameEngine
 		for(	EnemyPatternIter it = pScriptData->m_EnemyPatternList.begin();
 				it != pScriptData->m_EnemyPatternList.end();
 				++it ){
-			if( it->first > m_pNextLocalResourceMap->m_EnemyPatternFileMap.size() ){
+			if( it->first >= m_pNextLocalResourceMap->m_EnemyPatternFileMap.size() ){
 				m_pNextLocalResourceMap->m_EnemyPatternFileMap.resize( it->first * 2 );
 			}
 			int id = CreateStageEnemyPattern( m_ArchiveHandle, it->second );
@@ -371,7 +371,7 @@ namespace GameEngine
 		std::for_each(	pScriptData->m_TexAtlasList.begin(),
 						pScriptData->m_TexAtlasList.end(),
 						[this]( const std::pair < int, ResourceMap::TextureAtlas >& pair ){
-			if( pair.first > m_pNextLocalResourceMap->m_TexAtlasMap.size() ){
+			if( pair.first >= m_pNextLocalResourceMap->m_TexAtlasMap.size() ){
 				m_pNextLocalResourceMap->m_TexAtlasMap.resize( pair.first * 2 );
 			}
 			m_pNextLocalResourceMap->m_TexAtlasMap[ pair.first ] = pair.second;
@@ -380,7 +380,7 @@ namespace GameEngine
 		std::for_each(	pScriptData->m_SkinModelList.begin(),
 						pScriptData->m_SkinModelList.end(),
 						[this]( const std::pair < int, ResourceScriptData::SkinModelResourceData >& pair ){
-			if( pair.first > m_pNextLocalResourceMap->m_SkinModelMap.size() ){
+			if( pair.first >= m_pNextLocalResourceMap->m_SkinModelMap.size() ){
 				m_pNextLocalResourceMap->m_SkinModelMap.resize( pair.first * 2 );
 			}
 			int id = MAPIL::CreateSkinMeshModel( m_ArchiveHandle, pair.second.m_ModelFileName.c_str(), pair.second.m_TextureFileName.c_str() );

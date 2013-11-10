@@ -25,7 +25,7 @@ namespace GameEngine
 
 
 
-	StageView::StageView() :	StageSelectionView(),
+	StageSelView::StageSelView() :	StageSelectionView(),
 								m_CurMode( MODE_INVISIBLE ),
 								m_SelectedStage( 0 ),
 								m_PrevSelectedStage( 0 ),
@@ -34,7 +34,7 @@ namespace GameEngine
 	{
 	}
 
-	StageView::~StageView()
+	StageSelView::~StageSelView()
 	{
 		m_CurMode = MODE_INVISIBLE;
 		m_SelectedStage = 0;
@@ -43,12 +43,12 @@ namespace GameEngine
 		m_TransitionCounter = 0;
 	}
 
-	void StageView::SetPermittedStage( int stage )
+	void StageSelView::SetPermittedStage( int stage )
 	{
 		m_PermittedStage = stage;
 	}
 
-	void StageView::Draw() const
+	void StageSelView::Draw() const
 	{
 		if( m_CurMode == MODE_INVISIBLE ){
 			return;
@@ -154,7 +154,7 @@ namespace GameEngine
 		}
 	}
 
-	void StageView::Update()
+	void StageSelView::Update()
 	{
 		switch( m_CurMode ){
 			case MODE_DIFFICULTY_SELECTED:
@@ -193,19 +193,19 @@ namespace GameEngine
 		}
 	}
 
-	void StageView::CancelStage()
+	void StageSelView::CancelStage()
 	{
 		m_CurMode = MODE_CANCELED;
 		m_TransitionCounter = 0;
 	}
 
-	void StageView::SelectStage()
+	void StageSelView::SelectStage()
 	{
 		m_CurMode = MODE_STAGE_SELECTED;
 		m_TransitionCounter = 0;
 	}
 
-	void StageView::ChangeStage( int stage )
+	void StageSelView::ChangeStage( int stage )
 	{
 		m_PrevSelectedStage = m_SelectedStage;
 		m_SelectedStage = stage;
@@ -214,13 +214,13 @@ namespace GameEngine
 	}
 
 
-	void StageView::SelectDifficulty()
+	void StageSelView::SelectDifficulty()
 	{
 		m_CurMode = MODE_DIFFICULTY_SELECTED;
 		m_TransitionCounter = 0;
 	}
 
-	void StageView::Finalize()
+	void StageSelView::Finalize()
 	{
 		m_CurMode = MODE_FINALIZE;
 		m_TransitionCounter = 0;

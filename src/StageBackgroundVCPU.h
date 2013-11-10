@@ -11,6 +11,10 @@ namespace GameEngine
 	private:
 		StageBackgroundData*		m_pStageBGData;
 
+		void SysCreateScriptEffect();
+		void SysCreateScriptEffectReg();
+		void SysCreateScriptEffectFReg5();
+
 		void SysStageBackgroundGetCounter();
 
 		void SysEnableCamera();
@@ -34,7 +38,7 @@ namespace GameEngine
 		void SysBegin2DGraphics();
 		void SysEnd2DGraphics();
 		void SysDrawTexturePS();
-		void SysColorARGB();
+		
 
 		void SysStageGetFrame();
 		void SysStageGetBossFlag();

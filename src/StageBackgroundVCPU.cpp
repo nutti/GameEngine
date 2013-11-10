@@ -4,6 +4,7 @@
 
 #include "StageBackground.h"
 #include "Stage.h"
+#include "ScriptEffect.h"
 
 #include "SpriteBatch.h"
 
@@ -16,6 +17,66 @@ namespace GameEngine
 
 	StageBackgroundVCPU::~StageBackgroundVCPU()
 	{
+	}
+
+	void StageBackgroundVCPU::SysCreateScriptEffect()
+	{
+		Pop();
+		float y = RetPop().m_Float;
+		float x = RetPop().m_Float;
+		int id = RetPop().m_Integer;
+
+		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		pNewEffect->Init( x, y );
+		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+
+		Push( -1 );
+	}
+
+	void StageBackgroundVCPU::SysCreateScriptEffectReg()
+	{
+		Pop();
+		int reg = Top().m_Integer;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		pNewEffect->Init( x, y );
+		pNewEffect->SetReg( 0, reg );
+		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+
+		Push( -1 );
+	}
+
+	void StageBackgroundVCPU::SysCreateScriptEffectFReg5()
+	{
+		float reg[ 5 ];
+
+		Pop();
+		for( int i = 4; i >= 0; --i ){
+			reg[ i ] = Top().m_Float;
+			Pop();
+		}
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		pNewEffect->Init( x, y );
+		for( int i = 0; i < 5; ++i ){
+			pNewEffect->SetReg( i, reg[ i ] );
+		}
+		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+
+		Push( -1 );
 	}
 
 	void StageBackgroundVCPU::SysStageBackgroundGetCounter()
@@ -340,21 +401,6 @@ namespace GameEngine
 		//MAPIL::DrawTexture( , x, y, sx, sy, centerize, color );
 	}
 
-	void StageBackgroundVCPU::SysColorARGB()
-	{
-		Pop();
-		int b = Top().m_Integer;
-		Pop();
-		int g = Top().m_Integer;
-		Pop();
-		int r = Top().m_Integer;
-		Pop();
-		int a = Top().m_Integer;
-		Pop();
-
-		Push( a << 24 | r << 16 | g << 8 | b );
-	}
-
 	void StageBackgroundVCPU::SysStageGetBossFlag()
 	{
 		Pop();
@@ -365,6 +411,16 @@ namespace GameEngine
 	void StageBackgroundVCPU::OpSysCall( int val )
 	{
 		switch( val ){
+			case VM::SYS_CREATE_SCRIPT_EFFECT:
+				SysCreateScriptEffect();
+				break;
+			case VM::SYS_CREATE_SCRIPT_EFFECT_REG:
+				SysCreateScriptEffectReg();
+				break;
+			case VM::SYS_CREATE_SCRIPT_EFFECT_FREG5:
+				SysCreateScriptEffectFReg5();
+				break;
+
 			case VM::SYS_STAGE_BACKGROUND_GET_COUNTER:
 				SysStageBackgroundGetCounter();
 				break;
@@ -431,9 +487,6 @@ namespace GameEngine
 				break;
 			case VM::SYS_DRAW_TEXTURE_FIXED_ROT:
 				SysDrawTexturePS();
-				break;
-			case VM::SYS_COLOR_ARGB:
-				SysColorARGB();
 				break;
 
 			case VM::SYS_STAGE_GET_BOSS_FLAG:

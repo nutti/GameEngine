@@ -16,6 +16,13 @@ namespace GameEngine
 		void SysGetEnemyPosY();
 		void SysGetScriptEffectCounter();
 		void SysDrawTextureAtlasPSR();
+		void SysDrawTextureAtlasBlendingPSR();
+		void SysDrawClipedTextureAtlasP();
+		void SysDrawClipedTextureAtlasPSR();
+		void SysDrawClipedTextureAtlasPSRC();
+		void SysDrawClipedTextureAtlasBlendingP();
+		void SysDrawClipedTextureAtlasBlendingPSR();
+		void SysDrawClipedTextureAtlasBlendingPSRC();
 
 		void SysGetScriptEffectPosX();
 		void SysGetScriptEffectPosY();

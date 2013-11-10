@@ -42,6 +42,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_SQRT_GU, TYPE_GU, "sqrtGU", "g" );				// gu sqrtGU( val );
 
 	AddFunction( VM::SYS_DEG_TO_RAD, TYPE_FLOAT, "DegToRad", "f" );		// float DegToRad();
+	AddFunction( VM::SYS_RAD_TO_DEG, TYPE_FLOAT, "RadToDeg", "f" );		// float RadToDeg();
 
 	AddFunction( VM::SYS_GET_PLAYER_POSX_GU, TYPE_GU, "GetPlayerPosXGU", "" );			// gu GetPlayerPosXGU();
 	AddFunction( VM::SYS_GET_PLAYER_POSY_GU, TYPE_GU, "GetPlayerPosYGU", "" );			// gu GetPlayerPosYGU();
@@ -84,6 +85,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SET_ANGLE, TYPE_INTEGER, "GetEnemyAngle", "" );				// int GetEnemyAngle();
 	AddFunction( VM::SYS_ENEMY_GET_CONS_GAUGE, TYPE_INTEGER, "GetEnemyConsGauge", "" );		// int GetEnemyConsGauge();
 	AddFunction( VM::SYS_ENEMY_GET_REG, TYPE_INTEGER, "GetEnemyReg", "i" );					// int GetEnemyReg( reg_no );
+	AddFunction( VM::SYS_ENEMY_GET_ROT_ANGLE, TYPE_FLOAT, "GetEnemyRotAngle", "i" );		// float GetEnemyRotAngle( axis );
 
 	AddFunction( VM::SYS_ENEMY_SET_NAME, TYPE_VOID, "SetEnemyName", "s" );					// void SetEnemyName( name );
 	AddFunction( VM::SYS_ENEMY_SET_POS, TYPE_VOID, "SetEnemyPos", "ff" );					// void SetEnemyPos( x, y );
@@ -111,6 +113,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_SHIFT_NEXT_MODE, TYPE_VOID, "EnemyShiftNextMode", "" );	// void EnemyShiftNextMode();
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_MODE, TYPE_VOID, "SetEnemyShotImgRotMode", "ii" );		// void SetImgRotMode( shot_id, mode );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_IMG_ROT_ANGLE_PER_FRAME, TYPE_VOID, "SetEnemyShotImgRotAnglePerFrame", "if" );		// void SetImgAnglePerFrame( shot_id, angle );
+	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_DRAWING_MULTIPLICITY, TYPE_VOID, "SetEnemyShotDrawingMultiplicity", "ii" );		// void SetDrawingMultiplicity( shot_id, num );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_ALPHA_BLENDING_MODE, TYPE_VOID, "SetEnemyShotAlphaBlendingMode", "ii" );		// void SetImgAlphaBlendingMode( shot_id, mode );
 	AddFunction( VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT, TYPE_INTEGER, "EnemyDamagedByConsShot", "" );		// int EnemyDamagedByConsShot();
 	AddFunction( VM::SYS_ENEMY_DAMAGED_BY_CONS_SHOT_INDEX, TYPE_INTEGER, "EnemyDamagedByConsShotIndex", "i" );	// int EnemyDamagedByConsShotIndex( cons_idx );
@@ -242,6 +245,14 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_CREATE_SCRIPT_EFFECT_REG, TYPE_INTEGER, "CreateScriptEffectReg", "iffi" );		// int CreateScriptEffectReg( id, x, y, reg );
 	AddFunction( VM::SYS_CREATE_SCRIPT_EFFECT_FREG5, TYPE_INTEGER, "CreateScriptEffectFReg5", "ifffffff" );	// int CreateScriptEffectFReg5( id, x, y, reg1, reg2, reg3, reg4, reg5 );
 	AddFunction( VM::SYS_DRAW_TEXTURE_ATLAS_PSR, TYPE_VOID, "DrawTextureAtlasPSR", "ifffff" );	// void DrawTextureAtlasPSR( id, x, y, sx, sy, angle );
+	AddFunction( VM::SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSR, TYPE_VOID, "DrawTextureAtlasBlendingPSR", "iifffff" );	// void DrawTextureAtlasBlendingPSR( id, alpha_mode, x, y, sx, sy, angle );
+	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_P, TYPE_VOID, "DrawClipedTextureAtlasP", "iffffff" );		// void DrawClipedTextureAtlasP( id, x, y, cx1, cy1, cx2, cy2 );
+	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSR, TYPE_VOID, "DrawClipedTextureAtlasPSR", "ifffffffff" );	// void DrawClipedTextureAtlasPSR( id, x, y, sx, sy, angle, cx1, cy1, cx2, cy2 );
+	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSRC, TYPE_VOID, "DrawClipedTextureAtlasPSRC", "ifffffiffff" ); // void DrawClipedTextureAtlasPSR( id, x, y, sx, sy, angle, color, cx1, cy1, cx2, cy2 );
+	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_P, TYPE_VOID, "DrawClipedTextureAtlasBlendingP", "iiffffff" );		// void DrawClipedTextureAtlasBlendingP( id, alpha_mode, x, y, cx1, cy1, cx2, cy2 );
+	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_PSR, TYPE_VOID, "DrawClipedTextureAtlasBlendingPSR", "iifffffffff" );	// void DrawClipedTextureAtlasBlendingPSR( id, alpha_mode, x, y, sx, sy, angle, cx1, cy1, cx2, cy2 );
+	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_BLENDING_PSRC, TYPE_VOID, "DrawClipedTextureAtlasBlendingPSRC", "iifffffiffff" );	// void DrawClipedTextureAtlasBlendingPSR( id, alpha_mode, x, y, sx, sy, angle, color cx1, cy1, cx2, cy2 );
+
 	AddFunction( VM::SYS_GET_SCRIPT_EFFECT_REG, TYPE_INTEGER, "GetScriptEffectReg", "i" );		// int GetScriptEffectReg( no );
 	AddFunction( VM::SYS_GET_SCRIPT_EFFECT_COUNTER, TYPE_INTEGER, "GetScriptEffectCounter", "" );	// int GetScriptEffectCounter();
 	AddFunction( VM::SYS_TERMINATE_SCRIPT_EFFECT, TYPE_VOID, "TerminateScriptEffect", "" );		// void TerminateScriptEffect();
