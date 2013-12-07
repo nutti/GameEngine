@@ -26,9 +26,9 @@ namespace GameEngine
 		float x = RetPop().m_Float;
 		int id = RetPop().m_Integer;
 
-		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, std::weak_ptr < Enemy > () );
 		pNewEffect->Init( x, y );
-		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( std::shared_ptr < ScriptEffect > ( std::shared_ptr < ScriptEffect > ( pNewEffect ) ) );
 
 		Push( -1 );
 	}
@@ -45,10 +45,10 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, std::weak_ptr < Enemy > () );
 		pNewEffect->Init( x, y );
 		pNewEffect->SetReg( 0, reg );
-		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( std::shared_ptr < ScriptEffect > ( std::shared_ptr < ScriptEffect > ( pNewEffect ) ) );
 
 		Push( -1 );
 	}
@@ -69,12 +69,12 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		ScriptEffect* pNewEffect = m_pStageBGData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, std::weak_ptr < Enemy > () );
 		pNewEffect->Init( x, y );
 		for( int i = 0; i < 5; ++i ){
 			pNewEffect->SetReg( i, reg[ i ] );
 		}
-		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+		m_pStageBGData->m_pStageData->m_ScriptEffectList.push_back( std::shared_ptr < ScriptEffect > ( std::shared_ptr < ScriptEffect > ( pNewEffect ) ) );
 
 		Push( -1 );
 	}

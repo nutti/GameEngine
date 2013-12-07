@@ -15,8 +15,17 @@ namespace GameEngine
 		void SysGetEnemyPosX();
 		void SysGetEnemyPosY();
 		void SysGetScriptEffectCounter();
+
+		void SysGetEnemyPosXGU();
+		void SysGetEnemyPosYGU();
+
+		void SysEnemyAlive();
+		void SysEnemyInSkillMode();
+
 		void SysDrawTextureAtlasPSR();
+		void SysDrawTextureAtlasPSRC();
 		void SysDrawTextureAtlasBlendingPSR();
+		void SysDrawTextureAtlasBlendingPSRC();
 		void SysDrawClipedTextureAtlasP();
 		void SysDrawClipedTextureAtlasPSR();
 		void SysDrawClipedTextureAtlasPSRC();
@@ -32,6 +41,8 @@ namespace GameEngine
 		void SysUpdate();
 		void SysPlayBGM();
 		void SysStopBGM();
+		void SysPlaySE();
+		void SysStopSE();
 	public:
 		EffectVCPU();
 		~EffectVCPU();

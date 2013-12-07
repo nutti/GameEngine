@@ -261,7 +261,7 @@ namespace GameEngine
 		
 		m_IniGameData.m_PosX = 300;
 		m_IniGameData.m_PosY = 400;
-		m_IniGameData.m_HP = 50;
+		m_IniGameData.m_HP = 10;
 		//m_IniGameData.m_HP = 30;
 		for( int i = 0; i < 3; ++i ){
 			m_IniGameData.m_ConsGauge[ i ] = 1000;

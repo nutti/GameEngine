@@ -217,13 +217,7 @@ namespace GameEngine
 		std::shared_ptr < ResourceMap >		m_pResourceMap;		// リソース管理データ
 		ShotGroupData						m_ShotGroupData;	// ショットグループデータ
 
-#if defined ( USE_FLOATING_POINT )
-		float								m_PosX;						// 位置（X座標）
-		float								m_PosY;						// 位置（Y座標）
-		float								m_Angle;					// 角度
-		float								m_Speed;					// 速度
-		float								m_ColRadius;				// 衝突判定の半径
-#elif defined ( USE_GAME_UNIT )
+
 		struct GameUnitData
 		{
 			GameUnit		m_PosX;
@@ -234,7 +228,6 @@ namespace GameEngine
 
 		};
 		GameUnitData			m_GUData;
-#endif
 
 
 		// 状態関連
@@ -259,14 +252,16 @@ namespace GameEngine
 		// フラグ管理
 		enum StatusFlag
 		{
-			COLLIDED					= 0,	// 衝突したか？
-			DEAD						= 1,	// 死んでいたらtrue
-			HAS_CONS_ATTR				= 2,	// 意識技用の弾の場合true
-			HAS_BLENDING_MODE_CHAGE		= 3,	// アルファブレンドの変化がある場合、true
-			PAUSED						= 4,	// 一時停止中の場合true
-			INVINCIBLE					= 5,	// ボムやプレイヤーダメージで消えない場合、true
-			IMG_SCALE_CHANGED			= 6,	// 画像の拡大率を変更した場合、true
-			INVISIBLE					= 7,	// 見えるモードの場合、true
+			COLLIDED						= 0,	// 衝突したか？
+			DEAD							= 1,	// 死んでいたらtrue
+			HAS_CONS_ATTR					= 2,	// 意識技用の弾の場合true
+			HAS_BLENDING_MODE_CHAGE			= 3,	// アルファブレンドの変化がある場合、true
+			PAUSED							= 4,	// 一時停止中の場合true
+			INVINCIBLE						= 5,	// ボムやプレイヤーダメージで消えない場合、true
+			IMG_SCALE_CHANGED				= 6,	// 画像の拡大率を変更した場合、true
+			INVISIBLE						= 7,	// 見えるモードの場合、true
+			NOT_DELETE_BY_PLAYER_DAMAGE		= 8,	// プレイヤーダメージ時に消えない場合、true
+			NOT_DELETE_BY_PLAYER_SKILL		= 9,	// プレイヤーのスキルによって消えない場合、true
 			STATUS_FLAG_TOTAL,
 		};
 		std::bitset < STATUS_FLAG_TOTAL >	m_StatusFlags;		// 状態管理フラグ
@@ -287,19 +282,6 @@ namespace GameEngine
 		void SetConsAttr( int attr );						// 意識技専用弾に設定
 		void JoinShotGroup( int id, EnemyShotGroup* pGroup );
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
-#if defined ( USE_FLOATING_POINT )
-		void SetPos( float posX, float posY );
-		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
-		void GetPos( float* pX, float* pY );
-		void SetAngle( float angle );						// 角度を設定
-		void SetSpeed( float speed );						// 速度を設定
-		void SetCollisionRadius( float radius );			// 衝突判定の半径を設定
-		void AddPos( float x, float y );					// 位置を加算
-		void AddAngle( float angle );						// 角度を加算
-		void AddSpeed( float speed );						// 速度を加算
-		bool DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius );
-		float GetCollisionRadius() const;
-#elif defined ( USE_GAME_UNIT )
 		void SetPos( const GameUnit& posX, const GameUnit& posY );
 		void SetLinePos(	const GameUnit& x1,
 							const GameUnit& y1,
@@ -317,7 +299,6 @@ namespace GameEngine
 		GameUnit GetCollisionRadius() const;
 		GameUnit GetAngle() const;
 		GameUnit GetSpeed() const;
-#endif
 		int GetCounter() const;
 		void ProcessMessages();								// 溜まっていたメッセージの処理
 		void PostMessage( int msgID );						// メッセージの追加
@@ -337,6 +318,9 @@ namespace GameEngine
 		void DisableInvisibleMode();			// 見えるモードへ移行
 		std::string GetMasterEnemyName() const;
 		void SetDrawingMultiplicity( int num );
+		void Delete( int by );
+		void DeleteWhen( int when );
+		void NotDeleteWhen( int when );		// 削除タイミングの設定
 	};
 
 	EnemyShot::Impl::Impl( std::shared_ptr < ResourceMap > pMap, int id ) :	m_pResourceMap( pMap ),
@@ -369,76 +353,7 @@ namespace GameEngine
 		MAPIL::ZeroObject( &m_ShotGroupData, sizeof( m_ShotGroupData ) );
 	}
 
-#if defined ( USE_FLOATING_POINT )
 
-	void EnemyShot::Impl::Draw()
-	{
-		if( m_StatusFlags[ INVISIBLE ] ){
-			return;
-		}
-
-		if( m_StatusFlags[ DEAD ] ){
-			MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-								m_PosX, m_PosY,
-								m_DeadCounter * 0.05f + m_ImgScale, m_DeadCounter * 0.05f + m_ImgScale,
-								m_ImgRotAngle,
-								true, ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF );
-		}
-		else{
-			//if( m_Counter >= 6 ){
-			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
-				if( m_StatusFlags[ HAS_CONS_ATTR ] ){
-					AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										m_PosX, m_PosY, m_ImgRotAngle );
-					if( ( m_Counter / 4 ) % 2 == 0 ){
-						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										m_PosX, m_PosY, m_ImgRotAngle );
-					}
-				}
-				else if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
-					if( m_StatusFlags[ IMG_SCALE_CHANGED ] ){
-						AddToSpriteBatch(	m_AlphaBlendingMode,
-											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											m_PosX, m_PosY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
-					}
-					else{
-						AddToSpriteBatch(	m_AlphaBlendingMode,
-											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											m_PosX, m_PosY, m_ImgRotAngle );
-					}
-				}
-				else{
-					if( m_StatusFlags[ IMG_SCALE_CHANGED ] ){
-						MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											m_PosX, m_PosY, m_ImgScale, m_ImgScale, m_ImgRotAngle );
-					}
-					else{
-						MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											m_PosX, m_PosY, m_ImgRotAngle );
-					}
-				}
-			}
-			else if( m_ShotShape == SHOT_SHAPE_LINE ){
-				float angle = ::atan2( m_Line.GetEndY() - m_Line.GetStartY(), -m_Line.GetEndX() + m_Line.GetStartX() ) - MAPIL::DegToRad( 90.0f );
-				float length = std::sqrt(	( m_Line.GetEndX() - m_Line.GetStartX() ) * ( m_Line.GetEndX() - m_Line.GetStartX() ) + 
-											( m_Line.GetEndY() - m_Line.GetStartY() ) * ( m_Line.GetEndY() - m_Line.GetStartY() ) );
-				unsigned int texSizeX;
-				unsigned int texSizeY;
-				MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
-				MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-									m_Line.GetStartX() - texSizeX / 2,
-									m_Line.GetStartY(),
-									1.0f,
-									length / texSizeY,
-									angle,
-									false );
-			}
-		}
-	}
-
-#elif defined ( USE_GAME_UNIT )
 	void EnemyShot::Impl::Draw()
 	{
 		if( m_StatusFlags[ INVISIBLE ] ){
@@ -456,29 +371,7 @@ namespace GameEngine
 		}
 
 		if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
-			/*if( m_StatusFlags[ HAS_CONS_ATTR ] ){
-				if( m_AtlasImgID == -1 ){
-					AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-										m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										posX, posY, scale, scale, m_ImgRotAngle, true, color );
-					if( ( m_Counter / 4 ) % 2 == 0 ){
-						AddToSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-											m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
-					}
-				}
-				else{
-					AddToAtlasSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-											m_AtlasImgID,
-											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
-					if( ( m_Counter / 4 ) % 2 == 0 ){
-						AddToAtlasSpriteBatch(	MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-												m_AtlasImgID,
-												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
-					}
-				}
-			}
-			else */if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
+			if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
 				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 					if( m_AtlasImgID == -1 ){
 						AddToSpriteBatch(	m_AlphaBlendingMode,
@@ -544,57 +437,7 @@ namespace GameEngine
 			}
 		}
 	}
-#endif
 
-#if defined ( USE_FLOATING_POINT )
-	bool EnemyShot::Impl::Update()
-	{
-		if( m_StatusFlags[ PAUSED ] ){
-			return true;
-		}
-
-		// メッセージ処理
-		ProcessMessages();
-		
-		// 死亡判定処理
-		if( m_StatusFlags[ DEAD ] ){
-			++m_DeadCounter;
-			if( m_DeadCounter >= 20 ){
-				return false;
-			}
-		}
-		else{
-
-			if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
-				m_PosX += m_Speed * ::cos( m_Angle );
-				m_PosY -= m_Speed * ::sin( m_Angle );
-				m_Circle.SetCenterX( m_PosX );
-				m_Circle.SetCenterY( m_PosY );
-			}
-			else if( m_ShotShape == SHOT_SHAPE_LINE ){
-				m_PosX = m_Line.GetStartX();
-				m_PosY = m_Line.GetStartY();
-			}
-
-
-			if( m_PosX < 0.0f || m_PosX > 640.0f || m_PosY < -30.0f || m_PosY > 500.0f ){
-				return false;
-			}
-		}
-
-		if( m_ImgRotMode == IMG_ROT_MODE_SYNC ){
-			m_ImgRotAngle = m_Angle + static_cast < float > ( MAPIL::DegToRad( 90.0f ) );
-		}
-		else if( m_ImgRotMode == IMG_ROT_MODE_AUTO ){
-			m_ImgRotAngle += m_ImgRotAnglePerFrame;
-		}
-
-		++m_Counter;
-
-		return true;
-	}
-
-#elif defined ( USE_GAME_UNIT )
 	bool EnemyShot::Impl::Update()
 	{
 		if( m_StatusFlags[ PAUSED ] ){
@@ -643,7 +486,6 @@ namespace GameEngine
 
 		return true;
 	}
-#endif
 	
 
 	inline int EnemyShot::Impl::GetPower() const
@@ -651,14 +493,10 @@ namespace GameEngine
 		return m_Power;
 	}
 
-	
-
 	inline void EnemyShot::Impl::SetPower( int power )
 	{
 		m_Power = power;
 	}
-
-	
 
 	inline void EnemyShot::Impl::SetImage( int id )
 	{
@@ -689,8 +527,6 @@ namespace GameEngine
 		PrepDestroy();
 	}
 
-	
-
 	inline void EnemyShot::Impl::JoinShotGroup( int id, EnemyShotGroup* pGroup )
 	{
 		m_ShotGroupData.m_ID = id;
@@ -702,77 +538,6 @@ namespace GameEngine
 		return m_Counter;
 	}
 
-#if defined ( USE_FLOATING_POINT )
-
-	inline void EnemyShot::Impl::GetPos( float* pX, float* pY )
-	{
-		*pX = m_PosX;
-		*pY = m_PosY;
-	}
-
-	inline void EnemyShot::Impl::SetPos( float posX, float posY )
-	{
-		m_PosX = posX;
-		m_PosY = posY;
-	}
-
-	inline void EnemyShot::Impl::SetAngle( float angle )
-	{
-		m_Angle = angle;
-	}
-
-	inline void EnemyShot::Impl::SetSpeed( float speed )
-	{
-		m_Speed = speed;
-	}
-
-	inline void EnemyShot::Impl::SetCollisionRadius( float radius )
-	{
-		m_ColRadius = radius;
-		if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
-			m_Circle.SetRadius( radius );
-		}
-	}
-
-	inline float EnemyShot::Impl::GetCollisionRadius() const
-	{
-		return m_ColRadius;
-	}
-
-	inline void EnemyShot::Impl::AddPos( float x, float y )
-	{
-		m_PosX += x;
-		m_PosY += y;
-	}
-
-	inline void EnemyShot::Impl::AddAngle( float angle )
-	{
-		m_Angle += angle;
-	}
-
-	inline void EnemyShot::Impl::AddSpeed( float speed )
-	{
-		m_Speed += speed;
-	}
-
-	inline bool EnemyShot::Impl::DoesColideWithPlayer( float x, float y, float radius )
-	{
-		Circle c;
-		c.SetCenterX( x );
-		c.SetCenterY( y );
-		c.SetRadius( radius );
-
-		if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
-			return m_Circle.Colided( &c );
-		}
-		else if( m_ShotShape == SHOT_SHAPE_LINE ){
-			return m_Line.Colided( &c );
-		}
-
-		return false;
-	}
-
-#elif defined ( USE_GAME_UNIT )
 	inline void EnemyShot::Impl::GetPos( GameUnit* pX, GameUnit* pY )
 	{
 		*pX = m_GUData.m_PosX;
@@ -845,7 +610,6 @@ namespace GameEngine
 
 		return false;
 	}
-#endif
 	
 	void EnemyShot::Impl::ProcessMessages()
 	{
@@ -853,10 +617,10 @@ namespace GameEngine
 			int msg = m_MsgQueue.front().m_MsgID;
 			switch( msg ){
 				case EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_DAMAGED:
-					PrepDestroy();
+					Delete( DELETE_BY_PLAYER_DAMAGE );
 					break;
 				case EnemyShotMessage::ENEMY_SHOT_MESSAGE_ID_PLAYER_BOMBED:
-					PrepDestroy();
+					Delete( DELETE_BY_PLAYER_SKILL );
 					break;
 				default:
 					break;
@@ -920,16 +684,6 @@ namespace GameEngine
 		m_ShotShape = shape;
 	}
 
-#if defined ( USE_FLOATING_POINT )
-	void EnemyShot::Impl::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
-	{
-		m_Line.SetStartX( x1 );
-		m_Line.SetStartY( y1 );
-		m_Line.SetEndX( x2 );
-		m_Line.SetEndY( y2 );
-		m_Line.SetThickness( thickness );
-	}
-#elif defined ( USE_GAME_UNIT )
 	void EnemyShot::Impl::SetLinePos(	const GameUnit& x1,
 										const GameUnit& y1,
 										const GameUnit& x2,
@@ -942,7 +696,6 @@ namespace GameEngine
 		m_Line.SetEndY( y2.GetFloat() );
 		m_Line.SetThickness( thickness.GetFloat() );
 	}
-#endif
 
 	inline void EnemyShot::Impl::EnableInvincibleMode()
 	{
@@ -984,6 +737,52 @@ namespace GameEngine
 	void EnemyShot::Impl::SetDrawingMultiplicity( int num )
 	{
 		m_DrawingMultiplicity = num;
+	}
+
+	void EnemyShot::Impl::Delete( int by )
+	{
+		if( m_StatusFlags[ DEAD ] ){
+			return;
+		}
+
+		if( by == DELETE_BY_PLAYER_DAMAGE && m_StatusFlags[ NOT_DELETE_BY_PLAYER_DAMAGE ] ){
+			return;
+		}
+
+		if( by == DELETE_BY_PLAYER_SKILL && m_StatusFlags[ NOT_DELETE_BY_PLAYER_SKILL ] ){
+			return;
+		}
+
+		m_DeadCounter = 0;
+		m_StatusFlags.set( DEAD );
+	}
+
+	void EnemyShot::Impl::DeleteWhen( int when )
+	{
+		switch( when ){
+			case DELETE_BY_PLAYER_DAMAGE:
+				m_StatusFlags.reset( NOT_DELETE_BY_PLAYER_DAMAGE );
+				break;
+			case DELETE_BY_PLAYER_SKILL:
+				m_StatusFlags.reset( NOT_DELETE_BY_PLAYER_SKILL );
+				break;
+			default:
+				break;
+		}
+	}
+
+	void EnemyShot::Impl::NotDeleteWhen( int when )
+	{
+		switch( when ){
+			case DELETE_BY_PLAYER_DAMAGE:
+				m_StatusFlags.set( NOT_DELETE_BY_PLAYER_DAMAGE );
+				break;
+			case DELETE_BY_PLAYER_SKILL:
+				m_StatusFlags.set( NOT_DELETE_BY_PLAYER_SKILL );
+				break;
+			default:
+				break;
+		}
 	}
 
 	// ----------------------------------
@@ -1127,68 +926,6 @@ namespace GameEngine
 		m_pImpl->SetAlphaBlendingMode( mode );
 	}
 
-#if defined ( USE_FLOATING_POINT )
-
-	void EnemyShot::Init( float posX, float posY )
-	{
-	}
-
-	void EnemyShot::SetPos( float posX, float posY )
-	{
-		m_pImpl->SetPos( posX, posY );
-	}
-
-	void EnemyShot::SetLinePos( float x1, float y1, float x2, float y2, float thickness )
-	{
-		m_pImpl->SetLinePos( x1, y1, x2, y2, thickness );
-	}
-
-	void EnemyShot::GetPos( float* pPosX, float* pPosY )
-	{
-		m_pImpl->GetPos( pPosX, pPosY );
-	}
-
-	float EnemyShot::GetCollisionRadius()
-	{
-		return m_pImpl->GetCollisionRadius();
-	}
-
-	void EnemyShot::SetAngle( float angle )
-	{
-		m_pImpl->SetAngle( angle );
-	}
-
-	void EnemyShot::SetSpeed( float speed )
-	{
-		m_pImpl->SetSpeed( speed );
-	}
-
-	void EnemyShot::SetCollisionRadius( float radius )
-	{
-		m_pImpl->SetCollisionRadius( radius );
-	}
-
-	void EnemyShot::AddPos( float x, float y )
-	{
-		m_pImpl->AddPos( x, y );
-	}
-
-	void EnemyShot::AddAngle( float angle )
-	{
-		m_pImpl->AddAngle( angle );
-	}
-
-	void EnemyShot::AddSpeed( float speed )
-	{
-		m_pImpl->SetSpeed( speed );
-	}
-
-	bool EnemyShot::DoesColideWithPlayer( float x, float y, float radius )
-	{
-		return m_pImpl->DoesColideWithPlayer( x, y, radius );
-	}
-
-#elif defined ( USE_GAME_UNIT )
 	void EnemyShot::Init( const GameUnit& posX, const GameUnit& posY )
 	{
 	}
@@ -1262,8 +999,6 @@ namespace GameEngine
 		return m_pImpl->GetSpeed();
 	}
 
-#endif
-
 	void EnemyShot::SetShape( int shape )
 	{
 		m_pImpl->SetShape( shape );
@@ -1299,5 +1034,20 @@ namespace GameEngine
 	void EnemyShot::SetDrawingMultiplicity( int num )
 	{
 		m_pImpl->SetDrawingMultiplicity( num );
+	}
+
+	void EnemyShot::Delete( int by )
+	{
+		m_pImpl->Delete( by );
+	}
+
+	void EnemyShot::DeleteWhen( int when )
+	{
+		m_pImpl->DeleteWhen( when );
+	}
+
+	void EnemyShot::NotDeleteWhen( int when )
+	{
+		m_pImpl->NotDeleteWhen( when );
 	}
 }

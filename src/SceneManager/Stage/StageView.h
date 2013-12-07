@@ -33,6 +33,7 @@ namespace GameEngine
 			int		m_BaseScore;
 			int		m_Difficulty;
 			int		m_MaxHP;
+			int		m_UpdateCounter;
 		};
 
 		int			m_Counter;

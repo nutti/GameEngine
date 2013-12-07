@@ -97,6 +97,7 @@ namespace GameEngine
 		int					m_Regs[ MAX_ENEMY_REGS ];			// 汎用レジスタ
 		std::weak_ptr < Item >		m_RefItem;			// 現在参照しているアイテム
 		std::queue < int >					m_EventQueue;		// イベントキュー
+		std::weak_ptr < Enemy >		m_Self;			// 自己参照
 	};
 
 	// 速度向上のため、pimplイディオムは使用しない。
@@ -124,6 +125,7 @@ namespace GameEngine
 				int id,
 				StageData* pStageData );
 		~Enemy();
+		void SetSelfRef( std::shared_ptr < Enemy > self );
 		void Draw();										// 描画
 		bool Update();										// 更新
 		void Colided( CollisionObject* pObject );			// 衝突時の処理 ディスパッチャ
@@ -132,7 +134,6 @@ namespace GameEngine
 		void ProcessCollision( PlayerShot* pPlayerShot );	// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
-		//void ProcessCollision( std::shared_ptr < Item > pItem );				// 衝突時の処理（アイテム）
 		void Damage( int val );								// ダメージを与える
 #if defined ( USE_FLOATING_POINT )
 		void Init( float posX, float posY );				// 初期化

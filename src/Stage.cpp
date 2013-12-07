@@ -627,7 +627,7 @@ namespace GameEngine
 		// スクリプトエフェクトの更新
 		for( ScriptEffectList::iterator it = m_Data.m_ScriptEffectList.begin(); it != m_Data.m_ScriptEffectList.end(); ){
 			if( !( *it )->Update() ){
-				delete( *it );
+				//delete( *it );
 				it = m_Data.m_ScriptEffectList.erase( it );
 				continue;
 			}
@@ -734,9 +734,6 @@ namespace GameEngine
 
 	void Stage::Impl::DeleteAllEnemies()
 	{
-		//for( EnemyList::iterator it = m_Data.m_EnemyList.begin(); it != m_Data.m_EnemyList.end(); ++it ){
-			//delete ( *it );
-		//}
 		m_Data.m_EnemyList.clear();
 	}
 
@@ -760,9 +757,9 @@ namespace GameEngine
 
 	void Stage::Impl::DeleteAllScriptEffects()
 	{
-		for( ScriptEffectList::iterator it = m_Data.m_ScriptEffectList.begin(); it != m_Data.m_ScriptEffectList.end(); ++it ){
-			delete ( *it );
-		}
+		//for( ScriptEffectList::iterator it = m_Data.m_ScriptEffectList.begin(); it != m_Data.m_ScriptEffectList.end(); ++it ){
+		//	delete ( *it );
+		//}
 		m_Data.m_ScriptEffectList.clear();
 	}
 
@@ -1595,6 +1592,7 @@ namespace GameEngine
 			for( int i = 0; i < m_Data.m_ResourceMap.m_pStageResourceMap->m_SkinModelMap.size(); ++i ){
 				if( m_Data.m_ResourceMap.m_pStageResourceMap->m_SkinModelMap[ i ] >= 0 ){
 					MAPIL::AddSkinMeshModelOn2DBatchWork(	m_Data.m_ResourceMap.m_pStageResourceMap->m_SkinModelMap[ i ],
+															MAPIL::ALPHA_BLEND_MODE_ADD,
 															-100.0f, -100.0f, -100.0f,
 															1.0f, 1.0f, 1.0f,
 															1.0f, 1.0f, 1.0f,

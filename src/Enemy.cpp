@@ -100,6 +100,11 @@ namespace GameEngine
 	}
 #endif
 
+	void Enemy::SetSelfRef( std::shared_ptr < Enemy > self )
+	{
+		m_Data.m_Self = self;
+	}
+
 #if defined ( USE_FLOATING_POINT )
 	void Enemy::Draw()
 	{
@@ -254,118 +259,6 @@ void Enemy::Draw()
 		float posZ = m_Data.m_GUData.m_PosZ.GetFloat();
 		float colRadius = m_Data.m_GUData.m_ColRadius.GetFloat();
 
-		int attrEffect[] = { 0xFFFFFFFF, 0xFF33FF33, 0xFF3333FF, 0xFFFF3333 };
-		if( m_Data.m_IsConsSkillMode ){
-			// 効果音再生
-			if( m_PrivateData.m_ConsSkillEffectCounter == 1 ){
-				MAPIL::PlayStaticBuffer( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_2 ] );
-			}
-			else if( m_PrivateData.m_ConsSkillEffectCounter == 60 ){
-				MAPIL::PlayStaticBuffer( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_1 ] );
-				MAPIL::PlayStaticBuffer( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_3 ] );
-			}
-
-			// エフェクト表示
-			float offsets[ 10 ] = { 0.03f, 0.04f, -0.01f, 0.01f, 0.0f, 0.06f, 0.1f, -0.1f, -0.3f, 1.0f };
-			for( int i = 0; i < 10; ++i ){
-				if( m_PrivateData.m_ConsSkillEffectCounter < i * 3 + 10 && m_PrivateData.m_ConsSkillEffectCounter >= i * 3 ){
-					int counter = m_PrivateData.m_ConsSkillEffectCounter - i * 3;
-					MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2 ],
-										posX + ( 10 - counter ) * 15.0f * ::sin( MAPIL::DegToRad( i * 36 ) + offsets[ i ] ),
-										posY + ( 10 - counter ) * 15.0f * ::cos( MAPIL::DegToRad( i * 36 ) + offsets[ i ] ),
-										true, attrEffect[ m_Data.m_ConsSkillAttr ] );
-				}
-			}
-			if( m_PrivateData.m_ConsSkillEffectCounter <= 30 && m_PrivateData.m_ConsSkillEffectCounter > 20 ){
-				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_3 ],
-									posX, posY,
-									( 30 - m_PrivateData.m_ConsSkillEffectCounter ) * 0.8f,
-									( 30 - m_PrivateData.m_ConsSkillEffectCounter ) * 0.8f, true, attrEffect[ m_Data.m_ConsSkillAttr ] );
-			}
-			else if( m_PrivateData.m_ConsSkillEffectCounter > 60 ){
-				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2 ],
-									posX, posY, 
-									m_PrivateData.m_ConsSkillEffectCounter > 80 ? 13.0f : ( m_PrivateData.m_ConsSkillEffectCounter - 54 ) * 0.5f,
-									m_PrivateData.m_ConsSkillEffectCounter > 80 ? 13.0f : ( m_PrivateData.m_ConsSkillEffectCounter - 54 ) * 0.5f,
-									-m_Data.m_Counter * 0.1f, true,
-									0xFF << 24 );
-				MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
-				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1 ],
-									posX, posY,
-									m_PrivateData.m_ConsSkillEffectCounter > 80 ? 1.0f : ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.05f,
-									m_PrivateData.m_ConsSkillEffectCounter > 80 ? 1.0f : ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.05f,
-									m_Data.m_Counter * 0.1f, true, attrEffect[ m_Data.m_ConsSkillAttr ]/*0xBBBBBBBB*/ );
-				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1 ],
-									posX, posY,
-									m_PrivateData.m_ConsSkillEffectCounter > 80 ? 0.7f : ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.035f,
-									m_PrivateData.m_ConsSkillEffectCounter > 80 ? 0.7f : ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.035f,
-									-m_Data.m_Counter * 0.1f, true, attrEffect[ m_Data.m_ConsSkillAttr ] );
-				MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
-				if( m_PrivateData.m_ConsSkillEffectCounter <= 260 ){
-					MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_3 ],
-										posX, posY,
-										( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.3f,
-										( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 0.3f, true,
-										( ( 260 - m_PrivateData.m_ConsSkillEffectCounter ) ) << 24 | attrEffect[ m_Data.m_ConsSkillAttr ] & 0xFFFFFF );
-				}
-			}
-			// 技名表示
-			if( !m_Data.m_IsBoss ){
-				if( m_PrivateData.m_ConsSkillEffectCounter <= 80 && m_PrivateData.m_ConsSkillEffectCounter > 60 ){
-					DrawFontString(	*m_Data.m_pResouceMap.get(),
-									posX + ( m_PrivateData.m_ConsSkillEffectCounter - 80 ) * 6.0f,
-									posY - 20.0f,
-									0.4f,
-									( ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 7 + 100 ) << 24 | 0xFF55FF, m_Data.m_ConsSkillName.c_str() );
-					DrawFontString(	*m_Data.m_pResouceMap.get(),
-									posX + ( 80 - m_PrivateData.m_ConsSkillEffectCounter ) * 6.0f,
-									posY - 20.0f,
-									0.4f,
-									( ( m_PrivateData.m_ConsSkillEffectCounter - 60 ) * 7 + 100 ) << 24 | 0xFF55FF, m_Data.m_ConsSkillName.c_str() );
-				}
-				else if( m_PrivateData.m_ConsSkillEffectCounter > 80 ){
-					DrawFontString( *m_Data.m_pResouceMap.get(), posX, posY - 20.0f, 0.4f, 0xFFFF55FF, m_Data.m_ConsSkillName.c_str() );
-				}
-			}
-		}
-		// 意識技後エフェクト
-		else{
-			if( m_PrivateData.m_ConsSkillEffectPostCounter <= 20 ){
-				// 技名表示
-				if( !m_Data.m_IsBoss ){
-					DrawFontString(	*m_Data.m_pResouceMap.get(),
-									posX + m_PrivateData.m_ConsSkillEffectPostCounter * 6.0f,
-									posY - 20.0f,
-									0.4f,
-									( 240 - m_PrivateData.m_ConsSkillEffectPostCounter * 7 ) << 24 | 0xFF55FF, m_Data.m_ConsSkillName.c_str() );
-					DrawFontString(	*m_Data.m_pResouceMap.get(),
-									posX + ( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 6.0f,
-									posY - 20.0f,
-									0.4f,
-									( 240 - m_PrivateData.m_ConsSkillEffectPostCounter * 7 ) << 24 | 0xFF55FF, m_Data.m_ConsSkillName.c_str() );
-				}
-
-				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_2 ],
-									posX, posY, 
-									( 26 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.5f,
-									( 26 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.5f,
-									-m_Data.m_Counter * 0.1f, true,
-									0xFF << 24 );
-				MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT );
-				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1 ],
-									posX, posY,
-									( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.05f,
-									( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.05f,
-									m_Data.m_Counter * 0.1f, true, attrEffect[ m_Data.m_ConsSkillAttr ] );
-				MAPIL::DrawTexture( m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_EFFECT_CONS_SKILL_1 ],
-									posX, posY,
-									( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.035f,
-									( 20 - m_PrivateData.m_ConsSkillEffectPostCounter ) * 0.035f,
-									-m_Data.m_Counter * 0.1f, true, attrEffect[ m_Data.m_ConsSkillAttr ] );
-				MAPIL::Set2DAlphaBlendingMode( MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
-			}
-		}
-
 		// HP/意識量の表示
 		if( !m_Data.m_IsNonCollisionMode && !m_Data.m_IsBoss ){
 			MAPIL::DrawTexture(	m_Data.m_pResouceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE ],
@@ -397,6 +290,7 @@ void Enemy::Draw()
 			else if( m_Data.m_DispMode == EnemyData::DISPLAY_MODE_3D_ANIM ){
 				MAPIL::EndRendering2DGraphics();
 				MAPIL::AddSkinMeshModelOn2DBatchWork(	m_Data.m_pResouceMap->m_pStageResourceMap->m_SkinModelMap[ m_Data.m_ImgID ],
+														MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
 														posX, posY, posZ,
 														m_Data.m_ScaleX, m_Data.m_ScaleY, m_Data.m_ScaleZ,
 														m_Data.m_RotX, m_Data.m_RotY, m_Data.m_RotZ,
@@ -763,26 +657,10 @@ void Enemy::Draw()
 			++m_Data.m_pStageData->m_FrameGameData.m_Killed;
 			m_Data.m_Destroyed = true;
 
-			// 撃破エフェクトの作成
-			Effect* pEffect = m_Data.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_ENEMY_DESTORYED, 0 );
-			pEffect->SetPos( m_Data.m_GUData.m_PosX.GetFloat(), m_Data.m_GUData.m_PosY.GetFloat() );
-			pEffect->SetReg( 0, 1 );
-			pEffect->SetReg( 1, scoreFact );
-			pEffect->SetReg( 2, addScore );
-			m_Data.m_pStageData->m_EffectList.push_back( pEffect );
-
 			// ビューリストへ通知
 			std::for_each(	m_Data.m_pStageData->m_ViewList.begin(), m_Data.m_pStageData->m_ViewList.end(),
 							[this]( std::shared_ptr < StageView > view ){ view->OnEnemyDestroyed( m_Data ); } );
 		}
-
-/*		// 撃破エフェクトの作成
-		Effect* pEffect = m_Data.m_pStageData->m_ObjBuilder.CreateEffect( EFFECT_ID_PLAYER_SHOT_COLLIDED, 0 );
-		GameUnit x;
-		GameUnit y;
-		pPlayerShot->GetPos( &x, &y );
-		pEffect->SetPos( x.GetFloat(), y.GetFloat() );
-		m_Data.m_pStageData->m_EffectList.push_back( pEffect );*/
 	}
 #endif
 

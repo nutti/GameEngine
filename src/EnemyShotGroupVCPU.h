@@ -70,6 +70,11 @@ namespace GameEngine
 		void SysSetEnemyShotImgRotAnglePerFrame();
 		void SysSetEnemyShotDrawingMultiplicity();
 		void SysSetEnemyShotAlphaBlendingMode();
+		void SysEnemyShotDeleteByPlayerSkill();
+		void SysEnemyShotDeleteByPlayerDamage();
+		void SysEnemyShotNotDeleteByPlayerSkill();
+		void SysEnemyShotNotDeleteByPlayerDamage();
+
 
 		void SysEnemyShotAddAngle();
 		void SysEnemyShotSetImgScale();

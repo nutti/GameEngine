@@ -9,6 +9,7 @@
 #include "Item.h"
 #include "Effect.h"
 #include "EnemyShotGroup.h"
+#include "ScriptEffect.h"
 
 namespace GameEngine
 {
@@ -752,6 +753,53 @@ namespace GameEngine
 		m_pEnemyData->m_pStageData->m_EffectList.push_back( pNewEffect );
 	}
 
+	void EnemyVCPU::SysCreateScriptEffectReg()
+	{
+		Pop();
+		int reg = Top().m_Integer;
+		Pop();
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ScriptEffect* pNewEffect = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, m_pEnemyData->m_Self );
+		pNewEffect->Init( x, y );
+		pNewEffect->SetReg( 0, reg );
+		
+		m_pEnemyData->m_pStageData->m_ScriptEffectList.push_back( std::shared_ptr < ScriptEffect > ( std::shared_ptr < ScriptEffect > ( pNewEffect ) ) );
+
+		Push( -1 );
+	}
+
+	void EnemyVCPU::SysCreateScriptEffectFReg5()
+	{
+		float reg[ 5 ];
+
+		Pop();
+		for( int i = 4; i >= 0; --i ){
+			reg[ i ] = Top().m_Float;
+			Pop();
+		}
+		float y = Top().m_Float;
+		Pop();
+		float x = Top().m_Float;
+		Pop();
+		int id = Top().m_Integer;
+		Pop();
+
+		ScriptEffect* pNewEffect = m_pEnemyData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, m_pEnemyData->m_Self );
+		pNewEffect->Init( x, y );
+		for( int i = 0; i < 5; ++i ){
+			pNewEffect->SetReg( i, reg[ i ] );
+		}
+		m_pEnemyData->m_pStageData->m_ScriptEffectList.push_back( std::shared_ptr < ScriptEffect > ( std::shared_ptr < ScriptEffect > ( pNewEffect ) ) );
+
+		Push( -1 );
+	}
+
 	void EnemyVCPU::SysCreateItemGU()
 	{
 		Pop();
@@ -1333,6 +1381,14 @@ namespace GameEngine
 			case VM::SYS_CREATE_ITEM_GU:
 				SysCreateItemGU();
 				break;
+			
+			case VM::SYS_CREATE_SCRIPT_EFFECT_REG:
+				SysCreateScriptEffectReg();
+				break;
+			case VM::SYS_CREATE_SCRIPT_EFFECT_FREG5:
+				SysCreateScriptEffectFReg5();
+				break;
+
 			case VM::SYS_ENEMY_CREATE_SHOT_GROUP:
 				SysCreateEnemyShotGroup();
 				break;

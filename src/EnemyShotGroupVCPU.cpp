@@ -1071,10 +1071,10 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		ScriptEffect* pNewEffect = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		ScriptEffect* pNewEffect = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, std::weak_ptr < Enemy > () );
 		pNewEffect->Init( x, y );
 		pNewEffect->SetReg( 0, reg );
-		m_pEnemyShotGroupData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+		m_pEnemyShotGroupData->m_pStageData->m_ScriptEffectList.push_back( std::shared_ptr < ScriptEffect > ( std::shared_ptr < ScriptEffect > ( pNewEffect ) ) );
 
 		Push( -1 );
 	}
@@ -1095,12 +1095,12 @@ namespace GameEngine
 		int id = Top().m_Integer;
 		Pop();
 
-		ScriptEffect* pNewEffect = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, NULL );
+		ScriptEffect* pNewEffect = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateScriptEffect( id, std::weak_ptr < Enemy > () );
 		pNewEffect->Init( x, y );
 		for( int i = 0; i < 5; ++i ){
 			pNewEffect->SetReg( i, reg[ i ] );
 		}
-		m_pEnemyShotGroupData->m_pStageData->m_ScriptEffectList.push_back( pNewEffect );
+		m_pEnemyShotGroupData->m_pStageData->m_ScriptEffectList.push_back( std::shared_ptr < ScriptEffect > ( std::shared_ptr < ScriptEffect > ( pNewEffect ) ) );
 
 		Push( -1 );
 	}
@@ -1114,6 +1114,46 @@ namespace GameEngine
 		Pop();
 		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetDrawingMultiplicity( num );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotDeleteByPlayerSkill()
+	{
+		Pop();
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->DeleteWhen( DELETE_BY_PLAYER_SKILL );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotDeleteByPlayerDamage()
+	{
+		Pop();
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->DeleteWhen( DELETE_BY_PLAYER_DAMAGE );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotNotDeleteByPlayerSkill()
+	{
+		Pop();
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->NotDeleteWhen( DELETE_BY_PLAYER_SKILL );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysEnemyShotNotDeleteByPlayerDamage()
+	{
+		Pop();
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->NotDeleteWhen( DELETE_BY_PLAYER_DAMAGE );
 		}
 	}
 
@@ -1330,6 +1370,19 @@ namespace GameEngine
 				break;
 			case VM::SYS_GET_EVENT:
 				SysGetEvent();
+				break;
+			
+			case VM::SYS_ENEMY_SHOT_DELETE_BY_PLAYER_SKILL:
+				SysEnemyShotDeleteByPlayerSkill();
+				break;
+			case VM::SYS_ENEMY_SHOT_DELETE_BY_PLAYER_DAMAGE:
+				SysEnemyShotDeleteByPlayerDamage();
+				break;
+			case VM::SYS_ENEMY_SHOT_NOT_DELETE_BY_PLAYER_SKILL:
+				SysEnemyShotNotDeleteByPlayerSkill();
+				break;
+			case VM::SYS_ENEMY_SHOT_NOT_DELETE_BY_PLAYER_DAMAGE:
+				SysEnemyShotNotDeleteByPlayerDamage();
 				break;
 
 			case VM::SYS_CREATE_SCRIPT_EFFECT_REG:

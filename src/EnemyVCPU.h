@@ -105,6 +105,9 @@ namespace GameEngine
 		void SysCreateItem();
 		void SysCreateItemGU();
 
+		void SysCreateScriptEffectReg();
+		void SysCreateScriptEffectFReg5();
+
 		void SysPlaySE();
 		void SysStopSE();
 	public:

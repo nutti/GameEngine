@@ -96,6 +96,60 @@ namespace GameEngine
 		}
 	}
 
+	void EffectVCPU::SysGetEnemyPosXGU()
+	{
+		Pop();
+		std::shared_ptr < Enemy > raw = m_pEffectData->m_ParentEnemy.lock();
+		if( raw ){
+			GameUnit x;
+			GameUnit y;
+			raw->GetPos( &x, &y );
+			Push( x.GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EffectVCPU::SysGetEnemyPosYGU()
+	{
+		Pop();
+		std::shared_ptr < Enemy > raw = m_pEffectData->m_ParentEnemy.lock();
+		if( raw ){
+			GameUnit x;
+			GameUnit y;
+			raw->GetPos( &x, &y );
+			Push( y.GetRawValue() );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EffectVCPU::SysEnemyAlive()
+	{
+		Pop();
+		std::shared_ptr < Enemy > raw = m_pEffectData->m_ParentEnemy.lock();
+		if( raw ){
+			Push( 1 );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
+	void EffectVCPU::SysEnemyInSkillMode()
+	{
+		Pop();
+		std::shared_ptr < Enemy > raw = m_pEffectData->m_ParentEnemy.lock();
+		if( !raw ){
+			Push( 0 );
+			return;
+		}
+
+		Push( raw->IsInSkillMode() );
+	}
+
 	void EffectVCPU::SysGetScriptEffectCounter()
 	{
 		Pop();
@@ -126,27 +180,55 @@ namespace GameEngine
 									atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height );
 	}
 
+	void EffectVCPU::SysDrawTextureAtlasPSRC()
+	{
+		Pop();
+		int color = RetPop().m_Integer;
+		float angle = RetPop().m_Float;
+		float sy = RetPop().m_Float;
+		float sx = RetPop().m_Float;
+		float y = RetPop().m_Float;
+		float x = RetPop().m_Float;
+		int id = RetPop().m_Integer;
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+		MAPIL::DrawClipedTexture(	m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+									x, y, sx, sy, angle,
+									atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height,
+									true, color );
+	}
+
 	void EffectVCPU::SysDrawTextureAtlasBlendingPSR()
 	{
 		Pop();
-		float angle = Top().m_Float;
-		Pop();
-		float sy = Top().m_Float;
-		Pop();
-		float sx = Top().m_Float;
-		Pop();
-		float y = Top().m_Float;
-		Pop();
-		float x = Top().m_Float;
-		Pop();
-		int alphaMode = Top().m_Integer;
-		Pop();
-		int id = Top().m_Integer;
-		Pop();
+		float angle = RetPop().m_Float;
+		float sy = RetPop().m_Float;
+		float sx = RetPop().m_Float;
+		float y = RetPop().m_Float;
+		float x = RetPop().m_Float;
+		int alphaMode = RetPop().m_Integer;
+		int id = RetPop().m_Integer;
 
 		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
 	
 		AddToAtlasSpriteBatch( alphaMode, id, x, y, sx, sy, angle );
+	}
+
+	void EffectVCPU::SysDrawTextureAtlasBlendingPSRC()
+	{
+		Pop();
+		int color = RetPop().m_Integer;
+		float angle = RetPop().m_Float;
+		float sy = RetPop().m_Float;
+		float sx = RetPop().m_Float;
+		float y = RetPop().m_Float;
+		float x = RetPop().m_Float;
+		int alphaMode = RetPop().m_Integer;
+		int id = RetPop().m_Integer;
+
+		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
+	
+		AddToAtlasSpriteBatch( alphaMode, id, x, y, sx, sy, angle, true, color );
 	}
 
 	void EffectVCPU::SysDrawClipedTextureAtlasP()
@@ -311,6 +393,21 @@ namespace GameEngine
 		Push( m_pEffectData->m_PosY );
 	}
 
+
+	void EffectVCPU::SysPlaySE()
+	{
+		Pop();
+		int id = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_SEMap[ RetPop().m_Integer ];
+		MAPIL::PlayStaticBuffer( id );
+	}
+
+	void EffectVCPU::SysStopSE()
+	{
+		Pop();
+		int id = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_SEMap[ RetPop().m_Integer ];
+		MAPIL::StopStaticBuffer( id );
+	}
+
 	void EffectVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -326,9 +423,28 @@ namespace GameEngine
 			case VM::SYS_ENEMY_GET_POSY:
 				SysGetEnemyPosY();
 				break;
+			case VM::SYS_ENEMY_ALIVE:
+				SysEnemyAlive();
+				break;
+			case VM::SYS_ENEMY_IN_SKILL_MODE:
+				SysEnemyInSkillMode();
+				break;
+
+			case VM::SYS_ENEMY_GET_POSX_GU:
+				SysGetEnemyPosXGU();
+				break;
+			case VM::SYS_ENEMY_GET_POSY_GU:
+				SysGetEnemyPosYGU();
+				break;
 
 			case VM::SYS_DRAW_TEXTURE_ATLAS_PSR:
 				SysDrawTextureAtlasPSR();
+				break;
+			case VM::SYS_DRAW_TEXTURE_ATLAS_PSRC:
+				SysDrawTextureAtlasPSRC();
+				break;
+			case VM::SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSRC:
+				SysDrawTextureAtlasBlendingPSRC();
 				break;
 			case VM::SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSR:
 				SysDrawTextureAtlasBlendingPSR();
@@ -368,6 +484,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_STOP_BGM:
 				SysStopBGM();
+				break;
+			case VM::SYS_PLAY_SE:
+				SysPlaySE();
+				break;
+			case VM::SYS_STOP_SE:
+				SysStopSE();
 				break;
 
 			default:

@@ -138,6 +138,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_Y, TYPE_FLOAT, "GetItemPosY", "" );		// float GetItemPosY();
 	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_X_GU, TYPE_GU, "GetItemPosXGU", "" );		// gu GetItemPosXGU();
 	AddFunction( VM::SYS_ENEMY_GET_ITEM_POS_Y_GU, TYPE_GU, "GetItemPosYGU", "" );		// gu GetItemPosYGU();
+	AddFunction( VM::SYS_ENEMY_ALIVE, TYPE_INTEGER, "EnemyAlive", "" );		// int EnemyAlive();
+	AddFunction( VM::SYS_ENEMY_IN_SKILL_MODE, TYPE_INTEGER, "EnemyInSkillMode", "" );	// int EnemyInSkillMode();
 
 	AddFunction( VM::SYS_SET_ENEMY_SUB_ID, TYPE_VOID, "SetEnemySubID", "i" );			// void SetEnemySubID( sub_id );
 	AddFunction( VM::SYS_SEND_EVENT_TO_ENEMY, TYPE_VOID, "SendEventToEnemy", "sii" );	// void SetEventToEnemy( name, sub_id, event );
@@ -193,7 +195,11 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_SEND_EVENT_TO_ENEMY_SHOT_GROUP, TYPE_VOID, "SendEventToEnemyShotGroup", "ii" );			// void SendEventToEnemyShotGroup( id, event );
 	AddFunction( VM::SYS_SET_ENEMY_SHOT_GROUP_SUB_ID, TYPE_VOID, "SetEnemyShotGroupSubID", "i" );			// void SetEnemyShotGroupSubID( id );
 	AddFunction( VM::SYS_GET_EVENT, TYPE_INTEGER, "GetEvent", "" );										// int GetEvent();
-	
+	AddFunction( VM::SYS_ENEMY_SHOT_DELETE_BY_PLAYER_SKILL, TYPE_VOID, "EnemyShotDeleteByPlayerSkill", "i" );			// void EnemyShotDeleteByPlayerSkill( id );
+	AddFunction( VM::SYS_ENEMY_SHOT_DELETE_BY_PLAYER_DAMAGE, TYPE_VOID, "EnemyShotDeleteByPlayerDamage", "i" );			// void EnemyShotDeleteByPlayerDamage( id );
+	AddFunction( VM::SYS_ENEMY_SHOT_NOT_DELETE_BY_PLAYER_SKILL, TYPE_VOID, "EnemyShotNotDeleteByPlayerSkill", "i" );	// void EnemyShotNotDeleteByPlayerSkill( id );
+	AddFunction( VM::SYS_ENEMY_SHOT_NOT_DELETE_BY_PLAYER_DAMAGE, TYPE_VOID, "EnemyShotNotDeleteByPlayerDamage", "i" );	// void EnemyShotNotDeleteByPlayerDamage( id );
+
 
 	// System call for stage.
 	AddFunction( VM::SYS_STAGE_ADD_ENEMY, TYPE_VOID, "AddEnemy", "i" );					// void AddEnemy( script_id );
@@ -245,7 +251,9 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_CREATE_SCRIPT_EFFECT_REG, TYPE_INTEGER, "CreateScriptEffectReg", "iffi" );		// int CreateScriptEffectReg( id, x, y, reg );
 	AddFunction( VM::SYS_CREATE_SCRIPT_EFFECT_FREG5, TYPE_INTEGER, "CreateScriptEffectFReg5", "ifffffff" );	// int CreateScriptEffectFReg5( id, x, y, reg1, reg2, reg3, reg4, reg5 );
 	AddFunction( VM::SYS_DRAW_TEXTURE_ATLAS_PSR, TYPE_VOID, "DrawTextureAtlasPSR", "ifffff" );	// void DrawTextureAtlasPSR( id, x, y, sx, sy, angle );
+	AddFunction( VM::SYS_DRAW_TEXTURE_ATLAS_PSRC, TYPE_VOID, "DrawTextureAtlasPSRC", "ifffffi" );	// void DrawTextureAtlasPSRC( id, x, y, sx, sy, angle, color );
 	AddFunction( VM::SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSR, TYPE_VOID, "DrawTextureAtlasBlendingPSR", "iifffff" );	// void DrawTextureAtlasBlendingPSR( id, alpha_mode, x, y, sx, sy, angle );
+	AddFunction( VM::SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSRC, TYPE_VOID, "DrawTextureAtlasBlendingPSRC", "iifffffi" );		// void DrawTextureAtlasBlendingPSRC( id, alpha_mode, x, y, sx, sy, angle, color );
 	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_P, TYPE_VOID, "DrawClipedTextureAtlasP", "iffffff" );		// void DrawClipedTextureAtlasP( id, x, y, cx1, cy1, cx2, cy2 );
 	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSR, TYPE_VOID, "DrawClipedTextureAtlasPSR", "ifffffffff" );	// void DrawClipedTextureAtlasPSR( id, x, y, sx, sy, angle, cx1, cy1, cx2, cy2 );
 	AddFunction( VM::SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSRC, TYPE_VOID, "DrawClipedTextureAtlasPSRC", "ifffffiffff" ); // void DrawClipedTextureAtlasPSR( id, x, y, sx, sy, angle, color, cx1, cy1, cx2, cy2 );

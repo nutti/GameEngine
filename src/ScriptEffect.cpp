@@ -10,7 +10,7 @@ namespace GameEngine
 {
 	ScriptEffect::ScriptEffect(	std::shared_ptr < ResourceMap > pMap,
 								std::shared_ptr < EffectScriptData > pData,
-								std::shared_ptr < Enemy > pEnemy,
+								std::weak_ptr < Enemy > pEnemy,
 								int id ) : m_VM(), m_pScriptData( pData )
 	{
 		m_EffectData.m_EffectID = id;

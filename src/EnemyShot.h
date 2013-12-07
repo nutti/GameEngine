@@ -7,6 +7,13 @@
 
 namespace GameEngine
 {
+	enum DeleteBy
+	{
+		DELETE_BY_PLAYER_DAMAGE		= 0,
+		DELETE_BY_PLAYER_SKILL		= 1,
+		DELETE_BY_TOTAL,
+	};
+
 	enum EnemyShotAttr
 	{
 		ENEMY_SHOT_ATTR_NORMAL	= 0,
@@ -28,8 +35,6 @@ namespace GameEngine
 
 		int		m_MsgID;
 	};
-
-	
 
 	struct ResourceMap;
 	class EnemyShotGroup;
@@ -56,20 +61,7 @@ namespace GameEngine
 		void ProcessCollision( EnemyShot* pEnemyShot );		// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
 		int GetPower() const;								// 弾の攻撃力を取得
-#if defined ( USE_FLOATING_POINT )
-		void Init( float posX, float posY );				// 初期化
-		void AddPos( float x, float y );					// 位置を加算
-		void AddAngle( float angle );						// 角度を加算
-		void AddSpeed( float speed );						// 速度を加算
-		void GetPos( float* pPosX, float* pPosY );
-		void SetPos( float posX, float posY );				// 位置を設定
-		void SetLinePos( float x1, float y1, float x2, float y2, float thickness );		// 線の値を設定
-		void SetAngle( float angle );						// 角度を設定
-		void SetSpeed( float speed );						// 速度を設定
-		void SetCollisionRadius( float radius );			// 衝突判定の半径を設定
-		bool DoesColideWithPlayer( float x, float y, float radius );	// プレイヤーとの衝突判定
-		float GetCollisionRadius();
-#elif defined ( USE_GAME_UNIT )
+
 		void Init( const GameUnit& posX, const GameUnit& posY );				// 初期化
 		void AddPos( const GameUnit& x, const GameUnit& y );					// 位置を加算
 		void AddAngle( const GameUnit& angle );						// 角度を加算
@@ -88,7 +80,7 @@ namespace GameEngine
 		GameUnit GetCollisionRadius();
 		GameUnit GetAngle() const;
 		GameUnit GetSpeed() const;
-#endif
+
 		int GetCounter() const;
 		void PostMessage( int msgID );						// メッセージの追加
 		bool IsDead() const;
@@ -107,6 +99,11 @@ namespace GameEngine
 
 		std::string GetMasterEnemyName() const;		// マスタとなる敵の名前を取得
 		void SetDrawingMultiplicity( int num );		// 描画多重度を設定
+
+		void Delete( int by );			// 削除
+
+		void DeleteWhen( int when );
+		void NotDeleteWhen( int when );		// 削除タイミングの設定
 	};
 }
 

@@ -46,7 +46,7 @@ namespace GameEngine
 	public:
 		ScriptEffect(	std::shared_ptr < ResourceMap > pMap,
 						std::shared_ptr < EffectScriptData > pData,
-						std::shared_ptr < Enemy > pEnemy,
+						std::weak_ptr < Enemy > pEnemy,
 						int id );
 		~ScriptEffect();
 		void Init( float posX, float posY );				// ‰Šú‰»

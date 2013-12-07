@@ -33,7 +33,7 @@ namespace GameEngine
 		Effect* CreateEffect( int id, int subID );
 		Item* CreateItem( int id, int subID );
 		EnemyShotGroup* CreateEnemyShotGroup( int id, EnemyData* pData );
-		ScriptEffect* CreateScriptEffect( int id, std::shared_ptr < Enemy > pEnemy );
+		ScriptEffect* CreateScriptEffect( int id, std::weak_ptr < Enemy > pEnemy );
 		void AttachResourceMap( const ResourceMap& map );
 		void AttachScriptData( const ScriptData& data );
 		void AttachStageData( StageData* pData );
@@ -110,7 +110,7 @@ namespace GameEngine
 		return new EnemyShotGroup( m_pResourceMap, m_pScriptData->m_pEnemyShotGroupScriptData, id, pData );
 	}
 
-	inline ScriptEffect* GameObjectBuilder::Impl::CreateScriptEffect( int id, std::shared_ptr < Enemy > pEnemy )
+	inline ScriptEffect* GameObjectBuilder::Impl::CreateScriptEffect( int id, std::weak_ptr < Enemy > pEnemy )
 	{
 		return new ScriptEffect( m_pResourceMap, m_pScriptData->m_pEffectScriptData, pEnemy, id );
 	}
@@ -189,7 +189,7 @@ namespace GameEngine
 		return m_pImpl->CreateEnemyShotGroup( id, pData );
 	}
 
-	ScriptEffect* GameObjectBuilder::CreateScriptEffect( int id, std::shared_ptr < Enemy > pEnemy )
+	ScriptEffect* GameObjectBuilder::CreateScriptEffect( int id, std::weak_ptr < Enemy > pEnemy )
 	{
 		return m_pImpl->CreateScriptEffect( id, pEnemy );
 	}

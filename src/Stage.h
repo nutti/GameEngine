@@ -30,7 +30,7 @@ namespace GameEngine
 	typedef std::list < std::shared_ptr < Item > >		ItemList;
 	typedef std::list < Effect* >			EffectList;
 	typedef std::list < EnemyShotGroup* >	EnemyShotGroupList;
-	typedef std::list < ScriptEffect* >		ScriptEffectList;
+	typedef std::list < std::shared_ptr < ScriptEffect > >		ScriptEffectList;
 
 	struct StageMessage
 	{

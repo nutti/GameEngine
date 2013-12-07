@@ -125,6 +125,8 @@ namespace VM
 		SYS_SEARCH_ENEMY_IN_SKILL_MODE,		// Search enemy in skill mode.
 		SYS_SEARCH_ENEMY_IN_SKILL_MODE_BY_NAME,		// Search enemy in skill mode by name.
 		SYS_DAMAGE_ENEMY,					// Damage enemy.
+		SYS_ENEMY_ALIVE,					// Enemy alive?
+		SYS_ENEMY_IN_SKILL_MODE,			// Enemy in skill mode?
 
 		SYS_ENEMY_GET_ITEM_POS_X_GU,		// Get item position x. (gameunit)
 		SYS_ENEMY_GET_ITEM_POS_Y_GU,		// Get item position y. (gameunit)
@@ -199,6 +201,10 @@ namespace VM
 		SYS_SET_ENEMY_SHOT_GROUP_SUB_ID,
 		SYS_SEND_EVENT_TO_ENEMY_SHOT_GROUP,
 		SYS_GET_EVENT,
+		SYS_ENEMY_SHOT_DELETE_BY_PLAYER_SKILL,
+		SYS_ENEMY_SHOT_DELETE_BY_PLAYER_DAMAGE,
+		SYS_ENEMY_SHOT_NOT_DELETE_BY_PLAYER_SKILL,
+		SYS_ENEMY_SHOT_NOT_DELETE_BY_PLAYER_DAMAGE,
 
 		// For stage script.
 		SYS_STAGE_ADD_ENEMY,				// Add enemy.
@@ -248,7 +254,9 @@ namespace VM
 		SYS_CREATE_SCRIPT_EFFECT_REG,					// Create script effect. (1 reg)
 		SYS_CREATE_SCRIPT_EFFECT_FREG5,					// Create script effect. (5 reg, float)
 		SYS_DRAW_TEXTURE_ATLAS_PSR,						// Draw texture atlas (pos/scale/rot)
+		SYS_DRAW_TEXTURE_ATLAS_PSRC,					// Draw texture atlas (pos/scale/rot/color)
 		SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSR,			// Draw texture atlas (pos/scale/rot, blending)
+		SYS_DRAW_TEXTURE_ATLAS_BLENDING_PSRC,			// Draw texture atlas (pos/scale/rot/color, blending)
 
 		SYS_DRAW_CLIPED_TEXTURE_ATLAS_P,				// Draw cliped texture atlas (pos)
 		SYS_DRAW_CLIPED_TEXTURE_ATLAS_PSR,				// Draw cliped texture atlas (pos/scale/rot)
