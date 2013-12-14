@@ -411,9 +411,9 @@ namespace GameEngine
 				MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
 				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 					MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
-										m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
-										m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
-										1.0f,
+										m_Line.GetStartX() - ( texSizeX * m_ImgScale / 2.0f ) * cos( angle ),
+										m_Line.GetStartY() + ( texSizeX * m_ImgScale / 2.0f ) * sin( angle ),
+										m_ImgScale,
 										length / texSizeY,
 										angle,
 										false, color );
@@ -428,9 +428,9 @@ namespace GameEngine
 				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 					AddToAtlasSpriteBatch(	m_AlphaBlendingMode,
 											m_AtlasImgID,
-											m_Line.GetStartX() - ( texSizeX / 2.0f ) * cos( angle ),
-											m_Line.GetStartY() + ( texSizeX / 2.0f ) * sin( angle ),
-											1.0f,
+											m_Line.GetStartX() - ( texSizeX * m_ImgScale / 2.0f ) * cos( angle ),
+											m_Line.GetStartY() + ( texSizeX * m_ImgScale / 2.0f ) * sin( angle ),
+											m_ImgScale,
 											length / texSizeY, 
 											angle, false, color );
 				}
@@ -524,7 +524,9 @@ namespace GameEngine
 
 	inline void EnemyShot::Impl::ProcessCollision( Player* pPlayer )
 	{
-		PrepDestroy();
+		if( !m_StatusFlags[ NOT_DELETE_BY_PLAYER_DAMAGE ] ){
+			PrepDestroy();
+		}
 	}
 
 	inline void EnemyShot::Impl::JoinShotGroup( int id, EnemyShotGroup* pGroup )
