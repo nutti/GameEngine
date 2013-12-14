@@ -153,14 +153,15 @@ namespace GameEngine
 											GLOBAL_RESOURCE_ID_FONT_TEXTURE_LAST,
 											5, 8, 32, 32, "archive/resource/texture/game_font.png", true );*/
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_FONT_TEXTURE, "archive/resource/texture/common/game_font_2.84pt.png", true );
-		for( int i = 0; i < 4; i = i + 1 ){
+		/*for( int i = 0; i < 4; i = i + 1 ){
 			for( int j = 0; j < 10; j = j + 1 ){
 				m_pResourceManager->AddGlobalTextureAtlasItem(	GLOBAL_TEX_ATLAS_ID_FONT_FIRST + i * 10 + j,
 																GLOBAL_RESOURCE_ID_FONT_TEXTURE,
 																24 * j, 24 * i,
 																24, 24 );
 			}
-		}
+		}*/
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE_ATLAS, 0, "archive/resource/texture_atlas_pattern/font.csv", false );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_1_TEXTURE, "archive/resource/texture/powerup_item_1.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_2_TEXTURE, "archive/resource/texture/powerup_item_2.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE, "archive/resource/texture/crystal.png", true );

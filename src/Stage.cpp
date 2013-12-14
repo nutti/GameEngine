@@ -5,7 +5,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "PlayerShot.h"
-#include "EnemyShot.h"
+#include "GameObject/EnemyShot/EnemyShot.h"
 #include "Item.h"
 #include "Effect.h"
 #include "ScriptEffect.h"

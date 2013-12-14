@@ -2,7 +2,7 @@
 
 #include "EnemyShotGroup.h"
 #include "ResourceTypes.h"
-#include "EnemyShot.h"
+#include "GameObject/EnemyShot/EnemyShot.h"
 #include "Enemy.h"
 #include "Stage.h"
 

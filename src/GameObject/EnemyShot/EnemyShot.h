@@ -3,10 +3,40 @@
 
 #include <memory>
 
-#include "CollisionObject.h"
+#include "../../CollisionObject.h"
 
 namespace GameEngine
 {
+	enum EnemyShotTextureColor
+	{
+		ENEMY_SHOT_TEX_COLOR_YELLOW		= 0,
+		ENEMY_SHOT_TEX_COLOR_BLUE		= 1,
+		ENEMY_SHOT_TEX_COLOR_RED		= 2,
+		ENEMY_SHOT_TEX_COLOR_GREEN		= 3,
+		ENEMY_SHOT_TEX_COLOR_PINK		= 4,
+		ENEMY_SHOT_TEX_COLOR_AQUA		= 5,
+		ENEMY_SHOT_TEX_COLOR_ORANGE		= 6,
+		ENEMY_SHOT_TEX_COLOR_BLACK		= 7,
+		ENEMY_SHOT_TEX_COLOR_TOTAL,
+	};
+
+	enum EnemyShotID
+	{
+		ENEMY_SHOT_ID_FOUR_RAYED_STAR_M		= 0,
+		ENEMY_SHOT_ID_ELLIPSE_S				= 1,
+		ENEMY_SHOT_ID_CRESCENT_M			= 2,
+		ENEMY_SHOT_ID_GLORIOUS_L			= 3,
+		ENEMY_SHOT_ID_HEXAGRAM_M			= 4,
+		ENEMY_SHOT_ID_CHEESE_M				= 5,
+		ENEMY_SHOT_ID_GLORIOUS_M			= 6,
+		ENEMY_SHOT_ID_CIRCLE_M				= 7,
+		ENEMY_SHOT_ID_NEEDLE_M				= 8,
+		ENEMY_SHOT_ID_LASER_M				= 9,
+		ENEMY_SHOT_ID_SMOKE_M				= 10,
+		ENEMY_SHOT_ID_BEAM_M				= 11,
+		ENEMY_SHOT_ID_TOTAL,
+	};
+
 	enum DeleteBy
 	{
 		DELETE_BY_PLAYER_DAMAGE		= 0,
@@ -38,23 +68,23 @@ namespace GameEngine
 
 	struct ResourceMap;
 	class EnemyShotGroup;
+	class EnemyShotImpl;
 	class EnemyShot : public CollisionObject
 	{
 	private:
-		class Impl;
-		std::auto_ptr < EnemyShot::Impl >		m_pImpl;
+		std::auto_ptr < EnemyShotImpl >		m_pImpl;
 	public:
 		EnemyShot( std::shared_ptr < ResourceMap > pMap, int id );
-		~EnemyShot();
-		void Draw();										// 描画
-		bool Update();										// 更新
+		virtual ~EnemyShot();
+		virtual void Draw();										// 描画
+		virtual bool Update();										// 更新
 		void SetPower( int power );							// 弾の攻撃力を設定
 		void SetImage( int id );							// 画像を設定
 		void SetAtlasImage( int id );						// アトラス画像を設定
 		void SetImageScale( float scale );					// 画像の拡大率を設定
 		void SetConsAttr( int attr );						// 意識技専用弾に設定
 		void JoinShotGroup( int id, EnemyShotGroup* pGroup );
-		void Colided( CollisionObject* pObject );			// 衝突時の処理 ディスパッチャ
+		virtual void Colided( CollisionObject* pObject );			// 衝突時の処理 ディスパッチャ
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）
 		void ProcessCollision( Enemy* pEnemy );				// 衝突時の処理（敵）
 		void ProcessCollision( PlayerShot* pPlayerShot );	// 衝突時の処理（プレイヤーショット）
@@ -62,13 +92,13 @@ namespace GameEngine
 		void ProcessCollision( Item* pItem );				// 衝突時の処理（アイテム）
 		int GetPower() const;								// 弾の攻撃力を取得
 
-		void Init( const GameUnit& posX, const GameUnit& posY );				// 初期化
-		void AddPos( const GameUnit& x, const GameUnit& y );					// 位置を加算
+		virtual void Init( const GameUnit& posX, const GameUnit& posY );				// 初期化
+		virtual void AddPos( const GameUnit& x, const GameUnit& y );					// 位置を加算
 		void AddAngle( const GameUnit& angle );						// 角度を加算
 		void AddSpeed( const GameUnit& speed );						// 速度を加算
-		void GetPos( GameUnit* pPosX, GameUnit* pPosY );
-		void SetPos( const GameUnit& posX, const GameUnit& posY );				// 位置を設定
-		void SetLinePos(	const GameUnit& x1,
+		virtual void GetPos( GameUnit* pPosX, GameUnit* pPosY );
+		virtual void SetPos( const GameUnit& posX, const GameUnit& posY );				// 位置を設定
+		virtual void SetLinePos(	const GameUnit& x1,
 							const GameUnit& y1,
 							const GameUnit& x2,
 							const GameUnit& y2,
@@ -104,6 +134,10 @@ namespace GameEngine
 
 		void DeleteWhen( int when );
 		void NotDeleteWhen( int when );		// 削除タイミングの設定
+
+
+		// For line interface.
+		virtual void SetLength( const GameUnit& length );
 	};
 }
 

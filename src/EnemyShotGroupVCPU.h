@@ -102,6 +102,14 @@ namespace GameEngine
 
 		void SysGetDifficulty();
 
+		void SysCreateLaserShot1();
+		void SysCreateLaserShot1Local();
+		void SysCreateBeamShot1();
+		void SysCreateBeamShot1Local();
+		void SysSetLaserShotLength();
+		void SysSetBeamShotLength();
+
+
 		void SysPlaySE();
 		void SysStopSE();
 	public:

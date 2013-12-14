@@ -4,7 +4,8 @@
 
 #include "EnemyShotGroup.h"
 #include "Enemy.h"
-#include "EnemyShot.h"
+#include "GameObject/EnemyShot/EnemyShot.h"
+#include "GameObject/EnemyShot/LaserShot.h"
 #include "Stage.h"
 #include "Player.h"
 #include "ScriptEffect.h"
@@ -1157,6 +1158,82 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysCreateLaserShot1()
+	{
+		Pop();
+		int id = -1;
+		GameUnit x;
+		GameUnit y;
+
+		int texColor = RetPop().m_Integer;
+		int shotID = RetPop().m_Integer;
+		y.SetRawValue( RetPop().m_Integer );
+		x.SetRawValue( RetPop().m_Integer );
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			id = m_pEnemyShotGroupData->m_ShotTotal++;
+			m_pEnemyShotGroupData->m_IsNew = false;
+			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( id );
+			m_pEnemyShotGroupData->m_pShots[ id ] = pNewShot;
+			pNewShot->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
+			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
+			pNewShot->SetPos( x, y );
+			pNewShot->SetImage( texColor );
+		}
+		Push( id );
+	}
+
+	void EnemyShotGroupVCPU::SysCreateLaserShot1Local()
+	{
+		Pop();
+		int id = -1;
+		GameUnit angle;
+		GameUnit radius;
+
+		int texColor = RetPop().m_Integer;
+		int shotID = RetPop().m_Integer;
+		angle.SetRawValue( RetPop().m_Integer );
+		radius.SetRawValue( RetPop().m_Integer );
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			id = m_pEnemyShotGroupData->m_ShotTotal++;
+			m_pEnemyShotGroupData->m_IsNew = false;
+			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( id );
+			m_pEnemyShotGroupData->m_pShots[ id ] = pNewShot;
+			pNewShot->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
+			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
+			GameUnit x = m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosX + radius * CosGU( angle );
+			GameUnit y = m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosY - radius * SinGU( angle );
+			pNewShot->SetPos( x, y );
+			pNewShot->SetImage( texColor );
+		}
+		Push( id );
+	}
+
+	void EnemyShotGroupVCPU::SysCreateBeamShot1()
+	{
+	}
+
+	void EnemyShotGroupVCPU::SysCreateBeamShot1Local()
+	{
+	}
+
+	void EnemyShotGroupVCPU::SysSetLaserShotLength()
+	{
+		Pop();
+		GameUnit length;
+		length.SetRawValue( RetPop().m_Integer );
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetLength( length );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysSetBeamShotLength()
+	{
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -1409,6 +1486,26 @@ namespace GameEngine
 				break;
 			case VM::SYS_STAGE_GET_DIFFICULTY:
 				SysGetDifficulty();
+				break;
+
+
+			case VM::SYS_CREATE_LASER_SHOT_1:
+				SysCreateLaserShot1();
+				break;
+			case VM::SYS_CREATE_LASER_SHOT_1_LOCAL:
+				SysCreateLaserShot1Local();
+				break;
+			case VM::SYS_CREATE_BEAM_SHOT_1:
+				SysCreateBeamShot1();
+				break;
+			case VM::SYS_CREATE_BEAM_SHOT_1_LOCAL:
+				SysCreateBeamShot1Local();
+				break;
+			case VM::SYS_SET_LASER_SHOT_LENGTH:
+				SysSetLaserShotLength();
+				break;
+			case VM::SYS_SET_BEAM_SHOT_LENGTH:
+				SysSetBeamShotLength();
 				break;
 
 			default:

@@ -29,6 +29,7 @@ namespace GameEngine
 			GetLineFromString( &pData, pEnd, str, sizeof( str ) );
 			int count = 0;
 			AtlasData data;
+			bool ok = false;
 			MAPIL::ZeroObject( &data, sizeof( data ) );
 			for( const char* pToken = ::strtok( str, "," ); pToken; pToken = ::strtok( 0, "," ) ){
 				char s[ 1024 ];
@@ -36,6 +37,9 @@ namespace GameEngine
 				switch( count ){
 					// ID
 					case 0:
+						if( !IsDigitString( s ) ){
+							continue;
+						}
 						data.m_ID = ::atoi( s );
 						break;
 					// TexID
@@ -57,6 +61,7 @@ namespace GameEngine
 					// çÇÇ≥
 					case 5:
 						data.m_Height = ::atoi( s );
+						ok = true;
 						break;
 					// ÉåÉWÉXÉ^
 					default:
@@ -64,7 +69,9 @@ namespace GameEngine
 				}
 				++count;
 			}
-			m_AtlasData.push_back( data );
+			if( ok ){
+				m_AtlasData.push_back( data );
+			}
 		}
 	}
 

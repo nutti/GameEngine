@@ -144,6 +144,16 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_SET_ENEMY_SUB_ID, TYPE_VOID, "SetEnemySubID", "i" );			// void SetEnemySubID( sub_id );
 	AddFunction( VM::SYS_SEND_EVENT_TO_ENEMY, TYPE_VOID, "SendEventToEnemy", "sii" );	// void SetEventToEnemy( name, sub_id, event );
 
+	// System call for enemy shot.
+	AddFunction( VM::SYS_CREATE_LASER_SHOT_1, TYPE_INTEGER, "CreateLaserShot1", "ggii" );				// int CreateLaserShot1( gu x, gu y, int id, int tex_color );
+	AddFunction( VM::SYS_CREATE_LASER_SHOT_1_LOCAL, TYPE_INTEGER, "CreateLaserShot1Local", "ggii" );	// int CreateLaserShot1Local( gu radius, gu angle, int id, int tex_color );
+	AddFunction( VM::SYS_CREATE_BEAM_SHOT_1, TYPE_INTEGER, "CreateBeamShot1", "ggii" );			// int CreateBeamShot1( gu x, gu y, int id, int tex_color );
+	AddFunction( VM::SYS_CREATE_BEAM_SHOT_1_LOCAL, TYPE_INTEGER, "CreateBeamShot1Local", "ggii" );			// int CreateBeamShot1Local( gu radius, gu angle, int id, int tex_color );
+	AddFunction( VM::SYS_SET_LASER_SHOT_LENGTH, TYPE_VOID, "SetLaserShotLength", "ig" );		// void SetLaserShotLength( int id, gu length );
+	AddFunction( VM::SYS_SET_BEAM_SHOT_LENGTH, TYPE_VOID, "SetBeamShotLength", "ig" );			// void SetBeamShotLength( int id, gu length );
+
+
+
 	// System call for enemy shot group.
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU, TYPE_VOID, "SetEnemyShotStatusGU", "igggggi" );	// void SetEnemyShotStatusGU( shot_id, x, y, angle, speed, radius, texture_id );
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_ATLAS_GU, TYPE_VOID, "SetEnemyShotStatusAtlasGU", "igggggi" );		// void SetEnemyShotStatusAtlasGU( shot_id, x, y, angle, speed, radius, texture_atlas_id );

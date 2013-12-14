@@ -3,7 +3,7 @@
 #include <MAPIL/MAPIL.h>
 
 #include "Enemy.h"
-#include "EnemyShot.h"
+#include "GameObject/EnemyShot/EnemyShot.h"
 #include "Stage.h"
 #include "Player.h"
 #include "Item.h"

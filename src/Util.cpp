@@ -320,4 +320,20 @@ namespace GameEngine
 
 		return -1;
 	}
+
+	int IsDigitString( const char* str )
+	{
+		if( str[ 0 ] == '\0' ){
+			return 0;
+		}
+
+		while( *str ){
+			if( !isdigit( *str ) ){
+				return 0;
+			}
+			++str;
+		}
+
+		return 1;
+	}
 }

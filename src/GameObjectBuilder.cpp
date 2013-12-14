@@ -3,7 +3,8 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "PlayerShot.h"
-#include "EnemyShot.h"
+#include "GameObject/EnemyShot/EnemyShot.h"
+#include "GameObject/EnemyShot/LaserShot.h"
 #include "Item.h"
 #include "Effect.h"
 #include "EnemyShotGroup.h"
@@ -92,7 +93,13 @@ namespace GameEngine
 
 	inline EnemyShot* GameObjectBuilder::Impl::CreateEnemyShot( int id )
 	{
-		return new EnemyShot( m_pResourceMap, id );
+		switch( id ){
+			case ENEMY_SHOT_ID_LASER_M:
+				return new LaserShot( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_BEAM_M:
+			default:
+				return new EnemyShot( m_pResourceMap, id );
+		}
 	}
 
 	inline Effect* GameObjectBuilder::Impl::CreateEffect( int id, int subID )

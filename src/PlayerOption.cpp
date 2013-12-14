@@ -4,7 +4,7 @@
 #include "GameObjectImplBase.h"
 #include "Player.h"
 #include "PlayerShot.h"
-#include "EnemyShot.h"
+#include "GameObject/EnemyShot/EnemyShot.h"
 #include "Item.h"
 
 #include "Stage.h"
