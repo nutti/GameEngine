@@ -5,6 +5,8 @@
 #include "PlayerShot.h"
 #include "GameObject/EnemyShot/EnemyShot.h"
 #include "GameObject/EnemyShot/LaserShot.h"
+#include "GameObject/EnemyShot/FourRayedStarShot.h"
+#include "GameObject/EnemyShot/NeedleShot.h"
 #include "Item.h"
 #include "Effect.h"
 #include "EnemyShotGroup.h"
@@ -94,6 +96,10 @@ namespace GameEngine
 	inline EnemyShot* GameObjectBuilder::Impl::CreateEnemyShot( int id )
 	{
 		switch( id ){
+			case ENEMY_SHOT_ID_FOUR_RAYED_STAR_M:
+				return new FourRayedStarShot( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_NEEDLE_M:
+				return new NeedleShot( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_LASER_M:
 				return new LaserShot( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_BEAM_M:
