@@ -104,8 +104,10 @@ namespace GameEngine
 
 		// For enemy shot.
 		void SysSetEnemyShotLength();
-		void SysCreateEnemyShotByID();
-		void SysCreateEnemySHotByIDLocal();
+		void SysCreateEnemyShotByIDOrtho();
+		void SysCreateEnemyShotByIDPolar();
+		void SysCreateEnemyShotByIDLocalOrtho();
+		void SysCreateEnemyShotByIDLocalPolar();
 
 
 		void SysPlaySE();

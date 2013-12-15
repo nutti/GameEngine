@@ -2,7 +2,7 @@
 
 #include <bitset>
 
-#include "NormalShot.h"
+#include "GloriousShot.h"
 
 #include "../../ResourceID.h"
 #include "../../ResourceTypes.h"
@@ -13,23 +13,23 @@ namespace GameEngine
 	static const int LAUNCH_EFFECT_TEX_ID		= 1000;
 	static const int LAUNCH_EFFECT_SE_ID		= GLOBAL_RESOURCE_SE_ID_ENEMY_NORMAL_SHOT;
 
-	NormalShot::NormalShot( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
+	GloriousShot::GloriousShot( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
 	{
-		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
-		m_GUData.m_ColRadius = GameUnit( 2 );
+		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT;
+		m_ImgRotAngle = 0.0f;
 	}
 
-	NormalShot::~NormalShot()
+	GloriousShot::~GloriousShot()
 	{
 	}
 
-	void NormalShot::DrawEffect()
+	void GloriousShot::DrawEffect()
 	{
 		if( m_Counter >= 7 ){
 			return;
 		}
 
-		float scale = ( 7 - m_Counter ) * 0.6f + 0.4f;
+		float scale = ( 7 - m_Counter ) * 0.4f + 0.4f;
 
 		ResourceMap::TextureAtlas atlas;
 		atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ LAUNCH_EFFECT_TEX_ID + m_TexColor ];
@@ -39,7 +39,7 @@ namespace GameEngine
 	}
 
 
-	void NormalShot::Draw()
+	void GloriousShot::Draw()
 	{
 		if( m_StatusFlags[ INVISIBLE ] ){
 			return;
@@ -58,32 +58,26 @@ namespace GameEngine
 			scale += m_DeadCounter * 0.05f;
 		}
 
+		// “_–Å
+		if( m_Counter % 16 >= 8 ){
+			m_DrawingMultiplicity = 2;
+		}
+		else{
+			m_DrawingMultiplicity = 1;
+		}
+
 		// •`‰æ
 		for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 			MAPIL::Assert( m_AtlasImgID != -1, CURRENT_POSITION, TSTR( "Invalid image ID was input." ), -1 );
-
-			if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
-				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-
-					AddToAtlasSpriteBatch(	true, m_AlphaBlendingMode,
-											m_AtlasImgID,
-											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
-				}
+			for( int i = 0; i < m_DrawingMultiplicity; ++i ){
+				AddToAtlasSpriteBatch(	true, m_AlphaBlendingMode,
+										m_AtlasImgID,
+										posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
 			}
-			else{
-				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-					ResourceMap::TextureAtlas atlas;
-					atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
-					MAPIL::DrawClipedTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
-												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle,
-												atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height, true, color );
-				}
-			}
-
 		}
 	}
 
-	bool NormalShot::Update()
+	bool GloriousShot::Update()
 	{
 		if( m_StatusFlags[ PAUSED ] ){
 			return true;
@@ -120,14 +114,12 @@ namespace GameEngine
 			}
 		}
 
-		m_ImgRotAngle = MAPIL::DegToRad( m_GUData.m_Angle.GetFloat() + 90.0f );
-
 		++m_Counter;
 
 		return true;
 	}
 
-	void NormalShot::SetTextureColor( int color )
+	void GloriousShot::SetTextureColor( int color )
 	{
 	}
 }

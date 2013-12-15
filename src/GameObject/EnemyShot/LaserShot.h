@@ -30,6 +30,7 @@ namespace GameEngine
 							const GameUnit& thickness );		// ü‚Ì’l‚ğİ’è
 		bool DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius );
 		void SetLength( const GameUnit& length );
+		void SetTextureColor( int color );
 	};
 }
 

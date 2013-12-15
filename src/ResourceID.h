@@ -84,6 +84,8 @@ namespace GameEngine
 		GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_2		= 9,		// 意識技エフェクト(2)
 		GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_3		= 10,		// 意識技エフェクト(3)
 		GLOBAL_RESOURCE_SE_ID_EFFECT_CONS_SKILL_4		= 11,		// 意識技エフェクト(4)
+		GLOBAL_RESOURCE_SE_ID_ENEMY_NORMAL_SHOT			= 12,		// 敵の弾発射（通常）
+		GLOBAL_RESOURCE_SE_ID_ENEMY_LASER_SHOT			= 13,		// 敵の弾発射（レーザー）
 	};
 
 	enum GlobalResourceBGMID

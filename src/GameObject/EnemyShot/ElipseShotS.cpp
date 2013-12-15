@@ -2,25 +2,25 @@
 
 #include <bitset>
 
-#include "NeedleShot.h"
+#include "ElipseShotS.h"
 
 #include "../../ResourceTypes.h"
 #include "../../SpriteBatch.h"
 
 namespace GameEngine
 {
-	static const int SHOT_TEX_ID	= 113;
+	static const int SHOT_TEX_ID	= 57;
 
-	NeedleShot::NeedleShot( std::shared_ptr < ResourceMap > pMap, int id ) :	NormalShot( pMap, id )
+	ElipseShotS::ElipseShotS( std::shared_ptr < ResourceMap > pMap, int id ) :	NormalShot( pMap, id )
 	{
 		m_GUData.m_ColRadius = GameUnit( 2 );
 	}
 
-	NeedleShot::~NeedleShot()
+	ElipseShotS::~ElipseShotS()
 	{
 	}
 
-	void NeedleShot::SetTextureColor( int color )
+	void ElipseShotS::SetTextureColor( int color )
 	{
 		m_TexColor = color;
 		m_AtlasImgID = SHOT_TEX_ID + m_TexColor;

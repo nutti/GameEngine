@@ -508,6 +508,6 @@ namespace GameEngine
 	void EnemyShot::SetTextureColor( int color )
 	{
 		m_TexColor = color;
-		m_AtlasImgID = GLOBAL_TEX_ATLAS_ID_ENEMY_SHOT_FIRST + m_ShotID * ENEMY_SHOT_TEX_COLOR_TOTAL + m_TexColor;
+		m_AtlasImgID = GLOBAL_TEX_ATLAS_ID_ENEMY_SHOT_FIRST + ( m_ShotID -1 ) * ENEMY_SHOT_TEX_COLOR_TOTAL + m_TexColor;
 	}
 }

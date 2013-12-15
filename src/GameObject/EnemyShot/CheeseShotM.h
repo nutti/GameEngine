@@ -1,5 +1,5 @@
-#ifndef INCLUDED_GAMEENGINE_NEEDLESHOT_H
-#define INCLUDED_GAMEENGINE_NEEDLESHOT_H
+#ifndef INCLUDED_GAMEENGINE_CHEESESHOTM_H
+#define INCLUDED_GAMEENGINE_CHEESESHOTM_H
 
 #include <memory>
 
@@ -10,14 +10,14 @@ namespace GameEngine
 
 	struct ResourceMap;
 	class EnemyShotGroup;
-	class NeedleShot : public NormalShot
+	class CheeseShotM : public NormalShot
 	{
 	private:
 		GameUnit			m_BeginPosX;
 		GameUnit			m_BeginPosY;
 	public:
-		NeedleShot( std::shared_ptr < ResourceMap > pMap, int id );
-		~NeedleShot();
+		CheeseShotM( std::shared_ptr < ResourceMap > pMap, int id );
+		~CheeseShotM();
 		void SetTextureColor( int color );
 	};
 }

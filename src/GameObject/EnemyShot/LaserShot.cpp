@@ -5,6 +5,7 @@
 #include "LaserShot.h"
 
 #include "../../ResourceTypes.h"
+#include "../../ResourceID.h"
 #include "../../SpriteBatch.h"
 
 namespace GameEngine
@@ -12,6 +13,7 @@ namespace GameEngine
 	static const int LAUNCH_EFFECT_TEX_ID		= 1024;
 	static const int LASER_MAKER_TEX_ID			= 1016;
 	static const int LASER_SHOT_TEX_ID			= 120;
+	static const int LAUNCH_EFFECT_SE_ID		= GLOBAL_RESOURCE_SE_ID_ENEMY_LASER_SHOT;
 
 	LaserShot::LaserShot( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
 	{
@@ -124,6 +126,7 @@ namespace GameEngine
 		if( m_Counter == 0 ){
 			m_BeginPosX = m_GUData.m_PosX;
 			m_BeginPosY = m_GUData.m_PosY;
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ LAUNCH_EFFECT_SE_ID ] );
 		}
 		
 		// éÄñSîªíËèàóù
@@ -195,5 +198,11 @@ namespace GameEngine
 	void LaserShot::SetLength( const GameUnit& length )
 	{
 		m_Length = length;
+	}
+
+	void LaserShot::SetTextureColor( int color )
+	{
+		m_TexColor = color;
+		m_AtlasImgID = LASER_SHOT_TEX_ID + m_TexColor;
 	}
 }

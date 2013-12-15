@@ -28,19 +28,20 @@ namespace GameEngine
 
 	enum EnemyShotID
 	{
-		ENEMY_SHOT_ID_FOUR_RAYED_STAR_M		= 0,
-		ENEMY_SHOT_ID_ELLIPSE_S				= 1,
-		ENEMY_SHOT_ID_CRESCENT_M			= 2,
-		ENEMY_SHOT_ID_GLORIOUS_L			= 3,
-		ENEMY_SHOT_ID_HEXAGRAM_M			= 4,
-		ENEMY_SHOT_ID_CHEESE_M				= 5,
-		ENEMY_SHOT_ID_GLORIOUS_M			= 6,
-		ENEMY_SHOT_ID_CIRCLE_M				= 7,
-		ENEMY_SHOT_ID_NEEDLE_M				= 8,
-		ENEMY_SHOT_ID_LASER_M				= 9,
-		ENEMY_SHOT_ID_SMOKE_M				= 10,
-		ENEMY_SHOT_ID_RING					= 11,
-		ENEMY_SHOT_ID_BEAM_M				= 12,
+		ENEMY_SHOT_ID_NONE					= 0,
+		ENEMY_SHOT_ID_FOUR_RAYED_STAR_M		= 1,
+		ENEMY_SHOT_ID_ELLIPSE_S				= 2,
+		ENEMY_SHOT_ID_CRESCENT_M			= 3,
+		ENEMY_SHOT_ID_GLORIOUS_CIRCLE_L		= 4,
+		ENEMY_SHOT_ID_HEXAGRAM_M			= 5,
+		ENEMY_SHOT_ID_CHEESE_M				= 6,
+		ENEMY_SHOT_ID_GLORIOUS_CIRCLE_M		= 7,
+		ENEMY_SHOT_ID_CIRCLE_M				= 8,
+		ENEMY_SHOT_ID_NEEDLE_M				= 9,
+		ENEMY_SHOT_ID_LASER_M				= 10,
+		ENEMY_SHOT_ID_SMOKE_M				= 11,
+		ENEMY_SHOT_ID_RING					= 12,
+		ENEMY_SHOT_ID_BEAM_M				= 13,
 		ENEMY_SHOT_ID_TOTAL,
 	};
 
@@ -396,7 +397,7 @@ namespace GameEngine
 		void DeleteWhen( int when );
 		void NotDeleteWhen( int when );		// 削除タイミングの設定
 		virtual void SetLength( const GameUnit& length );
-		void SetTextureColor( int color );
+		virtual void SetTextureColor( int color );
 	};
 
 }

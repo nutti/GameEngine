@@ -148,24 +148,16 @@ namespace GameEngine
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_HP_BAR_TEXTURE, "archive/resource/texture/hpbar.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CONS_BAR_TEXTURE, "archive/resource/texture/consbar.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_BACKGROUND_TEXTURE, "archive/resource/texture/background.png", true );
-		/*m_Loading.AddGlobalResourceItem(	RESOURCE_TYPE_MULTI_TEXTURE,
-											GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST,
-											GLOBAL_RESOURCE_ID_FONT_TEXTURE_LAST,
-											5, 8, 32, 32, "archive/resource/texture/game_font.png", true );*/
+
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_FONT_TEXTURE, "archive/resource/texture/common/game_font_2.84pt.png", true );
-		/*for( int i = 0; i < 4; i = i + 1 ){
-			for( int j = 0; j < 10; j = j + 1 ){
-				m_pResourceManager->AddGlobalTextureAtlasItem(	GLOBAL_TEX_ATLAS_ID_FONT_FIRST + i * 10 + j,
-																GLOBAL_RESOURCE_ID_FONT_TEXTURE,
-																24 * j, 24 * i,
-																24, 24 );
-			}
-		}*/
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_TEXTURE_ID_ENEMY_SHOT, "archive/resource/texture/common/enemy_shot_list.png", false );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_TEXTURE_ID_ENEMY_SHOT_EFFECT, "archive/resource/texture/common/enemy_shot_effect_list.png", false );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE_ATLAS, 0, "archive/resource/texture_atlas_pattern/font.csv", false );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE_ATLAS, 0, "archive/resource/texture_atlas_pattern/enemy_shot.csv", false );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE_ATLAS, 0, "archive/resource/texture_atlas_pattern/enemy_shot_effect.csv", false );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_SE_ID_ENEMY_NORMAL_SHOT, "archive/resource/se/enemy_shot.wav", false );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_SE, GLOBAL_RESOURCE_SE_ID_ENEMY_LASER_SHOT, "archive/resource/se/shot_laser.wav", false );
+
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_1_TEXTURE, "archive/resource/texture/powerup_item_1.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_2_TEXTURE, "archive/resource/texture/powerup_item_2.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE, "archive/resource/texture/crystal.png", true );

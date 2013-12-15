@@ -6,6 +6,9 @@
 #include "GameObject/EnemyShot/EnemyShot.h"
 #include "GameObject/EnemyShot/LaserShot.h"
 #include "GameObject/EnemyShot/FourRayedStarShot.h"
+#include "GameObject/EnemyShot/ElipseShotS.h"
+#include "GameObject/EnemyShot/CheeseShotM.h"
+#include "GameObject/EnemyShot/GloriousCircleShotM.h"
 #include "GameObject/EnemyShot/NeedleShot.h"
 #include "Item.h"
 #include "Effect.h"
@@ -98,6 +101,12 @@ namespace GameEngine
 		switch( id ){
 			case ENEMY_SHOT_ID_FOUR_RAYED_STAR_M:
 				return new FourRayedStarShot( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_ELLIPSE_S:
+				return new ElipseShotS( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_CHEESE_M:
+				return new CheeseShotM( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_GLORIOUS_CIRCLE_M:
+				return new GloriousCircleShotM( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_NEEDLE_M:
 				return new NeedleShot( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_LASER_M:
