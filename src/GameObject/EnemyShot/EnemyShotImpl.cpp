@@ -68,7 +68,7 @@ namespace GameEngine
 											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
 					}
 					else{
-						AddToAtlasSpriteBatch(	m_AlphaBlendingMode,
+						AddToAtlasSpriteBatch(	false, m_AlphaBlendingMode,
 												m_AtlasImgID,
 												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
 					}
@@ -115,7 +115,7 @@ namespace GameEngine
 				texSizeY = atlas.m_Height;
 
 				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-					AddToAtlasSpriteBatch(	m_AlphaBlendingMode,
+					AddToAtlasSpriteBatch(	false, m_AlphaBlendingMode,
 											m_AtlasImgID,
 											m_Line.GetStartX() - ( texSizeX * m_ImgScale / 2.0f ) * cos( angle ),
 											m_Line.GetStartY() + ( texSizeX * m_ImgScale / 2.0f ) * sin( angle ),

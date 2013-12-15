@@ -1198,7 +1198,7 @@ namespace GameEngine
 		if( m_pEnemyShotGroupData->m_EnemyControlled ){
 			id = m_pEnemyShotGroupData->m_ShotTotal++;
 			m_pEnemyShotGroupData->m_IsNew = false;
-			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( id );
+			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( shotID );
 			m_pEnemyShotGroupData->m_pShots[ id ] = pNewShot;
 			pNewShot->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
 			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );

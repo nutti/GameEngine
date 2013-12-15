@@ -70,6 +70,7 @@ namespace GameEngine
 		GLOBAL_RESOURCE_TEXTURE_ID_SCORE_TITLE					= 108,	// スコア画面タイトル画像
 		GLOBAL_RESOURCE_TEXTURE_ID_REPLAY_TITLE					= 109,	// リプレイ画面タイトル画像
 		GLOBAL_RESOURCE_TEXTURE_ID_REPLAY_ENTRY_TITLE			= 110,	// リプレイエントリ画面タイトル画像
+		GLOBAL_RESOURCE_TEXTURE_ID_ENEMY_SHOT					= 111,	// 敵ショット
 	};
 
 	enum GlobalResourceSEID

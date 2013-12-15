@@ -15,7 +15,8 @@ namespace GameEngine
 	LaserShotImpl::LaserShotImpl( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShotImpl( pMap, id )
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT;
-		m_TexColor = 0;
+		m_TexColor = ENEMY_SHOT_TEX_COLOR_YELLOW;
+		m_AtlasImgID = GLOBAL_TEX_ATLAS_ID_ENEMY_SHOT_FIRST + ENEMY_SHOT_ID_LASER_M * ENEMY_SHOT_TEX_COLOR_TOTAL + m_TexColor;
 	}
 
 	LaserShotImpl::~LaserShotImpl()
@@ -56,9 +57,9 @@ namespace GameEngine
 
 		for( int i = 0; i < multiplicity; ++i ){
 			if( m_AtlasImgID == -1 ){
-				MAPIL::GetTextureSize( m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
+				MAPIL::GetTextureSize( m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ m_ImgID ], &texSizeX, &texSizeY );
 				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-					MAPIL::DrawTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ m_ImgID ],
+					MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ m_ImgID ],
 										m_Line.GetStartX() - ( texSizeX * m_ImgScale / 2.0f ) * cos( angle ),
 										m_Line.GetStartY() + ( texSizeX * m_ImgScale / 2.0f ) * sin( angle ),
 										m_ImgScale,
@@ -69,12 +70,13 @@ namespace GameEngine
 			}
 			else{
 				ResourceMap::TextureAtlas atlas;
-				atlas = m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
+				atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
 				texSizeX = atlas.m_Width;
 				texSizeY = atlas.m_Height;
 
 				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-					AddToAtlasSpriteBatch(	m_AlphaBlendingMode,
+					AddToAtlasSpriteBatch(	true,
+											m_AlphaBlendingMode,
 											m_AtlasImgID,
 											m_Line.GetStartX() - ( texSizeX * m_ImgScale / 2.0f ) * cos( angle ),
 											m_Line.GetStartY() + ( texSizeX * m_ImgScale / 2.0f ) * sin( angle ),

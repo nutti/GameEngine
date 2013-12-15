@@ -33,7 +33,8 @@ namespace GameEngine
 		ENEMY_SHOT_ID_NEEDLE_M				= 8,
 		ENEMY_SHOT_ID_LASER_M				= 9,
 		ENEMY_SHOT_ID_SMOKE_M				= 10,
-		ENEMY_SHOT_ID_BEAM_M				= 11,
+		ENEMY_SHOT_ID_RING					= 11,
+		ENEMY_SHOT_ID_BEAM_M				= 12,
 		ENEMY_SHOT_ID_TOTAL,
 	};
 

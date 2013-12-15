@@ -18,6 +18,7 @@ namespace GameEngine
 			float	m_Angle;
 			bool	m_Centerized;
 			int		m_Color;
+			bool	m_Global;
 		};
 		struct WorkScale
 		{
@@ -29,6 +30,7 @@ namespace GameEngine
 			float	m_Angle;
 			bool	m_Centerized;
 			int		m_Color;
+			bool	m_Global;
 		};
 		struct WorkCliped
 		{
@@ -44,6 +46,7 @@ namespace GameEngine
 			float	m_ClipedY1;
 			float	m_ClipedX2;
 			float	m_ClipedY2;
+			bool	m_Global;
 		};
 
 		typedef std::map < int, std::vector < Work > >	WorkList;
@@ -64,11 +67,11 @@ namespace GameEngine
 					bool centerized = true, int color = 0xFFFFFFFF );
 		void Add(	int blendingMode, int texID, float posX, float posY, float scaleX, float scaleY, float angle,
 					bool centerized = true, int color = 0xFFFFFFFF );
-		void AddAtlas(	int blendingMode, int atlasID, float posX, float posY, float angle,
+		void AddAtlas(	bool global, int blendingMode, int atlasID, float posX, float posY, float angle,
 						bool centerized = true, int color = 0xFFFFFFFF );
-		void AddAtlas(	int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
+		void AddAtlas(	bool global, int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
 						bool centerized = true, int color = 0xFFFFFFFF );
-		void AddAtlas(	int blendingMode, int atlasID,
+		void AddAtlas(	bool global, int blendingMode, int atlasID,
 						float cx1, float cy1, float cx2, float cy2,
 						float posX, float posY, float scaleX, float scaleY, float angle,
 						bool centerized = true, int color = 0xFFFFFFFF );
@@ -117,7 +120,7 @@ namespace GameEngine
 		m_WorkScaleList[ blendingMode ].push_back( work );
 	}
 
-	void SpriteBatch::AddAtlas(	int blendingMode, int atlasID, float posX, float posY, float angle,
+	void SpriteBatch::AddAtlas(	bool global, int blendingMode, int atlasID, float posX, float posY, float angle,
 								bool centerized, int color )
 	{
 		SpriteBatch::Work work;
@@ -127,11 +130,12 @@ namespace GameEngine
 		work.m_Angle = angle;
 		work.m_Centerized = centerized;
 		work.m_Color = color;
+		work.m_Global = global;
 
 		m_AtlasWorkList[ blendingMode ].push_back( work );
 	}
 
-	void SpriteBatch::AddAtlas(	int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
+	void SpriteBatch::AddAtlas(	bool global, int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
 								bool centerized, int color )
 	{
 		SpriteBatch::WorkScale work;
@@ -143,11 +147,12 @@ namespace GameEngine
 		work.m_Angle = angle;
 		work.m_Centerized = centerized;
 		work.m_Color = color;
+		work.m_Global = global;
 
 		m_AtlasWorkScaleList[ blendingMode ].push_back( work );
 	}
 
-	void SpriteBatch::AddAtlas(	int blendingMode, int atlasID,
+	void SpriteBatch::AddAtlas(	bool global, int blendingMode, int atlasID,
 								float cx1, float cy1, float cx2, float cy2,
 								float posX, float posY, float scaleX, float scaleY, float angle,
 								bool centerized, int color )
@@ -165,6 +170,7 @@ namespace GameEngine
 		work.m_ClipedY1 = cy1;
 		work.m_ClipedX2 = cx2;
 		work.m_ClipedY2 = cy2;
+		work.m_Global = global;
 		
 		m_AtlasWorkClipedList[ blendingMode ].push_back( work );
 	}
@@ -203,7 +209,12 @@ namespace GameEngine
 			for( int i = 0; i < works.size(); ++i ){
 				const SpriteBatch::Work& w = works[ i ];
 				ResourceMap::TextureAtlas atlas;
-				atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				if( w.m_Global ){
+					atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				}
+				else{
+					atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				}
 				MAPIL::DrawClipedTexture(	map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
 											w.m_PosX, w.m_PosY, 1.0f, 1.0f, w.m_Angle,
 											atlas.m_X, atlas.m_Y,
@@ -219,7 +230,12 @@ namespace GameEngine
 			for( int i = 0; i < works.size(); ++i ){
 				const SpriteBatch::WorkScale& w = works[ i ];
 				ResourceMap::TextureAtlas atlas;
-				atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				if( w.m_Global ){
+					atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				}
+				else{
+					atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				}
 				MAPIL::DrawClipedTexture(	map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
 											w.m_PosX, w.m_PosY, w.m_ScaleX, w.m_ScaleY, w.m_Angle,
 											atlas.m_X, atlas.m_Y,
@@ -235,7 +251,12 @@ namespace GameEngine
 			for( int i = 0; i < works.size(); ++i ){
 				const SpriteBatch::WorkCliped& w = works[ i ];
 				ResourceMap::TextureAtlas atlas;
-				atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				if( w.m_Global ){
+					atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				}
+				else{
+					atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+				}
 				MAPIL::DrawClipedTexture(	map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
 											w.m_PosX, w.m_PosY, w.m_ScaleX, w.m_ScaleY, w.m_Angle,
 											atlas.m_X + w.m_ClipedX1, atlas.m_Y + w.m_ClipedY1,
@@ -272,24 +293,24 @@ namespace GameEngine
 		g_Batch.Add( blendingMode, texID, posX, posY, scaleX, scaleY, angle, centerized, color );
 	}
 
-	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID, float posX, float posY, float angle,
+	void AddToAtlasSpriteBatch(	bool global, int blendingMode, int atlasID, float posX, float posY, float angle,
 								bool centerized, int color )
 	{
-		g_Batch.AddAtlas( blendingMode, atlasID, posX, posY, angle, centerized, color );
+		g_Batch.AddAtlas( global, blendingMode, atlasID, posX, posY, angle, centerized, color );
 	}
 
-	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
+	void AddToAtlasSpriteBatch(	bool global, int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
 								bool centerized, int color )
 	{
-		g_Batch.AddAtlas( blendingMode, atlasID, posX, posY, scaleX, scaleY, angle, centerized, color );
+		g_Batch.AddAtlas( global, blendingMode, atlasID, posX, posY, scaleX, scaleY, angle, centerized, color );
 	}
 
-	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID,
+	void AddToAtlasSpriteBatch(	bool global, int blendingMode, int atlasID,
 								float cx1, float cy1, float cx2, float cy2,
 								float posX, float posY, float scaleX, float scaleY, float angle,
 								bool centerized, int color )
 	{
-		g_Batch.AddAtlas(	blendingMode, atlasID,
+		g_Batch.AddAtlas(	global, blendingMode, atlasID,
 							cx1, cy1, cx2, cy2,
 							posX, posY, scaleX, scaleY, angle, centerized, color );
 	}

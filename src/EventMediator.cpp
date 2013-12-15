@@ -161,7 +161,9 @@ namespace GameEngine
 																24, 24 );
 			}
 		}*/
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_TEXTURE_ID_ENEMY_SHOT, "archive/resource/texture/common/enemy_shot_list.png", false );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE_ATLAS, 0, "archive/resource/texture_atlas_pattern/font.csv", false );
+		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE_ATLAS, 0, "archive/resource/texture_atlas_pattern/enemy_shot.csv", false );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_1_TEXTURE, "archive/resource/texture/powerup_item_1.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_POWER_UP_ITEM_2_TEXTURE, "archive/resource/texture/powerup_item_2.png", true );
 		m_Loading.AddGlobalResourceItem( RESOURCE_TYPE_TEXTURE, GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE, "archive/resource/texture/crystal.png", true );
