@@ -102,6 +102,14 @@ namespace GameEngine
 
 		void SysGetDifficulty();
 
+		// For enemy shot.
+		void SysSetEnemyShotLength();
+		void SysCreateEnemyShotByIDOrtho();
+		void SysCreateEnemyShotByIDPolar();
+		void SysCreateEnemyShotByIDLocalOrtho();
+		void SysCreateEnemyShotByIDLocalPolar();
+
+
 		void SysPlaySE();
 		void SysStopSE();
 	public:

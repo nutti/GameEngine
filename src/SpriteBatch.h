@@ -11,13 +11,13 @@ namespace GameEngine
 	void AddToSpriteBatch(	int blendingMode, int texID, float posX, float posY, float scaleX, float scaleY, float angle,
 							bool centerized = true, int color = 0xFFFFFFFF );
 
-	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID, float posX, float posY, float angle,
+	void AddToAtlasSpriteBatch(	bool global, int blendingMode, int atlasID, float posX, float posY, float angle,
 								bool centerized = true, int color = 0xFFFFFFFF );
 
-	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
+	void AddToAtlasSpriteBatch(	bool global, int blendingMode, int atlasID, float posX, float posY, float scaleX, float scaleY, float angle,
 								bool centerized = true, int color = 0xFFFFFFFF );
 
-	void AddToAtlasSpriteBatch(	int blendingMode, int atlasID,
+	void AddToAtlasSpriteBatch(	bool global, int blendingMode, int atlasID,
 								float cx1, float cy1, float cx2, float cy2,
 								float posX, float posY, float scaleX, float scaleY, float angle,
 								bool centerized = true, int color = 0xFFFFFFFF );

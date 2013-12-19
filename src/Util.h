@@ -48,7 +48,7 @@ namespace GameEngine
 
 	int GetButtonFromString( const std::string& button );
 
-	
+	int IsDigitString( const char* str );
 }
 
 #endif

@@ -4,7 +4,7 @@
 
 #include "EnemyShotGroup.h"
 #include "Enemy.h"
-#include "EnemyShot.h"
+#include "GameObject/EnemyShot/EnemyShot.h"
 #include "Stage.h"
 #include "Player.h"
 #include "ScriptEffect.h"
@@ -1157,6 +1157,125 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysCreateEnemyShotByIDLocalOrtho()
+	{
+		Pop();
+		int id = -1;
+		GameUnit dx;
+		GameUnit dy;
+
+		dy.SetRawValue( RetPop().m_Integer );
+		dx.SetRawValue( RetPop().m_Integer );
+		int texColor = RetPop().m_Integer;
+		int shotID = RetPop().m_Integer;
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			id = m_pEnemyShotGroupData->m_ShotTotal++;
+			m_pEnemyShotGroupData->m_IsNew = false;
+			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( shotID );
+			m_pEnemyShotGroupData->m_pShots[ id ] = pNewShot;
+			pNewShot->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
+			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
+			GameUnit x = m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosX + dx;
+			GameUnit y = m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosY + dy;
+			pNewShot->SetPos( x, y );
+			pNewShot->SetTextureColor( texColor );
+		}
+		Push( id );
+	}
+
+	void EnemyShotGroupVCPU::SysCreateEnemyShotByIDLocalPolar()
+	{
+		Pop();
+		int id = -1;
+		GameUnit angle;
+		GameUnit radius;
+
+		angle.SetRawValue( RetPop().m_Integer );
+		radius.SetRawValue( RetPop().m_Integer );
+		int texColor = RetPop().m_Integer;
+		int shotID = RetPop().m_Integer;
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			id = m_pEnemyShotGroupData->m_ShotTotal++;
+			m_pEnemyShotGroupData->m_IsNew = false;
+			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( shotID );
+			m_pEnemyShotGroupData->m_pShots[ id ] = pNewShot;
+			pNewShot->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
+			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
+			GameUnit x = m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosX + radius * CosGU( angle );
+			GameUnit y = m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosY - radius * SinGU( angle );
+			pNewShot->SetPos( x, y );
+			pNewShot->SetTextureColor( texColor );
+		}
+		Push( id );
+	}
+
+	void EnemyShotGroupVCPU::SysCreateEnemyShotByIDOrtho()
+	{
+		Pop();
+		int id = -1;
+		GameUnit x;
+		GameUnit y;
+
+		y.SetRawValue( RetPop().m_Integer );
+		x.SetRawValue( RetPop().m_Integer );
+		int texColor = RetPop().m_Integer;
+		int shotID = RetPop().m_Integer;
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			id = m_pEnemyShotGroupData->m_ShotTotal++;
+			m_pEnemyShotGroupData->m_IsNew = false;
+			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( shotID );
+			m_pEnemyShotGroupData->m_pShots[ id ] = pNewShot;
+			pNewShot->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
+			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
+			pNewShot->SetPos( x, y );
+			pNewShot->SetTextureColor( texColor );
+		}
+		Push( id );
+	}
+
+	void EnemyShotGroupVCPU::SysCreateEnemyShotByIDPolar()
+	{
+		Pop();
+		int id = -1;
+		GameUnit angle;
+		GameUnit radius;
+
+		angle.SetRawValue( RetPop().m_Integer );
+		radius.SetRawValue( RetPop().m_Integer );
+		int texColor = RetPop().m_Integer;
+		int shotID = RetPop().m_Integer;
+
+		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+			id = m_pEnemyShotGroupData->m_ShotTotal++;
+			m_pEnemyShotGroupData->m_IsNew = false;
+			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( shotID );
+			m_pEnemyShotGroupData->m_pShots[ id ] = pNewShot;
+			pNewShot->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
+			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
+			GameUnit x = radius * CosGU( angle );
+			GameUnit y = radius * SinGU( angle );
+			pNewShot->SetPos( x, y );
+			pNewShot->SetTextureColor( texColor );
+		}
+		Push( id );
+	}
+
+	void EnemyShotGroupVCPU::SysSetEnemyShotLength()
+	{
+		Pop();
+		GameUnit length;
+		length.SetRawValue( RetPop().m_Integer );
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetLength( length );
+		}
+	}
+
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -1409,6 +1528,22 @@ namespace GameEngine
 				break;
 			case VM::SYS_STAGE_GET_DIFFICULTY:
 				SysGetDifficulty();
+				break;
+
+			case VM::SYS_CREATE_ENEMY_SHOT_BY_ID_ORTHO:
+				SysCreateEnemyShotByIDOrtho();
+				break;
+			case VM::SYS_CREATE_ENEMY_SHOT_BY_ID_POLAR:
+				SysCreateEnemyShotByIDPolar();
+				break;
+			case VM::SYS_CREATE_ENENY_SHOT_BY_ID_LOCAL_ORTHO:
+				SysCreateEnemyShotByIDLocalOrtho();
+				break;
+			case VM::SYS_CREATE_ENEMY_SHOT_BY_ID_LOCAL_POLAR:
+				SysCreateEnemyShotByIDLocalPolar();
+				break;
+			case VM::SYS_SET_ENEMY_SHOT_LENGTH:
+				SysSetEnemyShotLength();
 				break;
 
 			default:

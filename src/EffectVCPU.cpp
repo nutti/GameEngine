@@ -211,7 +211,7 @@ namespace GameEngine
 
 		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
 	
-		AddToAtlasSpriteBatch( alphaMode, id, x, y, sx, sy, angle );
+		AddToAtlasSpriteBatch( false, alphaMode, id, x, y, sx, sy, angle );
 	}
 
 	void EffectVCPU::SysDrawTextureAtlasBlendingPSRC()
@@ -228,7 +228,7 @@ namespace GameEngine
 
 		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
 	
-		AddToAtlasSpriteBatch( alphaMode, id, x, y, sx, sy, angle, true, color );
+		AddToAtlasSpriteBatch( false, alphaMode, id, x, y, sx, sy, angle, true, color );
 	}
 
 	void EffectVCPU::SysDrawClipedTextureAtlasP()
@@ -328,7 +328,7 @@ namespace GameEngine
 
 		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
 	
-		AddToAtlasSpriteBatch( alphaMode, id, x, y, 0.0f, 0.0f, 0.0f );
+		AddToAtlasSpriteBatch( false, alphaMode, id, x, y, 0.0f, 0.0f, 0.0f );
 	}
 
 	void EffectVCPU::SysDrawClipedTextureAtlasBlendingPSR()
@@ -348,7 +348,7 @@ namespace GameEngine
 
 		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
 	
-		AddToAtlasSpriteBatch( alphaMode, id, x, y, sx, sy, angle );
+		AddToAtlasSpriteBatch( false, alphaMode, id, x, y, sx, sy, angle );
 	}
 
 	void EffectVCPU::SysDrawClipedTextureAtlasBlendingPSRC()
@@ -369,7 +369,7 @@ namespace GameEngine
 
 		ResourceMap::TextureAtlas atlas = m_pEffectData->m_pResourceMap->m_pStageResourceMap->m_TexAtlasMap[ id ];
 	
-		AddToAtlasSpriteBatch( alphaMode, id, cx1, cy1, cx2, cy2, x, y, sx, sy, angle, true, color );
+		AddToAtlasSpriteBatch( false, alphaMode, id, cx1, cy1, cx2, cy2, x, y, sx, sy, angle, true, color );
 	}
 
 	void EffectVCPU::SysTerminateScriptEffect()

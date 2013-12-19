@@ -2,6 +2,7 @@
 
 #include "ResourceManager.h"
 #include "EnemyPatternFileLoader.h"
+#include "TextureAtlasPatternFileLoader.h"
 
 namespace GameEngine
 {
@@ -265,6 +266,25 @@ namespace GameEngine
 				m_ResourceMap.m_pGlobalResourceMap->m_ModelMap[ index ] = id;
 				break;
 			}
+			case RESOURCE_TYPE_TEXTURE_ATLAS:{
+				TextureAtlasPatternFileLoader loader;
+				loader.Load( fileName.c_str() );
+				int total = loader.GetAtlasTotal();
+				for( int i = 0; i < total; ++i ){
+					ResourceMap::TextureAtlas atlas;
+					int id = loader.GetID( i );
+					atlas.m_TexID = loader.GetTexID( i );
+					atlas.m_X = loader.GetStartX( i );
+					atlas.m_Y = loader.GetStartY( i );
+					atlas.m_Width = loader.GetWidth( i );
+					atlas.m_Height = loader.GetHeight( i );
+					if( id >= m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap.size() ){
+						m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap.resize( id * 2 );
+					}
+					m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap[ id ] = atlas;
+				}
+				break;
+			}
 			case RESOURCE_TYPE_SKIN_MODEL:{
 				int id = MAPIL::CreateSkinMeshModel( fileName.c_str() );
 				m_ResourceMap.m_pGlobalResourceMap->m_ModelMap[ index ] = id;
@@ -417,6 +437,21 @@ namespace GameEngine
 				int id = MAPIL::CreateModel( m_ArchiveHandle, fileName.c_str(), fileName.c_str() );
 				MAPIL::Assert( index < m_ResourceMap.m_pGlobalResourceMap->m_ModelMap.size(), -1 );
 				m_ResourceMap.m_pGlobalResourceMap->m_ModelMap[ index ] = id;
+				break;
+			}
+			case RESOURCE_TYPE_TEXTURE_ATLAS:{
+				TextureAtlasPatternFileLoader loader;
+				loader.Load( m_ArchiveHandle, fileName.c_str() );
+				int total = loader.GetAtlasTotal();
+				for( int i = 0; i < total; ++i ){
+					ResourceMap::TextureAtlas atlas;
+					atlas.m_TexID = loader.GetID( i );
+					atlas.m_X = loader.GetStartX( i );
+					atlas.m_Y = loader.GetStartY( i );
+					atlas.m_Width = loader.GetWidth( i );
+					atlas.m_Height = loader.GetHeight( i );
+					m_ResourceMap.m_pGlobalResourceMap->m_TexAtlasMap.push_back( atlas );
+				}
 				break;
 			}
 			case RESOURCE_TYPE_SKIN_MODEL:{

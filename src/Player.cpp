@@ -2,7 +2,7 @@
 
 #include "Player.h"
 #include "PlayerShot.h"
-#include "EnemyShot.h"
+#include "GameObject/EnemyShot/EnemyShot.h"
 #include "Enemy.h"
 #include "ResourceTypes.h"
 #include "Util.h"
