@@ -2,26 +2,26 @@
 
 #include <bitset>
 
-#include "CheeseShotM.h"
+#include "CrescentShotM.h"
 
 #include "../../ResourceTypes.h"
 #include "../../SpriteBatch.h"
 
 namespace GameEngine
 {
-	static const int SHOT_TEX_ID	= 89;
+	static const int SHOT_TEX_ID	= 65;
 
-	CheeseShotM::CheeseShotM( std::shared_ptr < ResourceMap > pMap, int id ) :	NormalShot( pMap, id )
+	CrescentShotM::CrescentShotM( std::shared_ptr < ResourceMap > pMap, int id ) :	NormalShot( pMap, id )
 	{
 		m_GUData.m_ColRadius = GameUnit( 3 );
 		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}
 
-	CheeseShotM::~CheeseShotM()
+	CrescentShotM::~CrescentShotM()
 	{
 	}
 
-	void CheeseShotM::SetTextureColor( int color )
+	void CrescentShotM::SetTextureColor( int color )
 	{
 		m_TexColor = color;
 		m_AtlasImgID = SHOT_TEX_ID + m_TexColor;

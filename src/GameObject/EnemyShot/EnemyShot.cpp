@@ -228,6 +228,12 @@ namespace GameEngine
 		m_ShotGroupData.m_pShotGroup = pGroup;
 	}
 
+	void EnemyShot::LeaveFromShotGroup()
+	{
+		m_ShotGroupData.m_ID = 0;
+		m_ShotGroupData.m_pShotGroup = NULL;
+	}
+
 	int EnemyShot::GetCounter() const
 	{
 		return m_Counter;

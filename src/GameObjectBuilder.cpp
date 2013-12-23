@@ -5,11 +5,16 @@
 #include "PlayerShot.h"
 #include "GameObject/EnemyShot/EnemyShot.h"
 #include "GameObject/EnemyShot/LaserShot.h"
+#include "GameObject/EnemyShot/CircleShotM.h"
 #include "GameObject/EnemyShot/FourRayedStarShot.h"
 #include "GameObject/EnemyShot/ElipseShotS.h"
+#include "GameObject/EnemyShot/CrescentShotM.h"
 #include "GameObject/EnemyShot/CheeseShotM.h"
 #include "GameObject/EnemyShot/GloriousCircleShotM.h"
+#include "GameObject/EnemyShot/GloriousCircleShotL.h"
 #include "GameObject/EnemyShot/NeedleShot.h"
+#include "GameObject/EnemyShot/SmokeShotM.h"
+#include "GameObject/EnemyShot/BeamShotM.h"
 #include "Item.h"
 #include "Effect.h"
 #include "EnemyShotGroup.h"
@@ -103,15 +108,24 @@ namespace GameEngine
 				return new FourRayedStarShot( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_ELLIPSE_S:
 				return new ElipseShotS( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_CRESCENT_M:
+				return new CrescentShotM( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_GLORIOUS_CIRCLE_L:
+				return new GloriousCircleShotL( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_CHEESE_M:
 				return new CheeseShotM( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_GLORIOUS_CIRCLE_M:
 				return new GloriousCircleShotM( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_CIRCLE_M:
+				return new CircleShotM( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_NEEDLE_M:
 				return new NeedleShot( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_LASER_M:
 				return new LaserShot( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_SMOKE_M:
+				return new SmokeShotM( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_BEAM_M:
+				return new BeamShotM( m_pResourceMap, id );
 			default:
 				return new EnemyShot( m_pResourceMap, id );
 		}

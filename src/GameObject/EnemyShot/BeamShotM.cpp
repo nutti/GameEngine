@@ -2,7 +2,7 @@
 
 #include <bitset>
 
-#include "LaserShot.h"
+#include "BeamShotM.h"
 
 #include "../../ResourceTypes.h"
 #include "../../ResourceID.h"
@@ -12,56 +12,51 @@ namespace GameEngine
 {
 	static const int LAUNCH_EFFECT_TEX_ID		= 1024;
 	static const int LASER_MAKER_TEX_ID			= 1016;
-	static const int LASER_SHOT_TEX_ID			= 120;
+	static const int LASER_SHOT_TEX_ID			= 145;
 	static const int LAUNCH_EFFECT_SE_ID		= GLOBAL_RESOURCE_SE_ID_ENEMY_LASER_SHOT;
 
-	LaserShot::LaserShot( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
+	BeamShotM::BeamShotM( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT;
-		m_GUData.m_ColRadius = GameUnit( 2 );
+		m_GUData.m_ColRadius = GameUnit( 0 );
 		m_Line.SetThickness( m_GUData.m_ColRadius.GetFloat() );
+		m_Length = GameUnit( 750 );
+		m_StatusFlags.set( NOT_DELETE_BY_PLAYER_DAMAGE );
+		m_StatusFlags.set( NOT_DELETE_BY_PLAYER_SKILL );
 	}
 
-	LaserShot::~LaserShot()
+	BeamShotM::~BeamShotM()
 	{
 	}
 
-	void LaserShot::DrawEffect()
+	void BeamShotM::DrawEffect()
 	{
-		if( m_Counter >= 30 ){
+		if( m_Counter < 20 ){
 			return;
 		}
 
-		float sx = 3.0f;
-		float sy = 3.0f;
-		int color = 0xFFFFFFFF;
+		float scale = 0.0f;
 
-		if( m_Counter < 10 ){
-			sx = m_Counter * 0.3f;
-			color = ( m_Counter * 25 ) << 24 | 0xFFFFFF;
+		if( m_Counter >= 20 && m_Counter < 60 ){
+			scale = ( m_Counter - 20 ) / 20.0f;
 		}
-		else if( m_Counter > 20 && m_Counter <= 25 ){
-			sy = ( 25 - m_Counter ) * 0.6f;
-			color = ( ( 30 - m_Counter ) * 25 ) << 24 | 0xFFFFFF;
+		else if( m_Counter >= 60 && m_Counter < 140 ){
+			scale = 2.0f;
 		}
-		else if( m_Counter > 25 && m_Counter <= 30 ){
-			sx = ( 30 - m_Counter ) * 0.6f;
-			sy = ( m_Counter - 25 ) * 0.6f;
-			color = ( ( 30 - m_Counter ) * 25 ) << 24 | 0xFFFFFF;
+		else if( m_Counter >= 140 && m_Counter < 160 ){
+			scale = ( 160 - m_Counter ) / 10.0f;
 		}
 
-		ResourceMap::TextureAtlas atlas;
-		atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ LAUNCH_EFFECT_TEX_ID + m_TexColor ];
 		AddToAtlasSpriteBatch(	true,
 								MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-								atlas.m_TexID,
-								m_BeginPosX.GetFloat(),
-								m_BeginPosY.GetFloat(),
-								sx, sy, 0.0f, true, color );
+								LAUNCH_EFFECT_TEX_ID + m_TexColor,
+								m_GUData.m_PosX.GetFloat(),
+								m_GUData.m_PosY.GetFloat(),
+								scale, scale, 0.0f, true );
 	}
 
 
-	void LaserShot::Draw()
+	void BeamShotM::Draw()
 	{
 		if( m_StatusFlags[ INVISIBLE ] ){
 			return;
@@ -70,7 +65,7 @@ namespace GameEngine
 		float posX = m_GUData.m_PosX.GetFloat();
 		float posY = m_GUData.m_PosY.GetFloat();
 		int color = 0xFFFFFFFF;
-		int scale = m_ImgScale;
+		float scale = 0.0f;
 		float angle = ::atan2( m_Line.GetEndY() - m_Line.GetStartY(), -m_Line.GetEndX() + m_Line.GetStartX() ) - MAPIL::DegToRad( 90.0f );
 		float length = std::sqrt(	( m_Line.GetEndX() - m_Line.GetStartX() ) * ( m_Line.GetEndX() - m_Line.GetStartX() ) + 
 									( m_Line.GetEndY() - m_Line.GetStartY() ) * ( m_Line.GetEndY() - m_Line.GetStartY() ) );
@@ -80,41 +75,63 @@ namespace GameEngine
 		// è¡ãéÇ≥ÇÍÇÈÇ∆Ç´ÇÕèôÅXÇ…îñÇ≠Ç»Ç¡ÇƒÇ¢Ç≠ÅB
 		if( m_StatusFlags[ DEAD ] ){
 			color = ( ( 20 - m_DeadCounter ) * 5 ) << 24 | 0xFFFFFF;
-			scale += m_DeadCounter * 0.05f;
+			scale = ( 20 - m_DeadCounter ) / 20.0f;
+		}
+		else{
+			// ägëÂó¶
+			if( m_Counter < 20 ){
+				scale = 1.0f;
+			}
+			else if( m_Counter >= 20 && m_Counter < 60 ){
+				scale = ( m_Counter - 20 ) / 40.0f;
+			}
+			else if( m_Counter >= 60 ){
+				scale = 1.0f;
+			}
 		}
 
 		// ì_ñ≈ÉGÉtÉFÉNÉg
-		if( m_Counter % 16 >= 12 ){
-			m_DrawingMultiplicity = 2;
+		if( m_Counter > 20 ){
+			if( m_Counter % 16 == 0 || m_Counter % 16 == 12 ){
+				m_DrawingMultiplicity = 2;
+			}
+			if( m_Counter % 16 == 10 || m_Counter % 16 == 14 ){
+				m_DrawingMultiplicity = 1;
+			}
 		}
 		else{
 			m_DrawingMultiplicity = 1;
 		}
 
 		// ï`âÊ
-		for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-			unsigned int texSizeX;
-			unsigned int texSizeY;
-			MAPIL::Assert( m_AtlasImgID != -1, CURRENT_POSITION, TSTR( "Invalid image ID was input." ), -1 );
-			ResourceMap::TextureAtlas atlas;
-			atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
-			texSizeX = atlas.m_Width;
-			texSizeY = atlas.m_Height;
+		unsigned int texSizeX;
+		unsigned int texSizeY;
+		int img;
+		MAPIL::Assert( m_AtlasImgID != -1, CURRENT_POSITION, TSTR( "Invalid image ID was input." ), -1 );
+		ResourceMap::TextureAtlas atlas;
+		if( m_Counter < 20 ){
+			img = LASER_MAKER_TEX_ID + m_TexColor;
+		}
+		else{
+			img = m_AtlasImgID;
+		}
+		atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ img ];
+		texSizeX = atlas.m_Width;
+		texSizeY = atlas.m_Height;
 
-			for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-				AddToAtlasSpriteBatch(	true,
-										m_AlphaBlendingMode,
-										m_AtlasImgID,
-										m_Line.GetStartX() - ( texSizeX * m_ImgScale / 2.0f ) * cos( angle ),
-										m_Line.GetStartY() + ( texSizeX * m_ImgScale / 2.0f ) * sin( angle ),
-										m_ImgScale,
-										length / texSizeY, 
-										angle, false, color );
-			}
+		for( int i = 0; i < m_DrawingMultiplicity; ++i ){
+			AddToAtlasSpriteBatch(	true,
+									m_AlphaBlendingMode,
+									img,
+									m_Line.GetStartX() - ( texSizeX * scale / 2.0f ) * cos( angle ),
+									m_Line.GetStartY() + ( texSizeX * scale / 2.0f ) * sin( angle ),
+									scale,
+									length / texSizeY, 
+									angle, false, color );
 		}
 	}
 
-	bool LaserShot::Update()
+	bool BeamShotM::Update()
 	{
 		if( m_StatusFlags[ PAUSED ] ){
 			return true;
@@ -127,11 +144,26 @@ namespace GameEngine
 		if( m_Counter == 0 ){
 			m_BeginPosX = m_GUData.m_PosX;
 			m_BeginPosY = m_GUData.m_PosY;
+		}
+
+		// å¯â âπ
+		if( m_Counter == 20 ){
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ LAUNCH_EFFECT_SE_ID ] );
+		}
+
+		// è’ìÀîºåa
+		switch( m_Counter ){
+			case 20:
+				m_GUData.m_ColRadius = GameUnit( 0 );
+				break;
+			case 60:
+				m_GUData.m_ColRadius = GameUnit( 2 );
+				break;
 		}
 		
 		// éÄñSîªíËèàóù
 		if( m_StatusFlags[ DEAD ] ){
+			m_GUData.m_ColRadius = GameUnit( -5 );
 			++m_DeadCounter;
 			if( m_DeadCounter >= 20 ){
 				return false;
@@ -167,12 +199,12 @@ namespace GameEngine
 		return true;
 	}
 
-	void LaserShot::Init( const GameUnit& posX, const GameUnit& posY )
+	void BeamShotM::Init( const GameUnit& posX, const GameUnit& posY )
 	{
 	}
 
 
-	bool LaserShot::DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius )
+	bool BeamShotM::DoesColideWithPlayer( const GameUnit& x, const GameUnit& y, const GameUnit& radius )
 	{
 		Circle c;
 		c.SetCenterX( x.GetFloat() );
@@ -183,7 +215,7 @@ namespace GameEngine
 	}
 
 
-	void LaserShot::SetLinePos(	const GameUnit& x1,
+	void BeamShotM::SetLinePos(	const GameUnit& x1,
 										const GameUnit& y1,
 										const GameUnit& x2,
 										const GameUnit& y2,
@@ -196,12 +228,12 @@ namespace GameEngine
 		m_Line.SetThickness( thickness.GetFloat() );
 	}
 
-	void LaserShot::SetLength( const GameUnit& length )
+	void BeamShotM::SetLength( const GameUnit& length )
 	{
 		m_Length = length;
 	}
 
-	void LaserShot::SetTextureColor( int color )
+	void BeamShotM::SetTextureColor( int color )
 	{
 		m_TexColor = color;
 		m_AtlasImgID = LASER_SHOT_TEX_ID + m_TexColor;

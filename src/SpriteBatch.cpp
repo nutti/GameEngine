@@ -209,13 +209,16 @@ namespace GameEngine
 			for( int i = 0; i < works.size(); ++i ){
 				const SpriteBatch::Work& w = works[ i ];
 				ResourceMap::TextureAtlas atlas;
+				int img;
 				if( w.m_Global ){
 					atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ w.m_TexID ];
+					img = map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ];
 				}
 				else{
 					atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+					img = map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ];
 				}
-				MAPIL::DrawClipedTexture(	map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+				MAPIL::DrawClipedTexture(	img,
 											w.m_PosX, w.m_PosY, 1.0f, 1.0f, w.m_Angle,
 											atlas.m_X, atlas.m_Y,
 											atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height,
@@ -230,13 +233,16 @@ namespace GameEngine
 			for( int i = 0; i < works.size(); ++i ){
 				const SpriteBatch::WorkScale& w = works[ i ];
 				ResourceMap::TextureAtlas atlas;
+				int img;
 				if( w.m_Global ){
 					atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ w.m_TexID ];
+					img = map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ];
 				}
 				else{
 					atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+					img = map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ];
 				}
-				MAPIL::DrawClipedTexture(	map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+				MAPIL::DrawClipedTexture(	img,
 											w.m_PosX, w.m_PosY, w.m_ScaleX, w.m_ScaleY, w.m_Angle,
 											atlas.m_X, atlas.m_Y,
 											atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height,
@@ -251,13 +257,16 @@ namespace GameEngine
 			for( int i = 0; i < works.size(); ++i ){
 				const SpriteBatch::WorkCliped& w = works[ i ];
 				ResourceMap::TextureAtlas atlas;
+				int img;
 				if( w.m_Global ){
 					atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ w.m_TexID ];
+					img = map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ];
 				}
 				else{
 					atlas = map.m_pStageResourceMap->m_TexAtlasMap[ w.m_TexID ];
+					img = map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ];
 				}
-				MAPIL::DrawClipedTexture(	map.m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+				MAPIL::DrawClipedTexture(	img,
 											w.m_PosX, w.m_PosY, w.m_ScaleX, w.m_ScaleY, w.m_Angle,
 											atlas.m_X + w.m_ClipedX1, atlas.m_Y + w.m_ClipedY1,
 											atlas.m_X + w.m_ClipedX2, atlas.m_Y + w.m_ClipedY2,

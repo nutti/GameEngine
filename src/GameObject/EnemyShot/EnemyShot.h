@@ -49,6 +49,7 @@ namespace GameEngine
 	{
 		DELETE_BY_PLAYER_DAMAGE		= 0,
 		DELETE_BY_PLAYER_SKILL		= 1,
+		DELETE_BY_SHOT_CHANGED		= 2,
 		DELETE_BY_TOTAL,
 	};
 
@@ -349,6 +350,7 @@ namespace GameEngine
 		void SetImageScale( float scale );					// 画像の拡大率を設定
 		void SetConsAttr( int attr );						// 意識技専用弾に設定
 		void JoinShotGroup( int id, EnemyShotGroup* pGroup );
+		void LeaveFromShotGroup();
 
 		virtual void Colided( CollisionObject* pObject );			// 衝突時の処理 ディスパッチャ
 		void ProcessCollision( Player* pPlayer );			// 衝突時の処理（プレイヤー）

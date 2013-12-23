@@ -1275,6 +1275,48 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysChangeEnemyShotID()
+	{
+		Pop();
+		int texColor = RetPop().m_Integer;
+		int shotID = RetPop().m_Integer;
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			EnemyShot* pOldShot = m_pEnemyShotGroupData->m_pShots[ id ];
+			pOldShot->Delete( DELETE_BY_SHOT_CHANGED );
+			pOldShot->LeaveFromShotGroup();
+			GameUnit x;
+			GameUnit y;
+			GameUnit speed;
+			GameUnit angle;
+			pOldShot->GetPos( &x, &y );
+			speed = pOldShot->GetSpeed();
+			angle = pOldShot->GetAngle();
+
+			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( shotID );
+			m_pEnemyShotGroupData->m_pShots[ id ] = pNewShot;
+			pNewShot->JoinShotGroup( id, m_pEnemyShotGroupData->m_pShotGroup );
+			pNewShot->SetTextureColor( texColor );
+			pNewShot->SetPos( x, y );
+			pNewShot->SetSpeed( speed );
+			pNewShot->SetAngle( angle );
+			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysDeleteEnemyShot()
+	{
+		Pop();
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			EnemyShot* pOldShot = m_pEnemyShotGroupData->m_pShots[ id ];
+			pOldShot->Delete( DELETE_BY_SHOT_CHANGED );
+			pOldShot->LeaveFromShotGroup();
+			m_pEnemyShotGroupData->m_pShots[ id ] = NULL;
+		}
+	}
 
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
@@ -1544,6 +1586,12 @@ namespace GameEngine
 				break;
 			case VM::SYS_SET_ENEMY_SHOT_LENGTH:
 				SysSetEnemyShotLength();
+				break;
+			case VM::SYS_CHANGE_ENEMY_SHOT_ID:
+				SysChangeEnemyShotID();
+				break;
+			case VM::SYS_DELETE_ENEMY_SHOT:
+				SysDeleteEnemyShot();
 				break;
 
 			default:

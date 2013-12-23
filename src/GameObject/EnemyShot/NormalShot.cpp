@@ -17,6 +17,7 @@ namespace GameEngine
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
 		m_GUData.m_ColRadius = GameUnit( 2 );
+		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}
 
 	NormalShot::~NormalShot()
@@ -74,7 +75,7 @@ namespace GameEngine
 				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 					ResourceMap::TextureAtlas atlas;
 					atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
-					MAPIL::DrawClipedTexture(	m_pResourceMap->m_pStageResourceMap->m_TextureMap[ atlas.m_TexID ],
+					MAPIL::DrawClipedTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
 												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle,
 												atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height, true, color );
 				}

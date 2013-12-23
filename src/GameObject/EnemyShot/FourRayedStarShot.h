@@ -3,14 +3,14 @@
 
 #include <memory>
 
-#include "NormalShot.h"
+#include "RotateShot.h"
 
 namespace GameEngine
 {
 
 	struct ResourceMap;
 	class EnemyShotGroup;
-	class FourRayedStarShot : public NormalShot
+	class FourRayedStarShot : public RotateShot
 	{
 	private:
 		GameUnit			m_BeginPosX;

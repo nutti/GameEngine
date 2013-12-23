@@ -2,7 +2,7 @@
 
 #include <bitset>
 
-#include "NoRotateShot.h"
+#include "RotateShot.h"
 
 #include "../../ResourceTypes.h"
 #include "../../SpriteBatch.h"
@@ -11,18 +11,19 @@ namespace GameEngine
 {
 	static const int LAUNCH_EFFECT_TEX_ID		= 1000;
 
-	NoRotateShot::NoRotateShot( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
+	RotateShot::RotateShot( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
 		m_GUData.m_ColRadius = GameUnit( 2 );
 		m_ImgRotAngle = 0.0f;
+		m_ImgRotAnglePerFrame = 10.0f;
 	}
 
-	NoRotateShot::~NoRotateShot()
+	RotateShot::~RotateShot()
 	{
 	}
 
-	void NoRotateShot::DrawEffect()
+	void RotateShot::DrawEffect()
 	{
 		if( m_Counter >= 7 ){
 			return;
@@ -38,7 +39,7 @@ namespace GameEngine
 	}
 
 
-	void NoRotateShot::Draw()
+	void RotateShot::Draw()
 	{
 		if( m_StatusFlags[ INVISIBLE ] ){
 			return;
@@ -58,31 +59,28 @@ namespace GameEngine
 		}
 
 		// •`‰æ
-		for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-			MAPIL::Assert( m_AtlasImgID != -1, CURRENT_POSITION, TSTR( "Invalid image ID was input." ), -1 );
+		MAPIL::Assert( m_AtlasImgID != -1, CURRENT_POSITION, TSTR( "Invalid image ID was input." ), -1 );
 
-			if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
-				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
+		if( m_AlphaBlendingMode != MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT ){
+			for( int i = 0; i < m_DrawingMultiplicity; ++i ){
 
-					AddToAtlasSpriteBatch(	false, m_AlphaBlendingMode,
-											m_AtlasImgID,
-											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
-				}
+				AddToAtlasSpriteBatch(	true, m_AlphaBlendingMode,
+										m_AtlasImgID,
+										posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle, true, color );
 			}
-			else{
-				for( int i = 0; i < m_DrawingMultiplicity; ++i ){
-					ResourceMap::TextureAtlas atlas;
-					atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
-					MAPIL::DrawClipedTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
-												posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle,
-												atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height, true, color );
-				}
+		}
+		else{
+			for( int i = 0; i < m_DrawingMultiplicity; ++i ){
+				ResourceMap::TextureAtlas atlas;
+				atlas = m_pResourceMap->m_pGlobalResourceMap->m_TexAtlasMap[ m_AtlasImgID ];
+				MAPIL::DrawClipedTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
+											posX, posY, m_ImgScale, m_ImgScale, m_ImgRotAngle,
+											atlas.m_X, atlas.m_Y, atlas.m_X + atlas.m_Width, atlas.m_Y + atlas.m_Height, true, color );
 			}
-
 		}
 	}
 
-	bool NoRotateShot::Update()
+	bool RotateShot::Update()
 	{
 		if( m_StatusFlags[ PAUSED ] ){
 			return true;
@@ -118,12 +116,14 @@ namespace GameEngine
 			}
 		}
 
+		m_ImgRotAngle += m_ImgRotAnglePerFrame;
+
 		++m_Counter;
 
 		return true;
 	}
 
-	void NoRotateShot::SetTextureColor( int color )
+	void RotateShot::SetTextureColor( int color )
 	{
 	}
 }

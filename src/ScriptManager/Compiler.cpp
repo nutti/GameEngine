@@ -150,7 +150,8 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_CREATE_ENEMY_SHOT_BY_ID_ORTHO, TYPE_INTEGER,  "CreateEnemyShotByIDPolar", "iigg" );		// int CreateEnemyShotByIDPolar( gu x, gu y, int id, int tex_color );
 	AddFunction( VM::SYS_CREATE_ENENY_SHOT_BY_ID_LOCAL_ORTHO, TYPE_INTEGER, "CreateEnemyShotByIDLocalOrtho", "iigg" );		// int CreateEnemyShotByIDLocalOrtho( gu radius, gu angle, int id, int tex_color );
 	AddFunction( VM::SYS_CREATE_ENEMY_SHOT_BY_ID_LOCAL_POLAR, TYPE_INTEGER,  "CreateEnemyShotByIDLocalPolar", "iigg" );		// int CreateEnemyShotByIDLocalPolar( gu x, gu y, int id, int tex_color );
-	
+	AddFunction( VM::SYS_CHANGE_ENEMY_SHOT_ID, TYPE_VOID, "ChangeEnemyShotID", "iii" );			// void ChangeEnemyShotID( int shot_id, int id, int tex_color );
+	AddFunction( VM::SYS_DELETE_ENEMY_SHOT, TYPE_VOID, "DeleteEnemyShot", "i" );			// void DeleteEnemyShot( int shot_id );
 
 	// System call for enemy shot group.
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU, TYPE_VOID, "SetEnemyShotStatusGU", "igggggi" );	// void SetEnemyShotStatusGU( shot_id, x, y, angle, speed, radius, texture_id );

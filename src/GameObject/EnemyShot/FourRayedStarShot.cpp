@@ -11,9 +11,10 @@ namespace GameEngine
 {
 	static const int FOUR_RAYED_STAR_SHOT_TEX_ID	= 48;
 
-	FourRayedStarShot::FourRayedStarShot( std::shared_ptr < ResourceMap > pMap, int id ) :	NormalShot( pMap, id )
+	FourRayedStarShot::FourRayedStarShot( std::shared_ptr < ResourceMap > pMap, int id ) :	RotateShot( pMap, id )
 	{
 		m_GUData.m_ColRadius = GameUnit( 3 );
+		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}
 
 	FourRayedStarShot::~FourRayedStarShot()

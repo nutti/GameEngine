@@ -108,6 +108,8 @@ namespace GameEngine
 		void SysCreateEnemyShotByIDPolar();
 		void SysCreateEnemyShotByIDLocalOrtho();
 		void SysCreateEnemyShotByIDLocalPolar();
+		void SysChangeEnemyShotID();
+		void SysDeleteEnemyShot();
 
 
 		void SysPlaySE();

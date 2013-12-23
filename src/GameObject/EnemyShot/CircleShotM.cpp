@@ -2,26 +2,26 @@
 
 #include <bitset>
 
-#include "ElipseShotS.h"
+#include "CircleShotM.h"
 
 #include "../../ResourceTypes.h"
 #include "../../SpriteBatch.h"
 
 namespace GameEngine
 {
-	static const int SHOT_TEX_ID	= 57;
+	static const int SHOT_TEX_ID	= 105;
 
-	ElipseShotS::ElipseShotS( std::shared_ptr < ResourceMap > pMap, int id ) :	NormalShot( pMap, id )
+	CircleShotM::CircleShotM( std::shared_ptr < ResourceMap > pMap, int id ) :	NoRotateShot( pMap, id )
 	{
 		m_GUData.m_ColRadius = GameUnit( 2 );
 		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}
 
-	ElipseShotS::~ElipseShotS()
+	CircleShotM::~CircleShotM()
 	{
 	}
 
-	void ElipseShotS::SetTextureColor( int color )
+	void CircleShotM::SetTextureColor( int color )
 	{
 		m_TexColor = color;
 		m_AtlasImgID = SHOT_TEX_ID + m_TexColor;
