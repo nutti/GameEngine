@@ -13,7 +13,8 @@ namespace GameEngine
 
 	NeedleShot::NeedleShot( std::shared_ptr < ResourceMap > pMap, int id ) :	NormalShot( pMap, id )
 	{
-		m_GUData.m_ColRadius = GameUnit( 2 );
+		m_GUData.m_ColRadiusBase = GameUnit( 2 );
+		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase;
 		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}
 

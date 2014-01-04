@@ -205,6 +205,10 @@ namespace GameEngine
 	{
 		m_ImgScale = scale;
 		m_StatusFlags.set( IMG_SCALE_CHANGED );
+		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase * GameUnit( scale );
+		if( m_ShotShape == SHOT_SHAPE_CIRCLE ){
+			m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
+		}
 	}
 
 	
@@ -515,5 +519,10 @@ namespace GameEngine
 	{
 		m_TexColor = color;
 		m_AtlasImgID = GLOBAL_TEX_ATLAS_ID_ENEMY_SHOT_FIRST + ( m_ShotID -1 ) * ENEMY_SHOT_TEX_COLOR_TOTAL + m_TexColor;
+	}
+
+	int EnemyShot::GetTextureColor() const
+	{
+		return m_TexColor;
 	}
 }

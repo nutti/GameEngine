@@ -18,7 +18,8 @@ namespace GameEngine
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT;
 		m_ImgRotAngle = 0.0f;
-		m_GUData.m_ColRadius = GameUnit( 2 );
+		m_GUData.m_ColRadiusBase = GameUnit( 2 );
+		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase;
 		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}
 

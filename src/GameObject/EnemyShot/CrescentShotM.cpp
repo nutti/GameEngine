@@ -13,7 +13,8 @@ namespace GameEngine
 
 	CrescentShotM::CrescentShotM( std::shared_ptr < ResourceMap > pMap, int id ) :	NormalShot( pMap, id )
 	{
-		m_GUData.m_ColRadius = GameUnit( 3 );
+		m_GUData.m_ColRadiusBase = GameUnit( 3 );
+		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase;
 		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}
 

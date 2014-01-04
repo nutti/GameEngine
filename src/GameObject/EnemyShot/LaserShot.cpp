@@ -12,13 +12,14 @@ namespace GameEngine
 {
 	static const int LAUNCH_EFFECT_TEX_ID		= 1024;
 	static const int LASER_MAKER_TEX_ID			= 1016;
-	static const int LASER_SHOT_TEX_ID			= 120;
+	static const int LASER_SHOT_TEX_ID			= 121;
 	static const int LAUNCH_EFFECT_SE_ID		= GLOBAL_RESOURCE_SE_ID_ENEMY_LASER_SHOT;
 
 	LaserShot::LaserShot( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT;
-		m_GUData.m_ColRadius = GameUnit( 2 );
+		m_GUData.m_ColRadiusBase = GameUnit( 2 );
+		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase;
 		m_Line.SetThickness( m_GUData.m_ColRadius.GetFloat() );
 	}
 

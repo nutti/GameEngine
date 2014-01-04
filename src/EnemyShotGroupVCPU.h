@@ -110,6 +110,7 @@ namespace GameEngine
 		void SysCreateEnemyShotByIDLocalPolar();
 		void SysChangeEnemyShotID();
 		void SysDeleteEnemyShot();
+		void SysGetEnemyShotTexColor();
 
 
 		void SysPlaySE();

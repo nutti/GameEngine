@@ -2,27 +2,27 @@
 
 #include <bitset>
 
-#include "FourRayedStarShot.h"
+#include "HexagramShotM.h"
 
 #include "../../ResourceTypes.h"
 #include "../../SpriteBatch.h"
 
 namespace GameEngine
 {
-	static const int FOUR_RAYED_STAR_SHOT_TEX_ID	= 48;
+	static const int FOUR_RAYED_STAR_SHOT_TEX_ID	= 81;
 
-	FourRayedStarShot::FourRayedStarShot( std::shared_ptr < ResourceMap > pMap, int id ) :	RotateShot( pMap, id )
+	HexagramShotM::HexagramShotM( std::shared_ptr < ResourceMap > pMap, int id ) :	RotateShot( pMap, id )
 	{
 		m_GUData.m_ColRadiusBase = GameUnit( 3 );
 		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase;
 		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}
 
-	FourRayedStarShot::~FourRayedStarShot()
+	HexagramShotM::~HexagramShotM()
 	{
 	}
 
-	void FourRayedStarShot::SetTextureColor( int color )
+	void HexagramShotM::SetTextureColor( int color )
 	{
 		m_TexColor = color;
 		m_AtlasImgID = FOUR_RAYED_STAR_SHOT_TEX_ID + m_TexColor;

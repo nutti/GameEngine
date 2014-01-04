@@ -12,14 +12,14 @@ namespace GameEngine
 	class EnemyShotGroup;
 	class NoRotateShot : public EnemyShot
 	{
-	private:
+	protected:
 		GameUnit			m_BeginPosX;
 		GameUnit			m_BeginPosY;
 		void DrawEffect();
 	public:
 		NoRotateShot( std::shared_ptr < ResourceMap > pMap, int id );
 		virtual ~NoRotateShot();
-		void Draw();										// ï`âÊ
+		virtual void Draw();										// ï`âÊ
 		bool Update();										// çXêV
 		virtual void SetTextureColor( int color );
 	};

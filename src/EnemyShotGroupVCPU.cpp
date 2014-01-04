@@ -30,11 +30,7 @@ namespace GameEngine
 	{
 		Pop();
 		if( m_pEnemyShotGroupData->m_EnemyControlled ){
-#if defined ( USE_FLOATING_POINT )
-			Push( m_pEnemyShotGroupData->m_pEnemyData->m_PosX );
-#elif defined ( USE_GAME_UNIT )
 			Push( m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosX.GetFloat() );
-#endif
 		}
 		else{
 			Push( 0.0f );
@@ -45,11 +41,7 @@ namespace GameEngine
 	{
 		Pop();
 		if( m_pEnemyShotGroupData->m_EnemyControlled ){
-#if defined ( USE_FLOATING_POINT )
-			Push( m_pEnemyShotGroupData->m_pEnemyData->m_PosY );
-#elif defined ( USE_GAME_UNIT )
 			Push( m_pEnemyShotGroupData->m_pEnemyData->m_GUData.m_PosY.GetFloat() );
-#endif
 		}
 		else{
 			Push( 0.0f );
@@ -141,34 +133,19 @@ namespace GameEngine
 	void EnemyShotGroupVCPU::SysGetPlayerPosX()
 	{
 		Pop();
-#if defined ( USE_FLOATING_POINT )
-		float x;
-		float y;
-		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
-		Push( x );
-#elif defined ( USE_GAME_UNIT )
 		GameUnit x;
 		GameUnit y;
 		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
 		Push( x.GetFloat() );
-#endif
 	}
 
 	void EnemyShotGroupVCPU::SysGetPlayerPosY()
 	{
 		Pop();
-
-#if defined ( USE_FLOATING_POINT )
-		float x;
-		float y;
-		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
-		Push( y );
-#elif defined ( USE_GAME_UNIT )
 		GameUnit x;
 		GameUnit y;
 		m_pEnemyShotGroupData->m_pStageData->m_pPlayer->GetPos( &x, &y );
 		Push( y.GetFloat() );
-#endif
 	}
 
 	void EnemyShotGroupVCPU::SysGetRandF()
@@ -1223,7 +1200,7 @@ namespace GameEngine
 		int texColor = RetPop().m_Integer;
 		int shotID = RetPop().m_Integer;
 
-		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+		//if( m_pEnemyShotGroupData->m_EnemyControlled ){
 			id = m_pEnemyShotGroupData->m_ShotTotal++;
 			m_pEnemyShotGroupData->m_IsNew = false;
 			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( shotID );
@@ -1232,7 +1209,7 @@ namespace GameEngine
 			m_pEnemyShotGroupData->m_pStageData->m_EnemyShotList.push_back( pNewShot );
 			pNewShot->SetPos( x, y );
 			pNewShot->SetTextureColor( texColor );
-		}
+		//}
 		Push( id );
 	}
 
@@ -1248,7 +1225,7 @@ namespace GameEngine
 		int texColor = RetPop().m_Integer;
 		int shotID = RetPop().m_Integer;
 
-		if( m_pEnemyShotGroupData->m_EnemyControlled ){
+		//if( m_pEnemyShotGroupData->m_EnemyControlled ){
 			id = m_pEnemyShotGroupData->m_ShotTotal++;
 			m_pEnemyShotGroupData->m_IsNew = false;
 			EnemyShot* pNewShot = m_pEnemyShotGroupData->m_pStageData->m_ObjBuilder.CreateEnemyShot( shotID );
@@ -1259,7 +1236,7 @@ namespace GameEngine
 			GameUnit y = radius * SinGU( angle );
 			pNewShot->SetPos( x, y );
 			pNewShot->SetTextureColor( texColor );
-		}
+		//}
 		Push( id );
 	}
 
@@ -1315,6 +1292,19 @@ namespace GameEngine
 			pOldShot->Delete( DELETE_BY_SHOT_CHANGED );
 			pOldShot->LeaveFromShotGroup();
 			m_pEnemyShotGroupData->m_pShots[ id ] = NULL;
+		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotTexColor()
+	{
+		Pop();
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			Push( m_pEnemyShotGroupData->m_pShots[ id ]->GetTextureColor() );
+		}
+		else{
+			Push( 0 );
 		}
 	}
 
@@ -1592,6 +1582,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_DELETE_ENEMY_SHOT:
 				SysDeleteEnemyShot();
+				break;
+			case VM::SYS_GET_ENEMY_SHOT_TEX_COLOR:
+				SysGetEnemyShotTexColor();
 				break;
 
 			default:

@@ -40,8 +40,9 @@ namespace GameEngine
 		ENEMY_SHOT_ID_NEEDLE_M				= 9,
 		ENEMY_SHOT_ID_LASER_M				= 10,
 		ENEMY_SHOT_ID_SMOKE_M				= 11,
-		ENEMY_SHOT_ID_RING					= 12,
+		ENEMY_SHOT_ID_RING_M				= 12,
 		ENEMY_SHOT_ID_BEAM_M				= 13,
+		ENEMY_SHOT_ID_ROCK_M				= 14,
 		ENEMY_SHOT_ID_TOTAL,
 	};
 
@@ -289,6 +290,7 @@ namespace GameEngine
 			GameUnit		m_Angle;
 			GameUnit		m_Speed;
 			GameUnit		m_ColRadius;
+			GameUnit		m_ColRadiusBase;
 
 		};
 		GameUnitData			m_GUData;
@@ -400,6 +402,7 @@ namespace GameEngine
 		void NotDeleteWhen( int when );		// 削除タイミングの設定
 		virtual void SetLength( const GameUnit& length );
 		virtual void SetTextureColor( int color );
+		int GetTextureColor() const;
 	};
 
 }

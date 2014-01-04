@@ -14,7 +14,8 @@ namespace GameEngine
 	SmokeShotM::SmokeShotM( std::shared_ptr < ResourceMap > pMap, int id ) :	RotateShot( pMap, id )
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT;
-		m_GUData.m_ColRadius = GameUnit( 6 );
+		m_GUData.m_ColRadiusBase = GameUnit( 6 );
+		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase;
 		m_DrawingMultiplicity = 2;
 		m_Circle.SetRadius( m_GUData.m_ColRadius.GetFloat() );
 	}

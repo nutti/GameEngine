@@ -18,7 +18,8 @@ namespace GameEngine
 	BeamShotM::BeamShotM( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT;
-		m_GUData.m_ColRadius = GameUnit( 0 );
+		m_GUData.m_ColRadiusBase = GameUnit( -5 );
+		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase;
 		m_Line.SetThickness( m_GUData.m_ColRadius.GetFloat() );
 		m_Length = GameUnit( 750 );
 		m_StatusFlags.set( NOT_DELETE_BY_PLAYER_DAMAGE );
@@ -43,16 +44,18 @@ namespace GameEngine
 		else if( m_Counter >= 60 && m_Counter < 140 ){
 			scale = 2.0f;
 		}
-		else if( m_Counter >= 140 && m_Counter < 160 ){
-			scale = ( 160 - m_Counter ) / 10.0f;
+		else if( m_Counter >= 140 ){
+			scale = ( 20 - m_DeadCounter ) / 10.0f;
 		}
 
-		AddToAtlasSpriteBatch(	true,
-								MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
-								LAUNCH_EFFECT_TEX_ID + m_TexColor,
-								m_GUData.m_PosX.GetFloat(),
-								m_GUData.m_PosY.GetFloat(),
-								scale, scale, 0.0f, true );
+		for( int i = 0; i < m_DrawingMultiplicity * 2; ++i ){
+			AddToAtlasSpriteBatch(	true,
+									MAPIL::ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT,
+									LAUNCH_EFFECT_TEX_ID + m_TexColor,
+									m_GUData.m_PosX.GetFloat(),
+									m_GUData.m_PosY.GetFloat(),
+									scale, scale, 0.0f, true );
+		}
 	}
 
 
@@ -70,7 +73,7 @@ namespace GameEngine
 		float length = std::sqrt(	( m_Line.GetEndX() - m_Line.GetStartX() ) * ( m_Line.GetEndX() - m_Line.GetStartX() ) + 
 									( m_Line.GetEndY() - m_Line.GetStartY() ) * ( m_Line.GetEndY() - m_Line.GetStartY() ) );
 
-		DrawEffect();
+		
 
 		// Á‹Ž‚³‚ê‚é‚Æ‚«‚Í™X‚É”–‚­‚È‚Á‚Ä‚¢‚­B
 		if( m_StatusFlags[ DEAD ] ){
@@ -129,6 +132,8 @@ namespace GameEngine
 									length / texSizeY, 
 									angle, false, color );
 		}
+
+		DrawEffect();
 	}
 
 	bool BeamShotM::Update()
@@ -154,10 +159,14 @@ namespace GameEngine
 		// Õ“Ë”¼Œa
 		switch( m_Counter ){
 			case 20:
-				m_GUData.m_ColRadius = GameUnit( 0 );
+				m_GUData.m_ColRadiusBase = GameUnit( -5 );
+				m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase * m_ImgScale;
+				m_Line.SetThickness( m_GUData.m_ColRadius.GetFloat() );
 				break;
 			case 60:
-				m_GUData.m_ColRadius = GameUnit( 2 );
+				m_GUData.m_ColRadiusBase = GameUnit( 2 );
+				m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase * m_ImgScale;
+				m_Line.SetThickness( m_GUData.m_ColRadius.GetFloat() );
 				break;
 		}
 		

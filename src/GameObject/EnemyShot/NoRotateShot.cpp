@@ -4,17 +4,20 @@
 
 #include "NoRotateShot.h"
 
+#include "../../ResourceID.h"
 #include "../../ResourceTypes.h"
 #include "../../SpriteBatch.h"
 
 namespace GameEngine
 {
 	static const int LAUNCH_EFFECT_TEX_ID		= 1000;
+	static const int LAUNCH_EFFECT_SE_ID		= GLOBAL_RESOURCE_SE_ID_ENEMY_NORMAL_SHOT;
 
 	NoRotateShot::NoRotateShot( std::shared_ptr < ResourceMap > pMap, int id ) :	EnemyShot( pMap, id )
 	{
 		m_AlphaBlendingMode = MAPIL::ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
-		m_GUData.m_ColRadius = GameUnit( 2 );
+		m_GUData.m_ColRadiusBase = GameUnit( 2 );
+		m_GUData.m_ColRadius = m_GUData.m_ColRadiusBase;
 		m_ImgRotAngle = 0.0f;
 	}
 
@@ -95,6 +98,7 @@ namespace GameEngine
 		if( m_Counter == 0 ){
 			m_BeginPosX = m_GUData.m_PosX;
 			m_BeginPosY = m_GUData.m_PosY;
+			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ LAUNCH_EFFECT_SE_ID ] );
 		}
 		
 		// éÄñSîªíËèàóù
