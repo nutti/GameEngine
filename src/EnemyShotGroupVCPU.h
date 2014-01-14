@@ -74,6 +74,7 @@ namespace GameEngine
 		void SysEnemyShotDeleteByPlayerDamage();
 		void SysEnemyShotNotDeleteByPlayerSkill();
 		void SysEnemyShotNotDeleteByPlayerDamage();
+		void SysSetEnemyShotTexColor();
 
 
 		void SysEnemyShotAddAngle();

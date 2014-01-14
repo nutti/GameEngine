@@ -43,6 +43,7 @@ namespace GameEngine
 		ENEMY_SHOT_ID_RING_M				= 12,
 		ENEMY_SHOT_ID_BEAM_M				= 13,
 		ENEMY_SHOT_ID_ROCK_M				= 14,
+		ENEMY_SHOT_ID_BUBBLE_M				= 15,
 		ENEMY_SHOT_ID_TOTAL,
 	};
 

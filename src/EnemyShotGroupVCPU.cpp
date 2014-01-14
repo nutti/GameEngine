@@ -1308,6 +1308,20 @@ namespace GameEngine
 		}
 	}
 
+	void EnemyShotGroupVCPU::SysSetEnemyShotTexColor()
+	{
+		Pop();
+		int color = RetPop().m_Integer;
+		int id = RetPop().m_Integer;
+
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			m_pEnemyShotGroupData->m_pShots[ id ]->SetTextureColor( color );
+		}
+		else{
+			Push( 0 );
+		}
+	}
+
 	void EnemyShotGroupVCPU::OpSysCall( int val )
 	{
 		switch( val ){
@@ -1534,6 +1548,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_ENEMY_SHOT_NOT_DELETE_BY_PLAYER_DAMAGE:
 				SysEnemyShotNotDeleteByPlayerDamage();
+				break;
+			case VM::SYS_SET_ENEMY_SHOT_TEX_COLOR:
+				SysSetEnemyShotTexColor();
 				break;
 
 			case VM::SYS_CREATE_SCRIPT_EFFECT_REG:

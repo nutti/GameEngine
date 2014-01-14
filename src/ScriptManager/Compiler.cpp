@@ -153,6 +153,7 @@ bool Compiler::Compile( const std::string& f, VM::Data& data )
 	AddFunction( VM::SYS_CHANGE_ENEMY_SHOT_ID, TYPE_VOID, "ChangeEnemyShotID", "iii" );			// void ChangeEnemyShotID( int shot_id, int id, int tex_color );
 	AddFunction( VM::SYS_DELETE_ENEMY_SHOT, TYPE_VOID, "DeleteEnemyShot", "i" );			// void DeleteEnemyShot( int shot_id );
 	AddFunction( VM::SYS_GET_ENEMY_SHOT_TEX_COLOR, TYPE_INTEGER, "GetEnemyShotTexColor", "i" );	// int GetEnemyShotTexColor( int shot_id );
+	AddFunction( VM::SYS_SET_ENEMY_SHOT_TEX_COLOR, TYPE_VOID, "SetEnemyShotTexColor", "ii" );	// void SetEnemyShotTexColor( int shot_id, int color );
 
 	// System call for enemy shot group.
 	AddFunction( VM::SYS_ENEMY_SHOT_GROUP_SET_STATUS_GU, TYPE_VOID, "SetEnemyShotStatusGU", "igggggi" );	// void SetEnemyShotStatusGU( shot_id, x, y, angle, speed, radius, texture_id );

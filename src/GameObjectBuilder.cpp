@@ -18,6 +18,7 @@
 #include "GameObject/EnemyShot/RingShotM.h"
 #include "GameObject/EnemyShot/BeamShotM.h"
 #include "GameObject/EnemyShot/RockShotM.h"
+#include "GameObject/EnemyShot/BubbleShotM.h"
 #include "Item.h"
 #include "Effect.h"
 #include "EnemyShotGroup.h"
@@ -135,6 +136,8 @@ namespace GameEngine
 				return new BeamShotM( m_pResourceMap, id );
 			case ENEMY_SHOT_ID_ROCK_M:
 				return new RockShotM( m_pResourceMap, id );
+			case ENEMY_SHOT_ID_BUBBLE_M:
+				return new BubbleShotM( m_pResourceMap, id );
 			default:
 				return new EnemyShot( m_pResourceMap, id );
 		}
