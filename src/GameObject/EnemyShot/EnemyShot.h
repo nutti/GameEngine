@@ -404,6 +404,7 @@ namespace GameEngine
 		virtual void SetLength( const GameUnit& length );
 		virtual void SetTextureColor( int color );
 		int GetTextureColor() const;
+		int GetID() const;
 	};
 
 }

@@ -525,4 +525,9 @@ namespace GameEngine
 	{
 		return m_TexColor;
 	}
+
+	int EnemyShot::GetID() const
+	{
+		return m_ShotID;
+	}
 }

@@ -1317,8 +1317,18 @@ namespace GameEngine
 		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
 			m_pEnemyShotGroupData->m_pShots[ id ]->SetTextureColor( color );
 		}
+	}
+
+	void EnemyShotGroupVCPU::SysGetEnemyShotID()
+	{
+		Pop();
+		int id = RetPop().m_Integer;
+		
+		if( id >= 0 && m_pEnemyShotGroupData->m_pShots[ id ] != NULL ){
+			Push( m_pEnemyShotGroupData->m_pShots[ id ]->GetID() );
+		}
 		else{
-			Push( 0 );
+			Push( -1 );
 		}
 	}
 
@@ -1602,6 +1612,9 @@ namespace GameEngine
 				break;
 			case VM::SYS_GET_ENEMY_SHOT_TEX_COLOR:
 				SysGetEnemyShotTexColor();
+				break;
+			case VM::SYS_GET_ENEMY_SHOT_ID:
+				SysGetEnemyShotID();
 				break;
 
 			default:

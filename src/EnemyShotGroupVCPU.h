@@ -112,6 +112,7 @@ namespace GameEngine
 		void SysChangeEnemyShotID();
 		void SysDeleteEnemyShot();
 		void SysGetEnemyShotTexColor();
+		void SysGetEnemyShotID();
 
 
 		void SysPlaySE();
