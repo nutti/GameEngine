@@ -637,7 +637,7 @@ namespace GameEngine
 		int color1 = alpha2 << 24 | 0xAAFFAA;
 		int color2 = alpha << 24 | 0xFFFFFF;
 
-		float fontScale = 0.50f;
+		float fontScale = 1.0f;
 
 		float x[ 4 ];
 		float y[ 4 ];

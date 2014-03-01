@@ -264,8 +264,8 @@ namespace GameEngine
 		int color2 = alpha << 24 | 0xAAAAAA;
 		int selColor = alpha << 24 | 0xFFFFFF;
 
-		float titleFont = 0.4f;
-		float itemFont = 0.38f;
+		float titleFont = 1.0f;
+		float itemFont = 1.0f;
 
 		enum ItemID
 		{

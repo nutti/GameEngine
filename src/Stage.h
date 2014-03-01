@@ -112,6 +112,16 @@ namespace GameEngine
 		std::list < std::shared_ptr < StageView > >		m_ViewList;		// ステージビューリスト
 	};
 
+	// 固定化されたゲームデータ
+	struct FixedGameData
+	{
+		int		m_HIScore;			// ハイスコア
+		int		m_PrevScore;		// 前のステージまでのスコア
+		int		m_PrevKilled;		// 前のステージまでに倒した敵の数
+		int		m_PrevCrystal;		// 前のステージまでに取得したクリスタルの総数
+		int		m_PrevCrystalUsed;	// 前のステージまでに使用したクリスタルの総数
+	};
+
 	struct ScriptData;
 	class Stage : public Scene
 	{

@@ -87,8 +87,6 @@ namespace GameEngine
 
 		int interval = 13;
 
-		scale = 1.0f;
-
 		while( *p ){
 			if( ::isalpha( *p ) ){
 				ResourceMap::TextureAtlas atlas;
@@ -104,8 +102,6 @@ namespace GameEngine
 											atlas.m_X + atlas.m_Width,
 											atlas.m_Y + atlas.m_Height,
 											true, color );
-				//MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + ::toupper( *p ) - 'A' + 10 ],
-				//					x + pos * 32 * scale, y, scale, scale, true, color );
 			}
 			else if( ::isdigit( *p ) ){
 				ResourceMap::TextureAtlas atlas;
@@ -121,8 +117,59 @@ namespace GameEngine
 											atlas.m_X + atlas.m_Width,
 											atlas.m_Y + atlas.m_Height,
 											true, color );
-				//MAPIL::DrawTexture(	map.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_FONT_TEXTURE_FIRST + *p - '0' ],
-				//					x + pos * 32 * scale, y, scale, scale, true, color );
+			}
+			++p;
+			++pos;
+		}
+	}
+
+	void DrawFontString( const ResourceMap& map, float x, float y, float scale, bool scaleSpacing, int color, const char* pStr, ... )
+	{
+		// Analyze the variable length argument.
+		::va_list list;
+		va_start( list, pStr );
+		char str[ 1024 ];
+		::vsprintf_s( str, 1024, pStr, list );
+		va_end( list );
+		
+		char* p = str;
+		int pos = 0;
+
+		int interval = 13;
+		if( scaleSpacing ){
+			interval *= scale;
+		}
+
+		while( *p ){
+			if( ::isalpha( *p ) ){
+				ResourceMap::TextureAtlas atlas;
+				atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ GLOBAL_TEX_ATLAS_ID_FONT_FIRST + ::toupper( *p ) - 'A' + 10 ];
+				MAPIL::DrawClipedTexture(	map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
+											x + pos * interval,
+											y,
+											scale,
+											scale,
+											0.0f,
+											atlas.m_X,
+											atlas.m_Y,
+											atlas.m_X + atlas.m_Width,
+											atlas.m_Y + atlas.m_Height,
+											true, color );
+			}
+			else if( ::isdigit( *p ) ){
+				ResourceMap::TextureAtlas atlas;
+				atlas = map.m_pGlobalResourceMap->m_TexAtlasMap[ GLOBAL_TEX_ATLAS_ID_FONT_FIRST + *p - '0' ];
+				MAPIL::DrawClipedTexture(	map.m_pGlobalResourceMap->m_TextureMap[ atlas.m_TexID ],
+											x + pos * interval,
+											y,
+											scale,
+											scale,
+											0.0f,
+											atlas.m_X,
+											atlas.m_Y,
+											atlas.m_X + atlas.m_Width,
+											atlas.m_Y + atlas.m_Height,
+											true, color );
 			}
 			++p;
 			++pos;

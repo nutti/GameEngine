@@ -382,7 +382,7 @@ namespace GameEngine
 			color2 = ( alpha * ( SELECTION_INTERVAL - ::abs( m_SelectCounter ) ) / SELECTION_INTERVAL ) << 24 | 0xFFFFFF; 
 		}
 
-		float fontScale = 0.6f;
+		float fontScale = 1.0f;
 
 		float x = 155.0f;
 		float y[ 4 ];

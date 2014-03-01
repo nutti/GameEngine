@@ -19,6 +19,8 @@ namespace GameEngine
 
 	void DrawFontString( const ResourceMap& map, float x, float y, float scale, int color, const char* pStr, ... );
 
+	void DrawFontString( const ResourceMap& map, float x, float y, float scale, bool scaleSpacing, int color, const char* pStr, ... );
+
 	void ScreenShot( const char* pDirPath, const char* pFileName );
 
 	void WriteInt( std::ofstream* pFOut, int val );

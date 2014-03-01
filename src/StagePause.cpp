@@ -63,10 +63,10 @@ namespace GameEngine
 
 		for( int i = 0; i < PAUSE_MENU_ID_TOTAL; ++i ){
 			if( i == m_MenuPointed ){
-				DrawFontString( m_pStageData->m_ResourceMap, 200.0f, 200.0f + 30.0f * i, 0.5f, 0xFFFFFF00, pStr[ i ] );
+				DrawFontString( m_pStageData->m_ResourceMap, 200.0f, 200.0f + 30.0f * i, 1.0f, 0xFFFFFF00, pStr[ i ] );
 			}
 			else{
-				DrawFontString( m_pStageData->m_ResourceMap, 200.0f, 200.0f + 30.0f * i, 0.5f, 0xFFFFFFFF, pStr[ i ] );
+				DrawFontString( m_pStageData->m_ResourceMap, 200.0f, 200.0f + 30.0f * i, 1.0f, 0xFFFFFFFF, pStr[ i ] );
 			}
 		}
 

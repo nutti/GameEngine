@@ -240,7 +240,7 @@ namespace GameEngine
 		int color1 = alpha1 << 24 | 0xAAAAAA;
 		int selColor = alpha1 << 24 | 0xFFFFFF;
 
-		float fontScale = 0.6f;
+		float fontScale = 1.0f;
 		float startX = 120.0f;
 		float startY[ CONFIG_ITEM_TOTAL ];
 		startY[ CONFIG_ITEM_BGM ] = 100.0f;
@@ -290,7 +290,7 @@ namespace GameEngine
 			selColor = alpha1 << 24 | 0xFFFF00;
 		}
 
-		float fontScale = 0.6f;
+		float fontScale = 1.0f;
 		float startX = 120.0f;
 		float startY = 100.0f;
 

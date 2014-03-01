@@ -2,9 +2,11 @@
 #define INCLUDED_GAMEENGINE_PLAYER_H
 
 #include <memory>
+#include <list>
 
 #include "CollisionObject.h"
 #include "InputTypes.h"
+#include "PlayerOption.h"
 
 #include "Math.hpp"
 
@@ -21,11 +23,6 @@ namespace GameEngine
 
 	struct PlayerData
 	{
-#if defined ( USE_FLOATING_POINT )
-		float		m_PosX;					// 位置（X座標）
-		float		m_PosY;					// 位置（Y座標）
-		float		m_ColRadius;			// 衝突半径
-#elif defined ( USE_GAME_UNIT )
 		struct GameUnitData
 		{
 			GameUnit		m_PosX;
@@ -33,7 +30,6 @@ namespace GameEngine
 			GameUnit		m_ColRadius;
 		};
 		GameUnitData	m_GUData;
-#endif
 		
 		int			m_HP;					// HP
 		int			m_ConsCur;				// 現在の意識状態
@@ -49,8 +45,30 @@ namespace GameEngine
 	class Player : public CollisionObject
 	{
 	private:
-		class Impl;
-		std::auto_ptr < Player::Impl >		m_pImpl;
+		const int	INVINCIBLE_TIME;
+
+		ButtonStatusHolder					m_ButtonStatus;
+		PlayerData							m_Data;
+		std::shared_ptr < ResourceMap >		m_pResourceMap;
+		StageData*							m_pStageData;
+
+		std::list < PlayerOption* >			m_PlayerOptList;
+		
+		void NormalModeShot();
+		void GreenModeShot();
+		void BlueModeShot();
+		void RedModeShot();
+
+		void GreenModeBomb();
+		void BlueModeBomb();
+		void RedModeBomb();
+
+		void AddOpt();
+		
+		void Move();
+		void ChangeMode();
+		void UpdateCons();
+
 	public:
 		Player( std::shared_ptr < ResourceMap > pMap, StageData* pStageData );
 		~Player();
@@ -59,20 +77,14 @@ namespace GameEngine
 		void Draw();													// 描画
 		bool Update();													// 更新
 		void Colided( CollisionObject* pObject );						// 衝突時の処理 ディスパッチャ
-		void ProcessCollision( Player* pPlayer );						// 衝突時の処理（プレイヤー）
+		void ProcessCollision( Player* pPlayer ){};						// 衝突時の処理（プレイヤー）
 		void ProcessCollision( Enemy* pEnemy );							// 衝突時の処理（敵）
-		void ProcessCollision( PlayerShot* pPlayerShot );				// 衝突時の処理（プレイヤーショット）
+		void ProcessCollision( PlayerShot* pPlayerShot ){};				// 衝突時の処理（プレイヤーショット）
 		void ProcessCollision( EnemyShot* pEnemyShot );					// 衝突時の処理（敵弾）
 		void ProcessCollision( Item* pItem );							// 衝突時の処理（アイテム）
-#if defined ( USE_FLOATING_POINT )
-		void Init( float posX, float posY );							// 初期化
-		void GetPos( float* pPosX, float* pPosY );						// 位置を取得
-		float GetCollisionRadius();										// 衝突半径を取得
-#elif defined ( USE_GAME_UNIT )
-		void Init( const GameUnit& posX, const GameUnit& posY );							// 初期化
-		void GetPos( GameUnit* pPosX, GameUnit* pPosY );						// 位置を取得
-		GameUnit GetCollisionRadius();										// 衝突半径を取得
-#endif
+		void Init( const GameUnit& posX, const GameUnit& posY ){}		// 初期化
+		void GetPos( GameUnit* pPosX, GameUnit* pPosY );				// 位置を取得
+		GameUnit GetCollisionRadius();									// 衝突半径を取得
 		int GetHP() const;												// HPを取得
 		int GetShotPower() const;										// ショットの威力を取得
 		int GetConsGauge( int cons ) const;								// 意識ゲージの取得

@@ -379,11 +379,11 @@ namespace GameEngine
 			else{
 				str = "no entry";
 			}
-			DrawFontString( m_ResourceMap, baseX + offsetX[ i ], baseY + i * 17.0f + offsetY[ i ], 0.5f, c[ i ], str.c_str() );
+			DrawFontString( m_ResourceMap, baseX + offsetX[ i ], baseY + i * 17.0f + offsetY[ i ], 1.0f, c[ i ], str.c_str() );
 		}
 
 		// Ú×î•ñ‚Ì•\¦
-		float fontScale = 0.4f;
+		float fontScale = 1.0f;
 
 		float x[ 3 ];
 		float y[ 3 ];

@@ -17,79 +17,15 @@
 
 namespace GameEngine
 {
-
-	class Player::Impl : public GameObjectImplBase
-	{
-	private:
-		const int	INVINCIBLE_TIME;
-
-		ButtonStatusHolder					m_ButtonStatus;
-		PlayerData							m_Data;
-		std::shared_ptr < ResourceMap >		m_pResourceMap;
-		StageData*							m_pStageData;
-
-		std::list < PlayerOption* >			m_PlayerOptList;
-		
-		void NormalModeShot();
-		void GreenModeShot();
-		void BlueModeShot();
-		void RedModeShot();
-
-		void GreenModeBomb();
-		void BlueModeBomb();
-		void RedModeBomb();
-
-		void AddOpt();
-		
-		void Move();
-		void ChangeMode();
-		void UpdateCons();
-	public:
-		Impl( std::shared_ptr < ResourceMap > pMap, StageData* pStageData );
-		~Impl();
-		void AttachButtonState( const ButtonStatusHolder& holder );		// キー入力を設定
-		void Draw();													// 描画
-		bool Update();													// 更新
-		void ProcessCollision( Enemy* pEnemy );							// 衝突時の処理（敵）
-		void ProcessCollision( EnemyShot* pEnemyShot );					// 衝突時の処理（敵弾）
-		void ProcessCollision( Item* pItem );
-#if defined ( USE_FLOATING_POINT )
-		void GetPos( float* pX, float* pY );
-		float GetCollisionRadius() const;
-#elif defined ( USE_GAME_UNIT )
-		void GetPos( GameUnit* pPosX, GameUnit* pPosY );						// 位置を取得
-		GameUnit GetCollisionRadius();										// 衝突半径を取得
-#endif
-		int GetHP() const;												// HPを取得
-		int GetConsGauge( int cons ) const;								// 意識ゲージの取得
-		int GetConsLevel( int cons ) const;								// 意識レベルの取得
-		int GetShotPower() const;
-		int GetCurCons() const;
-
-		void SetPos( const GameUnit& posX, const GameUnit& posY );		// 位置を設定
-		void SetHP( int hp );											// HPを設定
-		void SetShotPower( int power );									// ショットの威力を設定
-		void SetConsGauge( int cons, int val );							// 意識ゲージを設定
-		void SetConsLevel( int cons, int level );						// 意識レベルを設定
-		void SetCons( int cons );										// 現在の意識状態を設定
-	};
-
-	Player::Impl::Impl( std::shared_ptr < ResourceMap > pMap, StageData* pStageData ) :	GameObjectImplBase(),
-																						m_pResourceMap( pMap ),
-																						m_pStageData( pStageData ),
-																						INVINCIBLE_TIME( 240 )
+	Player::Player( std::shared_ptr < ResourceMap > pMap, StageData* pStageData ) :	CollisionObject(),
+																					m_pResourceMap( pMap ),
+																					m_pStageData( pStageData ),
+																					INVINCIBLE_TIME( 240 )
 	{
 		MAPIL::ZeroObject( &m_Data, sizeof( m_Data ) );
-
-#if defined ( USE_FLOATING_POINT )
-		m_Data.m_PosX = 300.0f;
-		m_Data.m_PosY = 400.0f;
-		m_Data.m_ColRadius = 2.0f;
-#elif defined ( USE_GAME_UNIT )
 		m_Data.m_GUData.m_PosX = 300;
 		m_Data.m_GUData.m_PosY = 400;
 		m_Data.m_GUData.m_ColRadius = GameUnit( 0, 500 );
-#endif
 		
 		m_Data.m_HP = 10;
 		m_Data.m_ConsGauge[ 0 ] = m_Data.m_ConsGauge[ 1 ] = m_Data.m_ConsGauge[ 2 ] = 1000;
@@ -108,55 +44,13 @@ namespace GameEngine
 		m_PlayerOptList.clear();
 	}
 
-	Player::Impl::~Impl()
+	Player::~Player()
 	{
 		MAPIL::ZeroObject( &m_Data, sizeof( m_Data ) );
 		m_PlayerOptList.clear();
 	}
 
-#if defined ( USE_FLOATING_POINT )
-	void Player::Impl::NormalModeShot()
-	{
-		if( ( m_Data.m_Counter % 3 ) == 0 ){
-			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-			pNewShot->SetPos( m_Data.m_PosX - 7.0f, m_Data.m_PosY + 5.0f );
-			pNewShot->SetShotPower( 3 );
-			m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-			pNewShot->SetPos( m_Data.m_PosX + 7.0f, m_Data.m_PosY + 5.0f );
-			pNewShot->SetShotPower( 3 );
-			m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			if( m_Data.m_ShotPower >= 10 ){
-				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-				pNewShot->SetShotPower( 2 );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			}
-			if( m_Data.m_ShotPower >= 20 ){
-				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-				pNewShot->SetPos( m_Data.m_PosX - 14.0f, m_Data.m_PosY + 2.0f );
-				pNewShot->SetShotPower( 2 );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-				pNewShot->SetPos( m_Data.m_PosX + 14.0f, m_Data.m_PosY + 2.0f );
-				pNewShot->SetShotPower( 2 );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			}
-			if( m_Data.m_ShotPower >= 30 ){
-				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-				pNewShot->SetPos( m_Data.m_PosX - 21.0f, m_Data.m_PosY + 1.0f );
-				pNewShot->SetShotPower( 2 );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
-				pNewShot->SetPos( m_Data.m_PosX + 21.0f, m_Data.m_PosY + 1.0f );
-				pNewShot->SetShotPower( 2 );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			}
-			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
-		}
-	}
-#elif defined ( USE_GAME_UNIT )
-	void Player::Impl::NormalModeShot()
+	void Player::NormalModeShot()
 	{
 		if( ( m_Data.m_Counter % 3 ) == 0 ){
 			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 0 );
@@ -196,89 +90,8 @@ namespace GameEngine
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 		}
 	}
-#endif
 
-#if defined ( USE_FLOATING_POINT )
-
-	void Player::Impl::GreenModeShot()
-	{
-		if( ( m_Data.m_Counter % 3 ) == 0 ){
-			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-			pNewShot->SetAngle( MAPIL::DegToRad( 90.0f ) );
-			pNewShot->SetSpeed( 15.0f );
-			pNewShot->SetShotPower( 5 );
-			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-			m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-			pNewShot->SetSpeed( 15.0f );
-			pNewShot->SetAngle( MAPIL::DegToRad( 10.0f + 90.0f ) );
-			pNewShot->SetShotPower( 5 );
-			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-			m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-			pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-			pNewShot->SetSpeed( 15.0f );
-			pNewShot->SetAngle( MAPIL::DegToRad( -10.0f + 90.0f ) );
-			pNewShot->SetShotPower( 5 );
-			pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-			m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			if( m_Data.m_ShotPower >= 10 ){
-				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( 20.0f + 90.0f ) );
-				pNewShot->SetShotPower( 5 );
-				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( -20.0f + 90.0f ) );
-				pNewShot->SetShotPower( 5 );
-				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			}
-			if( m_Data.m_ShotPower >= 20 ){
-				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-				pNewShot->SetPos( m_Data.m_PosX , m_Data.m_PosY + 3.0f );
-				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( 30.0f + 90.0f ) );
-				pNewShot->SetShotPower( 5 );
-				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( -30.0f + 90.0f ) );
-				pNewShot->SetShotPower( 5 );
-				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			}
-			if( m_Data.m_ShotPower >= 30 ){
-				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( 40.0f + 90.0f ) );
-				pNewShot->SetShotPower( 5 );
-				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-				pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
-				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 3.0f );
-				pNewShot->SetSpeed( 15.0f );
-				pNewShot->SetAngle( MAPIL::DegToRad( -40.0f + 90.0f ) );
-				pNewShot->SetShotPower( 5 );
-				pNewShot->SetConsAttr( PLAYER_CONS_MODE_GREEN );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			}
-			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
-		}
-	}
-
-#elif defined ( USE_GAME_UNIT )
-
-	void Player::Impl::GreenModeShot()
+	void Player::GreenModeShot()
 	{
 		if( ( m_Data.m_Counter % 3 ) == 0 ){
 			PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 1 );
@@ -354,27 +167,7 @@ namespace GameEngine
 		}
 	}
 
-#endif
-
-#if defined ( USE_FLOATING_POINT )
-	void Player::Impl::BlueModeShot()
-	{
-		PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
-		pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
-		pNewShot->SetShotPower( 2 + m_Data.m_ShotPower / 10 );
-		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
-		pNewShot->SetConsAttr( PLAYER_CONS_MODE_BLUE );
-		m_pStageData->m_PlayerShotList.push_back( pNewShot );
-		pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
-		pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY + 8.0f );
-		pNewShot->SetShotPower( 2 + m_Data.m_ShotPower / 10 );
-		pNewShot->SetPlayer( m_pStageData->m_pPlayer );
-		pNewShot->SetConsAttr( PLAYER_CONS_MODE_BLUE );
-		m_pStageData->m_PlayerShotList.push_back( pNewShot );
-		MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
-	}
-#elif defined ( USE_GAME_UNIT )
-	void Player::Impl::BlueModeShot()
+	void Player::BlueModeShot()
 	{
 		PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 2 );
 		pNewShot->SetPos( m_Data.m_GUData.m_PosX, m_Data.m_GUData.m_PosY );
@@ -390,26 +183,8 @@ namespace GameEngine
 		m_pStageData->m_PlayerShotList.push_back( pNewShot );
 		MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );
 	}
-#endif
 
-#if defined ( USE_FLOATING_POINT )
-	void Player::Impl::RedModeShot()
-	{
-		if( ( m_Data.m_Counter % ( 12 - 2 * ( m_Data.m_ShotPower / 10 ) ) ) == 0 ){
-			for( int i = 0; i < 36; ++i ){
-				PlayerShot* pNewShot = m_pStageData->m_ObjBuilder.CreatePlayerShot( 3 );
-				pNewShot->SetPos( m_Data.m_PosX, m_Data.m_PosY );
-				pNewShot->SetAngle( MAPIL::DegToRad( i * 10.0f ) );
-				pNewShot->SetSpeed( 10.0f );
-				pNewShot->SetShotPower( 10 );
-				pNewShot->SetConsAttr( PLAYER_CONS_MODE_RED );
-				m_pStageData->m_PlayerShotList.push_back( pNewShot );
-			}
-			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );	
-		}
-	}
-#elif defined ( USE_GAME_UNIT )
-	void Player::Impl::RedModeShot()
+	void Player::RedModeShot()
 	{
 		if( ( m_Data.m_Counter % ( 12 - 2 * ( m_Data.m_ShotPower / 10 ) ) ) == 0 ){
 			for( int i = 0; i < 36; ++i ){
@@ -424,35 +199,9 @@ namespace GameEngine
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_SHOT_SE ] );	
 		}
 	}
-#endif
 
-#if defined ( USE_FLOATING_POINT )
-	void Player::Impl::GreenModeBomb()
-	{
-		// 無敵時間の設定
-		m_Data.m_RestInvincibleTime = 180;
 
-		// メッセージ構築
-		StageMessage msg;
-		// ボム発動メッセージ
-		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
-		// ボムの属性
-		StageMessage::StageMessageData data;
-		data.m_Integer = PLAYER_CONS_MODE_GREEN;
-		msg.m_MsgDataList.push_back( data );
-		// プレイヤーの位置
-		data.m_Float = m_Data.m_PosX;
-		msg.m_MsgDataList.push_back( data );
-		data.m_Float = m_Data.m_PosY;
-		msg.m_MsgDataList.push_back( data );
-		// ボムの持続時間
-		data.m_Integer = m_Data.m_RestInvincibleTime;
-		msg.m_MsgDataList.push_back( data );
-		// メッセージ送信
-		m_pStageData->m_MsgQueue.push( msg );
-	}
-#elif defined ( USE_GAME_UNIT )
-	void Player::Impl::GreenModeBomb()
+	void Player::GreenModeBomb()
 	{
 		// 無敵時間の設定
 		m_Data.m_RestInvincibleTime = 180;
@@ -476,35 +225,8 @@ namespace GameEngine
 		// メッセージ送信
 		m_pStageData->m_MsgQueue.push( msg );
 	}
-#endif
 
-#if defined ( USE_FLOATING_POINT )
-	void Player::Impl::BlueModeBomb()
-	{
-		// 無敵時間の設定
-		m_Data.m_RestInvincibleTime = 120;
-
-		// メッセージ構築
-		StageMessage msg;
-		// ボム発動メッセージ
-		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
-		// ボムの属性
-		StageMessage::StageMessageData data;
-		data.m_Integer = PLAYER_CONS_MODE_BLUE;
-		msg.m_MsgDataList.push_back( data );
-		// プレイヤーの位置
-		data.m_Float = m_Data.m_PosX;
-		msg.m_MsgDataList.push_back( data );
-		data.m_Float = m_Data.m_PosY;
-		msg.m_MsgDataList.push_back( data );
-		// ボムの持続時間
-		data.m_Integer = m_Data.m_RestInvincibleTime;
-		msg.m_MsgDataList.push_back( data );
-		// メッセージ送信
-		m_pStageData->m_MsgQueue.push( msg );
-	}
-#elif defined ( USE_GAME_UNIT )
-	void Player::Impl::BlueModeBomb()
+	void Player::BlueModeBomb()
 	{
 		// 無敵時間の設定
 		m_Data.m_RestInvincibleTime = 120;
@@ -528,35 +250,8 @@ namespace GameEngine
 		// メッセージ送信
 		m_pStageData->m_MsgQueue.push( msg );
 	}
-#endif
 
-#if defined ( USE_FLOATING_POINT )
-	void Player::Impl::RedModeBomb()
-	{
-		// 無敵時間の設定
-		m_Data.m_RestInvincibleTime = 150;
-
-		// メッセージ構築
-		StageMessage msg;
-		// ボム発動メッセージ
-		msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_PLAYER_BOMBED;
-		// ボムの属性
-		StageMessage::StageMessageData data;
-		data.m_Integer = PLAYER_CONS_MODE_RED;
-		msg.m_MsgDataList.push_back( data );
-		// プレイヤーの位置
-		data.m_Float = m_Data.m_PosX;
-		msg.m_MsgDataList.push_back( data );
-		data.m_Float = m_Data.m_PosY;
-		msg.m_MsgDataList.push_back( data );
-		// ボムの持続時間
-		data.m_Integer = m_Data.m_RestInvincibleTime;
-		msg.m_MsgDataList.push_back( data );
-		// メッセージ送信
-		m_pStageData->m_MsgQueue.push( msg );
-	}
-#elif defined ( USE_GAME_UNIT )
-	void Player::Impl::RedModeBomb()
+	void Player::RedModeBomb()
 	{
 		// 無敵時間の設定
 		m_Data.m_RestInvincibleTime = 150;
@@ -580,9 +275,8 @@ namespace GameEngine
 		// メッセージ送信
 		m_pStageData->m_MsgQueue.push( msg );
 	}
-#endif
 
-	void Player::Impl::AddOpt()
+	void Player::AddOpt()
 	{
 		const int ADD_OPT_COST = 15;		// オプション追加のためのコスト
 		const int OPT_TOTAL_MAX = 4;		// オプション最大数
@@ -608,60 +302,7 @@ namespace GameEngine
 		}
 	}
 
-#if defined ( USE_FLOATING_POINT )
-	void Player::Impl::Move()
-	{
-		const float PLAYER_BASE_VELOCITY = 3.2f;
-
-		// 移動
-		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_RIGHT ) ){
-			if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
-				m_Data.m_PosX += PLAYER_BASE_VELOCITY / 1.414f;
-				m_Data.m_PosY -= PLAYER_BASE_VELOCITY / 1.414f;
-			}
-			else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
-				m_Data.m_PosX += PLAYER_BASE_VELOCITY / 1.414f;
-				m_Data.m_PosY += PLAYER_BASE_VELOCITY / 1.414f;
-			}
-			else{
-				m_Data.m_PosX += PLAYER_BASE_VELOCITY;
-			}
-		}
-		else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_LEFT ) ){
-			if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
-				m_Data.m_PosX -= PLAYER_BASE_VELOCITY / 1.414f;
-				m_Data.m_PosY -= PLAYER_BASE_VELOCITY / 1.414f;
-			}
-			else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
-				m_Data.m_PosX -= PLAYER_BASE_VELOCITY / 1.414f;
-				m_Data.m_PosY += PLAYER_BASE_VELOCITY / 1.414f;
-			}
-			else{
-				m_Data.m_PosX -= PLAYER_BASE_VELOCITY;
-			}
-		}
-		else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_UP ) ){
-			m_Data.m_PosY -= PLAYER_BASE_VELOCITY;
-		}
-		else if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_MOVE_DOWN ) ){
-			m_Data.m_PosY += PLAYER_BASE_VELOCITY;
-		}
-
-		if( m_Data.m_PosX > 512.0f - m_Data.m_ColRadius ){
-			m_Data.m_PosX = 512.0f - m_Data.m_ColRadius;
-		}
-		else if( m_Data.m_PosX < 128.0f + m_Data.m_ColRadius ){
-			m_Data.m_PosX = 128.0f + m_Data.m_ColRadius;
-		}
-		if( m_Data.m_PosY > 470.0f ){
-			m_Data.m_PosY = 470.0f;
-		}
-		else if( m_Data.m_PosY < 0.0f ){
-			m_Data.m_PosY = 0.0f;
-		}
-	}
-#elif defined ( USE_GAME_UNIT )
-	void Player::Impl::Move()
+	void Player::Move()
 	{
 		const GameUnit PLAYER_BASE_VELOCITY = 3.2f;
 
@@ -720,9 +361,8 @@ namespace GameEngine
 			m_Data.m_GUData.m_PosY = GameUnit( 0 );
 		}
 	}
-#endif
 
-	void Player::Impl::ChangeMode()
+	void Player::ChangeMode()
 	{
 		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_GREEN ) ){
 			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
@@ -768,7 +408,7 @@ namespace GameEngine
 		}
 	}
 
-	void Player::Impl::UpdateCons()
+	void Player::UpdateCons()
 	{
 		for( int i = 0; i < 3; ++i ){
 			// 意識レベルの計算
@@ -801,66 +441,18 @@ namespace GameEngine
 		}
 	}
 
-	inline void Player::Impl::AttachButtonState( const ButtonStatusHolder& holder )
+	void Player::AttachButtonState( const ButtonStatusHolder& holder )
 	{
 		m_ButtonStatus = holder;
 	}
 
-#if defined ( USE_FLOATING_POINT )
-
-	void Player::Impl::Draw()
-	{
-		if( m_Data.m_RestInvincibleTime <= 0 || ( m_Data.m_Counter % 3 ) == 0 ){
-			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL ){
-			//	MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
-				//					m_Data.m_PosX, m_Data.m_PosY );
-				MAPIL::AddModelOn2DBatchWork(	m_pResourceMap->m_pGlobalResourceMap->m_ModelMap[ GLOBAL_RESOURCE_MODEL_ID_PLAYER ],
-												m_Data.m_PosX, m_Data.m_PosY, 0.5f,
-												0.05f, 0.05f, 0.05f,
-												MAPIL::DegToRad( 1.0f * ( m_Data.m_Counter % 360 ) ),
-												MAPIL::DegToRad( 1.3f * ( m_Data.m_Counter % 200 ) ),
-												MAPIL::DegToRad( 1.5f * ( m_Data.m_Counter % 540 ) ) );
-			}
-			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
-				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
-									m_Data.m_PosX, m_Data.m_PosY, true, 0xFF55FF55 );
-			}
-			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
-				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
-									m_Data.m_PosX, m_Data.m_PosY, true, 0xFF5555FF );
-			}
-			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED ){
-				MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
-									m_Data.m_PosX, m_Data.m_PosY, true, 0xFFFF5555 );
-			}
-		}
-
-		if( m_Data.m_ConsCur != PLAYER_CONS_MODE_NORMAL ){
-			MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
-								m_Data.m_PosX + 15, m_Data.m_PosY + 20,
-								m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] / 300.0f, 0.3f, false,
-								0xAAAAAAAA );
-			
-		}
-
-		// オプションの描画
-		std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
-		for( ; it != m_PlayerOptList.end(); ++it ){
-			( *it )->Draw();
-		}
-	}
-
-#elif defined ( USE_GAME_UNIT )
-
-	void Player::Impl::Draw()
+	void Player::Draw()
 	{
 		float posX = m_Data.m_GUData.m_PosX.GetFloat();
 		float posY = m_Data.m_GUData.m_PosY.GetFloat();
 
 		if( m_Data.m_RestInvincibleTime <= 0 || ( m_Data.m_Counter % 3 ) == 0 ){
 			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL ){
-			//	MAPIL::DrawTexture(	m_pResourceMap->m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_ID_CRYSTAL_ITEM_TEXTURE ],
-				//					posX, posY );
 				MAPIL::AddModelOn2DBatchWork(	m_pResourceMap->m_pGlobalResourceMap->m_ModelMap[ GLOBAL_RESOURCE_MODEL_ID_PLAYER ],
 												posX, posY, 0.5f,
 												0.05f, 0.05f, 0.05f,
@@ -900,84 +492,8 @@ namespace GameEngine
 			( *it )->Draw();
 		}
 	}
-#endif
 
-#if defined ( USE_FLOATING_POINT )
-	bool Player::Impl::Update()
-	{
-		ChangeMode();
-		Move();
-
-		// ショット
-		if( IsKeepPushed( m_ButtonStatus, GENERAL_BUTTON_SHOT ) ){
-			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_NORMAL || m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] <= 0 ){
-				NormalModeShot();
-			}
-			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN ){
-				GreenModeShot();
-			}
-			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
-				BlueModeShot();
-			}
-			else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED )
-			{
-				RedModeShot();
-			}
-		}
-		
-		// ボム
-		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BOMB ) ){
-			if( m_Data.m_RestInvincibleTime <= 0 ){
-				if( m_Data.m_ConsCur == PLAYER_CONS_MODE_GREEN && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
-					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
-					GreenModeBomb();
-				}
-				else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
-					BlueModeBomb();
-					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
-				}
-				else if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED && m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] >= 500 ){
-					RedModeBomb();
-					m_Data.m_ConsGauge[ m_Data.m_ConsCur - 1 ] -= 500;
-				}
-			}
-		}
-
-		// オプション追加
-		if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_ADD_OPT ) ){
-			AddOpt();
-		}
-
-		UpdateCons();
-
-		// オプションの更新
-		std::list < PlayerOption* > ::iterator it = m_PlayerOptList.begin();
-		for( ; it != m_PlayerOptList.end(); ){
-			( *it )->SetPos( m_Data.m_PosX, m_Data.m_PosY );
-			( *it )->AttachButtonState( m_ButtonStatus );
-			if( !( *it )->Update() ){
-				delete ( *it );
-				it = m_PlayerOptList.erase( it );
-				// 消えたオプション分だけ、ID割り振り変更
-				int count = 0;
-				std::list < PlayerOption* > ::iterator it2 = m_PlayerOptList.begin();
-				for( ; it2 != m_PlayerOptList.end(); ++it2 ){
-					( *it2 )->ChangeID( count );
-					( *it2 )->NotifyOptTotal( m_PlayerOptList.size() );
-					++count;
-				}
-				continue;
-			}
-			++it;
-		}
-
-		--m_Data.m_RestInvincibleTime;
-		++m_Data.m_Counter;
-		
-		return true;
-	}
-#elif defined ( USE_GAME_UNIT )
-	bool Player::Impl::Update()
+	bool Player::Update()
 	{
 		ChangeMode();
 		Move();
@@ -1055,10 +571,13 @@ namespace GameEngine
 		
 		return true;
 	}
-#endif
 	
+	void Player::Colided( CollisionObject* pObject )
+	{
+		pObject->ProcessCollision( this );
+	}
 
-	inline void Player::Impl::ProcessCollision( Enemy* pEnemy )
+	void Player::ProcessCollision( Enemy* pEnemy )
 	{
 		// 無敵時間中
 		if( m_Data.m_RestInvincibleTime > 0 ){
@@ -1110,14 +629,19 @@ namespace GameEngine
 				data.m_Integer = 0;
 				msg.m_MsgDataList.push_back( data );
 				m_pStageData->m_MsgQueue.push( msg );
+				std::for_each(	m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(),
+								[this]( std::shared_ptr < StageView > view ){ view->OnPlayerDestroyed( *this ); } );
 			}
 			// 無敵時間の調整
 			m_Data.m_RestInvincibleTime = INVINCIBLE_TIME;
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED ] );
+
+			std::for_each(	m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(),
+							[this]( std::shared_ptr < StageView > view ){ view->OnPlayerDamaged( *this ); } );
 		}
 	}
 
-	void Player::Impl::ProcessCollision( EnemyShot* pEnemyShot )
+	void Player::ProcessCollision( EnemyShot* pEnemyShot )
 	{
 		// 無敵時間中
 		if( m_Data.m_RestInvincibleTime > 0 ){
@@ -1183,7 +707,7 @@ namespace GameEngine
 		}
 
 		// スコア追加
-		m_pStageData->m_FrameGameData.m_Score += scoreDelta;
+		//m_pStageData->m_FrameGameData.m_Score += scoreDelta;
 
 		// ダメージが発生した時
 		if( damage > 0 ){
@@ -1223,18 +747,24 @@ namespace GameEngine
 				data.m_Integer = 0;
 				msg.m_MsgDataList.push_back( data );
 				m_pStageData->m_MsgQueue.push( msg );
+				std::for_each(	m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(),
+								[this]( std::shared_ptr < StageView > view ){ view->OnPlayerDestroyed( *this ); } );
 			}
 			// 無敵時間の調整
 			m_Data.m_RestInvincibleTime = INVINCIBLE_TIME;
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_SE_ID_PLAYER_DAMAGED ] );
+
+			std::for_each(	m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(),
+							[this]( std::shared_ptr < StageView > view ){ view->OnPlayerDamaged( *this ); } );
 		}
 	}
 
-	void Player::Impl::ProcessCollision( Item* pItem )
+	void Player::ProcessCollision( Item* pItem )
 	{
 		if( pItem->GetItemID() == ITEM_ID_CRYSTAL ){
 			m_pStageData->m_FrameGameData.m_Score += 100 * pItem->GetItemSubID();
 			m_pStageData->m_FrameGameData.m_CrystalTotal += pItem->GetItemSubID();
+			std::for_each( m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(), [pItem]( std::shared_ptr < StageView > view ){ view->OnCrystalObtained( pItem->GetItemSubID() ); } );
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_1_SE ] );
 		}
 		else if( pItem->GetItemID() == ITEM_ID_POWER_UP ){
@@ -1246,247 +776,81 @@ namespace GameEngine
 		}
 		else if( pItem->GetItemID() == ITEM_ID_RECOVER ){
 			++m_Data.m_HP;
-			//if( m_Data.m_HP > 10 ){
-			//	m_Data.m_HP = 10;
-			//}
+			std::for_each(	m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(),
+							[this,pItem]( std::shared_ptr < StageView > view ){ view->OnPlayerObtainedItem( *pItem, *this ); } );
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_2_SE ] );
 		}
 		else if( pItem->GetItemID() == ITEM_ID_CONS_LEVEL_RECOVER ){
 			int subID = pItem->GetItemSubID();
-			//m_Data.m_ConsLevel[ subID ] += 100;
-			//if( m_Data.m_ConsLevel[ subID ] > 1000 ){
-				m_Data.m_ConsLevel[ subID ] = 1000;
-			//}
+			m_Data.m_ConsLevel[ subID ] = 1000;
 			MAPIL::PlayStaticBuffer( m_pResourceMap->m_pGlobalResourceMap->m_SEMap[ GLOBAL_RESOURCE_ID_ITEM_2_SE ] );
 		}
 	}
 
-#if defined ( USE_FLOATING_POINT )
-
-	inline void Player::Impl::GetPos( float* pX, float* pY )
-	{
-		*pX = m_Data.m_PosX;
-		*pY = m_Data.m_PosY;
-	}
-
-	inline float Player::Impl::GetCollisionRadius() const
-	{
-		return m_Data.m_ColRadius;
-	}
-
-#elif defined ( USE_GAME_UNIT )
-
-	void Player::Impl::GetPos( GameUnit* pPosX, GameUnit* pPosY )
+	void Player::GetPos( GameUnit* pPosX, GameUnit* pPosY )
 	{
 		*pPosX = m_Data.m_GUData.m_PosX;
 		*pPosY = m_Data.m_GUData.m_PosY;
 	}
 
-	GameUnit Player::Impl::GetCollisionRadius()
+	GameUnit Player::GetCollisionRadius()
 	{
 		return m_Data.m_GUData.m_ColRadius;
 	}
 
-#endif
-
-	inline int Player::Impl::GetHP() const
+	int Player::GetHP() const
 	{
 		return m_Data.m_HP;
 	}
 
-	inline int Player::Impl::GetConsGauge( int cons ) const
+	int Player::GetConsGauge( int cons ) const
 	{
 		return m_Data.m_ConsGauge[ cons ];
 	}
 
-	inline int Player::Impl::GetConsLevel( int cons ) const
+	int Player::GetConsLevel( int cons ) const
 	{
 		return m_Data.m_ConsLevel[ cons ];
 	}
 
-	inline int Player::Impl::GetShotPower() const
+	int Player::GetShotPower() const
 	{
 		return m_Data.m_ShotPower;
 	}
 
-	inline int Player::Impl::GetCurCons() const
+	int Player::GetCurCons() const
 	{
 		return m_Data.m_ConsCur;
 	}
 
-	inline void Player::Impl::SetPos( const GameUnit& posX, const GameUnit& posY )
+	void Player::SetPos( const GameUnit& posX, const GameUnit& posY )
 	{
 		m_Data.m_GUData.m_PosX = posX;
 		m_Data.m_GUData.m_PosY = posY;
 	}
 
-	inline void Player::Impl::SetHP( int hp )
+	void Player::SetHP( int hp )
 	{
 		m_Data.m_HP = hp;
 	}
 
-	inline void Player::Impl::SetShotPower( int power )
+	void Player::SetShotPower( int power )
 	{
 		m_Data.m_ShotPower = power;
 	}
 
-	inline void Player::Impl::SetConsGauge( int cons, int val )
+	void Player::SetConsGauge( int cons, int val )
 	{
 		m_Data.m_ConsGauge[ cons ] = val;
 	}
 
-	inline void Player::Impl::SetConsLevel( int cons, int level )
+	void Player::SetConsLevel( int cons, int level )
 	{
 		m_Data.m_ConsLevel[ cons ] = level;
 	}
 
-	inline void Player::Impl::SetCons( int cons )
-	{
-		m_Data.m_ConsCur = cons;
-	}
-
-	// ----------------------------------
-	// 実装クラスの呼び出し
-	// ----------------------------------
-
-	Player::Player( std::shared_ptr < ResourceMap > pMap, StageData* pStageData ) :	CollisionObject(),
-																					m_pImpl( new Player::Impl( pMap, pStageData ) )
-	{
-	}
-
-	Player::~Player()
-	{
-	}
-
-	void Player::AttachButtonState( const ButtonStatusHolder& holder )
-	{
-		m_pImpl->AttachButtonState( holder );
-	}
-
-	void Player::Draw()
-	{
-		m_pImpl->Draw();
-	}
-
-	bool Player::Update()
-	{
-		return m_pImpl->Update();
-	}
-
-	void Player::Colided( CollisionObject* pObject )
-	{
-		pObject->ProcessCollision( this );
-	}
-
-	void Player::ProcessCollision( Player* pPlayer )
-	{
-	}
-
-	void Player::ProcessCollision( Enemy* pEnemy )
-	{
-		m_pImpl->ProcessCollision( pEnemy );
-	}
-
-	void Player::ProcessCollision( PlayerShot* pPlayerShot )
-	{
-	}
-
-	void Player::ProcessCollision( EnemyShot* pEnemyShot )
-	{
-		m_pImpl->ProcessCollision( pEnemyShot );
-	}
-
-	void Player::ProcessCollision( Item* pItem )
-	{
-		m_pImpl->ProcessCollision( pItem );
-	}
-
-#if defined ( USE_FLOATING_POINT )
-
-	void Player::Init( float posX, float posY )
-	{
-	}
-
-	void Player::GetPos( float* pPosX, float* pPosY )
-	{
-		m_pImpl->GetPos( pPosX, pPosY );
-	}
-
-	float Player::GetCollisionRadius()
-	{
-		return m_pImpl->GetCollisionRadius();
-	}
-
-#elif defined ( USE_GAME_UNIT )
-
-	void Player::Init( const GameUnit& posX, const GameUnit& posY )
-	{
-	}
-
-	void Player::GetPos( GameUnit* pPosX, GameUnit* pPosY )
-	{
-		m_pImpl->GetPos( pPosX, pPosY );
-	}
-
-	GameUnit Player::GetCollisionRadius()
-	{
-		return m_pImpl->GetCollisionRadius();
-	}
-
-#endif
-
-	int Player::GetHP() const
-	{
-		return m_pImpl->GetHP();
-	}
-
-	int Player::GetConsGauge( int cons ) const
-	{
-		return m_pImpl->GetConsGauge( cons );
-	}
-
-	int Player::GetConsLevel( int cons ) const
-	{
-		return m_pImpl->GetConsLevel( cons );
-	}
-
-	int Player::GetShotPower() const
-	{
-		return m_pImpl->GetShotPower();
-	}
-
-	int Player::GetCurCons() const
-	{
-		return m_pImpl->GetCurCons();
-	}
-
-	void Player::SetPos( const GameUnit& posX, const GameUnit& posY )
-	{
-		m_pImpl->SetPos( posX, posY );
-	}
-
-	void Player::SetHP( int hp )
-	{
-		m_pImpl->SetHP( hp );
-	}
-
-	void Player::SetShotPower( int power )
-	{
-		m_pImpl->SetShotPower( power );
-	}
-
-	void Player::SetConsGauge( int cons, int val )
-	{
-		m_pImpl->SetConsGauge( cons, val );
-	}
-
-	void Player::SetConsLevel( int cons, int level )
-	{
-		m_pImpl->SetConsLevel( cons, level );
-	}
-
 	void Player::SetCons( int cons )
 	{
-		m_pImpl->SetCons( cons );
+		m_Data.m_ConsCur = cons;
 	}
 }
