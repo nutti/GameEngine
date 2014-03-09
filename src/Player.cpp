@@ -377,6 +377,9 @@ namespace GameEngine
 			for( ; it != m_PlayerOptList.end(); ++it ){
 				( *it )->ChangeConsMode( m_Data.m_ConsCur );
 			}
+			// メッセージ通知
+			std::_For_each( m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(),
+							[this]( std::shared_ptr < StageView > view ){ view->OnPlayerChangedCons( *this ); } );
 		}
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_BLUE ) ){
 			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_BLUE ){
@@ -391,6 +394,9 @@ namespace GameEngine
 			for( ; it != m_PlayerOptList.end(); ++it ){
 				( *it )->ChangeConsMode( m_Data.m_ConsCur );
 			}
+			// メッセージ通知
+			std::_For_each( m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(),
+							[this]( std::shared_ptr < StageView > view ){ view->OnPlayerChangedCons( *this ); } );
 		}
 		else if( IsPushed( m_ButtonStatus, GENERAL_BUTTON_RED ) ){
 			if( m_Data.m_ConsCur == PLAYER_CONS_MODE_RED ){
@@ -405,6 +411,9 @@ namespace GameEngine
 			for( ; it != m_PlayerOptList.end(); ++it ){
 				( *it )->ChangeConsMode( m_Data.m_ConsCur );
 			}
+			// メッセージ通知
+			std::_For_each( m_pStageData->m_ViewList.begin(), m_pStageData->m_ViewList.end(),
+							[this]( std::shared_ptr < StageView > view ){ view->OnPlayerChangedCons( *this ); } );
 		}
 	}
 

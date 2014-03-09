@@ -32,7 +32,7 @@ namespace GameEngine
 		virtual void OnPlayerObtainedItem( const Item& item, const Player& player ){}
 		virtual void OnPlayerDamaged( const Player& player ){}
 		virtual void OnPlayerDestroyed( const Player& player ){}
-		virtual void OnPlayerUsedCons( const Player& player ){}
+		virtual void OnPlayerChangedCons( const Player& player ){}
 		virtual void OnEnemyDamaged( const EnemyData& data ){}
 		virtual void OnEnemyDestroyed( const EnemyData& data ){}
 		virtual void OnCrystalObtained( int crystal ){}
@@ -176,8 +176,19 @@ namespace GameEngine
 	{
 	private:
 
-		int					m_StaticCounter;
-		Player*				m_pPlayer;
+		enum Mode
+		{
+			NORMAL,
+			RECOVERED,
+			DAMAGED,
+			CHANGED,
+			TOTAL,
+		};
+
+		int						m_StaticCounter;
+		Player*					m_pPlayer;
+		int						m_Counter[ 3 ];
+		PlayerConsView::Mode	m_Mode[ 3 ];
 	public:
 		PlayerConsView( Player* pPlayer );
 		~PlayerConsView();
@@ -185,7 +196,7 @@ namespace GameEngine
 		void Update();
 		void OnPlayerObtainedItem( const Item& item, const Player& player );
 		void OnPlayerDamaged( const Player& player );
-		void OnPlayerUsedCons( const Player& player );
+		void OnPlayerChangedCons( const Player& player );
 	};
 }
 

@@ -289,43 +289,6 @@ namespace GameEngine
 		// 最後のダメージを受けた時に発行
 		std::for_each(	m_Data.m_pStageData->m_ViewList.begin(), m_Data.m_pStageData->m_ViewList.end(),
 						[this]( std::shared_ptr < StageView > view ){ view->OnEnemyDamaged( m_Data ); } );
-		/*if( !m_SentLastDamagedMsg ){
-			if( m_Data.m_HP > 0 ){
-				StageMessage msg;
-				msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
-				StageMessage::StageMessageData data;
-				data.m_pString = new std::string ( m_Data.m_Name );
-				msg.m_MsgDataList.push_back( data );
-				data.m_Integer = m_Data.m_HP;
-				msg.m_MsgDataList.push_back( data );
-				data.m_Integer = m_Data.m_MaxHP;
-				msg.m_MsgDataList.push_back( data );
-				data.m_Integer = m_Data.m_ConsGauge;
-				msg.m_MsgDataList.push_back( data );
-				data.m_Integer = 200;
-				msg.m_MsgDataList.push_back( data );
-				m_Data.m_pStageData->m_MsgQueue.push( msg );
-				m_SentLastDamagedMsg = true;
-			}
-		}
-		if( m_Data.m_HP <= 0 ){
-			StageMessage msg;
-			msg.m_MsgID = StageMessage::STAGE_MESSAGE_ID_ENEMY_DAMAGED;
-			StageMessage::StageMessageData data;
-			data.m_pString = new std::string ( "" );
-			msg.m_MsgDataList.push_back( data );
-			data.m_Integer = 0;
-			msg.m_MsgDataList.push_back( data );
-			data.m_Integer = 10000;
-			msg.m_MsgDataList.push_back( data );
-			data.m_Integer = 0;
-			msg.m_MsgDataList.push_back( data );
-			data.m_Integer = 10000;
-			msg.m_MsgDataList.push_back( data );
-			m_Data.m_pStageData->m_MsgQueue.push( msg );
-			m_SentLastDamagedMsg = true;
-		}*/
-
 
 		// 撃破時の処理
 		if( m_Data.m_HP <= 0 ){

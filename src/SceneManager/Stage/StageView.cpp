@@ -509,4 +509,126 @@ namespace GameEngine
 			m_Mode = PlayerHPView::Mode::RECOVERED;
 		}
 	}
+
+	//-------------------------------------------
+	// PlayerConsView
+	//-------------------------------------------
+
+	PlayerConsView::PlayerConsView( Player* pPlayer ) :	StageView(),
+														m_pPlayer( pPlayer ),
+														m_StaticCounter( 0 )
+	{
+		for( int i = 0; i < NUM_OF( m_Counter ); ++i ){
+			m_Counter[ i ] = 0;
+			m_Mode[ i ] = PlayerConsView::Mode::NORMAL;
+		}
+	}
+
+	PlayerConsView::~PlayerConsView()
+	{
+	}
+
+	void PlayerConsView::PostDraw() const
+	{
+		const float CONS_GAUGE_OFFSET_X = 37.0f;
+		const float CONS_GAUGE_OFFSET = 26.0f;
+		const float CONS_GAUGE_BASE = 229.0f;
+
+		unsigned int COLOR_1[ 3 ] = { 0x22AA22, 0x5555FF, 0xFF7722 };
+		unsigned int COLOR_2[ 3 ] = { 0x55FF55, 0x5555FF, 0xFF7722 };
+
+		for( int i = 0; i < NUM_OF( m_Counter ); ++i ){
+			MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								CONS_GAUGE_OFFSET_X, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * i,
+								m_pPlayer->GetConsGauge( i ) * 5.0f / 1000.0f, 0.8f,
+								false, ( 255 - ( m_StaticCounter % 30 ) * 2 ) << 24 | COLOR_1[ i ] );
+			if( m_pPlayer->GetCurCons() == i + 1 ){
+				MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+								CONS_GAUGE_OFFSET_X, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * i,
+								m_pPlayer->GetConsGauge( i ) * 5.0f / 1000.0f, 0.8f,
+								false, ( 255 - ( m_StaticCounter % 6 ) * 20 ) << 24 | COLOR_2[ i ]  );
+			}
+		}
+
+		for( int i = 0; i < NUM_OF( m_Counter ); ++i ){
+			int mode = m_Mode[ i ];
+			if( mode == PlayerConsView::NORMAL ){
+				continue;
+			}
+
+			switch( mode ){
+				case PlayerConsView::RECOVERED:
+					MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+										CONS_GAUGE_OFFSET_X, CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * i,
+										m_pPlayer->GetConsGauge( i ) * 5.0f / 1000.0f, 0.8f,
+										false, ( 255 - m_Counter[ i ] * 7 << 24 | COLOR_2[ i ] ) );
+					break;
+				case PlayerConsView::DAMAGED:
+					break;
+				case PlayerConsView::CHANGED:{
+					float scale;
+					const float CENTER_X = 80.0f / 2.0f + CONS_GAUGE_OFFSET_X;
+					const float CENTER_Y = CONS_GAUGE_BASE + CONS_GAUGE_OFFSET * i + 16.0f * 0.8f / 2.0f;
+					scale = 1.0f + 0.2f * m_Counter[ i ] / 20;
+					MAPIL::DrawTexture(	m_ResourceMap.m_pGlobalResourceMap->m_TextureMap[ GLOBAL_RESOURCE_TEXTURE_ID_BAR ],
+										CENTER_X, CENTER_Y,
+										m_pPlayer->GetConsGauge( i ) * 5.0f * scale / 1000.0f, 0.8f * scale,
+										true, ( 255 - m_Counter[ i ] * 7 << 24 | COLOR_2[ i ] ) );
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	}
+
+	void PlayerConsView::Update()
+	{
+		for( int i = 0; i < NUM_OF( m_Counter ); ++i ){
+			--m_Counter[ i ];
+			if( m_Counter[ i ] < 0 ){
+				m_Mode[ i ] = PlayerConsView::NORMAL;
+				m_Counter[ i ] = 0;
+			}
+		}
+
+		++m_StaticCounter;
+	}
+
+	void PlayerConsView::OnPlayerObtainedItem( const Item& item, const Player& player )
+	{
+		int cons;
+
+		cons = item.GetItemSubID() - 1;
+		if( m_Counter[ cons ] > 0 ){
+			return;
+		}
+
+		m_Mode[ cons ] = PlayerConsView::RECOVERED;
+		m_Counter[ cons ] = 20;
+	}
+
+	void PlayerConsView::OnPlayerDamaged( const Player& player )
+	{
+		if( player.GetCurCons() == PLAYER_CONS_MODE_NORMAL ){
+			return;
+		}
+
+		int cons;
+		cons = player.GetCurCons() - 1;
+		m_Mode[ cons ] = PlayerConsView::DAMAGED;
+		m_Counter[ cons ] = 20;
+	}
+
+	void PlayerConsView::OnPlayerChangedCons( const Player& player )
+	{
+		if( player.GetCurCons() == PLAYER_CONS_MODE_NORMAL ){
+			return;
+		}
+
+		int cons;
+		cons = player.GetCurCons() - 1;
+		m_Mode[ cons ] = PlayerConsView::CHANGED;
+		m_Counter[ cons ] = 20;
+	}
 }
